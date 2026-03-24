@@ -48,9 +48,9 @@
               step="0.1"
               value="{{playbackRate}}"
               bindchange="onRateChange"
-              block-size="16"
-              backgroundColor="rgba(255,255,255,0.2)"
-              activeColor="linear-gradient(90deg, #667eea, #764ba2)"
+              block-size="14"
+              backgroundColor="rgba(255,255,255,0.25)"
+              activeColor="#667eea"
             />
             
             <!-- 兔子 - 快速，在右侧 -->

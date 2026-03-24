@@ -68,7 +68,8 @@
 .rate-control-row {
   display: flex;
   align-items: center;
-  gap: 8rpx;
+  justify-content: space-between;
+  width: 100%;
 }
 
 /* 乌龟和兔子图标 */
@@ -94,18 +95,19 @@
 
 /* 乌龟图标（左侧，慢速） */
 .rate-icon:first-child {
-  margin-right: 4rpx;
+  margin-right: 12rpx;
 }
 
 /* 兔子图标（右侧，快速） */
 .rate-icon:last-child {
-  margin-left: 4rpx;
+  margin-left: 12rpx;
 }
 
 .rate-slider {
   flex: 1;
-  margin: 0;
-  min-width: 0;
+  margin: 0 8rpx;
+  min-width: 120rpx;
+  height: 40rpx;
 }
 
 .rate-display {
