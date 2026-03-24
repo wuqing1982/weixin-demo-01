@@ -2,7 +2,8 @@
   "pages": [
     "pages/scene_city/scene",
     "pages/scene/scene",
-    "pages/scene_zoo/scene"
+    "pages/scene_zoo/scene",
+    "pages/scene_bedroom/scene"
   ],
   "window": {
     "navigationBarTitleText": "英语龙",

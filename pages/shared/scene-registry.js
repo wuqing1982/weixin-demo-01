@@ -36,4 +36,10 @@ function getSceneNeighbors(sceneId) {
 module.exports = {
   SCENES,
   getSceneNeighbors
-};
+};,
+  {
+    sceneId: 'bedroom',
+    title: 'bedroom',
+    route: '/pages/scene_bedroom/scene'
+  }
+];
