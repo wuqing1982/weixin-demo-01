@@ -154,10 +154,3 @@
   color: #ffd93d;
 }
 
-.placeholder {
-  display: block;
-  margin-top: 14rpx;
-  font-size: 28rpx;
-  line-height: 1.45;
-  color: rgba(255, 255, 255, 0.78);
-}

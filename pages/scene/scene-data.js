@@ -1,7 +1,7 @@
 const sceneData = {
   sceneId: 'beach_picnic',
   title: '海滩野餐',
-  background: '/assets/images/beach_picnic.png',
+  background: '/assets/images/beach_picnic.jpg',
   items: [
     {
       id: 'wine_glass',

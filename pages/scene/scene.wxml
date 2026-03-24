@@ -21,29 +21,27 @@
           </view>
         </view>
 
-        <view class="overlay {{activeItem ? 'overlay-visible' : ''}}">
+        <view
+          wx:if="{{activeItem}}"
+          class="overlay overlay-visible"
+        >
           <view class="overlay-header">
             <view class="overlay-title-wrap">
-              <text class="word">{{activeItem ? activeItem.word : '点击热点开始学习'}}</text>
-              <text class="ipa">{{activeItem ? activeItem.ipa : ''}}</text>
+              <text class="word">{{activeItem.word}}</text>
+              <text class="ipa">{{activeItem.ipa}}</text>
             </view>
             <button
-              wx:if="{{activeItem}}"
               class="overlay-close"
               bindtap="onCloseOverlay"
             >
-              ✕
+              ×
             </button>
           </view>
 
-          <view wx:if="{{activeItem}}">
+          <view>
             <text class="meaning">{{activeItem.meaning}}</text>
             <text class="sentence">{{activeItem.sentence}}</text>
             <text class="translation">{{activeItem.sentenceTranslation}}</text>
-          </view>
-
-          <view wx:else>
-            <text class="placeholder">点击图片中的热点，查看单词并播放音频。</text>
           </view>
         </view>
       </view>
