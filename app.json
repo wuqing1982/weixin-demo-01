@@ -1,6 +1,7 @@
 {
   "pages": [
-    "pages/scene/scene"
+    "pages/scene/scene",
+    "pages/scene-zoo/scene-zoo"
   ],
   "window": {
     "navigationBarTitleText": "海滩野餐",

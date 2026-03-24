@@ -43,7 +43,8 @@ const sceneData = {
       rect: { l: 10, t: 60, w: 10, h: 10 },
       audio: '/assets/audio/beach_picnic/beach_picnic_en-US-JennyNeural_US_female_basket_the_basket_is_filled_with_flowers.mp3'
     }
-  ]
+  ],
+  verbs: []
 };
 
 module.exports = sceneData;
