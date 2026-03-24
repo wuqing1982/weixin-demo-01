@@ -42,4 +42,10 @@ module.exports = {
     title: 'bedroom',
     route: '/pages/scene_bedroom/scene'
   }
+];,
+  {
+    sceneId: 'fruit_bowl',
+    title: 'fruit_bowl',
+    route: '/pages/scene_fruit_bowl/scene'
+  }
 ];
