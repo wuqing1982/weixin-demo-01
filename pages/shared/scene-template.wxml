@@ -5,8 +5,8 @@
     bindtouchend="onTouchEnd"
   >
     <view class="scene-stage">
-      <view class="scene-topbar">
-        <view class="scene-title-block">
+      <!--<view class="scene-topbar">
+          <view class="scene-title-block">
           <text class="scene-title">{{title}}</text>
           <text class="scene-subtitle">左右滑动切换场景</text>
         </view>
@@ -22,7 +22,7 @@
             bindtap="onTapNextScene"
             disabled="{{!nextScene}}"
           >›</button>
-        </view>
+        </view> 
       </view>
 
       <view class="scene-pager">
@@ -35,7 +35,7 @@
         >
           {{item.title}}
         </view>
-      </view>
+      </view>-->
 
       <view class="scene-frame {{verbs.length ? 'scene-frame-has-verbs' : ''}}">
         <view class="scene-content">
