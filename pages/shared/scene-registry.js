@@ -13,6 +13,11 @@ const SCENES = [
     sceneId: 'zoo',
     title: '动物园',
     route: '/pages/scene_zoo/scene'
+  },
+  {
+    sceneId: 'bedroom',
+    title: 'bedroom',
+    route: '/pages/scene_bedroom/scene'
   }
 ];
 
@@ -36,10 +41,4 @@ function getSceneNeighbors(sceneId) {
 module.exports = {
   SCENES,
   getSceneNeighbors
-};,
-  {
-    sceneId: 'bedroom',
-    title: 'bedroom',
-    route: '/pages/scene_bedroom/scene'
-  }
-];
+};

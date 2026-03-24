@@ -40,6 +40,14 @@
       },
       {
         "type": "file",
+        "value": "11.png"
+      },
+      {
+        "type": "file",
+        "value": "111.jpg"
+      },
+      {
+        "type": "file",
         "value": "project.private.config.json"
       }
     ],
