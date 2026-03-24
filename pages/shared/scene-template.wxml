@@ -31,29 +31,36 @@
 
         <!-- 语速控制 -->
         <view class="toolbar-group rate-group">
-          <view class="rate-presets">
+          <view class="rate-control-row">
+            <!-- 乌龟 - 慢速，在左侧 -->
             <view 
-              class="rate-preset {{playbackRate <= 0.8 ? 'active' : ''}}"
+              class="rate-icon {{playbackRate <= 0.8 ? 'active' : ''}}"
               bindtap="onRatePreset"
               data-rate="0.75"
+              title="慢速"
             >🐢</view>
+            
+            <!-- 滑块 -->
+            <slider 
+              class="rate-slider"
+              min="0.5"
+              max="2"
+              step="0.1"
+              value="{{playbackRate}}"
+              bindchange="onRateChange"
+              block-size="16"
+              backgroundColor="rgba(255,255,255,0.2)"
+              activeColor="linear-gradient(90deg, #667eea, #764ba2)"
+            />
+            
+            <!-- 兔子 - 快速，在右侧 -->
             <view 
-              class="rate-preset {{playbackRate >= 1.2 ? 'active' : ''}}"
+              class="rate-icon {{playbackRate >= 1.2 ? 'active' : ''}}"
               bindtap="onRatePreset"
               data-rate="1.5"
+              title="快速"
             >🐇</view>
           </view>
-          <slider 
-            class="rate-slider"
-            min="0.5"
-            max="2"
-            step="0.1"
-            value="{{playbackRate}}"
-            bindchange="onRateChange"
-            block-size="16"
-            backgroundColor="rgba(255,255,255,0.2)"
-            activeColor="linear-gradient(90deg, #667eea, #764ba2)"
-          />
           <text class="rate-display">{{playbackRate}}x</text>
         </view>
 
