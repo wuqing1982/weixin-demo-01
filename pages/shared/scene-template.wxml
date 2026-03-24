@@ -61,7 +61,7 @@
           <view class="overlay {{activeEntry ? 'overlay-visible' : ''}}">
             <view class="overlay-header">
               <view class="overlay-title-wrap">
-                <text class="word">{{activeEntry ? activeEntry.word : '点击热点开始学习'}}</text>
+                <text class="word">{{activeEntry ? activeEntry.word : ''}}</text> 
                 <text class="ipa">{{activeEntry ? activeEntry.ipa : ''}}</text>
               </view>
               <button
@@ -77,9 +77,7 @@
               <text class="translation">{{activeEntry.sentenceTranslation}}</text>
             </view>
 
-            <view wx:else>
-              <text class="placeholder">点击图片中的热点，查看单词并播放音频。</text>
-            </view>
+
           </view>
 
           <view wx:if="{{verbs.length}}" class="verb-strip">

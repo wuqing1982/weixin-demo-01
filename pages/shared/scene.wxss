@@ -166,8 +166,14 @@
   bottom: 20rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.46));
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  
+  /* 毛玻璃核心样式 start */
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  /* 毛玻璃核心样式 end */
+  
   color: rgba(255, 255, 255, 0.94);
   box-shadow: 0 16rpx 60rpx rgba(0, 0, 0, 0.35);
 }
