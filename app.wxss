@@ -1,0 +1,10 @@
+page {
+  background: #0b0b0c;
+  color: #ffffff;
+}
+
+view,
+text,
+image {
+  box-sizing: border-box;
+}

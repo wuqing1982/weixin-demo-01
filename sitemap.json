@@ -1,0 +1,9 @@
+{
+  "desc": "scene demo sitemap",
+  "rules": [
+    {
+      "action": "allow",
+      "page": "*"
+    }
+  ]
+}

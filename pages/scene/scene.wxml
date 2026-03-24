@@ -1,0 +1,52 @@
+<view class="scene-page">
+  <view class="scene-stage">
+    <view class="scene-frame">
+      <view class="scene-content">
+        <image
+          class="scene-bg"
+          src="{{background}}"
+          mode="aspectFill"
+        />
+
+        <view class="scene-hotspots">
+          <view
+            wx:for="{{items}}"
+            wx:key="id"
+            class="zone {{activeId === item.id ? 'zone-active' : ''}}"
+            style="left: {{item.rect.l}}%; top: {{item.rect.t}}%; width: {{item.rect.w}}%; height: {{item.rect.h}}%;"
+            data-id="{{item.id}}"
+            bindtap="onTapHotspot"
+          >
+            <view class="zone-dot"></view>
+          </view>
+        </view>
+
+        <view class="overlay {{activeItem ? 'overlay-visible' : ''}}">
+          <view class="overlay-header">
+            <view class="overlay-title-wrap">
+              <text class="word">{{activeItem ? activeItem.word : '点击热点开始学习'}}</text>
+              <text class="ipa">{{activeItem ? activeItem.ipa : ''}}</text>
+            </view>
+            <button
+              wx:if="{{activeItem}}"
+              class="overlay-close"
+              bindtap="onCloseOverlay"
+            >
+              ✕
+            </button>
+          </view>
+
+          <view wx:if="{{activeItem}}">
+            <text class="meaning">{{activeItem.meaning}}</text>
+            <text class="sentence">{{activeItem.sentence}}</text>
+            <text class="translation">{{activeItem.sentenceTranslation}}</text>
+          </view>
+
+          <view wx:else>
+            <text class="placeholder">点击图片中的热点，查看单词并播放音频。</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

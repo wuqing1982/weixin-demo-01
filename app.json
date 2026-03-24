@@ -1,0 +1,14 @@
+{
+  "pages": [
+    "pages/scene/scene"
+  ],
+  "window": {
+    "navigationBarTitleText": "海滩野餐",
+    "navigationBarBackgroundColor": "#0b0b0c",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#0b0b0c",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
