@@ -16,16 +16,12 @@
             class="scene-nav-btn"
             bindtap="onTapPrevScene"
             disabled="{{!prevScene}}"
-          >
-            ‹
-          </button>
+          >‹</button>
           <button
             class="scene-nav-btn"
             bindtap="onTapNextScene"
             disabled="{{!nextScene}}"
-          >
-            ›
-          </button>
+          >›</button>
         </view>
       </view>
 
@@ -72,9 +68,7 @@
                 wx:if="{{activeEntry}}"
                 class="overlay-close"
                 bindtap="onCloseOverlay"
-              >
-                ✕
-              </button>
+              >×</button>
             </view>
 
             <view wx:if="{{activeEntry}}">

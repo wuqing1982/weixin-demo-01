@@ -7,7 +7,7 @@ const SCENES = [
   {
     sceneId: 'zoo',
     title: '动物园',
-    route: '/pages/scene-zoo/scene-zoo'
+    route: '/pages/scene_zoo/scene'
   }
 ];
 

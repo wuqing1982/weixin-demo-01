@@ -1,1 +1,1 @@
-@import "../shared/scene.wxss";
+@import "/pages/scene_zoo/scene.wxss";
