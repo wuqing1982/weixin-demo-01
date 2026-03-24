@@ -1,10 +1,11 @@
 {
   "pages": [
+    "pages/scene_city/scene",
     "pages/scene/scene",
     "pages/scene_zoo/scene"
   ],
   "window": {
-    "navigationBarTitleText": "海滩野餐",
+    "navigationBarTitleText": "英语龙",
     "navigationBarBackgroundColor": "#0b0b0c",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#0b0b0c",

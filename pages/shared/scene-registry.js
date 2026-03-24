@@ -1,5 +1,10 @@
 const SCENES = [
   {
+    sceneId: 'cityscape',
+    title: '城市景观',
+    route: '/pages/scene_city/scene'
+  },
+  {
     sceneId: 'beach_picnic',
     title: '海滩野餐',
     route: '/pages/scene/scene'

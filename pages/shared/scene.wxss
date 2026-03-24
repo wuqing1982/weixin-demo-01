@@ -11,92 +11,138 @@
   padding: 28rpx 20rpx 36rpx;
 }
 
-.scene-topbar {
+/* ========== 顶部工具栏 ========== */
+.scene-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20rpx;
+  gap: 16rpx;
   margin-bottom: 20rpx;
+  padding: 16rpx 20rpx;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 20rpx;
+  backdrop-filter: blur(20rpx);
+  -webkit-backdrop-filter: blur(20rpx);
 }
 
-.scene-title-block {
+.toolbar-group {
   display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-  flex: 1;
-  min-width: 0;
-}
-
-.scene-title {
-  display: block;
-  font-size: 40rpx;
-  font-weight: 700;
-  line-height: 1.2;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.scene-subtitle {
-  display: block;
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.66);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.scene-nav {
-  display: flex;
+  align-items: center;
   gap: 12rpx;
+}
+
+.device-group {
   flex-shrink: 0;
 }
 
-.scene-nav-btn {
-  margin: 0;
-  padding: 0;
+.toolbar-btn {
+  width: 64rpx;
+  height: 64rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60rpx;
-  min-width: 60rpx;
-  height: 60rpx;
-  line-height: 60rpx;
   border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  font-size: 34rpx;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 32rpx;
+  transition: all 0.2s ease;
 }
 
-.scene-nav-btn::after {
-  border: 0;
+.toolbar-btn.active {
+  background: rgba(102, 126, 234, 0.6);
+  border-color: rgba(102, 126, 234, 0.9);
+  box-shadow: 0 0 20rpx rgba(102, 126, 234, 0.4);
 }
 
-.scene-nav-btn[disabled] {
-  opacity: 0.36;
-}
-
-.scene-pager {
+/* 语速控制组 */
+.rate-group {
+  flex: 1;
+  min-width: 0;
   display: flex;
-  gap: 12rpx;
-  flex-wrap: wrap;
-  margin-bottom: 20rpx;
+  flex-direction: column;
+  gap: 8rpx;
+  max-width: 300rpx;
 }
 
-.scene-pill {
-  padding: 10rpx 18rpx;
-  border-radius: 999rpx;
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.76);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.rate-presets {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
 }
 
-.scene-pill-active {
-  color: #ffffff;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.66), rgba(66, 153, 225, 0.66));
-  border-color: rgba(255, 255, 255, 0.18);
+.rate-preset {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12rpx;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-size: 28rpx;
+  transition: all 0.2s ease;
+}
+
+.rate-preset.active {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.7), rgba(118, 75, 162, 0.7));
+  border-color: rgba(102, 126, 234, 0.9);
+  box-shadow: 0 0 16rpx rgba(102, 126, 234, 0.4);
+}
+
+.rate-slider {
+  width: 100%;
+  margin: 0;
+}
+
+.rate-display {
+  font-size: 22rpx;
+  color: #667eea;
+  font-weight: 600;
+  text-align: center;
+  min-width: 60rpx;
+}
+
+/* 重复播放按钮 */
+.repeat-btn.active {
+  background: rgba(102, 126, 234, 0.6);
+  border-color: rgba(102, 126, 234, 0.9);
+  box-shadow: 0 0 20rpx rgba(102, 126, 234, 0.4);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 20rpx rgba(102, 126, 234, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 40rpx rgba(102, 126, 234, 0.8);
+  }
+}
+
+/* 摄像头和导出按钮 */
+.camera-btn,
+.export-btn {
+  font-size: 28rpx;
+}
+
+/* ========== 场景框架 ========== */
+.scene-frame-wrapper {
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+/* 平板模式 */
+.frame-tablet {
+  max-width: 75%;
+  margin: 0 auto;
+}
+
+/* 电脑模式 */
+.frame-desktop {
+  max-width: 60%;
+  margin: 0 auto;
 }
 
 .scene-frame {
@@ -285,4 +331,28 @@
 
 .verb-chip-active {
   box-shadow: 0 0 0 4rpx rgba(255, 255, 255, 0.16), 0 12rpx 28rpx rgba(48, 33, 98, 0.32);
+}
+
+/* ========== 响应式适配 ========== */
+@media screen and (max-width: 375px) {
+  .scene-toolbar {
+    padding: 12rpx 16rpx;
+    gap: 12rpx;
+  }
+  
+  .toolbar-btn {
+    width: 56rpx;
+    height: 56rpx;
+    font-size: 28rpx;
+  }
+  
+  .rate-group {
+    max-width: 200rpx;
+  }
+  
+  .rate-preset {
+    width: 40rpx;
+    height: 40rpx;
+    font-size: 24rpx;
+  }
 }

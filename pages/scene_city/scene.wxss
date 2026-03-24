@@ -1,0 +1,10 @@
+@import "../shared/scene.wxss";
+
+/* 城市景观场景特有样式 */
+.scene-city .zone-dot {
+  border-color: rgba(236, 72, 153, 0.95);
+}
+
+.scene-city .zone-active {
+  box-shadow: 0 0 0 4rpx rgba(236, 72, 153, 0.18), 0 0 32rpx rgba(236, 72, 153, 0.28);
+}
