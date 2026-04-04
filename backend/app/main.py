@@ -1,20 +1,48 @@
-from pathlib import Path
-
-from fastapi import FastAPI, HTTPException, Query, Request
+from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from .settings import PUBLIC_BASE_URL
+from .generated_scene_store import GeneratedSceneStore
+from .schemas import SceneGenerateRequest
 from .scene_store import SceneStore
+from .settings import (
+    ASSETS_DIR,
+    CORE100_MODEL,
+    CORE100_ROOT,
+    CORE100_TTS_URL,
+    DEFAULT_MOCK_USER_ID,
+    ENABLE_INLINE_SCENE_WORKER,
+    GENERATED_DIR,
+    GENERATED_SCENES_FILE,
+    PUBLIC_BASE_URL,
+    PUBLIC_SCENES_FILE,
+    TASKS_FILE,
+    UPLOADS_DIR,
+    UPLOADS_FILE,
+    WORKER_POLL_INTERVAL,
+    ZHIPUAI_API_KEY,
+)
+from .task_store import TaskStore
+from .upload_store import UploadStore
+from .worker_runner import InlineSceneWorker
 
 
-BACKEND_ROOT = Path(__file__).resolve().parents[1]
-REPO_ROOT = BACKEND_ROOT.parent
-ASSETS_DIR = REPO_ROOT / 'assets'
-DATA_FILE = BACKEND_ROOT / 'data' / 'scenes.json'
-
-store = SceneStore(DATA_FILE)
+public_store = SceneStore(PUBLIC_SCENES_FILE)
+generated_store = GeneratedSceneStore(GENERATED_SCENES_FILE)
+upload_store = UploadStore(UPLOADS_FILE, UPLOADS_DIR)
+task_store = TaskStore(TASKS_FILE)
+scene_worker = InlineSceneWorker(
+    task_store=task_store,
+    upload_store=upload_store,
+    generated_scene_store=generated_store,
+    generated_root=GENERATED_DIR,
+    core100_root=CORE100_ROOT,
+    tts_url=CORE100_TTS_URL,
+    model=CORE100_MODEL,
+    api_key=ZHIPUAI_API_KEY,
+    poll_interval=WORKER_POLL_INTERVAL,
+)
 
 app = FastAPI(
     title='English Scene API',
@@ -46,6 +74,17 @@ async def handle_http_exception(_: Request, exc: HTTPException):
         'message': str(exc.detail)
     }
     return JSONResponse(status_code=exc.status_code, content=detail)
+
+
+@app.on_event('startup')
+def on_startup():
+    if ENABLE_INLINE_SCENE_WORKER:
+        scene_worker.start()
+
+
+@app.on_event('shutdown')
+def on_shutdown():
+    scene_worker.stop()
 
 
 def asset_url(request: Request, value: str | None) -> str:
@@ -88,10 +127,16 @@ def serialize_scene_detail(request: Request, scene: dict) -> dict:
     }
 
 
+def get_current_user_id(request: Request) -> str:
+    return request.headers.get('X-Debug-User-Id', '').strip() or DEFAULT_MOCK_USER_ID
+
+
 @app.get('/api/health')
 def health():
     return success({
-        'status': 'ok'
+        'status': 'ok',
+        'workerEnabled': ENABLE_INLINE_SCENE_WORKER,
+        'workerMode': 'core100',
     })
 
 
@@ -102,7 +147,7 @@ def list_scenes(
     page: int = Query(default=1, ge=1),
     pageSize: int = Query(default=20, ge=1, le=100)
 ):
-    scenes = store.list_scenes(type)
+    scenes = public_store.list_scenes(type)
     total = len(scenes)
     start = (page - 1) * pageSize
     end = start + pageSize
@@ -118,7 +163,18 @@ def list_scenes(
 
 @app.get('/api/scenes/{scene_id}')
 def get_scene(scene_id: str, request: Request):
-    scene = store.get_scene(scene_id)
+    scene = public_store.get_scene(scene_id)
+    if not scene:
+        scene = generated_store.get_scene(scene_id)
+        if scene and scene.get('meta', {}).get('ownerId') != get_current_user_id(request):
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    'code': 4003,
+                    'message': 'scene access denied'
+                }
+            )
+
     if not scene:
         raise HTTPException(
             status_code=404,
@@ -133,12 +189,123 @@ def get_scene(scene_id: str, request: Request):
 
 @app.get('/api/my/scenes')
 def get_my_scenes(
+    request: Request,
     page: int = Query(default=1, ge=1),
     pageSize: int = Query(default=20, ge=1, le=100)
 ):
+    owner_id = get_current_user_id(request)
+    scenes = generated_store.list_scenes(owner_id)
+    total = len(scenes)
+    start = (page - 1) * pageSize
+    end = start + pageSize
+    page_items = scenes[start:end]
+
     return success({
-        'list': [],
-        'total': 0,
+        'list': [serialize_scene_summary(request, scene) for scene in page_items],
+        'total': total,
         'page': page,
         'pageSize': pageSize
+    })
+
+
+@app.post('/api/uploads/image')
+async def upload_image(request: Request, file: UploadFile = File(...)):
+    owner_id = get_current_user_id(request)
+    content = await file.read()
+
+    if not content:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                'code': 4000,
+                'message': 'empty file'
+            }
+        )
+
+    content_type = file.content_type or ''
+    if content_type and not content_type.startswith('image/'):
+        raise HTTPException(
+            status_code=400,
+            detail={
+                'code': 4000,
+                'message': 'only image upload is supported'
+            }
+        )
+
+    upload = upload_store.create_upload(
+        owner_id=owner_id,
+        filename=file.filename or 'upload.jpg',
+        content_type=content_type,
+        content=content,
+    )
+
+    return success({
+        'uploadId': upload['uploadId'],
+        'fileUrl': asset_url(request, upload['filePath']),
+        'width': upload.get('width'),
+        'height': upload.get('height')
+    })
+
+
+@app.post('/api/my/tasks/scene-generate')
+def create_scene_generate_task(request: Request, payload: SceneGenerateRequest):
+    owner_id = get_current_user_id(request)
+    upload = upload_store.get_upload(payload.uploadId)
+    if not upload:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                'code': 4004,
+                'message': 'upload not found'
+            }
+        )
+
+    if upload.get('ownerId') != owner_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                'code': 4003,
+                'message': 'upload access denied'
+            }
+        )
+
+    task = task_store.create_task(
+        owner_id=owner_id,
+        payload=payload.model_dump(),
+    )
+    return success({
+        'taskId': task['taskId'],
+        'status': task['status']
+    })
+
+
+@app.get('/api/my/tasks/{task_id}')
+def get_scene_generate_task(request: Request, task_id: str):
+    owner_id = get_current_user_id(request)
+    task = task_store.get_task(task_id)
+    if not task:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                'code': 4004,
+                'message': 'task not found'
+            }
+        )
+
+    if task.get('ownerId') != owner_id:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                'code': 4003,
+                'message': 'task access denied'
+            }
+        )
+
+    return success({
+        'taskId': task['taskId'],
+        'status': task['status'],
+        'step': task['step'],
+        'progress': task['progress'],
+        'sceneId': task.get('sceneId', ''),
+        'errorMessage': task.get('errorMessage', '')
     })

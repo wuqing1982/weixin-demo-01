@@ -1,10 +1,9 @@
-const { getMyScenes, getSceneList } = require('../../services/scene');
+const { getMyScenes } = require('../../services/scene');
 
 Page({
   data: {
     loading: true,
     scenes: [],
-    myScenes: [],
     errorMessage: ''
   },
 
@@ -19,27 +18,19 @@ Page({
     });
 
     try {
-      const [publicData, myData] = await Promise.all([
-        getSceneList({
-          type: 'public',
-          page: 1,
-          pageSize: 20
-        }),
-        getMyScenes({
-          page: 1,
-          pageSize: 20
-        })
-      ]);
+      const data = await getMyScenes({
+        page: 1,
+        pageSize: 50
+      });
 
       this.setData({
-        scenes: publicData.list || [],
-        myScenes: myData.list || [],
-        loading: false
+        loading: false,
+        scenes: data.list || []
       });
     } catch (error) {
       this.setData({
         loading: false,
-        errorMessage: error.message || '场景列表加载失败'
+        errorMessage: error.message || '我的场景加载失败'
       });
     }
   },

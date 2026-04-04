@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 
 def _normalize_base_url(value: str | None) -> str:
@@ -7,4 +8,28 @@ def _normalize_base_url(value: str | None) -> str:
     return value.rstrip('/')
 
 
+def _normalize_bool(value: str | None, default: bool = False) -> bool:
+    if value is None:
+        return default
+    return value.strip().lower() in {'1', 'true', 'yes', 'on'}
+
+
+BACKEND_ROOT = Path(__file__).resolve().parents[1]
+REPO_ROOT = BACKEND_ROOT.parent
+ASSETS_DIR = REPO_ROOT / 'assets'
+DATA_DIR = BACKEND_ROOT / 'data'
+CORE100_ROOT = Path(os.getenv('CORE100_ROOT', str(REPO_ROOT.parent / 'core100')))
+PUBLIC_SCENES_FILE = DATA_DIR / 'scenes.json'
+GENERATED_SCENES_FILE = DATA_DIR / 'generated_scenes.json'
+TASKS_FILE = DATA_DIR / 'tasks.json'
+UPLOADS_FILE = DATA_DIR / 'uploads.json'
+UPLOADS_DIR = ASSETS_DIR / 'uploads'
+GENERATED_DIR = ASSETS_DIR / 'generated'
+
 PUBLIC_BASE_URL = _normalize_base_url(os.getenv('PUBLIC_BASE_URL', 'https://e.cps.vin'))
+DEFAULT_MOCK_USER_ID = os.getenv('DEFAULT_MOCK_USER_ID', 'mock_user_001')
+WORKER_POLL_INTERVAL = float(os.getenv('WORKER_POLL_INTERVAL', '2'))
+ENABLE_INLINE_SCENE_WORKER = _normalize_bool(os.getenv('ENABLE_INLINE_SCENE_WORKER'), default=True)
+CORE100_MODEL = (os.getenv('CORE100_MODEL', 'glm-4v-flash') or 'glm-4v-flash').strip()
+CORE100_TTS_URL = _normalize_base_url(os.getenv('CORE100_TTS_URL', 'http://127.0.0.1:5003'))
+ZHIPUAI_API_KEY = (os.getenv('ZHIPUAI_API_KEY', '') or '').strip() or None

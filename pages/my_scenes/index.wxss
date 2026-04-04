@@ -9,19 +9,6 @@
   margin-top: 24rpx;
 }
 
-.section-block {
-  display: flex;
-  flex-direction: column;
-  gap: 20rpx;
-}
-
-.section-heading {
-  display: block;
-  font-size: 28rpx;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.92);
-}
-
 .scene-card {
   overflow: hidden;
 }

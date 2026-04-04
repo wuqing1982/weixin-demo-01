@@ -2,6 +2,8 @@
   "pages": [
     "pages/home/index",
     "pages/library/index",
+    "pages/create_scene/index",
+    "pages/my_scenes/index",
     "pages/scene_runtime/index"
   ],
   "window": {

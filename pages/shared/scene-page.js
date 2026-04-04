@@ -289,11 +289,8 @@ function createScenePage(sceneData) {
     },
 
     onOpenCamera() {
-      wx.showModal({
-        title: '📷 摄像头',
-        content: '摄像头功能开发中...\n\n将支持：\n• 拍照学习\n• AR 场景互动\n• 实时识别',
-        showCancel: false,
-        confirmText: '知道了'
+      wx.navigateTo({
+        url: '/pages/create_scene/index'
       });
     },
 

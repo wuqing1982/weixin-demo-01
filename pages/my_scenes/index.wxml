@@ -1,0 +1,27 @@
+<view class="container">
+  <text class="section-title">我的生成场景</text>
+  <text class="section-subtitle">这里只展示当前调试用户上传并生成成功的私人场景。</text>
+  <button class="btn-secondary create-btn" bindtap="onOpenCreate">继续生成新场景</button>
+
+  <view wx:if="{{loading}}" class="state-card">加载我的场景中...</view>
+
+  <view wx:elif="{{errorMessage}}" class="state-card">{{errorMessage}}</view>
+
+  <view wx:elif="{{!scenes.length}}" class="state-card">还没有生成成功的私人场景，先去上传一张图片。</view>
+
+  <view wx:else class="scene-list">
+    <view
+      wx:for="{{scenes}}"
+      wx:key="sceneId"
+      class="scene-card card"
+      bindtap="onOpenScene"
+      data-scene-id="{{item.sceneId}}"
+    >
+      <image class="scene-cover" src="{{item.coverUrl}}" mode="aspectFill" />
+      <view class="scene-meta">
+        <text class="scene-title">{{item.title}}</text>
+        <text class="scene-desc">{{item.category || 'generated'}} · {{item.visibility}}</text>
+      </view>
+    </view>
+  </view>
+</view>

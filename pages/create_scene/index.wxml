@@ -1,0 +1,50 @@
+<view class="container create-page">
+  <view class="card hero-card">
+    <text class="section-title">拍照生成我的场景</text>
+    <text class="section-subtitle">上传一张图片，后端会分析场景、生成 JSON 和 Jenny 音色音频，再回到小程序里打开。</text>
+  </view>
+
+  <view class="card upload-card">
+    <view class="button-row">
+      <button class="btn-primary flex-btn" bindtap="chooseFromCamera">拍照</button>
+      <button class="btn-secondary flex-btn" bindtap="chooseFromAlbum">从相册选择</button>
+    </view>
+
+    <image wx:if="{{imagePath}}" class="preview-image" src="{{imagePath}}" mode="aspectFill" />
+    <view wx:else class="preview-placeholder">选择一张图片开始生成</view>
+
+    <view class="form-block">
+      <text class="field-label">场景标题</text>
+      <input
+        class="title-input"
+        value="{{sceneTitle}}"
+        placeholder="可选，例如：我的厨房"
+        placeholder-class="placeholder"
+        bindinput="onTitleInput"
+      />
+    </view>
+
+    <view class="form-row">
+      <text class="field-label">生成动词</text>
+      <switch checked="{{includeVerbs}}" color="#667eea" bindchange="onToggleVerbs" />
+    </view>
+
+    <button class="btn-primary submit-btn" loading="{{submitting}}" bindtap="onSubmit">上传并开始生成</button>
+
+    <view wx:if="{{stage !== 'idle'}}" class="task-panel">
+      <text class="task-title">任务状态</text>
+      <text class="task-status">{{taskStatus || stage}}</text>
+      <text class="task-step">{{taskStep || '等待开始'}}</text>
+      <progress percent="{{taskProgress}}" stroke-width="8" activeColor="#667eea" backgroundColor="rgba(255,255,255,0.12)" />
+      <text wx:if="{{taskId}}" class="task-meta">任务 ID：{{taskId}}</text>
+      <text wx:if="{{sceneId}}" class="task-meta">场景 ID：{{sceneId}}</text>
+    </view>
+
+    <text wx:if="{{errorMessage}}" class="error-text">{{errorMessage}}</text>
+
+    <view wx:if="{{stage === 'done' && sceneId}}" class="button-row result-row">
+      <button class="btn-primary flex-btn" bindtap="onOpenScene">打开新场景</button>
+      <button class="btn-secondary flex-btn" bindtap="onOpenMyScenes">查看我的场景</button>
+    </view>
+  </view>
+</view>

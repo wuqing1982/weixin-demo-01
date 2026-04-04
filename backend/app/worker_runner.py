@@ -1,0 +1,224 @@
+import importlib
+import json
+import shutil
+import sys
+import tempfile
+from pathlib import Path
+from threading import Event, Thread
+
+from .generated_scene_store import GeneratedSceneStore
+from .scene_adapter import build_generated_scene_from_core_result
+from .store_utils import build_object_id
+from .task_store import TaskStore
+from .upload_store import UploadStore
+
+
+class InlineSceneWorker:
+    def __init__(
+        self,
+        *,
+        task_store: TaskStore,
+        upload_store: UploadStore,
+        generated_scene_store: GeneratedSceneStore,
+        generated_root: Path,
+        core100_root: Path,
+        tts_url: str,
+        model: str,
+        api_key: str | None = None,
+        poll_interval: float = 2.0,
+    ):
+        self.task_store = task_store
+        self.upload_store = upload_store
+        self.generated_scene_store = generated_scene_store
+        self.generated_root = generated_root
+        self.core100_root = core100_root
+        self.tts_url = tts_url
+        self.model = model
+        self.api_key = api_key
+        self.poll_interval = poll_interval
+        self.stop_event = Event()
+        self.thread: Thread | None = None
+        self.module_cache: dict[str, object] = {}
+        self.generated_root.mkdir(parents=True, exist_ok=True)
+
+    def start(self) -> None:
+        if self.thread and self.thread.is_alive():
+            return
+
+        self.task_store.requeue_unfinished_tasks()
+        self.thread = Thread(target=self._run, name='inline-scene-worker', daemon=True)
+        self.thread.start()
+
+    def stop(self) -> None:
+        self.stop_event.set()
+        if self.thread and self.thread.is_alive():
+            self.thread.join(timeout=5)
+
+    def _run(self) -> None:
+        while not self.stop_event.is_set():
+            task = self.task_store.claim_next_task()
+            if not task:
+                self.stop_event.wait(self.poll_interval)
+                continue
+
+            self._process_task(task)
+
+    def _process_task(self, task: dict) -> None:
+        task_id = task['taskId']
+
+        try:
+            self.task_store.update_task(task_id, step='load_upload', progress=15)
+            upload = self.upload_store.get_upload(task['uploadId'])
+            if not upload:
+                raise RuntimeError('upload not found')
+
+            scene_id = build_object_id('scene_user')
+            self.task_store.update_task(task_id, step='prepare_assets', progress=45, sceneId=scene_id)
+
+            image_asset_path = self._copy_source_image(scene_id, upload)
+            scene_title = task.get('title') or self._derive_title_from_upload(upload)
+
+            self.task_store.update_task(task_id, step='analyze_scene', progress=55, sceneId=scene_id)
+            core_scene = self._analyze_scene(
+                scene_id=scene_id,
+                scene_title=scene_title,
+                task=task,
+                upload=upload,
+            )
+
+            self.task_store.update_task(task_id, step='generate_audio', progress=75, sceneId=scene_id)
+            self._generate_audio(core_scene, task)
+            self._attach_audio_paths(core_scene, task)
+
+            scene = build_generated_scene_from_core_result(
+                scene_id=scene_id,
+                title=scene_title,
+                image_asset_path=image_asset_path,
+                owner_id=task['ownerId'],
+                upload_id=upload['uploadId'],
+                accent=task.get('accent', 'en-US'),
+                gender=task.get('voiceGender', 'female'),
+                voice_name=task.get('voiceName', 'JennyNeural'),
+                core_result=core_scene,
+            )
+
+            self.task_store.update_task(task_id, step='write_scene', progress=90, sceneId=scene_id)
+            self.generated_scene_store.upsert_scene(scene)
+            self.task_store.update_task(
+                task_id,
+                status='done',
+                step='finished',
+                progress=100,
+                sceneId=scene_id,
+                errorMessage='',
+            )
+        except Exception as exc:
+            self.task_store.update_task(
+                task_id,
+                status='failed',
+                step='failed',
+                progress=100,
+                errorMessage=str(exc),
+            )
+
+    def _analyze_scene(self, *, scene_id: str, scene_title: str, task: dict, upload: dict) -> dict:
+        analyze_scene_with_glm4v = self._get_core100_symbol('analyze_scene', 'analyze_scene_with_glm4v')
+        source_path = self.upload_store.resolve_disk_path(upload['filePath'])
+        if not source_path.exists():
+            raise RuntimeError('uploaded source file missing')
+
+        raw_result = analyze_scene_with_glm4v(
+            str(source_path),
+            'auto',
+            api_key=self.api_key,
+            model=self.model,
+            include_verbs=bool(task.get('includeVerbs', True)),
+        )
+        if not isinstance(raw_result, dict):
+            raise RuntimeError('core100 analyze_scene returned invalid payload')
+        if not raw_result.get('hotspots'):
+            raise RuntimeError('core100 analyze_scene returned empty hotspots')
+
+        core_scene = dict(raw_result)
+        core_scene['scene_id'] = scene_id
+        core_scene['scene_title'] = scene_title
+        return core_scene
+
+    def _generate_audio(self, core_scene: dict, task: dict) -> None:
+        accent = task.get('accent', 'en-US')
+        gender = task.get('voiceGender', 'female')
+        if (accent, gender) not in {
+            ('en-US', 'female'),
+            ('en-US', 'male'),
+            ('en-GB', 'female'),
+            ('en-GB', 'male'),
+        }:
+            raise RuntimeError(f'unsupported voice config: {accent}/{gender}')
+
+        generate_scene_audio = self._get_core100_symbol('generate_audio', 'generate_scene_audio')
+        with tempfile.TemporaryDirectory(prefix='scene-worker-') as temp_dir:
+            json_path = Path(temp_dir) / 'scene.json'
+            json_path.write_text(
+                json.dumps(core_scene, ensure_ascii=False, indent=2),
+                encoding='utf-8',
+            )
+            success_count, total_files = generate_scene_audio(
+                str(json_path),
+                tts_url=self.tts_url,
+                output_root=str(self.generated_root),
+                voice_priority=[(accent, gender)],
+            )
+
+        if total_files and success_count != total_files:
+            raise RuntimeError(f'audio generation incomplete: {success_count}/{total_files}')
+
+    def _attach_audio_paths(self, core_scene: dict, task: dict) -> None:
+        build_audio_filename = self._get_core100_symbol('scene_assets', 'build_audio_filename')
+        scene_id = core_scene['scene_id']
+        accent = task.get('accent', 'en-US')
+        gender = task.get('voiceGender', 'female')
+        audio_root = f'/assets/generated/{scene_id}'
+
+        for key in ('hotspots', 'verbs'):
+            entries = core_scene.get(key, [])
+            if not isinstance(entries, list):
+                continue
+            for entry in entries:
+                filename = build_audio_filename(scene_id, accent, gender, entry)
+                entry['audioPath'] = f'{audio_root}/{filename}'
+
+    def _get_core100_symbol(self, module_name: str, symbol_name: str):
+        module = self._load_core100_module(module_name)
+        return getattr(module, symbol_name)
+
+    def _load_core100_module(self, module_name: str):
+        if module_name in self.module_cache:
+            return self.module_cache[module_name]
+
+        if not self.core100_root.exists():
+            raise RuntimeError(f'core100 root not found: {self.core100_root}')
+
+        root = str(self.core100_root)
+        if root not in sys.path:
+            sys.path.insert(0, root)
+
+        module = importlib.import_module(module_name)
+        self.module_cache[module_name] = module
+        return module
+
+    def _derive_title_from_upload(self, upload: dict) -> str:
+        filename = upload.get('originalFilename') or ''
+        stem = Path(filename).stem.strip()
+        return stem or '未命名场景'
+
+    def _copy_source_image(self, scene_id: str, upload: dict) -> str:
+        source_path = self.upload_store.resolve_disk_path(upload['filePath'])
+        if not source_path.exists():
+            raise RuntimeError('uploaded source file missing')
+
+        suffix = source_path.suffix.lower() or '.jpg'
+        scene_dir = self.generated_root / scene_id
+        scene_dir.mkdir(parents=True, exist_ok=True)
+        target_path = scene_dir / f'background{suffix}'
+        shutil.copy2(source_path, target_path)
+        return f"/{target_path.resolve().relative_to(self.generated_root.parents[1]).as_posix()}"
