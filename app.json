@@ -1,12 +1,17 @@
 {
   "pages": [
-    "pages/scene_city/scene",
+    "pages/home/index",
+    "pages/library/index",
+    "pages/scene_runtime/index",
     "pages/scene/scene",
     "pages/scene_zoo/scene",
-    "pages/scene_bedroom/scene"
+    "pages/scene_bedroom/scene",
+    "pages/scene_fruit_bowl/scene",
+    "pages/scene_picnic/scene",
+    "pages/scene_breakfast/scene"
   ],
   "window": {
-    "navigationBarTitleText": "英语龙",
+    "navigationBarTitleText": "\u82f1\u8bed\u573a\u666f",
     "navigationBarBackgroundColor": "#0b0b0c",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#0b0b0c",

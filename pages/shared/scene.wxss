@@ -11,6 +11,10 @@
   padding: 28rpx 20rpx 36rpx;
 }
 
+.scene-page .state-card {
+  margin-top: 28rpx;
+}
+
 /* ========== 顶部工具栏 ========== */
 .scene-toolbar {
   display: flex;

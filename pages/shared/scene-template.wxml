@@ -4,7 +4,11 @@
     bindtouchstart="onTouchStart"
     bindtouchend="onTouchEnd"
   >
-    <view class="scene-stage">
+    <view wx:if="{{loading}}" class="state-card">场景加载中...</view>
+
+    <view wx:elif="{{errorMessage}}" class="state-card">{{errorMessage}}</view>
+
+    <view wx:else class="scene-stage">
       <!-- 顶部工具栏 -->
       <view class="scene-toolbar">
         <!-- 设备切换按钮 -->
@@ -32,15 +36,13 @@
         <!-- 语速控制 -->
         <view class="toolbar-group rate-group">
           <view class="rate-control-row">
-            <!-- 乌龟 - 慢速，在左侧 -->
             <view 
               class="rate-icon {{playbackRate <= 0.8 ? 'active' : ''}}"
               bindtap="onRatePreset"
               data-rate="0.75"
               title="慢速"
             >🐢</view>
-            
-            <!-- 滑块 -->
+
             <slider 
               class="rate-slider"
               min="0.5"
@@ -52,8 +54,7 @@
               backgroundColor="rgba(255,255,255,0.25)"
               activeColor="#667eea"
             />
-            
-            <!-- 兔子 - 快速，在右侧 -->
+
             <view 
               class="rate-icon {{playbackRate >= 1.2 ? 'active' : ''}}"
               bindtap="onRatePreset"
@@ -64,21 +65,18 @@
           <text class="rate-display">{{playbackRate}}x</text>
         </view>
 
-        <!-- 重复播放按钮 -->
         <view 
           class="toolbar-btn repeat-btn {{isLooping ? 'active' : ''}}"
           bindtap="onToggleLoop"
           title="重复播放"
         >🔄</view>
 
-        <!-- 摄像头按钮 -->
         <view 
           class="toolbar-btn camera-btn"
           bindtap="onOpenCamera"
           title="摄像头"
         >📷</view>
 
-        <!-- 导出视频按钮 -->
         <view 
           class="toolbar-btn export-btn"
           bindtap="onExportVideo"

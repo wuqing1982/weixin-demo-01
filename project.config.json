@@ -12,47 +12,65 @@
       "outputPath": ""
     },
     "useCompilerPlugins": false,
-    "minifyWXML": true
+    "minifyWXML": true,
+    "compileWorklet": false,
+    "uploadWithSourceMap": true,
+    "packNpmManually": false,
+    "minifyWXSS": true,
+    "localPlugins": false,
+    "disableUseStrict": false,
+    "condition": false,
+    "swc": false,
+    "disableSWC": true
   },
   "compileType": "miniprogram",
   "simulatorPluginLibVersion": {},
   "packOptions": {
     "ignore": [
       {
-        "type": "file",
-        "value": "assets/images/beach_picnic.png"
+        "value": "assets/images/beach_picnic.png",
+        "type": "file"
       },
       {
-        "type": "folder",
-        "value": "docs"
+        "value": "assets/images/fruit_bowl.png",
+        "type": "file"
       },
       {
-        "type": "folder",
-        "value": "todolist"
+        "value": "assets/images/picnic.png",
+        "type": "file"
       },
       {
-        "type": "file",
-        "value": "README.md"
+        "value": "docs",
+        "type": "folder"
       },
       {
-        "type": "file",
-        "value": "1.jpg"
+        "value": "todolist",
+        "type": "folder"
       },
       {
-        "type": "file",
-        "value": "11.png"
+        "value": "README.md",
+        "type": "file"
       },
       {
-        "type": "file",
-        "value": "111.jpg"
+        "value": "1.jpg",
+        "type": "file"
       },
       {
-        "type": "file",
-        "value": "project.private.config.json"
+        "value": "11.png",
+        "type": "file"
+      },
+      {
+        "value": "111.jpg",
+        "type": "file"
+      },
+      {
+        "value": "project.private.config.json",
+        "type": "file"
       }
     ],
     "include": []
   },
   "appid": "wx8e3f9b18fc8f3241",
-  "editorSetting": {}
+  "editorSetting": {},
+  "libVersion": "3.15.0"
 }

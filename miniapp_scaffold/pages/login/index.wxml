@@ -1,0 +1,8 @@
+<view class="container">
+  <view class="card login-card">
+    <text class="section-title">微信登录</text>
+    <text class="section-subtitle">登录后才能访问私人场景和任务接口。</text>
+    <text wx:if="{{errorMessage}}" class="error-text">{{errorMessage}}</text>
+    <button class="btn-primary" loading="{{loading}}" bindtap="onLogin">使用微信登录</button>
+  </view>
+</view>

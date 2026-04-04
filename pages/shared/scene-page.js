@@ -2,6 +2,7 @@ const { getSceneNeighbors } = require('./scene-registry');
 
 const SWIPE_DISTANCE = 70;
 const SWIPE_VERTICAL_TOLERANCE = 80;
+const DEFAULT_TITLE = '英语场景';
 
 function findEntryById(entries, id) {
   return (entries || []).find((entry) => entry.id === id) || null;
@@ -17,33 +18,75 @@ function normalizeEntry(entry) {
   });
 }
 
+function buildNavigation(sceneId, sceneTabs) {
+  if (sceneTabs && sceneTabs.length) {
+    const index = sceneTabs.findIndex((item) => item.sceneId === sceneId);
+    return {
+      prevScene: index > 0 ? sceneTabs[index - 1] : null,
+      nextScene: index >= 0 && index < sceneTabs.length - 1 ? sceneTabs[index + 1] : null,
+      sceneTabs
+    };
+  }
+
+  if (!sceneId) {
+    return {
+      prevScene: null,
+      nextScene: null,
+      sceneTabs: []
+    };
+  }
+
+  return getSceneNeighbors(sceneId);
+}
+
+function buildSceneState(sceneData) {
+  const safeSceneData = sceneData || {};
+  const navigation = buildNavigation(safeSceneData.sceneId || '', safeSceneData.sceneTabs || null);
+
+  return {
+    sceneId: safeSceneData.sceneId || '',
+    title: safeSceneData.title || '',
+    background: safeSceneData.background || '',
+    items: (safeSceneData.items || []).map(normalizeEntry).filter(Boolean),
+    verbs: (safeSceneData.verbs || []).map(normalizeEntry).filter(Boolean),
+    prevScene: navigation.prevScene,
+    nextScene: navigation.nextScene,
+    sceneTabs: navigation.sceneTabs
+  };
+}
+
 function createScenePage(sceneData) {
-  const { prevScene, nextScene, sceneTabs } = getSceneNeighbors(sceneData.sceneId);
-  const normalizedItems = (sceneData.items || []).map(normalizeEntry);
-  const normalizedVerbs = (sceneData.verbs || []).map(normalizeEntry);
+  const initialState = buildSceneState(sceneData);
 
   return {
     data: {
-      sceneId: sceneData.sceneId,
-      title: sceneData.title,
-      background: sceneData.background,
-      items: normalizedItems,
-      verbs: normalizedVerbs,
+      sceneId: initialState.sceneId,
+      title: initialState.title,
+      background: initialState.background,
+      items: initialState.items,
+      verbs: initialState.verbs,
       activeId: '',
       activeType: '',
       activeEntry: null,
-      prevScene,
-      nextScene,
-      sceneTabs,
-      // 工具栏状态
-      deviceMode: 'mobile', // mobile | tablet | desktop
+      prevScene: initialState.prevScene,
+      nextScene: initialState.nextScene,
+      sceneTabs: initialState.sceneTabs,
+      deviceMode: 'mobile',
       playbackRate: 1.0,
-      isLooping: false
+      isLooping: false,
+      loading: !initialState.sceneId,
+      errorMessage: ''
     },
 
-    onLoad() {
+    initializeScenePage() {
+      if (this.scenePageInitialized) {
+        return;
+      }
+
+      this.scenePageInitialized = true;
+
       wx.setNavigationBarTitle({
-        title: sceneData.title
+        title: this.data.title || DEFAULT_TITLE
       });
 
       this.audioContext = wx.createInnerAudioContext();
@@ -55,7 +98,6 @@ function createScenePage(sceneData) {
         });
       });
 
-      // 尝试从本地存储读取播放速度
       try {
         const savedRate = wx.getStorageSync('preferredPlaybackRate');
         if (savedRate) {
@@ -63,9 +105,13 @@ function createScenePage(sceneData) {
             playbackRate: parseFloat(savedRate) || 1.0
           });
         }
-      } catch (e) {
-        console.log('读取播放速度失败');
+      } catch (error) {
+        console.log('读取播放速度失败', error);
       }
+    },
+
+    onLoad() {
+      this.initializeScenePage();
     },
 
     onHide() {
@@ -74,6 +120,36 @@ function createScenePage(sceneData) {
 
     onUnload() {
       this.destroyAudio();
+    },
+
+    setupScene(nextSceneData) {
+      const nextState = buildSceneState(nextSceneData);
+      this.setData({
+        sceneId: nextState.sceneId,
+        title: nextState.title,
+        background: nextState.background,
+        items: nextState.items,
+        verbs: nextState.verbs,
+        prevScene: nextState.prevScene,
+        nextScene: nextState.nextScene,
+        sceneTabs: nextState.sceneTabs,
+        activeId: '',
+        activeType: '',
+        activeEntry: null,
+        loading: false,
+        errorMessage: ''
+      });
+
+      wx.setNavigationBarTitle({
+        title: nextState.title || DEFAULT_TITLE
+      });
+    },
+
+    setLoadError(message) {
+      this.setData({
+        loading: false,
+        errorMessage: message || '场景加载失败'
+      });
     },
 
     onTouchStart(event) {
@@ -158,9 +234,6 @@ function createScenePage(sceneData) {
       this.navigateToScene(targetScene);
     },
 
-    // ========== 工具栏功能 ==========
-    
-    // 切换设备模式
     onSwitchDevice(event) {
       const { mode } = event.currentTarget.dataset;
       this.setData({
@@ -173,32 +246,28 @@ function createScenePage(sceneData) {
       });
     },
 
-    // 语速滑块变化
     onRateChange(event) {
       const rate = parseFloat(event.detail.value);
       this.setData({
         playbackRate: rate
       });
-      // 保存到本地存储
       try {
         wx.setStorageSync('preferredPlaybackRate', rate.toString());
-      } catch (e) {
-        console.log('保存播放速度失败');
+      } catch (error) {
+        console.log('保存播放速度失败', error);
       }
     },
 
-    // 语速预设按钮
     onRatePreset(event) {
       const { rate } = event.currentTarget.dataset;
       const rateValue = parseFloat(rate);
       this.setData({
         playbackRate: rateValue
       });
-      // 保存到本地存储
       try {
         wx.setStorageSync('preferredPlaybackRate', rate);
-      } catch (e) {
-        console.log('保存播放速度失败');
+      } catch (error) {
+        console.log('保存播放速度失败', error);
       }
       wx.showToast({
         title: rateValue < 1 ? '慢速播放' : '快速播放',
@@ -207,7 +276,6 @@ function createScenePage(sceneData) {
       });
     },
 
-    // 切换循环播放
     onToggleLoop() {
       const newLoopState = !this.data.isLooping;
       this.setData({
@@ -220,7 +288,6 @@ function createScenePage(sceneData) {
       });
     },
 
-    // 打开摄像头（占位功能）
     onOpenCamera() {
       wx.showModal({
         title: '📷 摄像头',
@@ -230,7 +297,6 @@ function createScenePage(sceneData) {
       });
     },
 
-    // 导出视频（占位功能）
     onExportVideo() {
       wx.showModal({
         title: '🎬 导出视频',
@@ -239,8 +305,6 @@ function createScenePage(sceneData) {
         confirmText: '知道了'
       });
     },
-
-    // ========== 核心功能 ==========
 
     activateEntry(entry, type) {
       this.setData({
@@ -253,19 +317,18 @@ function createScenePage(sceneData) {
     },
 
     navigateToScene(scene) {
-      if (!scene || !scene.route || scene.sceneId === this.data.sceneId) {
+      if (!scene || !scene.sceneId || scene.sceneId === this.data.sceneId) {
         return;
       }
 
       this.stopAudio();
       wx.redirectTo({
-        url: scene.route
+        url: scene.route || `/pages/scene_runtime/index?sceneId=${scene.sceneId}`
       });
     },
 
     playAudio(entry) {
       if (!this.audioContext || !entry.audio) {
-        // 如果没有音频文件，使用 TTS 或显示提示
         wx.showToast({
           title: '使用在线语音...',
           icon: 'none',
@@ -275,13 +338,11 @@ function createScenePage(sceneData) {
         return;
       }
 
-      // 设置播放速度
       this.audioContext.playbackRate = this.data.playbackRate;
       this.audioContext.stop();
       this.audioContext.src = entry.audio;
       this.audioContext.play();
 
-      // 如果开启了循环播放，监听播放结束
       if (this.data.isLooping) {
         this.audioContext.onEnded(() => {
           if (this.data.isLooping && this.data.activeId === entry.id) {
@@ -293,9 +354,7 @@ function createScenePage(sceneData) {
       }
     },
 
-    // 模拟 TTS 功能（当没有预录音频时使用）
     simulateTTS(entry) {
-      // 这里可以集成微信的 TTS 或其他语音服务
       console.log('TTS:', entry.word, entry.sentence);
     },
 

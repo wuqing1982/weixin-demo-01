@@ -1,0 +1,16 @@
+<view class="container home-page">
+  <view class="hero card">
+    <text class="section-title">英语场景学习</text>
+    <text class="section-subtitle">公开场景学习 + 私人图片生成，一套 runtime 模板统一渲染。</text>
+    <view class="hero-actions">
+      <button class="btn-primary" bindtap="onOpen" data-url="/pages/create_scene/index">开始创建</button>
+      <button class="btn-secondary" bindtap="onOpen" data-url="/pages/library/index">进入场景库</button>
+    </view>
+  </view>
+  <view class="action-list">
+    <view wx:for="{{actions}}" wx:key="id" class="action-card card" bindtap="onOpen" data-url="{{item.url}}">
+      <text class="action-title">{{item.title}}</text>
+      <text class="action-desc">{{item.desc}}</text>
+    </view>
+  </view>
+</view>

@@ -1,7 +1,7 @@
 const sceneData = {
   sceneId: 'bedroom',
   title: '温馨卧室',
-  background: '/assets/images/bedroom.png',
+  background: '/assets/images/bedroom.jpg',
   items: [
     {id: 'bookshelf', word: 'bookshelf', ipa: '/bʊkˌʃelf/', meaning: '书架', sentence: 'Look at the bookshelf with many books.', sentenceTranslation: '看那个有很多书的书架。', rect: {l: 30.0, t: 40.0, w: 35.0, h: 50.0}, audio: '/assets/audio/bedroom/bedroom_en-US-JennyNeural_US_female_bookshelf_look_at_the_bookshelf_with_many.mp3'},
     {id: 'teddy_bear', word: 'teddy bear', ipa: '/ˈtɛdi ˈbeər/', meaning: '泰迪熊', sentence: 'The teddy bear is hanging on the wall.', sentenceTranslation: '泰迪熊挂在墙上。', rect: {l: 60.0, t: 45.0, w: 20.0, h: 25.0}, audio: '/assets/audio/bedroom/bedroom_en-US-JennyNeural_US_female_teddy_bear_the_teddy_bear_is_hanging_on.mp3'},

@@ -1,0 +1,21 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/library/index",
+    "pages/scene_runtime/index",
+    "pages/create_scene/index",
+    "pages/task_center/index",
+    "pages/my_scenes/index",
+    "pages/profile/index",
+    "pages/login/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "英语场景",
+    "navigationBarBackgroundColor": "#0b0b0c",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#0b0b0c",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

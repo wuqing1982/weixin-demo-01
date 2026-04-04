@@ -1,0 +1,2 @@
+<import src="../shared/scene-template.wxml" />
+<template is="scenePage" data="{{sceneId: sceneId, title: title, background: background, items: items, verbs: verbs, activeId: activeId, activeType: activeType, activeEntry: activeEntry, prevScene: prevScene, nextScene: nextScene, sceneTabs: sceneTabs, deviceMode: deviceMode, playbackRate: playbackRate, isLooping: isLooping, loading: loading, errorMessage: errorMessage}}" />

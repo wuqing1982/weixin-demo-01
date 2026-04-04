@@ -1,0 +1,40 @@
+.task-card,
+.state,
+.recent-item {
+  margin-top: 24rpx;
+  padding: 28rpx;
+}
+
+.task-line {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 26rpx;
+}
+
+.task-error {
+  display: block;
+  margin-top: 16rpx;
+  color: #ff7f7f;
+  font-size: 24rpx;
+}
+
+.recent-wrap {
+  margin-top: 28rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.recent-title {
+  font-size: 28rpx;
+  font-weight: 700;
+}
+
+.recent-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.recent-status {
+  color: rgba(255,255,255,.72);
+}

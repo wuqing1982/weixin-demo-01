@@ -1,0 +1,11 @@
+<view class="container">
+  <text class="section-title">我的资料</text>
+  <text class="section-subtitle">查看登录状态和会员信息。</text>
+  <view class="card profile-card">
+    <text wx:if="{{user}}" class="profile-line">昵称：{{user.nickname}}</text>
+    <text wx:if="{{user}}" class="profile-line">会员状态：{{user.membershipStatus}}</text>
+    <text wx:if="{{user && user.membershipExpireAt}}" class="profile-line">会员到期：{{user.membershipExpireAt}}</text>
+    <text wx:if="{{errorMessage}}" class="error-text">{{errorMessage}}</text>
+    <button class="btn-primary" bindtap="onGoLogin">微信登录</button>
+  </view>
+</view>

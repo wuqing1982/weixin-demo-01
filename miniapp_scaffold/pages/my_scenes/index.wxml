@@ -1,0 +1,16 @@
+<view class="container">
+  <text class="section-title">我的场景</text>
+  <text class="section-subtitle">只显示当前用户自己的私人场景。</text>
+  <view wx:if="{{loading}}" class="state card">加载中...</view>
+  <view wx:elif="{{errorMessage}}" class="state card">{{errorMessage}}</view>
+  <view wx:elif="{{!scenes.length}}" class="state card">还没有私人场景，先去创建一个。</view>
+  <view wx:else class="scene-list">
+    <view wx:for="{{scenes}}" wx:key="sceneId" class="scene-card card" bindtap="onOpenScene" data-scene-id="{{item.sceneId}}">
+      <image class="scene-cover" src="{{item.coverUrl}}" mode="aspectFill" />
+      <view class="scene-meta">
+        <text class="scene-title">{{item.title}}</text>
+        <text class="scene-desc">{{item.sceneType}}</text>
+      </view>
+    </view>
+  </view>
+</view>

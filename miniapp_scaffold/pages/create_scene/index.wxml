@@ -1,0 +1,10 @@
+<view class="container create-page">
+  <text class="section-title">创建私人场景</text>
+  <text class="section-subtitle">拍照或上传图片，提交到后端生成专属英语学习场景。</text>
+  <view class="card upload-card">
+    <button class="btn-secondary" bindtap="chooseImage">选择图片</button>
+    <image wx:if="{{imagePath}}" class="preview" src="{{imagePath}}" mode="aspectFit" />
+    <text wx:if="{{errorMessage}}" class="error-text">{{errorMessage}}</text>
+    <button class="btn-primary" loading="{{uploading}}" bindtap="submitTask">上传并创建任务</button>
+  </view>
+</view>

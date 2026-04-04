@@ -1,0 +1,15 @@
+<view class="container">
+  <text class="section-title">公开场景库</text>
+  <text class="section-subtitle">会员可访问的预生成场景。</text>
+  <view wx:if="{{loading}}" class="state card">加载中...</view>
+  <view wx:elif="{{errorMessage}}" class="state card">{{errorMessage}}</view>
+  <view wx:else class="scene-list">
+    <view wx:for="{{scenes}}" wx:key="sceneId" class="scene-card card" bindtap="onOpenScene" data-scene-id="{{item.sceneId}}">
+      <image class="scene-cover" src="{{item.coverUrl}}" mode="aspectFill" />
+      <view class="scene-meta">
+        <text class="scene-title">{{item.title}}</text>
+        <text class="scene-desc">{{item.category}} · {{item.visibility}}</text>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,254 @@
+{
+  "scenes": [
+    {
+      "sceneId": "scene_breakfast",
+      "title": "营养早餐",
+      "category": "food",
+      "visibility": "member",
+      "sceneType": "public",
+      "coverPath": "/assets/images/breakfast.jpg",
+      "backgroundPath": "/assets/images/breakfast.jpg",
+      "items": [
+        {
+          "id": "porridge",
+          "word": "porridge",
+          "ipa": "/ˈpɒrɪdʒ/",
+          "meaning": "粥",
+          "sentence": "I eat porridge for breakfast.",
+          "sentenceTranslation": "我早餐吃粥。",
+          "rect": {
+            "l": 13.5,
+            "t": 24.5,
+            "w": 50.2,
+            "h": 15.0
+          },
+          "audioPath": "/assets/audio/breakfast/breakfast_en-US-JennyNeural_US_female_porridge_i_eat_porridge_for_breakfast.mp3"
+        },
+        {
+          "id": "corn",
+          "word": "corn",
+          "ipa": "/kɔːrn/",
+          "meaning": "玉米",
+          "sentence": "There is a corn on the plate.",
+          "sentenceTranslation": "盘子里有一根玉米。",
+          "rect": {
+            "l": 70.8,
+            "t": 45.8,
+            "w": 30.2,
+            "h": 25.0
+          },
+          "audioPath": "/assets/audio/breakfast/breakfast_en-US-JennyNeural_US_female_corn_there_is_a_corn_on_the.mp3"
+        },
+        {
+          "id": "sweet_potato",
+          "word": "sweet potato",
+          "ipa": "/ˌswiːt pəˈteɪtoʊ/",
+          "meaning": "红薯",
+          "sentence": "The sweet potato is brown and orange.",
+          "sentenceTranslation": "红薯是棕色和橙色的。",
+          "rect": {
+            "l": 48.2,
+            "t": 47.2,
+            "w": 25.0,
+            "h": 20.0
+          },
+          "audioPath": "/assets/audio/breakfast/breakfast_en-US-JennyNeural_US_female_sweet_potato_the_sweet_potato_is_brown_and.mp3"
+        },
+        {
+          "id": "boiled_egg",
+          "word": "boiled egg",
+          "ipa": "/bɔɪld eɡ/",
+          "meaning": "煮鸡蛋",
+          "sentence": "I have two boiled eggs.",
+          "sentenceTranslation": "我有两个煮鸡蛋。",
+          "rect": {
+            "l": 49.6,
+            "t": 62.0,
+            "w": 22.0,
+            "h": 15.0
+          },
+          "audioPath": "/assets/audio/breakfast/breakfast_en-US-JennyNeural_US_female_boiled_egg_i_have_two_boiled_eggs.mp3"
+        },
+        {
+          "id": "dumpling",
+          "word": "dumpling",
+          "ipa": "/ˈdʌmplɪŋ/",
+          "meaning": "饺子",
+          "sentence": "There are two dumplings on the plate.",
+          "sentenceTranslation": "盘子里有两个饺子。",
+          "rect": {
+            "l": 56.0,
+            "t": 71.2,
+            "w": 25.0,
+            "h": 15.0
+          },
+          "audioPath": "/assets/audio/breakfast/breakfast_en-US-JennyNeural_US_female_dumpling_there_are_two_dumplings_on_the.mp3"
+        }
+      ],
+      "verbs": [
+        {
+          "id": "v1",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "I eat boiled eggs.",
+          "sentenceTranslation": "我吃煮鸡蛋。",
+          "audioPath": "/assets/audio/breakfast/breakfast_en-US-JennyNeural_US_female_v1_i_eat_boiled_eggs.mp3"
+        },
+        {
+          "id": "v2",
+          "word": "cook",
+          "ipa": "/kʊk/",
+          "meaning": "煮",
+          "sentence": "We cook porridge for breakfast.",
+          "sentenceTranslation": "我们煮粥当早餐。",
+          "audioPath": "/assets/audio/breakfast/breakfast_en-US-JennyNeural_US_female_v2_we_cook_porridge_for_breakfast.mp3"
+        },
+        {
+          "id": "v3",
+          "word": "peel",
+          "ipa": "/piːl/",
+          "meaning": "剥皮",
+          "sentence": "Let's peel the sweet potato.",
+          "sentenceTranslation": "我们来给红薯剥皮。",
+          "audioPath": "/assets/audio/breakfast/breakfast_en-US-JennyNeural_US_female_v3_lets_peel_the_sweet_potato.mp3"
+        }
+      ],
+      "meta": {
+        "sceneType": "public",
+        "visibility": "member",
+        "version": 1,
+        "category": "food",
+        "tags": [
+          "breakfast",
+          "food"
+        ]
+      }
+    },
+    {
+      "sceneId": "scene_zoo",
+      "title": "动物园",
+      "category": "animals",
+      "visibility": "member",
+      "sceneType": "public",
+      "coverPath": "/assets/images/zoo.jpg",
+      "backgroundPath": "/assets/images/zoo.jpg",
+      "items": [
+        {
+          "id": "panda_1",
+          "word": "panda",
+          "ipa": "/ˈpændə/",
+          "meaning": "熊猫",
+          "sentence": "The panda is sitting on the swing.",
+          "sentenceTranslation": "熊猫正坐在秋千上。",
+          "rect": {
+            "l": 60.0,
+            "t": 50.0,
+            "w": 20.0,
+            "h": 20.0
+          },
+          "audioPath": "/assets/audio/zoo/zoo_en-US-JennyNeural_US_female_panda_1_the_panda_is_sitting_on_the.mp3"
+        },
+        {
+          "id": "panda_2",
+          "word": "swing",
+          "ipa": "/swɪŋ/",
+          "meaning": "秋千",
+          "sentence": "The panda is playing on the swing.",
+          "sentenceTranslation": "熊猫正在秋千上玩耍。",
+          "rect": {
+            "l": 40.0,
+            "t": 70.0,
+            "w": 30.0,
+            "h": 30.0
+          },
+          "audioPath": "/assets/audio/zoo/zoo_en-US-JennyNeural_US_female_panda_2_the_panda_is_playing_on_the.mp3"
+        },
+        {
+          "id": "building",
+          "word": "building",
+          "ipa": "/ˈbɪldɪŋ/",
+          "meaning": "建筑",
+          "sentence": "The building is behind the pandas.",
+          "sentenceTranslation": "建筑在熊猫后面。",
+          "rect": {
+            "l": 10.0,
+            "t": 10.0,
+            "w": 40.0,
+            "h": 40.0
+          },
+          "audioPath": "/assets/audio/zoo/zoo_en-US-JennyNeural_US_female_building_the_building_is_behind_the_pandas.mp3"
+        },
+        {
+          "id": "grass",
+          "word": "grass",
+          "ipa": "/ɡræs/",
+          "meaning": "草地",
+          "sentence": "The grass is green and lush.",
+          "sentenceTranslation": "草地又绿又茂盛。",
+          "rect": {
+            "l": 10.0,
+            "t": 50.0,
+            "w": 30.0,
+            "h": 30.0
+          },
+          "audioPath": "/assets/audio/zoo/zoo_en-US-JennyNeural_US_female_grass_the_grass_is_green_and_lush.mp3"
+        },
+        {
+          "id": "tire",
+          "word": "tire",
+          "ipa": "/taɪər/",
+          "meaning": "轮胎",
+          "sentence": "There are two tires on the ground.",
+          "sentenceTranslation": "地上有两个轮胎。",
+          "rect": {
+            "l": 80.0,
+            "t": 90.0,
+            "w": 10.0,
+            "h": 10.0
+          },
+          "audioPath": "/assets/audio/zoo/zoo_en-US-JennyNeural_US_female_tire_there_are_two_tires_on_the.mp3"
+        }
+      ],
+      "verbs": [
+        {
+          "id": "play",
+          "word": "play",
+          "ipa": "/pleɪ/",
+          "meaning": "玩",
+          "sentence": "The panda plays on the swing.",
+          "sentenceTranslation": "熊猫在秋千上玩。",
+          "audioPath": "/assets/audio/zoo/zoo_en-US-JennyNeural_US_female_play_the_panda_plays_on_the_swing.mp3"
+        },
+        {
+          "id": "sit",
+          "word": "sit",
+          "ipa": "/sɪt/",
+          "meaning": "坐",
+          "sentence": "The panda sits on the swing.",
+          "sentenceTranslation": "熊猫坐在秋千上。",
+          "audioPath": "/assets/audio/zoo/zoo_en-US-JennyNeural_US_female_sit_the_panda_sits_on_the_swing.mp3"
+        },
+        {
+          "id": "eat",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "The panda eats bamboo while sitting on the swing.",
+          "sentenceTranslation": "熊猫坐在秋千上一边吃竹子。",
+          "audioPath": "/assets/audio/zoo/zoo_en-US-JennyNeural_US_female_eat_the_panda_eats_bamboo_while_sitting.mp3"
+        }
+      ],
+      "meta": {
+        "sceneType": "public",
+        "visibility": "member",
+        "version": 1,
+        "category": "animals",
+        "tags": [
+          "zoo",
+          "animals"
+        ]
+      }
+    }
+  ]
+}

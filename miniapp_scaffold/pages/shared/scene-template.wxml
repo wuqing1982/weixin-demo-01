@@ -1,0 +1,77 @@
+<template name="scenePage">
+  <view class="scene-page" bindtouchstart="onTouchStart" bindtouchend="onTouchEnd">
+    <view wx:if="{{loading}}" class="state-card">加载场景中...</view>
+    <view wx:elif="{{errorMessage}}" class="state-card">{{errorMessage}}</view>
+    <view wx:else class="scene-stage">
+      <view class="scene-toolbar">
+        <view class="toolbar-group device-group">
+          <view class="toolbar-btn {{deviceMode === 'mobile' ? 'active' : ''}}" bindtap="onSwitchDevice" data-mode="mobile">手机</view>
+          <view class="toolbar-btn {{deviceMode === 'tablet' ? 'active' : ''}}" bindtap="onSwitchDevice" data-mode="tablet">平板</view>
+          <view class="toolbar-btn {{deviceMode === 'desktop' ? 'active' : ''}}" bindtap="onSwitchDevice" data-mode="desktop">桌面</view>
+        </view>
+        <view class="toolbar-group rate-group">
+          <view class="rate-control-row">
+            <view class="rate-icon" bindtap="onRatePreset" data-rate="0.75">慢</view>
+            <slider class="rate-slider" min="0.5" max="2" step="0.1" value="{{playbackRate}}" bindchange="onRateChange" block-size="14" backgroundColor="rgba(255,255,255,0.25)" activeColor="#667eea" />
+            <view class="rate-icon" bindtap="onRatePreset" data-rate="1.5">快</view>
+          </view>
+          <text class="rate-display">{{playbackRate}}x</text>
+        </view>
+        <view class="toolbar-btn {{isLooping ? 'active' : ''}}" bindtap="onToggleLoop">循环</view>
+      </view>
+
+      <view class="scene-tabs">
+        <view
+          wx:for="{{sceneTabs}}"
+          wx:key="sceneId"
+          class="scene-pill {{item.sceneId === sceneId ? 'scene-pill-active' : ''}}"
+          data-scene-id="{{item.sceneId}}"
+          bindtap="onTapScenePill"
+        >{{item.title}}</view>
+      </view>
+
+      <view class="scene-frame-wrapper {{deviceMode === 'tablet' ? 'frame-tablet' : ''}} {{deviceMode === 'desktop' ? 'frame-desktop' : ''}}">
+        <view class="scene-frame {{verbs.length ? 'scene-frame-has-verbs' : ''}}">
+          <view class="scene-content">
+            <image class="scene-bg" src="{{background}}" mode="aspectFill" />
+            <view class="scene-hotspots">
+              <view
+                wx:for="{{items}}"
+                wx:key="id"
+                class="zone {{activeType === 'item' && activeId === item.id ? 'zone-active' : ''}}"
+                style="left: {{item.rect.l}}%; top: {{item.rect.t}}%; width: {{item.rect.w}}%; height: {{item.rect.h}}%;"
+                data-id="{{item.id}}"
+                bindtap="onTapHotspot"
+              >
+                <view class="zone-dot"></view>
+              </view>
+            </view>
+
+            <view wx:if="{{activeEntry}}" class="overlay">
+              <view class="overlay-header">
+                <view class="overlay-title-wrap">
+                  <text class="word">{{activeEntry.word}}</text>
+                  <text class="ipa">{{activeEntry.ipa}}</text>
+                </view>
+                <button class="overlay-close" bindtap="onCloseOverlay">×</button>
+              </view>
+              <text class="meaning">{{activeEntry.meaning}}</text>
+              <text class="sentence">{{activeEntry.sentence}}</text>
+              <text class="translation">{{activeEntry.sentenceTranslation}}</text>
+            </view>
+
+            <view wx:if="{{verbs.length}}" class="verb-strip">
+              <view
+                wx:for="{{verbs}}"
+                wx:key="id"
+                class="verb-chip {{activeType === 'verb' && activeId === item.id ? 'verb-chip-active' : ''}}"
+                data-id="{{item.id}}"
+                bindtap="onTapVerb"
+              >{{item.word}}</view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</template>

@@ -1,0 +1,17 @@
+<view class="container home-page">
+  <view class="hero card">
+    <text class="section-title">英语场景前后端联调</text>
+    <text class="section-subtitle">当前前端模板已经改成 API 驱动，先跑通场景列表、场景详情、图片和音频。</text>
+    <view class="hero-actions">
+      <button class="btn-primary" bindtap="onOpen" data-url="/pages/library/index">进入场景库</button>
+      <button class="btn-secondary" bindtap="onOpen" data-url="/pages/scene_runtime/index?sceneId=scene_breakfast">打开示例场景</button>
+    </view>
+  </view>
+
+  <view class="action-list">
+    <view wx:for="{{actions}}" wx:key="id" class="action-card card" bindtap="onOpen" data-url="{{item.url}}">
+      <text class="action-title">{{item.title}}</text>
+      <text class="action-desc">{{item.desc}}</text>
+    </view>
+  </view>
+</view>

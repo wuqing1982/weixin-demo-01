@@ -1,0 +1,21 @@
+<view class="container">
+  <text class="section-title">任务中心</text>
+  <text class="section-subtitle">查看图片生成任务的进度和结果。</text>
+  <view wx:if="{{loading}}" class="state card">加载中...</view>
+  <view wx:elif="{{errorMessage}}" class="state card">{{errorMessage}}</view>
+  <view wx:elif="{{task}}" class="card task-card">
+    <text class="task-line">任务 ID：{{task.jobId}}</text>
+    <text class="task-line">状态：{{task.status}}</text>
+    <text class="task-line">阶段：{{task.currentStage}}</text>
+    <text class="task-line">进度：{{task.progress}}%</text>
+    <text wx:if="{{task.errorMessage}}" class="task-error">{{task.errorMessage}}</text>
+    <button wx:if="{{task.result.sceneId}}" class="btn-primary" bindtap="onOpenScene">打开场景</button>
+  </view>
+  <view class="recent-wrap">
+    <text class="recent-title">最近任务</text>
+    <view wx:for="{{recentTasks}}" wx:key="jobId" class="recent-item card" bindtap="onOpenRecent" data-job-id="{{item.jobId}}">
+      <text>{{item.jobId}}</text>
+      <text class="recent-status">{{item.status}}</text>
+    </view>
+  </view>
+</view>

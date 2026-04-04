@@ -1,0 +1,4 @@
+.create-page { display: flex; flex-direction: column; gap: 24rpx; }
+.upload-card { display: flex; flex-direction: column; gap: 20rpx; padding: 28rpx; margin-top: 24rpx; }
+.preview { width: 100%; height: 520rpx; border-radius: 24rpx; background: rgba(255,255,255,.04); }
+.error-text { color: #ff7f7f; font-size: 24rpx; }
