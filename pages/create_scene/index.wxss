@@ -9,6 +9,14 @@
   padding: 28rpx;
 }
 
+.tip-text {
+  display: block;
+  margin-bottom: 20rpx;
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.72);
+}
+
 .button-row {
   display: flex;
   gap: 16rpx;
@@ -80,10 +88,27 @@
   margin-top: 28rpx;
 }
 
+.compress-panel,
 .task-panel {
   display: flex;
   flex-direction: column;
   gap: 12rpx;
+}
+
+.compress-panel {
+  margin-top: 24rpx;
+  padding: 24rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.compress-meta {
+  display: block;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.task-panel {
   padding: 24rpx;
   border-radius: 24rpx;
   background: rgba(255, 255, 255, 0.06);
@@ -109,4 +134,12 @@
 
 .result-row {
   margin-top: 24rpx;
+}
+
+.hidden-canvas {
+  position: fixed;
+  left: -9999px;
+  top: -9999px;
+  opacity: 0;
+  pointer-events: none;
 }

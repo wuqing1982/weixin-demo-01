@@ -5,6 +5,8 @@
   </view>
 
   <view class="card upload-card">
+    <text class="tip-text">上传前会在手机端先压缩，并统一转成 JPG，减少上传流量和后端处理负担。</text>
+
     <view class="button-row">
       <button class="btn-primary flex-btn" bindtap="chooseFromCamera">拍照</button>
       <button class="btn-secondary flex-btn" bindtap="chooseFromAlbum">从相册选择</button>
@@ -31,6 +33,15 @@
 
     <button class="btn-primary submit-btn" loading="{{submitting}}" bindtap="onSubmit">上传并开始生成</button>
 
+    <view wx:if="{{sourceSizeText || optimizedSizeText || compressNote}}" class="compress-panel">
+      <text wx:if="{{sourceDimensionsText}}" class="compress-meta">原图尺寸：{{sourceDimensionsText}}</text>
+      <text wx:if="{{optimizedDimensionsText}}" class="compress-meta">上传尺寸：{{optimizedDimensionsText}}</text>
+      <text wx:if="{{sourceSizeText}}" class="compress-meta">原图大小：{{sourceSizeText}}</text>
+      <text wx:if="{{optimizedSizeText}}" class="compress-meta">上传大小：{{optimizedSizeText}}</text>
+      <text wx:if="{{compressRatioText}}" class="compress-meta">体积变化：{{compressRatioText}}</text>
+      <text wx:if="{{compressNote}}" class="compress-meta">{{compressNote}}</text>
+    </view>
+
     <view wx:if="{{stage !== 'idle'}}" class="task-panel">
       <text class="task-title">任务状态</text>
       <text class="task-status">{{taskStatus || stage}}</text>
@@ -47,4 +58,10 @@
       <button class="btn-secondary flex-btn" bindtap="onOpenMyScenes">查看我的场景</button>
     </view>
   </view>
+
+  <canvas
+    canvas-id="upload-compress-canvas"
+    class="hidden-canvas"
+    style="width: {{canvasWidth}}px; height: {{canvasHeight}}px;"
+  />
 </view>
