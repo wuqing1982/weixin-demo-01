@@ -28,6 +28,38 @@
   "packOptions": {
     "ignore": [
       {
+        "value": ".codex",
+        "type": "folder"
+      },
+      {
+        "value": ".venv",
+        "type": "folder"
+      },
+      {
+        "value": "backend",
+        "type": "folder"
+      },
+      {
+        "value": "miniapp_scaffold",
+        "type": "folder"
+      },
+      {
+        "value": "assets/audio",
+        "type": "folder"
+      },
+      {
+        "value": "assets/generated",
+        "type": "folder"
+      },
+      {
+        "value": "assets/images",
+        "type": "folder"
+      },
+      {
+        "value": "assets/uploads",
+        "type": "folder"
+      },
+      {
         "value": "assets/images/beach_picnic.png",
         "type": "file"
       },
