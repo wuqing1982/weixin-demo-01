@@ -248,3 +248,23 @@ https://e.cps.vin/assets/images/breakfast.jpg
 2. 在服务器 `git pull` 并跑通 `127.0.0.1:8000/api/health`。
 3. 再让 Nginx 跑通 `https://e.cps.vin/api/health`。
 4. 最后再开微信开发者工具做前后端联调。
+
+## 当前 VPS 落地状态
+
+到 2026-04-04 为止，当前服务器不是手工临时运行 FastAPI，而是已经切到 `systemd`：
+
+- 服务名：`weixin-demo-api.service`
+- 后端本机监听：`127.0.0.1:8000`
+- 外网入口：`https://e.cps.vin/api`、`https://e.cps.vin/assets`
+
+常用命令：
+
+```bash
+systemctl status weixin-demo-api.service --no-pager -l
+systemctl restart weixin-demo-api.service
+journalctl -u weixin-demo-api.service -n 100 --no-pager
+```
+
+更完整的运维说明见：
+
+- [e-cps-vin-ops-20260404.md](E:/202603/weixin-demo-01/docs/e-cps-vin-ops-20260404.md)

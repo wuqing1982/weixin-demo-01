@@ -6,5 +6,10 @@ cd "$(dirname "$0")"
 export PUBLIC_BASE_URL="${PUBLIC_BASE_URL:-https://e.cps.vin}"
 HOST="${HOST:-127.0.0.1}"
 PORT="${PORT:-8000}"
+PYTHON_BIN="../.venv/bin/python"
 
-exec python -m uvicorn app.main:app --host "${HOST}" --port "${PORT}"
+if [ ! -x "${PYTHON_BIN}" ]; then
+    PYTHON_BIN="python3"
+fi
+
+exec "${PYTHON_BIN}" -m uvicorn app.main:app --host "${HOST}" --port "${PORT}"
