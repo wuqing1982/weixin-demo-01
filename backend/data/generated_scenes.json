@@ -1,3 +1,280 @@
 {
-  "scenes": []
+  "scenes": [
+    {
+      "sceneId": "scene_user_20260404121743_e95d24",
+      "title": "tmp_ad9b0c19eed3b01b430df99bfafca8fdf02f905009214eb7",
+      "category": "existing",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260404121743_e95d24/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260404121743_e95d24/background.jpg",
+      "items": [
+        {
+          "id": "television",
+          "word": "television",
+          "ipa": "/ˈtelɪvɪʒən/",
+          "meaning": "电视",
+          "sentence": "Look at the television on the stand.",
+          "sentenceTranslation": "看放在架子上的电视。",
+          "audioPath": "/assets/generated/scene_user_20260404121743_e95d24/scene_user_20260404121743_e95d24_en-US-JennyNeural_US_female_television_look_at_the_television_on_the.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 30.0,
+            "w": 20.0,
+            "h": 35.0
+          }
+        },
+        {
+          "id": "kettle",
+          "word": "kettle",
+          "ipa": "/ˈketl/",
+          "meaning": "水壶",
+          "sentence": "The kettle is on the stand next to the television.",
+          "sentenceTranslation": "水壶在电视机旁边的架子上。",
+          "audioPath": "/assets/generated/scene_user_20260404121743_e95d24/scene_user_20260404121743_e95d24_en-US-JennyNeural_US_female_kettle_the_kettle_is_on_the_stand.mp3",
+          "rect": {
+            "l": 80.0,
+            "t": 60.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "bottle",
+          "word": "bottle",
+          "ipa": "/ˈbɒtl/",
+          "meaning": "瓶子",
+          "sentence": "There's a bottle of water on the stand.",
+          "sentenceTranslation": "架子上有一瓶水。",
+          "audioPath": "/assets/generated/scene_user_20260404121743_e95d24/scene_user_20260404121743_e95d24_en-US-JennyNeural_US_female_bottle_theres_a_bottle_of_water_on.mp3",
+          "rect": {
+            "l": 25.0,
+            "t": 50.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "box",
+          "word": "box",
+          "ipa": "/bɑːks/",
+          "meaning": "盒子",
+          "sentence": "A box is on the floor near the stand.",
+          "sentenceTranslation": "一个盒子在地板上靠近架子。",
+          "audioPath": "/assets/generated/scene_user_20260404121743_e95d24/scene_user_20260404121743_e95d24_en-US-JennyNeural_US_female_box_a_box_is_on_the_floor.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 70.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "remote_control",
+          "word": "remote control",
+          "ipa": "/rɪˈmɒt kənˈtrəʊl/",
+          "meaning": "遥控器",
+          "sentence": "The remote control is on the stand with the television.",
+          "sentenceTranslation": "遥控器在电视机旁边的架子上。",
+          "audioPath": "/assets/generated/scene_user_20260404121743_e95d24/scene_user_20260404121743_e95d24_en-US-JennyNeural_US_female_remote_control_the_remote_control_is_on_the.mp3",
+          "rect": {
+            "l": 45.0,
+            "t": 55.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "1",
+          "word": "watch",
+          "ipa": "/wɒtʃ/",
+          "meaning": "看电视",
+          "sentence": "Look at the television on the stand.",
+          "sentenceTranslation": "看看桌子上的电视。",
+          "audioPath": "/assets/generated/scene_user_20260404121743_e95d24/scene_user_20260404121743_e95d24_en-US-JennyNeural_US_female_1_look_at_the_television_on_the.mp3",
+          "relatedItem": "television"
+        },
+        {
+          "id": "2",
+          "word": "pour",
+          "ipa": "/pɔːr/",
+          "meaning": "倒（液体）",
+          "sentence": "Use the kettle to pour water.",
+          "sentenceTranslation": "用水壶倒水。",
+          "audioPath": "/assets/generated/scene_user_20260404121743_e95d24/scene_user_20260404121743_e95d24_en-US-JennyNeural_US_female_2_use_the_kettle_to_pour_water.mp3",
+          "relatedItem": "kettle"
+        },
+        {
+          "id": "3",
+          "word": "press",
+          "ipa": "/pres/",
+          "meaning": "按下",
+          "sentence": "Press the remote control to change the channel.",
+          "sentenceTranslation": "按遥控器换频道。",
+          "audioPath": "/assets/generated/scene_user_20260404121743_e95d24/scene_user_20260404121743_e95d24_en-US-JennyNeural_US_female_3_press_the_remote_control_to_change.mp3",
+          "relatedItem": "remote_control"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "debug_user_1775305037380_ce29d5",
+        "uploadId": "upload_20260404121741_427966",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260404121743_e95d24",
+        "core100SceneTitle": "tmp_ad9b0c19eed3b01b430df99bfafca8fdf02f905009214eb7",
+        "recommendedCategory": "existing",
+        "tags": [
+          "家庭",
+          "生活",
+          "休闲"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260404125540_0378c5",
+      "title": "tmp_642cdb312339f707c994880b9fd243b01165e8b7e40f0c73",
+      "category": "outdoor",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260404125540_0378c5/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260404125540_0378c5/background.jpg",
+      "items": [
+        {
+          "id": "seagull",
+          "word": "seagull",
+          "ipa": "/siːˈɡʌl/",
+          "meaning": "海鸥",
+          "sentence": "Look at the seagulls flying over the water.",
+          "sentenceTranslation": "看那些飞过水面的海鸥。",
+          "audioPath": "/assets/generated/scene_user_20260404125540_0378c5/scene_user_20260404125540_0378c5_en-US-JennyNeural_US_female_seagull_look_at_the_seagulls_flying_over.mp3",
+          "rect": {
+            "l": 30.0,
+            "t": 40.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "water",
+          "word": "water",
+          "ipa": "/ˈwɔːtər/",
+          "meaning": "水",
+          "sentence": "The water is blue and clear.",
+          "sentenceTranslation": "水面蓝蓝的，清澈见底。",
+          "audioPath": "/assets/generated/scene_user_20260404125540_0378c5/scene_user_20260404125540_0378c5_en-US-JennyNeural_US_female_water_the_water_is_blue_and_clear.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 60.0,
+            "w": 30.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "city",
+          "word": "city",
+          "ipa": "/ˈsɪti/",
+          "meaning": "城市",
+          "sentence": "The city skyline is visible in the distance.",
+          "sentenceTranslation": "远处的城市天际线清晰可见。",
+          "audioPath": "/assets/generated/scene_user_20260404125540_0378c5/scene_user_20260404125540_0378c5_en-US-JennyNeural_US_female_city_the_city_skyline_is_visible_in.mp3",
+          "rect": {
+            "l": 70.0,
+            "t": 20.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "sky",
+          "word": "sky",
+          "ipa": "/skaɪ/",
+          "meaning": "天空",
+          "sentence": "The sky is blue and sunny.",
+          "sentenceTranslation": "天空湛蓝，阳光明媚。",
+          "audioPath": "/assets/generated/scene_user_20260404125540_0378c5/scene_user_20260404125540_0378c5_en-US-JennyNeural_US_female_sky_the_sky_is_blue_and_sunny.mp3",
+          "rect": {
+            "l": 80.0,
+            "t": 0.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "boat",
+          "word": "boat",
+          "ipa": "/bəʊt/",
+          "meaning": "船",
+          "sentence": "There's a boat on the water.",
+          "sentenceTranslation": "水面上有一艘船。",
+          "audioPath": "/assets/generated/scene_user_20260404125540_0378c5/scene_user_20260404125540_0378c5_en-US-JennyNeural_US_female_boat_theres_a_boat_on_the_water.mp3",
+          "rect": {
+            "l": 90.0,
+            "t": 50.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "fly",
+          "word": "fly",
+          "ipa": "/flaɪ/",
+          "meaning": "飞翔",
+          "sentence": "The seagulls are flying over the water.",
+          "sentenceTranslation": "海鸥在水面上空飞翔。",
+          "audioPath": "/assets/generated/scene_user_20260404125540_0378c5/scene_user_20260404125540_0378c5_en-US-JennyNeural_US_female_fly_the_seagulls_are_flying_over_the.mp3",
+          "relatedItem": "seagull"
+        },
+        {
+          "id": "swim",
+          "word": "swim",
+          "ipa": "/swɪm/",
+          "meaning": "游泳",
+          "sentence": "Dolphins can swim in the water.",
+          "sentenceTranslation": "海豚可以在水中游泳。",
+          "audioPath": "/assets/generated/scene_user_20260404125540_0378c5/scene_user_20260404125540_0378c5_en-US-JennyNeural_US_female_swim_dolphins_can_swim_in_the_water.mp3",
+          "relatedItem": "water"
+        },
+        {
+          "id": "build",
+          "word": "build",
+          "ipa": "/bɪld/",
+          "meaning": "建造",
+          "sentence": "People build tall buildings in the city.",
+          "sentenceTranslation": "人们在城市里建造高楼大厦。",
+          "audioPath": "/assets/generated/scene_user_20260404125540_0378c5/scene_user_20260404125540_0378c5_en-US-JennyNeural_US_female_build_people_build_tall_buildings_in_the.mp3",
+          "relatedItem": "city"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "debug_user_1775305037380_ce29d5",
+        "uploadId": "upload_20260404125540_762919",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260404125540_0378c5",
+        "core100SceneTitle": "tmp_642cdb312339f707c994880b9fd243b01165e8b7e40f0c73",
+        "recommendedCategory": "outdoor",
+        "tags": [
+          "户外",
+          "海洋",
+          "城市"
+        ],
+        "version": 1
+      }
+    }
+  ]
 }

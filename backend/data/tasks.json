@@ -1,3 +1,40 @@
 {
-  "tasks": []
+  "tasks": [
+    {
+      "taskId": "task_20260404121743_7aad4c",
+      "ownerId": "debug_user_1775305037380_ce29d5",
+      "uploadId": "upload_20260404121741_427966",
+      "title": "",
+      "includeVerbs": true,
+      "sourceLang": "zh-CN",
+      "accent": "en-US",
+      "voiceGender": "female",
+      "voiceName": "JennyNeural",
+      "status": "done",
+      "step": "finished",
+      "progress": 100,
+      "sceneId": "scene_user_20260404121743_e95d24",
+      "errorMessage": "",
+      "createdAt": "2026-04-04T12:17:43Z",
+      "updatedAt": "2026-04-04T12:18:46Z"
+    },
+    {
+      "taskId": "task_20260404125540_146aa5",
+      "ownerId": "debug_user_1775305037380_ce29d5",
+      "uploadId": "upload_20260404125540_762919",
+      "title": "",
+      "includeVerbs": true,
+      "sourceLang": "zh-CN",
+      "accent": "en-US",
+      "voiceGender": "female",
+      "voiceName": "JennyNeural",
+      "status": "done",
+      "step": "finished",
+      "progress": 100,
+      "sceneId": "scene_user_20260404125540_0378c5",
+      "errorMessage": "",
+      "createdAt": "2026-04-04T12:55:40Z",
+      "updatedAt": "2026-04-04T12:56:18Z"
+    }
+  ]
 }

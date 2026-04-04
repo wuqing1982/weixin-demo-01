@@ -1,3 +1,28 @@
 {
-  "uploads": []
+  "uploads": [
+    {
+      "uploadId": "upload_20260404121741_427966",
+      "ownerId": "debug_user_1775305037380_ce29d5",
+      "originalFilename": "tmp_ad9b0c19eed3b01b430df99bfafca8fdf02f905009214eb7.jpg",
+      "contentType": "image/jpeg",
+      "filePath": "/assets/uploads/upload_20260404121741_427966/source.jpg",
+      "sizeBytes": 572598,
+      "width": 715,
+      "height": 1600,
+      "createdAt": "2026-04-04T12:17:41Z",
+      "updatedAt": "2026-04-04T12:17:41Z"
+    },
+    {
+      "uploadId": "upload_20260404125540_762919",
+      "ownerId": "debug_user_1775305037380_ce29d5",
+      "originalFilename": "tmp_642cdb312339f707c994880b9fd243b01165e8b7e40f0c73.jpg",
+      "contentType": "image/jpeg",
+      "filePath": "/assets/uploads/upload_20260404125540_762919/source.jpg",
+      "sizeBytes": 288959,
+      "width": 1240,
+      "height": 2772,
+      "createdAt": "2026-04-04T12:55:40Z",
+      "updatedAt": "2026-04-04T12:55:40Z"
+    }
+  ]
 }
