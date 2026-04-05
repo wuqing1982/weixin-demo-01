@@ -275,6 +275,144 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260404144237_88b7f9",
+      "title": "tmp_f02c6623b5eca475effe38cd4713300507a562e0c2372efd",
+      "category": "existing",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260404144237_88b7f9/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260404144237_88b7f9/background.jpg",
+      "items": [
+        {
+          "id": "shower_head",
+          "word": "shower head",
+          "ipa": "/ʃaʊər he̞d/",
+          "meaning": "淋浴喷头",
+          "sentence": "The shower head is used to spray water while taking a shower.",
+          "sentenceTranslation": "淋浴时使用淋浴喷头来喷水。",
+          "audioPath": "/assets/generated/scene_user_20260404144237_88b7f9/scene_user_20260404144237_88b7f9_en-US-JennyNeural_US_female_shower_head_the_shower_head_is_used_to.mp3",
+          "rect": {
+            "l": 70.0,
+            "t": 30.0,
+            "w": 20.0,
+            "h": 40.0
+          }
+        },
+        {
+          "id": "window",
+          "word": "window",
+          "ipa": "/ˈwɪndoʊ/",
+          "meaning": "窗户",
+          "sentence": "Look out the window to see what's outside.",
+          "sentenceTranslation": "透过窗户看看外面有什么。",
+          "audioPath": "/assets/generated/scene_user_20260404144237_88b7f9/scene_user_20260404144237_88b7f9_en-US-JennyNeural_US_female_window_look_out_the_window_to_see.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 20.0,
+            "w": 25.0,
+            "h": 50.0
+          }
+        },
+        {
+          "id": "trash_can",
+          "word": "trash can",
+          "ipa": "/træʃ kæn/",
+          "meaning": "垃圾桶",
+          "sentence": "Put your trash in the trash can.",
+          "sentenceTranslation": "把垃圾扔进垃圾桶里。",
+          "audioPath": "/assets/generated/scene_user_20260404144237_88b7f9/scene_user_20260404144237_88b7f9_en-US-JennyNeural_US_female_trash_can_put_your_trash_in_the_trash.mp3",
+          "rect": {
+            "l": 0.0,
+            "t": 60.0,
+            "w": 10.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "soap_bottle",
+          "word": "soap bottle",
+          "ipa": "/soʊp bɒtl/",
+          "meaning": "肥皂瓶",
+          "sentence": "Use soap from the soap bottle to wash your hands.",
+          "sentenceTranslation": "用肥皂瓶里的肥皂洗手。",
+          "audioPath": "/assets/generated/scene_user_20260404144237_88b7f9/scene_user_20260404144237_88b7f9_en-US-JennyNeural_US_female_soap_bottle_use_soap_from_the_soap_bottle.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 35.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "towel_rack",
+          "word": "towel rack",
+          "ipa": "/ˈtaʊəl ræk/",
+          "meaning": "毛巾架",
+          "sentence": "Hang your towel on the towel rack after you take a shower.",
+          "sentenceTranslation": "洗澡后把毛巾挂在毛巾架上。",
+          "audioPath": "/assets/generated/scene_user_20260404144237_88b7f9/scene_user_20260404144237_88b7f9_en-US-JennyNeural_US_female_towel_rack_hang_your_towel_on_the_towel.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 20.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "take_a_shower",
+          "word": "take",
+          "ipa": "/teɪk/",
+          "meaning": "洗淋浴",
+          "sentence": "Let's take a shower with the shower head.",
+          "sentenceTranslation": "让我们用淋浴喷头洗个澡吧。",
+          "audioPath": "/assets/generated/scene_user_20260404144237_88b7f9/scene_user_20260404144237_88b7f9_en-US-JennyNeural_US_female_take_a_shower_lets_take_a_shower_with_the.mp3",
+          "relatedItem": "shower_head"
+        },
+        {
+          "id": "look_out",
+          "word": "look",
+          "ipa": "/lʊk/",
+          "meaning": "看",
+          "sentence": "Look out the window and see what's happening outside.",
+          "sentenceTranslation": "往窗外看，看看外面发生了什么。",
+          "audioPath": "/assets/generated/scene_user_20260404144237_88b7f9/scene_user_20260404144237_88b7f9_en-US-JennyNeural_US_female_look_out_look_out_the_window_and_see.mp3",
+          "relatedItem": "window"
+        },
+        {
+          "id": "throw_away",
+          "word": "throw",
+          "ipa": "/θrəʊ/",
+          "meaning": "扔掉",
+          "sentence": "Throw away your trash in the trash can.",
+          "sentenceTranslation": "把垃圾扔进垃圾桶里。",
+          "audioPath": "/assets/generated/scene_user_20260404144237_88b7f9/scene_user_20260404144237_88b7f9_en-US-JennyNeural_US_female_throw_away_throw_away_your_trash_in_the.mp3",
+          "relatedItem": "trash_can"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "debug_user_1775305037380_ce29d5",
+        "uploadId": "upload_20260404144235_933a52",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260404144237_88b7f9",
+        "core100SceneTitle": "tmp_f02c6623b5eca475effe38cd4713300507a562e0c2372efd",
+        "recommendedCategory": "existing",
+        "tags": [
+          "家庭",
+          "清洁",
+          "日常"
+        ],
+        "version": 1
+      }
     }
   ]
 }
