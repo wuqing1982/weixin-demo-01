@@ -30,6 +30,56 @@ class LogoutRequest(BaseModel):
     refreshToken: str | None = None
 
 
+class AdminLoginRequest(BaseModel):
+    username: str = Field(min_length=1, max_length=64)
+    password: str = Field(min_length=1, max_length=128)
+
+
+class AdminProductRequest(BaseModel):
+    productCode: str = Field(min_length=1, max_length=64)
+    productType: str = Field(min_length=1, max_length=32)
+    name: str = Field(min_length=1, max_length=128)
+    subtitle: str = Field(default='', max_length=255)
+    description: str = Field(default='', max_length=2000)
+    coverUrl: str = Field(default='', max_length=1000)
+    status: str = Field(default='draft', max_length=32)
+    sortOrder: int = Field(default=0, ge=0, le=999999)
+
+
+class AdminSkuBenefitRequest(BaseModel):
+    benefitType: str = Field(min_length=1, max_length=64)
+    benefitValue: str = Field(default='', max_length=128)
+    benefitJson: dict = Field(default_factory=dict)
+
+
+class AdminSkuRequest(BaseModel):
+    productId: str = Field(min_length=1, max_length=128)
+    skuCode: str = Field(min_length=1, max_length=64)
+    name: str = Field(min_length=1, max_length=128)
+    billingType: str = Field(default='one_time', max_length=32)
+    durationDays: int | None = Field(default=None, ge=0, le=3650)
+    status: str = Field(default='draft', max_length=32)
+    listPrice: str = Field(default='0.00', max_length=32)
+    salePrice: str = Field(default='0.00', max_length=32)
+    currency: str = Field(default='CNY', max_length=8)
+    stockType: str = Field(default='unlimited', max_length=32)
+    stockCount: int | None = Field(default=None, ge=0, le=999999999)
+    sortOrder: int = Field(default=0, ge=0, le=999999)
+    benefits: list[AdminSkuBenefitRequest] = Field(default_factory=list)
+
+
+class AdminPublicSceneRequest(BaseModel):
+    title: str = Field(min_length=1, max_length=255)
+    category: str = Field(default='', max_length=64)
+    visibility: str = Field(default='public', max_length=32)
+    sceneType: str = Field(default='public', max_length=32)
+    backgroundPath: str = Field(default='', max_length=1000)
+    coverPath: str = Field(default='', max_length=1000)
+    items: list[dict] = Field(default_factory=list)
+    verbs: list[dict] = Field(default_factory=list)
+    meta: dict = Field(default_factory=dict)
+
+
 class OrderCreateRequest(BaseModel):
     skuId: str = Field(min_length=1)
     quantity: int = Field(default=1, ge=1, le=99)

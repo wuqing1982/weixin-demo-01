@@ -1,10 +1,16 @@
+const { logout } = require('../../services/auth');
+const { readSession } = require('../../services/session');
+const { getMe } = require('../../services/user');
+
 Page({
   data: {
+    me: null,
+    errorMessage: '',
     actions: [
       {
         id: 'products',
         title: '会员与点数商品',
-        desc: '浏览会员和场景生成点数包，走 mock 支付闭环。',
+        desc: '浏览包年会员、月卡和生成点数商品，完成购买闭环。',
         url: '/pages/products/index'
       },
       {
@@ -40,9 +46,50 @@ Page({
     ]
   },
 
+  onShow() {
+    this.loadMe();
+  },
+
+  async loadMe() {
+    const session = readSession();
+    if (!session.accessToken) {
+      wx.reLaunch({
+        url: '/pages/login/index'
+      });
+      return;
+    }
+
+    try {
+      const me = await getMe();
+      getApp().globalData.currentUser = me;
+      this.setData({
+        me,
+        errorMessage: ''
+      });
+    } catch (error) {
+      const isAuthError = error && (error.code === 4001 || error.code === 401);
+      this.setData({
+        errorMessage: error.message || '用户信息加载失败'
+      });
+      if (isAuthError) {
+        await logout(getApp());
+        wx.reLaunch({
+          url: '/pages/login/index'
+        });
+      }
+    }
+  },
+
   onOpen(event) {
     wx.navigateTo({
       url: event.currentTarget.dataset.url
+    });
+  },
+
+  async onLogout() {
+    await logout(getApp());
+    wx.reLaunch({
+      url: '/pages/login/index'
     });
   }
 });

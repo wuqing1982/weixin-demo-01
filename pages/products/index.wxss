@@ -22,6 +22,14 @@
   border: 1px solid rgba(255, 255, 255, 0.14);
 }
 
+.guest-tip {
+  margin-top: 24rpx;
+  padding: 22rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 244, 219, 0.08);
+  border: 1px solid rgba(255, 227, 173, 0.16);
+}
+
 .summary-label,
 .product-subtitle,
 .sku-desc {
@@ -35,6 +43,23 @@
   margin-top: 10rpx;
   font-size: 34rpx;
   font-weight: 700;
+}
+
+.guest-tip-title,
+.guest-tip-desc {
+  display: block;
+}
+
+.guest-tip-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #ffe7a8;
+}
+
+.guest-tip-desc {
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .orders-btn {

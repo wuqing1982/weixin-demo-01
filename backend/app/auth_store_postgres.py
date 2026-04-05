@@ -77,6 +77,43 @@ class PostgresAuthStore:
                 cursor.execute('select * from users where id = %s limit 1', (user_id,))
                 return _serialize_user(cursor.fetchone())
 
+    def list_users(self, limit: int = 100) -> list[dict[str, Any]]:
+        limit = max(1, int(limit or 100))
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    '''
+                    select *
+                    from users
+                    order by updated_at desc, created_at desc
+                    limit %s
+                    ''',
+                    (limit,),
+                )
+                return [_serialize_user(row) for row in cursor.fetchall()]
+
+    def get_user_count(self) -> int:
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute('select count(*) as count from users')
+                row = cursor.fetchone() or {}
+                return int(row.get('count') or 0)
+
+    def update_user_status(self, user_id: str, status: str) -> dict[str, Any] | None:
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    '''
+                    update users
+                    set status = %s,
+                        updated_at = now()
+                    where id = %s
+                    returning *
+                    ''',
+                    (status, user_id),
+                )
+                return _serialize_user(cursor.fetchone())
+
     def get_or_create_debug_user(self, user_id: str) -> dict[str, Any]:
         user = self.get_user(user_id)
         if user:

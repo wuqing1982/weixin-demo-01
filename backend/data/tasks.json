@@ -107,6 +107,24 @@
       "errorMessage": "",
       "createdAt": "2026-04-05T11:27:57Z",
       "updatedAt": "2026-04-05T11:28:31Z"
+    },
+    {
+      "taskId": "task_20260405145130_cc8be7",
+      "ownerId": "user_20260405145017_f25208",
+      "uploadId": "upload_20260405145129_b5b831",
+      "title": "",
+      "includeVerbs": true,
+      "sourceLang": "zh-CN",
+      "accent": "en-US",
+      "voiceGender": "female",
+      "voiceName": "JennyNeural",
+      "status": "done",
+      "step": "finished",
+      "progress": 100,
+      "sceneId": "scene_user_20260405145130_86bae9",
+      "errorMessage": "",
+      "createdAt": "2026-04-05T14:51:30Z",
+      "updatedAt": "2026-04-05T14:52:03Z"
     }
   ]
 }

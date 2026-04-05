@@ -4,14 +4,46 @@
   gap: 24rpx;
 }
 
+.profile-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+  padding: 28rpx;
+  background: linear-gradient(135deg, rgba(14, 50, 43, 0.92), rgba(25, 88, 73, 0.78));
+}
+
+.profile-eyebrow,
+.profile-meta {
+  display: block;
+  font-size: 22rpx;
+  color: rgba(245, 238, 224, 0.78);
+}
+
+.profile-name {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.profile-meta {
+  margin-top: 8rpx;
+}
+
 .hero {
   padding: 36rpx;
+  background: linear-gradient(180deg, rgba(255, 248, 236, 0.08), rgba(110, 140, 98, 0.12));
 }
 
 .hero-actions {
   display: flex;
   gap: 16rpx;
   margin-top: 28rpx;
+}
+
+.logout-btn {
+  min-width: 160rpx;
 }
 
 .action-list {

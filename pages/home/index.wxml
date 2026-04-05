@@ -1,12 +1,23 @@
 <view class="container home-page">
+  <view class="profile-strip card" wx:if="{{me}}">
+    <view>
+      <text class="profile-eyebrow">已登录会员中心</text>
+      <text class="profile-name">{{me.displayName || '微信用户'}}</text>
+      <text class="profile-meta">会员：{{me.memberSummary.isActive ? '已开通' : '未开通'}} · 点数：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
+    </view>
+    <button class="btn-secondary logout-btn" bindtap="onLogout">退出</button>
+  </view>
+
   <view class="hero card">
-    <text class="section-title">英语场景前后端联调</text>
-    <text class="section-subtitle">当前前端模板已经改成 API 驱动，现在支持上传图片、创建生成任务、热点编辑，以及 mock 支付购买会员和点数。</text>
+    <text class="section-title">英语场景会员中心</text>
+    <text class="section-subtitle">真实微信登录、会员商品、订单、我的场景和热点编辑已经接到同一条业务链路里。</text>
     <view class="hero-actions">
-      <button class="btn-primary" bindtap="onOpen" data-url="/pages/products/index">查看商品</button>
+      <button class="btn-primary" bindtap="onOpen" data-url="/pages/products/index">购买会员</button>
       <button class="btn-secondary" bindtap="onOpen" data-url="/pages/orders/index">查看订单</button>
     </view>
   </view>
+
+  <view wx:if="{{errorMessage}}" class="state-card">{{errorMessage}}</view>
 
   <view class="action-list">
     <view wx:for="{{actions}}" wx:key="id" class="action-card card" bindtap="onOpen" data-url="{{item.url}}">

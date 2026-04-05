@@ -11,13 +11,21 @@ App({
     accessToken: '',
     refreshToken: '',
     deviceId: '',
-    debugUserId: ''
+    debugUserId: '',
+    useDebugAuth: false
   },
 
   onLaunch() {
     const session = readSession();
     applySessionToApp(session, this);
     this.globalData.isAuthReady = false;
+    if (!session.accessToken && !session.refreshToken) {
+      this.globalData.authReadyPromise = Promise.resolve(null).finally(() => {
+        this.globalData.isAuthReady = true;
+      });
+      return;
+    }
+
     this.globalData.authReadyPromise = initializeAuth(this)
       .catch((error) => {
         console.log('initialize auth failed', error);

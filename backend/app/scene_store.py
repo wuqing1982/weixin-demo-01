@@ -4,7 +4,7 @@ from threading import Lock
 from typing import Any
 
 from .scene_adapter import apply_hotspot_updates
-from .store_utils import ensure_json_file, read_json_file, utcnow_iso, write_json_file
+from .store_utils import build_object_id, ensure_json_file, read_json_file, utcnow_iso, write_json_file
 
 
 class SceneStore:
@@ -55,3 +55,19 @@ class SceneStore:
                 return copy.deepcopy(updated)
 
         return None
+
+    def upsert_scene(self, scene: dict[str, Any]) -> dict[str, Any]:
+        with self.lock:
+            payload = read_json_file(self.data_file)
+            scenes = payload.setdefault('scenes', [])
+            scene_id = scene.get('sceneId') or build_object_id('scene')
+            next_scene = copy.deepcopy(scene)
+            next_scene['sceneId'] = scene_id
+            for index, item in enumerate(scenes):
+                if item.get('sceneId') == scene_id:
+                    scenes[index] = next_scene
+                    write_json_file(self.data_file, payload)
+                    return copy.deepcopy(next_scene)
+            scenes.append(next_scene)
+            write_json_file(self.data_file, payload)
+        return copy.deepcopy(next_scene)

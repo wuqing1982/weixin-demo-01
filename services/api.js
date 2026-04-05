@@ -15,6 +15,12 @@ function buildBaseHeader() {
     return { Authorization: `Bearer ${token}` };
   }
 
+  const app = getAppSafe();
+  const useDebugAuth = !!(app && app.globalData && app.globalData.useDebugAuth);
+  if (!useDebugAuth) {
+    return {};
+  }
+
   const debugUserId = getDebugUserId();
   return debugUserId ? { 'X-Debug-User-Id': debugUserId } : {};
 }

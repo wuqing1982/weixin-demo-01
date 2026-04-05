@@ -198,6 +198,61 @@ class CommerceStore:
                         })
                 return [_serialize_sku(row, benefits_by_sku.get(row.get('id', ''), [])) for row in sku_rows]
 
+    def list_skus(self, *, status: str = '') -> list[dict[str, Any]]:
+        clauses = []
+        params: list[Any] = []
+        if status:
+            clauses.append('s.status = %s')
+            params.append(status)
+
+        sql = '''
+            select
+              s.*,
+              p.name as product_name,
+              p.product_code,
+              p.product_type
+            from product_skus s
+            join products p on p.id = s.product_id
+        '''
+        if clauses:
+            sql += ' where ' + ' and '.join(clauses)
+        sql += ' order by s.sort_order asc, s.created_at asc'
+
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(sql, params)
+                sku_rows = cursor.fetchall()
+                sku_ids = [row.get('id') for row in sku_rows]
+                benefits_by_sku: dict[str, list[dict[str, Any]]] = {sku_id: [] for sku_id in sku_ids}
+                if sku_ids:
+                    cursor.execute(
+                        '''
+                        select *
+                        from sku_benefits
+                        where sku_id = any(%s)
+                        order by created_at asc
+                        ''',
+                        (sku_ids,),
+                    )
+                    for row in cursor.fetchall():
+                        benefits_by_sku.setdefault(row.get('sku_id', ''), []).append({
+                            'benefitId': row.get('id', ''),
+                            'benefitType': row.get('benefit_type', ''),
+                            'benefitValue': row.get('benefit_value', ''),
+                            'benefitJson': row.get('benefit_json') or {},
+                            'createdAt': _to_iso(row.get('created_at')),
+                            'updatedAt': _to_iso(row.get('updated_at')),
+                        })
+                return [
+                    {
+                        **_serialize_sku(row, benefits_by_sku.get(row.get('id', ''), [])),
+                        'productName': row.get('product_name', ''),
+                        'productCode': row.get('product_code', ''),
+                        'productType': row.get('product_type', ''),
+                    }
+                    for row in sku_rows
+                ]
+
     def get_membership_summary(self, user_id: str) -> dict[str, Any]:
         with self._connect() as connection:
             with connection.cursor() as cursor:
@@ -664,10 +719,94 @@ class CommerceStore:
                 rows = cursor.fetchall()
                 return [self._serialize_order_detail(cursor, row) for row in rows]
 
+    def list_orders_admin(self, limit: int = 100) -> list[dict[str, Any]]:
+        limit = max(1, int(limit or 100))
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    '''
+                    select *
+                    from orders
+                    order by created_at desc
+                    limit %s
+                    ''',
+                    (limit,),
+                )
+                rows = cursor.fetchall()
+                return [self._serialize_order_detail(cursor, row) for row in rows]
+
+    def get_admin_overview(self) -> dict[str, Any]:
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute('select count(*) as count from products')
+                product_count = int((cursor.fetchone() or {}).get('count') or 0)
+
+                cursor.execute("select count(*) as count from products where status = 'active'")
+                active_product_count = int((cursor.fetchone() or {}).get('count') or 0)
+
+                cursor.execute('select count(*) as count from orders')
+                order_count = int((cursor.fetchone() or {}).get('count') or 0)
+
+                cursor.execute("select count(*) as count from orders where status = 'paid'")
+                paid_order_count = int((cursor.fetchone() or {}).get('count') or 0)
+
+                cursor.execute("select coalesce(sum(paid_amount), 0) as total from orders where status = 'paid'")
+                paid_amount_total = _to_amount((cursor.fetchone() or {}).get('total'))
+
+                cursor.execute(
+                    '''
+                    select count(*) as count
+                    from orders
+                    where created_at >= date_trunc('day', now())
+                    '''
+                )
+                today_order_count = int((cursor.fetchone() or {}).get('count') or 0)
+
+                cursor.execute(
+                    '''
+                    select coalesce(sum(paid_amount), 0) as total
+                    from orders
+                    where status = 'paid'
+                      and paid_at >= date_trunc('day', now())
+                    '''
+                )
+                today_paid_amount_total = _to_amount((cursor.fetchone() or {}).get('total'))
+
+                cursor.execute(
+                    '''
+                    select count(distinct user_id) as count
+                    from user_entitlements
+                    where entitlement_type = 'membership'
+                      and status = 'active'
+                      and starts_at <= now()
+                      and (expires_at is null or expires_at > now())
+                    '''
+                )
+                active_member_count = int((cursor.fetchone() or {}).get('count') or 0)
+
+        return {
+            'productCount': product_count,
+            'activeProductCount': active_product_count,
+            'orderCount': order_count,
+            'paidOrderCount': paid_order_count,
+            'paidAmountTotal': paid_amount_total,
+            'todayOrderCount': today_order_count,
+            'todayPaidAmountTotal': today_paid_amount_total,
+            'activeMemberCount': active_member_count,
+        }
+
     def get_order(self, *, order_id: str, user_id: str) -> dict[str, Any] | None:
         with self._connect() as connection:
             with connection.cursor() as cursor:
                 row = self._fetch_order_row(cursor, order_id, user_id)
+                if not row:
+                    return None
+                return self._serialize_order_detail(cursor, row)
+
+    def get_order_admin(self, order_id: str) -> dict[str, Any] | None:
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                row = self._fetch_order_row(cursor, order_id)
                 if not row:
                     return None
                 return self._serialize_order_detail(cursor, row)

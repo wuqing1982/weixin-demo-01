@@ -833,6 +833,147 @@
         "hotspotUpdatedAt": "2026-04-05T11:29:16Z",
         "hotspotUpdatedBy": "debug_user_1775305037380_ce29d5"
       }
+    },
+    {
+      "sceneId": "scene_user_20260405145130_86bae9",
+      "title": "办公室",
+      "category": "existing",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260405145130_86bae9/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260405145130_86bae9/background.jpg",
+      "items": [
+        {
+          "id": "bottle_1",
+          "word": "bottle",
+          "ipa": "/ˈbɒtl/",
+          "meaning": "瓶子",
+          "sentence": "The blue bottle is on the desk.",
+          "sentenceTranslation": "蓝色的瓶子在桌子上。",
+          "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_bottle_1_the_blue_bottle_is_on_the.mp3",
+          "rect": {
+            "l": 21.4,
+            "t": 31.69,
+            "w": 12.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "bottle_2",
+          "word": "bottle",
+          "ipa": "/ˈbɒtl/",
+          "meaning": "瓶子",
+          "sentence": "The yellow bottle is next to the computer.",
+          "sentenceTranslation": "黄色的瓶子在电脑旁边。",
+          "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_bottle_2_the_yellow_bottle_is_next_to.mp3",
+          "rect": {
+            "l": 35.0,
+            "t": 55.0,
+            "w": 12.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "book",
+          "word": "book",
+          "ipa": "/bʊk/",
+          "meaning": "书",
+          "sentence": "The book is on the desk.",
+          "sentenceTranslation": "书在桌子上。",
+          "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_book_the_book_is_on_the_desk.mp3",
+          "rect": {
+            "l": 60.0,
+            "t": 70.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "computer",
+          "word": "computer",
+          "ipa": "/kəmˈpjuːtər/",
+          "meaning": "电脑",
+          "sentence": "The computer is on the desk.",
+          "sentenceTranslation": "电脑在桌子上。",
+          "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_computer_the_computer_is_on_the_desk.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 45.0,
+            "w": 30.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "mouse",
+          "word": "mouse",
+          "ipa": "/maʊs/",
+          "meaning": "鼠标",
+          "sentence": "The mouse is next to the keyboard.",
+          "sentenceTranslation": "鼠标在键盘旁边。",
+          "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_mouse_the_mouse_is_next_to_the.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 65.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "drink",
+          "word": "drink",
+          "ipa": "/drɪŋk/",
+          "meaning": "喝",
+          "sentence": "I will drink water from the bottle.",
+          "sentenceTranslation": "我会从瓶子里喝水。",
+          "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_drink_i_will_drink_water_from_the.mp3",
+          "relatedItem": "bottle_1"
+        },
+        {
+          "id": "drink",
+          "word": "drink",
+          "ipa": "/drɪŋk/",
+          "meaning": "喝",
+          "sentence": "I will drink tea from the bottle.",
+          "sentenceTranslation": "我会从瓶子里喝茶。",
+          "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_drink_i_will_drink_tea_from_the.mp3",
+          "relatedItem": "bottle_2"
+        },
+        {
+          "id": "read",
+          "word": "read",
+          "ipa": "/riːd/",
+          "meaning": "读",
+          "sentence": "I will read a book.",
+          "sentenceTranslation": "我会读书。",
+          "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_read_i_will_read_a_book.mp3",
+          "relatedItem": "book"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260405145017_f25208",
+        "uploadId": "upload_20260405145129_b5b831",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260405145130_86bae9",
+        "core100SceneTitle": "办公室",
+        "recommendedCategory": "existing",
+        "tags": [
+          "工作",
+          "办公",
+          "室内"
+        ],
+        "version": 2,
+        "hotspotEditable": true,
+        "hotspotUpdatedAt": "2026-04-05T14:52:34Z",
+        "hotspotUpdatedBy": "user_20260405145017_f25208"
+      }
     }
   ]
 }

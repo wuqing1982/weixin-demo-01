@@ -1,0 +1,202 @@
+.login-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 40rpx 28rpx 56rpx;
+  background:
+    radial-gradient(circle at top left, rgba(255, 222, 180, 0.22), transparent 34%),
+    linear-gradient(180deg, #111817 0%, #162220 46%, #101516 100%);
+}
+
+.ambient {
+  position: absolute;
+  border-radius: 999rpx;
+  filter: blur(16rpx);
+  opacity: 0.8;
+}
+
+.ambient-top {
+  top: 56rpx;
+  right: -40rpx;
+  width: 260rpx;
+  height: 260rpx;
+  background: rgba(242, 176, 102, 0.18);
+}
+
+.ambient-bottom {
+  left: -60rpx;
+  bottom: 140rpx;
+  width: 320rpx;
+  height: 320rpx;
+  background: rgba(87, 156, 123, 0.16);
+}
+
+.login-shell {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 28rpx;
+  padding-top: 48rpx;
+}
+
+.brand-copy {
+  padding: 20rpx 6rpx 0;
+}
+
+.brand-tag {
+  display: inline-block;
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(244, 234, 214, 0.12);
+  color: #f2dbc0;
+  font-size: 20rpx;
+  letter-spacing: 2rpx;
+}
+
+.brand-title {
+  display: block;
+  margin-top: 24rpx;
+  font-size: 58rpx;
+  line-height: 1.16;
+  font-weight: 700;
+  font-family: 'Avenir Next', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+.brand-subtitle {
+  display: block;
+  margin-top: 18rpx;
+  font-size: 26rpx;
+  line-height: 1.7;
+  color: rgba(244, 239, 229, 0.74);
+}
+
+.hero-card {
+  padding: 34rpx;
+  border-radius: 34rpx;
+  background: linear-gradient(180deg, rgba(250, 247, 239, 0.96), rgba(236, 241, 233, 0.92));
+  color: #16302b;
+  box-shadow: 0 28rpx 80rpx rgba(0, 0, 0, 0.24);
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 46rpx;
+  padding: 0 18rpx;
+  border-radius: 999rpx;
+  background: rgba(29, 114, 88, 0.11);
+  color: #2d755d;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.hero-title {
+  display: block;
+  margin-top: 18rpx;
+  font-size: 44rpx;
+  font-weight: 700;
+}
+
+.hero-desc,
+.agreement-copy,
+.offer-desc,
+.offer-label,
+.offer-empty,
+.error-text {
+  display: block;
+  font-size: 24rpx;
+  line-height: 1.7;
+}
+
+.hero-desc {
+  margin-top: 14rpx;
+  color: rgba(22, 48, 43, 0.72);
+}
+
+.benefit-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 24rpx;
+}
+
+.benefit-pill {
+  padding: 10rpx 16rpx;
+  border-radius: 999rpx;
+  background: #eef4ee;
+  color: #355b4f;
+  font-size: 22rpx;
+}
+
+.offer-card,
+.offer-empty {
+  margin-top: 24rpx;
+  padding: 24rpx;
+  border-radius: 26rpx;
+  background: linear-gradient(135deg, #16342e, #22483f);
+  color: #f8f1e6;
+}
+
+.offer-label {
+  color: rgba(248, 241, 230, 0.7);
+}
+
+.offer-name {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.offer-price {
+  display: block;
+  margin-top: 12rpx;
+  font-size: 52rpx;
+  font-weight: 700;
+  color: #f6d2a3;
+}
+
+.offer-desc {
+  margin-top: 8rpx;
+  color: rgba(248, 241, 230, 0.74);
+}
+
+.cta-login,
+.cta-outline {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 92rpx;
+  margin-top: 22rpx;
+  border-radius: 22rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.cta-login {
+  background: linear-gradient(135deg, #2b8a68, #1c6f54);
+  color: #ffffff;
+}
+
+.cta-outline {
+  border: 1px solid rgba(24, 63, 54, 0.14);
+  background: rgba(255, 255, 255, 0.6);
+  color: #1c4d40;
+}
+
+.cta-login::after,
+.cta-outline::after {
+  border: 0;
+}
+
+.error-text {
+  margin-top: 18rpx;
+  color: #b6413f;
+}
+
+.agreement-copy {
+  margin-top: 18rpx;
+  color: rgba(22, 48, 43, 0.66);
+}

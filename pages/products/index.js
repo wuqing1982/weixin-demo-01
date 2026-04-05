@@ -1,6 +1,7 @@
 const { createOrder } = require('../../services/order');
 const { payOrder } = require('../../services/payment');
 const { getProducts, getProductSkus } = require('../../services/product');
+const { readSession } = require('../../services/session');
 const { getMe } = require('../../services/user');
 
 Page({
@@ -8,6 +9,7 @@ Page({
     loading: true,
     products: [],
     me: null,
+    guestMode: true,
     errorMessage: '',
     payingSkuId: ''
   },
@@ -23,20 +25,24 @@ Page({
     });
 
     try {
-      const [productData, me] = await Promise.all([
-        getProducts(),
-        getMe()
-      ]);
+      const productData = await getProducts();
       const products = productData.list || [];
       const skuResults = await Promise.all(products.map((product) => getProductSkus(product.productId)));
       const enriched = products.map((product, index) => ({
         ...product,
         skus: (skuResults[index] && skuResults[index].list) || []
       }));
+      let me = null;
+      try {
+        me = await getMe();
+      } catch (error) {
+        me = null;
+      }
       this.setData({
         loading: false,
         products: enriched,
-        me
+        me,
+        guestMode: !me
       });
     } catch (error) {
       this.setData({
@@ -49,6 +55,12 @@ Page({
   async onBuySku(event) {
     const { skuId } = event.currentTarget.dataset;
     if (!skuId || this.data.payingSkuId) {
+      return;
+    }
+    if (!readSession().accessToken) {
+      wx.navigateTo({
+        url: '/pages/login/index'
+      });
       return;
     }
 
@@ -82,6 +94,12 @@ Page({
   },
 
   onOpenOrders() {
+    if (!readSession().accessToken) {
+      wx.navigateTo({
+        url: '/pages/login/index'
+      });
+      return;
+    }
     wx.navigateTo({
       url: '/pages/orders/index'
     });

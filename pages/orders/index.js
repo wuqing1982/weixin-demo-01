@@ -1,5 +1,6 @@
 const { getOrders } = require('../../services/order');
 const { payOrder } = require('../../services/payment');
+const { readSession } = require('../../services/session');
 const { getMe } = require('../../services/user');
 
 Page({
@@ -12,6 +13,12 @@ Page({
   },
 
   onShow() {
+    if (!readSession().accessToken) {
+      wx.reLaunch({
+        url: '/pages/login/index'
+      });
+      return;
+    }
     this.loadPage();
   },
 

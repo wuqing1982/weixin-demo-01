@@ -9,6 +9,12 @@
 - `POST /api/auth/refresh`
 - `POST /api/auth/logout`
 - `GET /api/me`
+- `POST /api/admin/auth/login`
+- `GET /api/admin/overview`
+- `GET /api/admin/users`
+- `GET /api/admin/products`
+- `GET /api/admin/orders`
+- `GET /api/admin/tasks`
 - `GET /api/scenes`
 - `GET /api/scenes/{sceneId}`
 - `GET /api/my/scenes`
@@ -17,6 +23,7 @@
 - `GET /api/my/tasks/{taskId}`
 - `POST /api/scenes/{sceneId}/hotspots`
 - 静态暴露仓库根目录下的 `assets/`
+- 提供 `http://127.0.0.1:8000/admin` 网页端后台
 
 ## 启动
 
@@ -69,6 +76,18 @@ python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 - `POST /api/orders/{orderId}/mock-pay-success`
 - `PAYMENT_MODE=mock` 时，小程序可直接走模拟支付成功并发放权益
 
+现在已经支持 Admin 最小后台：
+
+- 后台登录页：`/admin`
+- `POST /api/admin/auth/login` 使用独立后台账号密码
+- Dashboard 提供用户、商品、订单、任务概览
+- 支持用户详情、封禁 / 解封
+- 支持商品创建 / 编辑 / 上下架
+- 支持 SKU 创建 / 编辑 / 权益 JSON 配置
+- 支持订单详情查看
+- 支持任务详情与失败任务重试
+- 支持公共场景创建 / 编辑
+
 当前仍保留开发兼容能力：
 
 - `AUTH_ENABLE_DEBUG_USER_HEADER=true`
@@ -103,6 +122,9 @@ python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 - `AUTH_REFRESH_TOKEN_TTL_SECONDS`
 - `COMMERCE_STORE_BACKEND`
 - `PAYMENT_MODE`
+- `ADMIN_DASHBOARD_ENABLED`
+- `ADMIN_DASHBOARD_USERNAME`
+- `ADMIN_DASHBOARD_PASSWORD`
 - `CORE100_ROOT`
   - `CORE100_MODEL`
   - `CORE100_TTS_URL`

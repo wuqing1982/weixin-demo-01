@@ -50,6 +50,7 @@ _load_env_file(BACKEND_ROOT / '.env')
 REPO_ROOT = BACKEND_ROOT.parent
 ASSETS_DIR = REPO_ROOT / 'assets'
 DATA_DIR = BACKEND_ROOT / 'data'
+ADMIN_WEB_DIR = BACKEND_ROOT / 'admin_web'
 CORE100_ROOT = Path(os.getenv('CORE100_ROOT', str(REPO_ROOT.parent / 'core100')))
 PUBLIC_SCENES_FILE = DATA_DIR / 'scenes.json'
 GENERATED_SCENES_FILE = DATA_DIR / 'generated_scenes.json'
@@ -83,3 +84,6 @@ HOTSPOT_EDITOR_ENABLED = _normalize_bool(os.getenv('HOTSPOT_EDITOR_ENABLED'), de
 HOTSPOT_EDITOR_ADMIN_USER_IDS = _normalize_csv_set(os.getenv('HOTSPOT_EDITOR_ADMIN_USER_IDS'))
 HOTSPOT_EDITOR_PUBLIC_EDITOR_IDS = _normalize_csv_set(os.getenv('HOTSPOT_EDITOR_PUBLIC_EDITOR_IDS', '*'))
 HOTSPOT_EDITOR_PRIVATE_EDITOR_IDS = _normalize_csv_set(os.getenv('HOTSPOT_EDITOR_PRIVATE_EDITOR_IDS', '*'))
+ADMIN_DASHBOARD_ENABLED = _normalize_bool(os.getenv('ADMIN_DASHBOARD_ENABLED'), default=True)
+ADMIN_DASHBOARD_USERNAME = (os.getenv('ADMIN_DASHBOARD_USERNAME', 'admin') or 'admin').strip()
+ADMIN_DASHBOARD_PASSWORD = (os.getenv('ADMIN_DASHBOARD_PASSWORD', 'admin123456') or 'admin123456').strip()

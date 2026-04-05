@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Console</title>
+    <link rel="stylesheet" href="/admin/static/admin.css">
+  </head>
+  <body>
+    <div class="admin-page">
+      <aside class="admin-aside">
+        <div class="brand-block">
+          <span class="brand-mark">ADMIN</span>
+          <h1>英语场景平台后台</h1>
+          <p>面向运营与管理员的最小控制台，聚焦用户、商品、订单和任务。</p>
+        </div>
+
+        <form id="login-form" class="login-panel">
+          <label class="field">
+            <span>账号</span>
+            <input id="username" name="username" type="text" autocomplete="username" value="admin">
+          </label>
+          <label class="field">
+            <span>密码</span>
+            <input id="password" name="password" type="password" autocomplete="current-password" value="admin123456">
+          </label>
+          <button class="primary-btn" type="submit">登录后台</button>
+          <p id="login-error" class="error-copy"></p>
+        </form>
+      </aside>
+
+      <main id="console" class="console" hidden>
+        <header class="console-header">
+          <div>
+            <span class="console-eyebrow">ADMIN DASHBOARD</span>
+            <h2>平台概览</h2>
+          </div>
+          <div class="console-actions">
+            <span id="admin-name" class="admin-chip"></span>
+            <button id="refresh-btn" class="ghost-btn" type="button">刷新</button>
+            <button id="logout-btn" class="ghost-btn" type="button">退出</button>
+          </div>
+        </header>
+
+        <section id="overview-cards" class="overview-grid"></section>
+
+        <nav class="tab-bar">
+          <button class="tab-btn active" type="button" data-view="users">用户</button>
+          <button class="tab-btn" type="button" data-view="products">商品</button>
+          <button class="tab-btn" type="button" data-view="orders">订单</button>
+          <button class="tab-btn" type="button" data-view="tasks">任务</button>
+          <button class="tab-btn" type="button" data-view="scenes">场景</button>
+        </nav>
+
+        <section class="panel">
+          <div id="panel-head" class="panel-head"></div>
+          <div id="panel-body" class="panel-body"></div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/admin/static/admin.js"></script>
+  </body>
+  </html>

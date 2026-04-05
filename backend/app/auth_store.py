@@ -34,6 +34,35 @@ class AuthStore:
                 return copy.deepcopy(user)
         return None
 
+    def list_users(self, limit: int = 100) -> list[dict[str, Any]]:
+        limit = max(1, int(limit or 100))
+        with self.lock:
+            payload = read_json_file(self.data_file)
+        users = sorted(
+            payload.get('users', []),
+            key=lambda item: item.get('updatedAt') or item.get('createdAt') or '',
+            reverse=True,
+        )
+        return [copy.deepcopy(user) for user in users[:limit]]
+
+    def get_user_count(self) -> int:
+        with self.lock:
+            payload = read_json_file(self.data_file)
+        return len(payload.get('users', []))
+
+    def update_user_status(self, user_id: str, status: str) -> dict[str, Any] | None:
+        with self.lock:
+            payload = read_json_file(self.data_file)
+            users = payload.get('users', [])
+            for user in users:
+                if user.get('id') != user_id:
+                    continue
+                user['status'] = status
+                user['updatedAt'] = utcnow_iso()
+                write_json_file(self.data_file, payload)
+                return copy.deepcopy(user)
+        return None
+
     def get_or_create_debug_user(self, user_id: str) -> dict[str, Any]:
         with self.lock:
             payload = read_json_file(self.data_file)

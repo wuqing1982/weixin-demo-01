@@ -1,7 +1,7 @@
 <view class="container product-page">
   <view class="summary-card card">
     <text class="section-title">会员与点数商品</text>
-    <text class="section-subtitle">当前先走 mock 支付，打通订单、支付成功、权益发放的业务闭环。</text>
+    <text class="section-subtitle">移动端先打通会员包年、点数包和订单闭环。未登录也可以先浏览套餐。</text>
     <view class="summary-grid" wx:if="{{me}}">
       <view class="summary-pill">
         <text class="summary-label">会员状态</text>
@@ -11,6 +11,10 @@
         <text class="summary-label">生成点数</text>
         <text class="summary-value">{{me.creditSummary.sceneGenerateBalance || 0}}</text>
       </view>
+    </view>
+    <view wx:elif="{{guestMode}}" class="guest-tip">
+      <text class="guest-tip-title">游客浏览中</text>
+      <text class="guest-tip-desc">可以先看会员套餐，真正下单前再用微信一键登录。</text>
     </view>
     <button class="btn-secondary orders-btn" bindtap="onOpenOrders">查看我的订单</button>
   </view>
@@ -42,7 +46,7 @@
           bindtap="onBuySku"
           data-sku-id="{{sku.skuId}}"
         >
-          立即模拟支付
+          {{guestMode ? '登录后购买' : '立即模拟支付'}}
         </button>
       </view>
     </view>
