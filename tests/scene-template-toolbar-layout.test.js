@@ -2,7 +2,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 
-const templatePath = path.join(__dirname, '..', 'shared', 'scene', 'scene-template.wxml');
+const templatePath = path.join(__dirname, '..', 'pages', 'scene_runtime', 'index.wxml');
 const template = fs.readFileSync(templatePath, 'utf8');
 
 assert(
