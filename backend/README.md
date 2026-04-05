@@ -62,7 +62,7 @@ python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 热点编辑权限规则：
 
 - public 场景默认 `HOTSPOT_EDITOR_PUBLIC_EDITOR_IDS=*`，表示当前 MVP 默认允许编辑
-- private 场景默认只有 `ownerId` 可编辑
+- private 场景默认 `HOTSPOT_EDITOR_PRIVATE_EDITOR_IDS=*`，表示当前 MVP 默认允许编辑
 - `HOTSPOT_EDITOR_ADMIN_USER_IDS` 可全局覆盖
 - 场景 `meta.hotspotEditors` 可做单场景白名单
 - 场景 `meta.hotspotEditable=false` 可禁用普通编辑者

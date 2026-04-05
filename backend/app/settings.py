@@ -58,4 +58,4 @@ ZHIPUAI_API_KEY = (os.getenv('ZHIPUAI_API_KEY', '') or '').strip() or None
 HOTSPOT_EDITOR_ENABLED = _normalize_bool(os.getenv('HOTSPOT_EDITOR_ENABLED'), default=True)
 HOTSPOT_EDITOR_ADMIN_USER_IDS = _normalize_csv_set(os.getenv('HOTSPOT_EDITOR_ADMIN_USER_IDS'))
 HOTSPOT_EDITOR_PUBLIC_EDITOR_IDS = _normalize_csv_set(os.getenv('HOTSPOT_EDITOR_PUBLIC_EDITOR_IDS', '*'))
-HOTSPOT_EDITOR_PRIVATE_EDITOR_IDS = _normalize_csv_set(os.getenv('HOTSPOT_EDITOR_PRIVATE_EDITOR_IDS'))
+HOTSPOT_EDITOR_PRIVATE_EDITOR_IDS = _normalize_csv_set(os.getenv('HOTSPOT_EDITOR_PRIVATE_EDITOR_IDS', '*'))

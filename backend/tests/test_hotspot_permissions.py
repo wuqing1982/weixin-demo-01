@@ -39,6 +39,13 @@ class HotspotPermissionTests(unittest.TestCase):
             'private_editor_ids': set(),
         }))
 
+        self.assertTrue(can_edit_scene_hotspots(scene, 'other_debug_user', {
+            'enabled': True,
+            'admin_user_ids': set(),
+            'public_editor_ids': set(),
+            'private_editor_ids': {'*'},
+        }))
+
     def test_private_scene_without_owner_is_editable_in_mvp(self):
         scene = {
             'sceneType': 'private',
