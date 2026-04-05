@@ -2,13 +2,19 @@ const { saveSceneHotspots } = require('../../services/scene');
 const {
   normalizeEditorRect,
   applyMoveDelta,
-  applyResizeDelta
+  applyResizeDelta,
+  normalizeFloatingButtonPosition,
+  applyFloatingButtonDelta
 } = require('./hotspot-editor');
 const { getSceneNeighbors } = require('./scene-registry');
 
 const SWIPE_DISTANCE = 70;
 const SWIPE_VERTICAL_TOLERANCE = 80;
 const DEFAULT_TITLE = '英语场景';
+const DEFAULT_SAVE_BUTTON_POSITION = {
+  x: 82,
+  y: 78
+};
 
 function findEntryById(entries, id) {
   return (entries || []).find((entry) => entry.id === id) || null;
@@ -93,6 +99,7 @@ function createScenePage(sceneData) {
       editingEntry: null,
       isDirty: false,
       isSaving: false,
+      saveButtonPosition: normalizeFloatingButtonPosition(DEFAULT_SAVE_BUTTON_POSITION),
       deviceMode: 'mobile',
       playbackRate: 1.0,
       isLooping: false,
@@ -108,6 +115,8 @@ function createScenePage(sceneData) {
       this.scenePageInitialized = true;
       this.stageMetrics = null;
       this.dragState = null;
+      this.saveButtonDragState = null;
+      this.saveButtonTapSuppressedUntil = 0;
 
       wx.setNavigationBarTitle({
         title: this.data.title || DEFAULT_TITLE
@@ -144,6 +153,7 @@ function createScenePage(sceneData) {
 
     onUnload() {
       this.dragState = null;
+      this.saveButtonDragState = null;
       this.destroyAudio();
     },
 
@@ -167,6 +177,7 @@ function createScenePage(sceneData) {
         editingEntry: null,
         isDirty: false,
         isSaving: false,
+        saveButtonPosition: normalizeFloatingButtonPosition(DEFAULT_SAVE_BUTTON_POSITION),
         activeId: '',
         activeType: '',
         activeEntry: null,
@@ -175,6 +186,7 @@ function createScenePage(sceneData) {
       });
       this.stageMetrics = null;
       this.dragState = null;
+      this.saveButtonDragState = null;
 
       wx.setNavigationBarTitle({
         title: nextState.title || DEFAULT_TITLE
@@ -298,22 +310,6 @@ function createScenePage(sceneData) {
       const { sceneId } = event.currentTarget.dataset;
       const targetScene = this.data.sceneTabs.find((item) => item.sceneId === sceneId);
       this.navigateToScene(targetScene);
-    },
-
-    onSwitchDevice(event) {
-      const { mode } = event.currentTarget.dataset;
-      this.setData({
-        deviceMode: mode
-      }, () => {
-        if (this.data.editorMode) {
-          this.measureStageRect();
-        }
-      });
-      wx.showToast({
-        title: mode === 'mobile' ? '手机视图' : mode === 'tablet' ? '平板视图' : '电脑视图',
-        icon: 'none',
-        duration: 1000
-      });
     },
 
     onRateChange(event) {
@@ -472,27 +468,34 @@ function createScenePage(sceneData) {
       });
     },
 
-    async onToggleEditor() {
+    async enterEditorMode() {
       if (!this.data.canEditHotspots || this.data.loading || this.data.isSaving) {
         return;
       }
 
+      if (this.data.editorMode) {
+        return;
+      }
+
+      const draftItems = cloneEntries(this.data.items);
+      const firstItem = draftItems[0] || null;
+      this.stopAudio();
+      this.setData({
+        editorMode: true,
+        draftItems,
+        hotspotItems: draftItems,
+        editingItemId: firstItem ? firstItem.id : '',
+        editingEntry: firstItem,
+        isDirty: false,
+        activeId: '',
+        activeType: '',
+        activeEntry: null
+      });
+      await this.measureStageRect();
+    },
+
+    exitEditorMode() {
       if (!this.data.editorMode) {
-        const draftItems = cloneEntries(this.data.items);
-        const firstItem = draftItems[0] || null;
-        this.stopAudio();
-        this.setData({
-          editorMode: true,
-          draftItems,
-          hotspotItems: draftItems,
-          editingItemId: firstItem ? firstItem.id : '',
-          editingEntry: firstItem,
-          isDirty: false,
-          activeId: '',
-          activeType: '',
-          activeEntry: null
-        });
-        await this.measureStageRect();
         return;
       }
 
@@ -505,6 +508,7 @@ function createScenePage(sceneData) {
           editingEntry: null
         });
         this.dragState = null;
+        this.saveButtonDragState = null;
         return;
       }
 
@@ -525,8 +529,17 @@ function createScenePage(sceneData) {
             isDirty: false
           });
           this.dragState = null;
+          this.saveButtonDragState = null;
         }
       });
+    },
+
+    async onEnterEditorMode() {
+      await this.enterEditorMode();
+    },
+
+    onExitEditorMode() {
+      this.exitEditorMode();
     },
 
     updateDraftRect(itemId, rect, options = {}) {
@@ -617,6 +630,67 @@ function createScenePage(sceneData) {
 
     onEditorZoneTouchEnd() {
       this.dragState = null;
+    },
+
+    onSaveButtonTouchStart(event) {
+      if (!this.data.editorMode || this.data.isSaving) {
+        return;
+      }
+
+      const touch = event.touches && event.touches[0];
+      if (!touch) {
+        return;
+      }
+
+      this.saveButtonDragState = {
+        startX: touch.pageX,
+        startY: touch.pageY,
+        startPosition: Object.assign({}, this.data.saveButtonPosition),
+        moved: false
+      };
+    },
+
+    onSaveButtonTouchMove(event) {
+      if (!this.data.editorMode || !this.saveButtonDragState || this.data.isSaving) {
+        return;
+      }
+
+      const touch = event.touches && event.touches[0];
+      const metrics = this.stageMetrics;
+      if (!touch || !metrics || !metrics.width || !metrics.height) {
+        return;
+      }
+
+      const deltaXPct = ((touch.pageX - this.saveButtonDragState.startX) / metrics.width) * 100;
+      const deltaYPct = ((touch.pageY - this.saveButtonDragState.startY) / metrics.height) * 100;
+      const nextPosition = applyFloatingButtonDelta(
+        this.saveButtonDragState.startPosition,
+        deltaXPct,
+        deltaYPct
+      );
+
+      this.saveButtonDragState.moved = this.saveButtonDragState.moved
+        || Math.abs(touch.pageX - this.saveButtonDragState.startX) > 6
+        || Math.abs(touch.pageY - this.saveButtonDragState.startY) > 6;
+
+      this.setData({
+        saveButtonPosition: nextPosition
+      });
+    },
+
+    onSaveButtonTouchEnd() {
+      if (this.saveButtonDragState && this.saveButtonDragState.moved) {
+        this.saveButtonTapSuppressedUntil = Date.now() + 300;
+      }
+      this.saveButtonDragState = null;
+    },
+
+    onTapFloatingSave() {
+      if (Date.now() < this.saveButtonTapSuppressedUntil) {
+        return;
+      }
+
+      this.onSaveHotspots();
     },
 
     onEditorNudge(event) {

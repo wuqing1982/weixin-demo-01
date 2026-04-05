@@ -1,7 +1,9 @@
 const assert = require('assert');
 const {
   applyMoveDelta,
-  applyResizeDelta
+  applyResizeDelta,
+  normalizeFloatingButtonPosition,
+  applyFloatingButtonDelta
 } = require('../pages/shared/hotspot-editor');
 
 const baseRect = { l: 20, t: 30, w: 20, h: 20 };
@@ -33,6 +35,16 @@ expectRect(
 expectRect(
   applyResizeDelta(baseRect, 'n', 0, -40),
   { l: 20, t: 0, w: 20, h: 50 }
+);
+
+expectRect(
+  normalizeFloatingButtonPosition({ x: 98, y: -5 }),
+  { x: 90, y: 8 }
+);
+
+expectRect(
+  applyFloatingButtonDelta({ x: 82, y: 76 }, 40, 20),
+  { x: 90, y: 90 }
 );
 
 console.log('hotspot editor geometry tests passed');

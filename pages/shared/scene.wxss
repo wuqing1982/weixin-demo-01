@@ -37,10 +37,6 @@
   gap: 12rpx;
 }
 
-.device-group {
-  flex-shrink: 0;
-}
-
 .toolbar-btn {
   width: 64rpx;
   height: 64rpx;
@@ -146,36 +142,40 @@
   font-size: 28rpx;
 }
 
-.editor-toggle-btn {
-  font-size: 24rpx;
-  font-weight: 700;
-  color: #fff4cf;
-  background: rgba(255, 173, 51, 0.18);
-  border-color: rgba(255, 194, 102, 0.45);
+.editor-mode-group {
+  flex-shrink: 0;
+  gap: 14rpx;
 }
 
-.editor-toggle-btn.active {
-  background: rgba(255, 163, 26, 0.78);
-  border-color: rgba(255, 215, 140, 0.85);
-  box-shadow: 0 0 20rpx rgba(255, 163, 26, 0.35);
+.mode-dot {
+  width: 26rpx;
+  height: 26rpx;
+  border-radius: 999rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 0 0 6rpx rgba(255, 255, 255, 0.06);
+}
+
+.mode-dot-edit {
+  background: #33c26f;
+}
+
+.mode-dot-browse {
+  background: #ef4b4b;
+}
+
+.mode-dot-active {
+  box-shadow: 0 0 0 6rpx rgba(255, 255, 255, 0.12), 0 0 18rpx rgba(255, 255, 255, 0.14);
+  transform: scale(1.05);
+}
+
+.mode-dot-inactive {
+  opacity: 0.42;
 }
 
 /* ========== 场景框架 ========== */
 .scene-frame-wrapper {
   width: 100%;
   transition: all 0.3s ease;
-}
-
-/* 平板模式 */
-.frame-tablet {
-  max-width: 75%;
-  margin: 0 auto;
-}
-
-/* 电脑模式 */
-.frame-desktop {
-  max-width: 60%;
-  margin: 0 auto;
 }
 
 .scene-frame {
@@ -322,6 +322,38 @@
   left: -12rpx;
   top: 50%;
   transform: translateY(-50%);
+}
+
+.floating-save-btn {
+  position: absolute;
+  z-index: 8;
+  width: 116rpx;
+  height: 116rpx;
+  transform: translate(-50%, -50%);
+  border-radius: 999rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(40, 186, 96, 0.88);
+  border: 2rpx solid rgba(225, 255, 233, 0.82);
+  box-shadow: 0 16rpx 36rpx rgba(18, 97, 53, 0.42);
+  backdrop-filter: blur(12rpx);
+  -webkit-backdrop-filter: blur(12rpx);
+}
+
+.floating-save-btn-dirty {
+  background: linear-gradient(135deg, rgba(43, 199, 103, 0.96), rgba(17, 155, 74, 0.96));
+}
+
+.floating-save-btn-saving {
+  opacity: 0.86;
+}
+
+.floating-save-text {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #f4fff7;
+  letter-spacing: 2rpx;
 }
 
 .overlay {
@@ -491,29 +523,6 @@
   color: rgba(255, 255, 255, 0.75);
 }
 
-.editor-save-btn {
-  margin: 0;
-  padding: 0 24rpx;
-  height: 68rpx;
-  line-height: 68rpx;
-  border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.14);
-  color: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  font-size: 26rpx;
-  font-weight: 700;
-}
-
-.editor-save-btn::after {
-  border: 0;
-}
-
-.editor-save-btn-dirty {
-  background: linear-gradient(135deg, #ffb347, #ff8f3d);
-  color: #2b1600;
-  box-shadow: 0 12rpx 28rpx rgba(255, 143, 61, 0.35);
-}
-
 .editor-actions {
   margin-top: 18rpx;
 }
@@ -555,6 +564,19 @@
 }
 
 /* ========== 响应式适配 ========== */
+@media screen and (min-width: 768px) {
+  .scene-frame-wrapper {
+    max-width: 75%;
+    margin: 0 auto;
+  }
+}
+
+@media screen and (min-width: 1280px) {
+  .scene-frame-wrapper {
+    max-width: 60%;
+  }
+}
+
 @media screen and (max-width: 375px) {
   .scene-toolbar {
     padding: 12rpx 16rpx;
@@ -583,5 +605,10 @@
 
   .editor-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .floating-save-btn {
+    width: 104rpx;
+    height: 104rpx;
   }
 }

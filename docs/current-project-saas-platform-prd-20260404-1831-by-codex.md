@@ -3091,3 +3091,476 @@ create index if not exists idx_user_mobile_bind_logs_mobile on user_mobile_bind_
 - 场景访问控制
 - 订单归属
 - 用户画像积累
+
+---
+
+## 22. FastAPI 模块目录重构建议
+
+当前项目的后端已经能跑通公开场景、生成任务、worker 链路，但如果要正式进入 SaaS 阶段，建议从“单文件+少量 store”逐步重构成按领域分层的结构。
+
+### 22.1 重构目标
+
+目标不是为了“看起来更大厂”，而是为了支撑下面这些真实需求：
+
+- 用户登录
+- 会员权益
+- 订单支付
+- Admin 后台
+- worker 队列
+- PostgreSQL 持久化
+
+建议结构如下：
+
+```text
+backend/
+  app/
+    main.py
+    core/
+      config.py
+      db.py
+      security.py
+      jwt.py
+      exceptions.py
+      logging.py
+    api/
+      deps.py
+      router.py
+      auth.py
+      users.py
+      scenes.py
+      my_scenes.py
+      tasks.py
+      products.py
+      orders.py
+      payments.py
+      admin_auth.py
+      admin_users.py
+      admin_orders.py
+      admin_products.py
+    models/
+      user.py
+      user_identity.py
+      auth_refresh_token.py
+      product.py
+      sku.py
+      order.py
+      payment.py
+      entitlement.py
+      credit_account.py
+      credit_ledger.py
+      scene.py
+      task.py
+    schemas/
+      auth.py
+      user.py
+      scene.py
+      task.py
+      product.py
+      order.py
+      admin.py
+    services/
+      auth_service.py
+      wechat_auth_service.py
+      token_service.py
+      user_service.py
+      entitlement_service.py
+      product_service.py
+      order_service.py
+      payment_service.py
+      scene_service.py
+      task_service.py
+      worker_dispatch_service.py
+    repositories/
+      user_repo.py
+      identity_repo.py
+      token_repo.py
+      product_repo.py
+      order_repo.py
+      scene_repo.py
+      task_repo.py
+    workers/
+      scene_generation_worker.py
+      tts_worker.py
+    integrations/
+      wechat_client.py
+      wechat_pay_client.py
+      azure_tts_client.py
+      core100_client.py
+    migrations/
+    tests/
+```
+
+### 22.2 每层职责建议
+
+#### `api/`
+
+负责：
+
+- 路由注册
+- 参数校验
+- 调 service
+- 返回响应
+
+不负责：
+
+- 复杂业务判断
+- SQL 拼接
+- 第三方 API 细节
+
+#### `services/`
+
+负责：
+
+- 业务规则
+- 登录流程
+- 权益校验
+- 订单状态流转
+- worker 调度
+
+这是后续最核心的一层。
+
+#### `repositories/`
+
+负责：
+
+- 读写 PostgreSQL
+- 按模型查询
+- 封装事务内的数据操作
+
+这一层尽量不要混业务逻辑。
+
+#### `integrations/`
+
+负责：
+
+- 微信登录接口
+- 微信支付接口
+- Azure TTS
+- `core100`
+
+这样未来如果第三方供应商变了，只需要动接入层，不要把外部协议散落在各个 service 里。
+
+### 22.3 对当前项目的渐进式迁移建议
+
+不要一次性大改全部后端。建议按下面顺序迁移：
+
+1. 先保留当前 `main.py` 入口
+2. 先拆出 `api/auth.py`
+3. 再拆 `core/config.py`、`core/db.py`、`core/security.py`
+4. 再引入 `models/` 和 `repositories/`
+5. 再把当前场景、任务逻辑迁到 `services/`
+6. 最后再把 worker 独立成真正的进程服务
+
+这样风险最小。
+
+---
+
+## 23. 认证中间件与 JWT 方案
+
+### 23.1 token 方案建议
+
+我建议第一阶段采用：
+
+- Access Token：JWT
+- Refresh Token：随机字符串 + 数据库存 hash
+
+原因：
+
+- Access Token 适合高频 API 校验
+- Refresh Token 落库后更容易做失效控制
+- 兼顾性能和可控性
+
+### 23.2 Access Token 建议字段
+
+JWT payload 建议包含：
+
+```json
+{
+  "sub": "c56a4180-65aa-42ec-a945-5fd21dec0538",
+  "typ": "access",
+  "role": "user",
+  "sid": "session_xxx",
+  "iat": 1770000000,
+  "exp": 1770007200
+}
+```
+
+字段含义：
+
+- `sub`: 用户 `user_id`
+- `typ`: token 类型
+- `role`: 用户角色
+- `sid`: 会话 ID 或 refresh token 关联会话
+- `iat`: 签发时间
+- `exp`: 过期时间
+
+第一阶段先不要把太多业务字段塞进 JWT。
+
+### 23.3 token 有效期建议
+
+推荐默认值：
+
+- Access Token：2 小时
+- Refresh Token：30 天
+
+如果后面做会员型产品，也可以调整成：
+
+- Access Token：2 小时
+- Refresh Token：60 天
+
+但第一阶段 30 天更稳妥。
+
+### 23.4 `core/security.py` 建议职责
+
+建议把安全相关能力集中到这里：
+
+- JWT 编码
+- JWT 解码
+- refresh token 生成
+- refresh token hash
+- 密码学辅助方法
+- `session_key` 加密/解密
+
+示例职责：
+
+- `create_access_token(user_id, role, session_id)`
+- `decode_access_token(token)`
+- `generate_refresh_token()`
+- `hash_refresh_token(raw_token)`
+- `encrypt_wechat_session_key(raw_value)`
+- `decrypt_wechat_session_key(cipher_text)`
+
+### 23.5 `api/deps.py` 建议提供的依赖
+
+建议统一提供这些依赖函数：
+
+- `get_db_session()`
+- `get_current_user()`
+- `get_current_active_user()`
+- `get_optional_user()`
+- `get_current_admin_user()`
+
+使用方式示例：
+
+```python
+@router.get("/api/me")
+def get_me(current_user = Depends(get_current_user)):
+    ...
+```
+
+### 23.6 鉴权中间件建议
+
+推荐做法不是写一个“大而全的全局中间件”拦所有请求，而是：
+
+- 公开接口不加依赖
+- 用户接口用 `Depends(get_current_user)`
+- 管理接口用 `Depends(get_current_admin_user)`
+
+优点是：
+
+- 路由层更清晰
+- 错误更容易定位
+- 不会误伤微信回调、支付回调、健康检查
+
+### 23.7 失效控制建议
+
+第一阶段建议至少支持：
+
+- access token 到期自动失效
+- refresh token 可手动撤销
+- 用户被禁用后新请求失效
+
+第二阶段再考虑：
+
+- 单设备踢下线
+- 风险设备封禁
+- 异地登录提醒
+
+### 23.8 Admin 与用户态认证必须分开
+
+这是一个很容易被做坏的点。
+
+建议：
+
+- 小程序用户登录一套 token
+- Admin 后台一套单独认证体系
+- Admin 角色不要直接复用普通会员 token
+
+最简单做法：
+
+- 单独 `admin_users` 表
+- 单独 `POST /api/admin/auth/login`
+- 单独 `get_current_admin_user()`
+
+这样更安全。
+
+---
+
+## 24. 小程序端登录状态管理设计
+
+### 24.1 前端应新增的模块
+
+小程序端建议新增：
+
+```text
+miniprogram/
+  services/
+    auth.js
+    session.js
+  stores/
+    auth-store.js
+  utils/
+    request.js
+```
+
+如果当前项目不引入复杂状态库，也可以先简单一些：
+
+- `services/auth.js`
+- `services/session.js`
+- 在 `app.js` 中维护全局登录态
+
+### 24.2 推荐登录流程
+
+小程序启动时流程建议如下：
+
+1. `App.onLaunch` 读取本地 `accessToken`、`refreshToken`
+2. 如果存在 access token，先尝试调用 `GET /api/me`
+3. 如果 access token 失效，则尝试 `POST /api/auth/refresh`
+4. 如果 refresh 也失败，则重新执行微信登录
+5. 微信登录流程：
+   - `wx.login`
+   - 拿到 `code`
+   - 调 `POST /api/auth/wechat/login`
+   - 保存 token
+   - 拉取 `GET /api/me`
+6. 将当前用户资料写入全局状态
+
+### 24.3 本地存储建议
+
+建议本地存储这些键：
+
+- `accessToken`
+- `refreshToken`
+- `accessTokenExpireAt`
+- `currentUser`
+
+不要本地存储：
+
+- `session_key`
+- `openid`
+- 任何明文敏感后台配置
+
+### 24.4 请求封装建议
+
+建议把所有请求都收口到统一请求层，例如 `utils/request.js`。
+
+它要负责：
+
+- 自动带上 `Authorization`
+- 遇到 401 时尝试刷新 token
+- 刷新成功后重放请求
+- 刷新失败则跳回登录
+
+伪代码逻辑：
+
+```javascript
+async function request(options) {
+  const accessToken = getAccessToken();
+  try {
+    return await rawRequest(withAuth(options, accessToken));
+  } catch (err) {
+    if (err.statusCode !== 401) throw err;
+    const refreshed = await tryRefreshToken();
+    if (!refreshed) {
+      await loginSilently();
+    }
+    return rawRequest(withAuth(options, getAccessToken()));
+  }
+}
+```
+
+### 24.5 页面层应该关心什么
+
+页面层不应该关心：
+
+- `wx.login` 细节
+- token 过期细节
+- refresh token 细节
+
+页面层只需要关心：
+
+- 当前是否登录
+- 当前用户是谁
+- 当前是否有会员
+- 当前 credits 是否足够
+
+所以页面里推荐只消费：
+
+- `getCurrentUser()`
+- `ensureLogin()`
+- `ensureMemberAccess()`
+- `ensureCreditBalance()`
+
+### 24.6 当前项目如何改
+
+当前项目已经有：
+
+- `services/api.js`
+- `services/upload.js`
+- `services/task.js`
+- `app.js`
+
+建议改造方向：
+
+- 在 `services/api.js` 统一注入正式 `Authorization`
+- 在 `services/upload.js` 的 `wx.uploadFile` 里同步带 token
+- 删除开发用 `X-Debug-User-Id`
+- 在 `app.js` 增加启动时登录初始化逻辑
+- 首页、我的场景页、生成页依赖真实登录态
+
+### 24.7 推荐的小程序登录状态数据结构
+
+```javascript
+{
+  isReady: false,
+  isLoggedIn: false,
+  accessToken: "",
+  refreshToken: "",
+  currentUser: null
+}
+```
+
+随着初始化完成：
+
+- `isReady = true`
+- `isLoggedIn = true/false`
+
+这样页面可以区分：
+
+- 还在初始化
+- 已登录
+- 未登录
+
+### 24.8 第一阶段交互建议
+
+第一阶段不要把登录做得太重。
+
+建议体验是：
+
+- 用户首次打开小程序
+- 系统静默完成微信登录
+- 大部分页面无需先手动点登录
+- 只有涉及手机号绑定、支付、敏感资料时，再做额外授权提示
+
+这种体验更符合小程序用户预期。
+
+### 24.9 我建议的前端实施顺序
+
+1. 新增 `auth.js` 和 `session.js`
+2. 改 `app.js` 做启动登录初始化
+3. 改 `services/api.js` 统一 token 请求
+4. 改 `services/upload.js` 支持带 token 上传
+5. 改 `/api/my/*` 页面读取正式用户态
+6. 删除 `debugUserId` 兼容逻辑
+
+这样前后端能稳步切换，不会一下子把现有生成链路打断。

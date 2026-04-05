@@ -413,6 +413,144 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260405072256_64b7ea",
+      "title": "tmp_4c28a108df6c68a13ff1366aad0f03ab09b2b5817f3dc4d3",
+      "category": "learning",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260405072256_64b7ea/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260405072256_64b7ea/background.jpg",
+      "items": [
+        {
+          "id": "computer_monitor",
+          "word": "monitor",
+          "ipa": "/ˈmɒntər/",
+          "meaning": "显示器",
+          "sentence": "Look at the monitor on the desk.",
+          "sentenceTranslation": "看一下桌子上的显示器。",
+          "audioPath": "/assets/generated/scene_user_20260405072256_64b7ea/scene_user_20260405072256_64b7ea_en-US-JennyNeural_US_female_computer_monitor_look_at_the_monitor_on_the.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 30.0,
+            "w": 50.0,
+            "h": 40.0
+          }
+        },
+        {
+          "id": "microphone",
+          "word": "microphone",
+          "ipa": "/ˈmaɪkrəˌfaʊn/",
+          "meaning": "麦克风",
+          "sentence": "The microphone is on a stand next to the monitor.",
+          "sentenceTranslation": "麦克风放在显示器的旁边支架上。",
+          "audioPath": "/assets/generated/scene_user_20260405072256_64b7ea/scene_user_20260405072256_64b7ea_en-US-JennyNeural_US_female_microphone_the_microphone_is_on_a_stand.mp3",
+          "rect": {
+            "l": 60.0,
+            "t": 35.0,
+            "w": 15.0,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "mousepad",
+          "word": "mousepad",
+          "ipa": "/ˈmaʊsˌpæd/",
+          "meaning": "鼠标垫",
+          "sentence": "Put your hand on the mousepad to use the computer.",
+          "sentenceTranslation": "把你的手放在鼠标垫上才能使用电脑。",
+          "audioPath": "/assets/generated/scene_user_20260405072256_64b7ea/scene_user_20260405072256_64b7ea_en-US-JennyNeural_US_female_mousepad_put_your_hand_on_the_mousepad.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 70.0,
+            "w": 20.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "headphones",
+          "word": "headphones",
+          "ipa": "/ˈhɛdpənz/",
+          "meaning": "耳机",
+          "sentence": "These headphones are used for listening to music or calls.",
+          "sentenceTranslation": "这些耳机可以用来听音乐或打电话。",
+          "audioPath": "/assets/generated/scene_user_20260405072256_64b7ea/scene_user_20260405072256_64b7ea_en-US-JennyNeural_US_female_headphones_these_headphones_are_used_for_listening.mp3",
+          "rect": {
+            "l": 80.0,
+            "t": 75.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "cable",
+          "word": "cable",
+          "ipa": "/ˈkeɪbəl/",
+          "meaning": "电缆",
+          "sentence": "Make sure the cable is connected properly to the device.",
+          "sentenceTranslation": "确保电缆正确地连接到设备上。",
+          "audioPath": "/assets/generated/scene_user_20260405072256_64b7ea/scene_user_20260405072256_64b7ea_en-US-JennyNeural_US_female_cable_make_sure_the_cable_is_connected.mp3",
+          "rect": {
+            "l": 90.0,
+            "t": 85.0,
+            "w": 5.0,
+            "h": 5.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "v1",
+          "word": "look",
+          "ipa": "/lʊk/",
+          "meaning": "看",
+          "sentence": "Look at the monitor on the desk.",
+          "sentenceTranslation": "看桌子上的显示器。",
+          "audioPath": "/assets/generated/scene_user_20260405072256_64b7ea/scene_user_20260405072256_64b7ea_en-US-JennyNeural_US_female_v1_look_at_the_monitor_on_the.mp3",
+          "relatedItem": "computer_monitor"
+        },
+        {
+          "id": "v2",
+          "word": "use",
+          "ipa": "/juːz/",
+          "meaning": "使用",
+          "sentence": "Use the microphone to talk.",
+          "sentenceTranslation": "用麦克风说话。",
+          "audioPath": "/assets/generated/scene_user_20260405072256_64b7ea/scene_user_20260405072256_64b7ea_en-US-JennyNeural_US_female_v2_use_the_microphone_to_talk.mp3",
+          "relatedItem": "microphone"
+        },
+        {
+          "id": "v3",
+          "word": "put on",
+          "ipa": "/pʊt ɒn/",
+          "meaning": "戴上（耳机）",
+          "sentence": "Put on the headphones to listen.",
+          "sentenceTranslation": "戴上耳机听。",
+          "audioPath": "/assets/generated/scene_user_20260405072256_64b7ea/scene_user_20260405072256_64b7ea_en-US-JennyNeural_US_female_v3_put_on_the_headphones_to_listen.mp3",
+          "relatedItem": "headphones"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "debug_user_1775305037380_ce29d5",
+        "uploadId": "upload_20260405072255_526e7f",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260405072256_64b7ea",
+        "core100SceneTitle": "tmp_4c28a108df6c68a13ff1366aad0f03ab09b2b5817f3dc4d3",
+        "recommendedCategory": "learning",
+        "tags": [
+          "学习",
+          "安静",
+          "室内"
+        ],
+        "version": 1
+      }
     }
   ]
 }

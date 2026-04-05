@@ -11,26 +11,17 @@
     <view wx:else class="scene-stage">
       <!-- 顶部工具栏 -->
       <view class="scene-toolbar">
-        <!-- 设备切换按钮 -->
-        <view class="toolbar-group device-group">
-          <view 
-            class="toolbar-btn {{deviceMode === 'mobile' ? 'active' : ''}}" 
-            bindtap="onSwitchDevice"
-            data-mode="mobile"
-            title="手机"
-          >📱</view>
-          <view 
-            class="toolbar-btn {{deviceMode === 'tablet' ? 'active' : ''}}" 
-            bindtap="onSwitchDevice"
-            data-mode="tablet"
-            title="平板"
-          >💻</view>
-          <view 
-            class="toolbar-btn {{deviceMode === 'desktop' ? 'active' : ''}}" 
-            bindtap="onSwitchDevice"
-            data-mode="desktop"
-            title="电脑"
-          >🖥️</view>
+        <view wx:if="{{canEditHotspots}}" class="toolbar-group editor-mode-group">
+          <view
+            class="mode-dot mode-dot-edit {{editorMode ? 'mode-dot-active' : 'mode-dot-inactive'}}"
+            bindtap="onEnterEditorMode"
+            title="编辑态"
+          ></view>
+          <view
+            class="mode-dot mode-dot-browse {{!editorMode ? 'mode-dot-active' : 'mode-dot-inactive'}}"
+            bindtap="onExitEditorMode"
+            title="浏览态"
+          ></view>
         </view>
 
         <!-- 语速控制 -->
@@ -83,15 +74,9 @@
           title="导出视频"
         >🎬</view>
 
-        <view
-          wx:if="{{canEditHotspots}}"
-          class="toolbar-btn editor-toggle-btn {{editorMode ? 'active' : ''}}"
-          bindtap="onToggleEditor"
-          title="热点编辑"
-        >{{editorMode ? '完' : '编'}}</view>
       </view>
 
-      <view class="scene-frame-wrapper {{deviceMode === 'tablet' ? 'frame-tablet' : ''}} {{deviceMode === 'desktop' ? 'frame-desktop' : ''}}">
+      <view class="scene-frame-wrapper">
         <view class="scene-frame {{verbs.length ? 'scene-frame-has-verbs' : ''}}">
           <view class="scene-content" id="sceneContent">
             <image
@@ -100,11 +85,24 @@
               mode="aspectFill"
             />
 
-            <view class="scene-hotspots">
+            <view wx:if="{{!editorMode}}" class="scene-hotspots scene-hotspots-browse">
+              <view
+                wx:for="{{items}}"
+                wx:key="id"
+                class="zone {{activeType === 'item' && activeId === item.id ? 'zone-active' : ''}}"
+                style="left: {{item.rect.l}}%; top: {{item.rect.t}}%; width: {{item.rect.w}}%; height: {{item.rect.h}}%;"
+                data-id="{{item.id}}"
+                catchtap="onTapHotspot"
+              >
+                <view class="zone-dot"></view>
+              </view>
+            </view>
+
+            <view wx:if="{{editorMode}}" class="scene-hotspots scene-hotspots-editor">
               <view
                 wx:for="{{hotspotItems}}"
                 wx:key="id"
-                class="zone {{editorMode ? 'zone-editor' : ''}} {{!editorMode && activeType === 'item' && activeId === item.id ? 'zone-active' : ''}} {{editorMode && editingItemId === item.id ? 'zone-editor-active' : ''}}"
+                class="zone zone-editor {{editingItemId === item.id ? 'zone-editor-active' : ''}}"
                 style="left: {{item.rect.l}}%; top: {{item.rect.t}}%; width: {{item.rect.w}}%; height: {{item.rect.h}}%;"
                 data-id="{{item.id}}"
                 catchtap="onTapHotspot"
@@ -113,7 +111,7 @@
                 catchtouchend="onEditorZoneTouchEnd"
               >
                 <view class="zone-dot"></view>
-                <block wx:if="{{editorMode && editingItemId === item.id}}">
+                <block wx:if="{{editingItemId === item.id}}">
                   <view class="zone-label">{{item.word}}</view>
                   <view class="zone-handle zone-handle-nw" data-id="{{item.id}}" data-handle="nw" catchtouchstart="onEditorHandleTouchStart" catchtouchmove="onEditorZoneTouchMove" catchtouchend="onEditorZoneTouchEnd"></view>
                   <view class="zone-handle zone-handle-n" data-id="{{item.id}}" data-handle="n" catchtouchstart="onEditorHandleTouchStart" catchtouchmove="onEditorZoneTouchMove" catchtouchend="onEditorZoneTouchEnd"></view>
@@ -125,6 +123,18 @@
                   <view class="zone-handle zone-handle-w" data-id="{{item.id}}" data-handle="w" catchtouchstart="onEditorHandleTouchStart" catchtouchmove="onEditorZoneTouchMove" catchtouchend="onEditorZoneTouchEnd"></view>
                 </block>
               </view>
+            </view>
+
+            <view
+              wx:if="{{editorMode}}"
+              class="floating-save-btn {{isDirty ? 'floating-save-btn-dirty' : ''}} {{isSaving ? 'floating-save-btn-saving' : ''}}"
+              style="left: {{saveButtonPosition.x}}%; top: {{saveButtonPosition.y}}%;"
+              catchtap="onTapFloatingSave"
+              catchtouchstart="onSaveButtonTouchStart"
+              catchtouchmove="onSaveButtonTouchMove"
+              catchtouchend="onSaveButtonTouchEnd"
+            >
+              <text class="floating-save-text">{{isSaving ? '保存中' : '保存'}}</text>
             </view>
 
             <view wx:if="{{!editorMode}}" class="overlay {{activeEntry ? 'overlay-visible' : ''}}">
@@ -165,12 +175,6 @@
                   <text class="editor-panel-title">{{editingEntry ? editingEntry.word : '选择热点'}}</text>
                   <text class="editor-panel-subtitle">{{isDirty ? '有未保存改动' : '拖动热点或用按钮微调'}}</text>
                 </view>
-                <button
-                  class="editor-save-btn {{isDirty ? 'editor-save-btn-dirty' : ''}}"
-                  bindtap="onSaveHotspots"
-                  loading="{{isSaving}}"
-                  disabled="{{!isDirty || isSaving}}"
-                >{{isSaving ? '保存中' : '保存'}}</button>
               </view>
 
               <view wx:if="{{editingEntry}}" class="editor-actions">

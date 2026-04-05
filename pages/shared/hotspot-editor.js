@@ -1,4 +1,8 @@
 const MIN_HOTSPOT_SIZE = 4;
+const FLOATING_BUTTON_MIN_X = 10;
+const FLOATING_BUTTON_MAX_X = 90;
+const FLOATING_BUTTON_MIN_Y = 8;
+const FLOATING_BUTTON_MAX_Y = 90;
 
 function roundPercent(value) {
   return Math.round(value * 100) / 100;
@@ -70,10 +74,28 @@ function applyResizeDelta(startRect, handle, deltaXPct, deltaYPct) {
   };
 }
 
+function normalizeFloatingButtonPosition(position) {
+  const safePosition = position || {};
+  return {
+    x: roundPercent(clamp(clampPercent(safePosition.x), FLOATING_BUTTON_MIN_X, FLOATING_BUTTON_MAX_X)),
+    y: roundPercent(clamp(clampPercent(safePosition.y), FLOATING_BUTTON_MIN_Y, FLOATING_BUTTON_MAX_Y))
+  };
+}
+
+function applyFloatingButtonDelta(startPosition, deltaXPct, deltaYPct) {
+  const position = normalizeFloatingButtonPosition(startPosition);
+  return normalizeFloatingButtonPosition({
+    x: position.x + deltaXPct,
+    y: position.y + deltaYPct
+  });
+}
+
 module.exports = {
   MIN_HOTSPOT_SIZE,
   clampPercent,
   normalizeEditorRect,
   applyMoveDelta,
-  applyResizeDelta
+  applyResizeDelta,
+  normalizeFloatingButtonPosition,
+  applyFloatingButtonDelta
 };
