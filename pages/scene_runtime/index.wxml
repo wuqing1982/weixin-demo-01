@@ -9,9 +9,9 @@
 
   <view wx:else class="scene-stage">
     <view class="scene-toolbar">
-      <view class="toolbar-group rate-group">
-        <view class="rate-control-row">
-          <view wx:if="{{canEditHotspots}}" class="toolbar-group editor-mode-group">
+      <view class="toolbar-slot toolbar-slot-left">
+        <view wx:if="{{canEditHotspots}}" class="toolbar-rail toolbar-rail-mode">
+          <view class="toolbar-group editor-mode-group">
             <view
               class="mode-dot mode-dot-edit {{editorMode ? 'mode-dot-active' : 'mode-dot-inactive'}}"
               bindtap="onEnterEditorMode"
@@ -23,53 +23,65 @@
               title="浏览态"
             ></view>
           </view>
-
-          <view
-            class="rate-icon {{playbackRate <= 0.8 ? 'active' : ''}}"
-            bindtap="onRatePreset"
-            data-rate="0.75"
-            title="慢速"
-          >🐢</view>
-
-          <slider
-            class="rate-slider"
-            min="0.5"
-            max="2"
-            step="0.1"
-            value="{{playbackRate}}"
-            bindchange="onRateChange"
-            block-size="14"
-            backgroundColor="rgba(255,255,255,0.25)"
-            activeColor="#667eea"
-          />
-
-          <view
-            class="rate-icon {{playbackRate >= 1.2 ? 'active' : ''}}"
-            bindtap="onRatePreset"
-            data-rate="1.5"
-            title="快速"
-          >🐇</view>
         </view>
-        <text class="rate-display">{{playbackRate}}x</text>
       </view>
 
-      <view
-        class="toolbar-btn repeat-btn {{isLooping ? 'active' : ''}}"
-        bindtap="onToggleLoop"
-        title="重复播放"
-      >🔄</view>
+      <view class="toolbar-slot toolbar-slot-center">
+        <view class="toolbar-rail toolbar-rail-rate">
+          <view class="toolbar-group rate-group">
+            <view class="rate-control-row">
+              <view
+                class="rate-icon {{playbackRate <= 0.8 ? 'active' : ''}}"
+                bindtap="onRatePreset"
+                data-rate="0.75"
+                title="慢速"
+              >🐢</view>
 
-      <view
-        class="toolbar-btn camera-btn"
-        bindtap="onOpenCamera"
-        title="摄像头"
-      >📷</view>
+              <slider
+                class="rate-slider"
+                min="0.5"
+                max="2"
+                step="0.1"
+                value="{{playbackRate}}"
+                bindchange="onRateChange"
+                block-size="14"
+                backgroundColor="rgba(255,255,255,0.25)"
+                activeColor="#667eea"
+              />
 
-      <view
-        class="toolbar-btn export-btn"
-        bindtap="onExportVideo"
-        title="导出视频"
-      >🎬</view>
+              <view
+                class="rate-icon {{playbackRate >= 1.2 ? 'active' : ''}}"
+                bindtap="onRatePreset"
+                data-rate="1.5"
+                title="快速"
+              >🐇</view>
+            </view>
+            <text class="rate-display">{{playbackRate}}x</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="toolbar-slot toolbar-slot-right">
+        <view class="toolbar-rail toolbar-rail-actions">
+          <view
+            class="toolbar-btn repeat-btn {{isLooping ? 'active' : ''}}"
+            bindtap="onToggleLoop"
+            title="重复播放"
+          >🔄</view>
+
+          <view
+            class="toolbar-btn camera-btn"
+            bindtap="onOpenCamera"
+            title="摄像头"
+          >📷</view>
+
+          <view
+            class="toolbar-btn export-btn"
+            bindtap="onExportVideo"
+            title="导出视频"
+          >🎬</view>
+        </view>
+      </view>
     </view>
 
     <view class="scene-frame-wrapper">
