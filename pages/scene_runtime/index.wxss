@@ -62,7 +62,7 @@
 }
 
 .toolbar-rail-mode {
-  padding: 8rpx 12rpx;
+  padding: 8rpx 16rpx;
 }
 
 .toolbar-rail-rate {
@@ -177,12 +177,12 @@
 
 .editor-mode-group {
   flex-shrink: 0;
-  gap: 10rpx;
+  gap: 18rpx;
 }
 
 .mode-dot {
-  width: 22rpx;
-  height: 22rpx;
+  width: 26rpx;
+  height: 26rpx;
   border-radius: 999rpx;
   border: 2rpx solid rgba(255, 255, 255, 0.28);
   box-shadow: 0 0 0 4rpx rgba(255, 255, 255, 0.06);
@@ -610,8 +610,8 @@
   }
 
   .mode-dot {
-    width: 20rpx;
-    height: 20rpx;
+    width: 24rpx;
+    height: 24rpx;
   }
 
   .floating-save-btn {
