@@ -1,9 +1,13 @@
+import os
 import tempfile
 import unittest
 from pathlib import Path
 
 from fastapi import HTTPException
 from starlette.requests import Request
+
+os.environ['AUTH_STORE_BACKEND'] = 'json'
+os.environ['COMMERCE_STORE_BACKEND'] = 'disabled'
 
 from backend.app.auth_store import AuthStore
 from backend.app import main
@@ -130,6 +134,49 @@ class AuthApiTests(unittest.TestCase):
                 RefreshTokenRequest(refreshToken=refreshed['refreshToken']),
                 build_request(method='POST', path='/api/auth/refresh'),
             )
+
+    def test_code2session_mode_uses_real_identity_response(self):
+        class FakeWechatClient:
+            def __init__(self):
+                self.codes = []
+
+            def is_configured(self):
+                return True
+
+            def code_to_session(self, code):
+                self.codes.append(code)
+                return {
+                    'openid': 'openid_real_001' if code == 'real-code-001' else 'openid_real_002',
+                    'session_key': 'session_key_real_001',
+                    'unionid': 'union_real_001',
+                }
+
+        fake_client = FakeWechatClient()
+        original_client = getattr(main, 'wechat_auth_client', None)
+        main.wechat_auth_client = fake_client
+        main.AUTH_WECHAT_LOGIN_MODE = 'code2session'
+        try:
+            response = main.auth_wechat_login(
+                WechatLoginRequest.model_validate({
+                    'code': 'real-code-001',
+                    'device': {'deviceId': 'real-device-001'},
+                }),
+                build_request(method='POST', path='/api/auth/wechat/login'),
+            )['data']
+            repeated = main.auth_wechat_login(
+                WechatLoginRequest.model_validate({
+                    'code': 'real-code-002',
+                    'device': {'deviceId': 'real-device-002'},
+                }),
+                build_request(method='POST', path='/api/auth/wechat/login'),
+            )['data']
+        finally:
+            main.wechat_auth_client = original_client
+
+        self.assertEqual(fake_client.codes, ['real-code-001', 'real-code-002'])
+        self.assertTrue(response['accessToken'])
+        self.assertEqual(response['user']['displayName'], '微信用户')
+        self.assertEqual(response['user']['id'], repeated['user']['id'])
 
 
 if __name__ == '__main__':

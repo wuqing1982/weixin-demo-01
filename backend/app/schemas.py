@@ -30,6 +30,15 @@ class LogoutRequest(BaseModel):
     refreshToken: str | None = None
 
 
+class OrderCreateRequest(BaseModel):
+    skuId: str = Field(min_length=1)
+    quantity: int = Field(default=1, ge=1, le=99)
+
+
+class MockPaymentCompleteRequest(BaseModel):
+    paymentId: str | None = None
+
+
 class HotspotRectPayload(BaseModel):
     l: float = Field(ge=0, le=100)
     t: float = Field(ge=0, le=100)

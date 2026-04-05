@@ -2,6 +2,18 @@ Page({
   data: {
     actions: [
       {
+        id: 'products',
+        title: '会员与点数商品',
+        desc: '浏览会员和场景生成点数包，走 mock 支付闭环。',
+        url: '/pages/products/index'
+      },
+      {
+        id: 'orders',
+        title: '我的订单',
+        desc: '查看订单状态，继续完成待支付的 mock 支付。',
+        url: '/pages/orders/index'
+      },
+      {
         id: 'library',
         title: '公开场景库',
         desc: '从后端加载场景列表，再进入统一 runtime 页面。',

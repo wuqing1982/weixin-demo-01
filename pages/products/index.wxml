@@ -1,0 +1,50 @@
+<view class="container product-page">
+  <view class="summary-card card">
+    <text class="section-title">会员与点数商品</text>
+    <text class="section-subtitle">当前先走 mock 支付，打通订单、支付成功、权益发放的业务闭环。</text>
+    <view class="summary-grid" wx:if="{{me}}">
+      <view class="summary-pill">
+        <text class="summary-label">会员状态</text>
+        <text class="summary-value">{{me.memberSummary.isActive ? '已开通' : '未开通'}}</text>
+      </view>
+      <view class="summary-pill">
+        <text class="summary-label">生成点数</text>
+        <text class="summary-value">{{me.creditSummary.sceneGenerateBalance || 0}}</text>
+      </view>
+    </view>
+    <button class="btn-secondary orders-btn" bindtap="onOpenOrders">查看我的订单</button>
+  </view>
+
+  <view wx:if="{{loading}}" class="state-card">商品加载中...</view>
+  <view wx:elif="{{errorMessage}}" class="state-card">{{errorMessage}}</view>
+
+  <view wx:else class="product-list">
+    <view wx:for="{{products}}" wx:key="productId" class="product-card card">
+      <view class="product-head">
+        <text class="product-name">{{item.name}}</text>
+        <text class="product-type">{{item.productType}}</text>
+      </view>
+      <text class="product-subtitle">{{item.subtitle || item.description}}</text>
+
+      <view wx:for="{{item.skus}}" wx:key="skuId" wx:for-item="sku" class="sku-card">
+        <view class="sku-meta">
+          <text class="sku-name">{{sku.name}}</text>
+          <text class="sku-price">¥{{sku.salePrice}}</text>
+        </view>
+        <text class="sku-desc">{{sku.billingType}}{{sku.durationDays ? ' · ' + sku.durationDays + '天' : ''}}</text>
+        <view wx:if="{{sku.benefits.length}}" class="benefit-list">
+          <text wx:for="{{sku.benefits}}" wx:key="benefitId" wx:for-item="benefit" class="benefit-chip">{{benefit.benefitType}} · {{benefit.benefitValue}}</text>
+        </view>
+        <button
+          class="btn-primary buy-btn"
+          loading="{{payingSkuId === sku.skuId}}"
+          disabled="{{payingSkuId && payingSkuId !== sku.skuId}}"
+          bindtap="onBuySku"
+          data-sku-id="{{sku.skuId}}"
+        >
+          立即模拟支付
+        </button>
+      </view>
+    </view>
+  </view>
+</view>

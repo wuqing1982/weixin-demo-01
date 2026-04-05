@@ -692,6 +692,147 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260405112758_3a2564",
+      "title": "小型厨房",
+      "category": "existing",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260405112758_3a2564/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260405112758_3a2564/background.jpg",
+      "items": [
+        {
+          "id": "electric_kettle",
+          "word": "electric kettle",
+          "ipa": "/ɪlektrɪkˈkeɪtəl/",
+          "meaning": "电热水壶",
+          "sentence": "The electric kettle is used to boil water.",
+          "sentenceTranslation": "电热水壶用来烧水。",
+          "audioPath": "/assets/generated/scene_user_20260405112758_3a2564/scene_user_20260405112758_3a2564_en-US-JennyNeural_US_female_electric_kettle_the_electric_kettle_is_used_to.mp3",
+          "rect": {
+            "l": 57.87,
+            "t": 44.29,
+            "w": 20.0,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "mug",
+          "word": "mug",
+          "ipa": "/mʌɡ/",
+          "meaning": "杯子",
+          "sentence": "Put the tea in the mug.",
+          "sentenceTranslation": "把茶倒进杯子里。",
+          "audioPath": "/assets/generated/scene_user_20260405112758_3a2564/scene_user_20260405112758_3a2564_en-US-JennyNeural_US_female_mug_put_the_tea_in_the_mug.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 35.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "medication_bottle",
+          "word": "medication",
+          "ipa": "/mədɪˈkeɪʃ(ə)n/",
+          "meaning": "药物",
+          "sentence": "Take your medication with a glass of water.",
+          "sentenceTranslation": "用水喝下你的药。",
+          "audioPath": "/assets/generated/scene_user_20260405112758_3a2564/scene_user_20260405112758_3a2564_en-US-JennyNeural_US_female_medication_bottle_take_your_medication_with_a_glass.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 35.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "food_package",
+          "word": "package",
+          "ipa": "/pækɪdʒ/",
+          "meaning": "包装袋",
+          "sentence": "Open the food package carefully.",
+          "sentenceTranslation": "小心打开食品包装。",
+          "audioPath": "/assets/generated/scene_user_20260405112758_3a2564/scene_user_20260405112758_3a2564_en-US-JennyNeural_US_female_food_package_open_the_food_package_carefully.mp3",
+          "rect": {
+            "l": 5.0,
+            "t": 45.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "plastic_bag",
+          "word": "bag",
+          "ipa": "/bæg/",
+          "meaning": "袋子",
+          "sentence": "Please put the trash in the bag.",
+          "sentenceTranslation": "请将垃圾放进袋子里。",
+          "audioPath": "/assets/generated/scene_user_20260405112758_3a2564/scene_user_20260405112758_3a2564_en-US-JennyNeural_US_female_plastic_bag_please_put_the_trash_in_the.mp3",
+          "rect": {
+            "l": 85.0,
+            "t": 55.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "boil",
+          "word": "boil",
+          "ipa": "/bɔɪl/",
+          "meaning": "煮沸",
+          "sentence": "Boil some water in the electric kettle.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260405112758_3a2564/scene_user_20260405112758_3a2564_en-US-JennyNeural_US_female_boil_boil_some_water_in_the_electric.mp3",
+          "relatedItem": "electric_kettle"
+        },
+        {
+          "id": "pour",
+          "word": "pour",
+          "ipa": "/pɔːr/",
+          "meaning": "倒出",
+          "sentence": "Pour the boiled water into the mug.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260405112758_3a2564/scene_user_20260405112758_3a2564_en-US-JennyNeural_US_female_pour_pour_the_boiled_water_into_the.mp3",
+          "relatedItem": "mug"
+        },
+        {
+          "id": "take",
+          "word": "take",
+          "ipa": "/teɪk/",
+          "meaning": "服用",
+          "sentence": "Take your medication with a glass of water.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260405112758_3a2564/scene_user_20260405112758_3a2564_en-US-JennyNeural_US_female_take_take_your_medication_with_a_glass.mp3",
+          "relatedItem": "medication_bottle"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "debug_user_1775305037380_ce29d5",
+        "uploadId": "upload_20260405112757_a9c69b",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260405112758_3a2564",
+        "core100SceneTitle": "小型厨房",
+        "recommendedCategory": "existing",
+        "tags": [
+          "家庭",
+          "烹饪",
+          "日常"
+        ],
+        "version": 2,
+        "hotspotEditable": true,
+        "hotspotUpdatedAt": "2026-04-05T11:29:16Z",
+        "hotspotUpdatedBy": "debug_user_1775305037380_ce29d5"
+      }
     }
   ]
 }

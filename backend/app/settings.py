@@ -1,4 +1,5 @@
 import os
+import json
 from pathlib import Path
 
 
@@ -34,6 +35,16 @@ def _load_env_file(env_file: Path) -> None:
             os.environ[key] = value
 
 
+def _load_project_app_id(project_file: Path) -> str:
+    if not project_file.exists():
+        return ''
+    try:
+        payload = json.loads(project_file.read_text(encoding='utf-8'))
+    except Exception:
+        return ''
+    return str(payload.get('appid') or '').strip()
+
+
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 _load_env_file(BACKEND_ROOT / '.env')
 REPO_ROOT = BACKEND_ROOT.parent
@@ -49,13 +60,20 @@ GENERATED_DIR = ASSETS_DIR / 'generated'
 
 PUBLIC_BASE_URL = _normalize_base_url(os.getenv('PUBLIC_BASE_URL', 'https://e.cps.vin'))
 DATABASE_URL = (os.getenv('DATABASE_URL', '') or '').strip() or None
+DATABASE_SCHEMA = (os.getenv('DATABASE_SCHEMA', 'public') or 'public').strip()
 DEFAULT_MOCK_USER_ID = os.getenv('DEFAULT_MOCK_USER_ID', 'mock_user_001')
 AUTH_DATA_FILE = DATA_DIR / 'auth.json'
+AUTH_STORE_BACKEND = (os.getenv('AUTH_STORE_BACKEND', 'json') or 'json').strip().lower()
 AUTH_ENABLE_DEBUG_USER_HEADER = _normalize_bool(os.getenv('AUTH_ENABLE_DEBUG_USER_HEADER'), default=True)
+WECHAT_MP_APP_ID = (os.getenv('WECHAT_MP_APP_ID', '') or _load_project_app_id(REPO_ROOT / 'project.config.json')).strip()
+WECHAT_MP_APP_SECRET = (os.getenv('WECHAT_MP_APP_SECRET', '') or '').strip()
+WECHAT_SESSION_KEY_SECRET = (os.getenv('WECHAT_SESSION_KEY_SECRET', '') or '').strip() or None
 AUTH_WECHAT_LOGIN_MODE = (os.getenv('AUTH_WECHAT_LOGIN_MODE', 'mock') or 'mock').strip().lower()
 AUTH_JWT_SECRET = (os.getenv('AUTH_JWT_SECRET', 'dev-jwt-secret-change-me') or 'dev-jwt-secret-change-me').strip()
 AUTH_ACCESS_TOKEN_TTL_SECONDS = int(os.getenv('AUTH_ACCESS_TOKEN_TTL_SECONDS', '7200'))
 AUTH_REFRESH_TOKEN_TTL_SECONDS = int(os.getenv('AUTH_REFRESH_TOKEN_TTL_SECONDS', '2592000'))
+COMMERCE_STORE_BACKEND = (os.getenv('COMMERCE_STORE_BACKEND', 'disabled') or 'disabled').strip().lower()
+PAYMENT_MODE = (os.getenv('PAYMENT_MODE', 'mock') or 'mock').strip().lower()
 WORKER_POLL_INTERVAL = float(os.getenv('WORKER_POLL_INTERVAL', '2'))
 ENABLE_INLINE_SCENE_WORKER = _normalize_bool(os.getenv('ENABLE_INLINE_SCENE_WORKER'), default=True)
 CORE100_MODEL = (os.getenv('CORE100_MODEL', 'glm-4v-flash') or 'glm-4v-flash').strip()

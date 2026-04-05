@@ -6,18 +6,21 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from .auth_store import AuthStore
+from .auth_store_factory import create_auth_store
+from .commerce_store_factory import create_commerce_store
 from .generated_scene_store import GeneratedSceneStore
 from .hotspot_permissions import can_edit_scene_hotspots
 from .schemas import (
+    MockPaymentCompleteRequest,
     LogoutRequest,
+    OrderCreateRequest,
     RefreshTokenRequest,
     SceneGenerateRequest,
     SceneHotspotUpdateRequest,
     WechatLoginRequest,
 )
 from .scene_store import SceneStore
-from .security import create_access_token, decode_access_token, generate_refresh_token, hash_refresh_token
+from .security import create_access_token, decode_access_token, encrypt_wechat_session_key, generate_refresh_token, hash_refresh_token
 from .settings import (
     ASSETS_DIR,
     AUTH_ACCESS_TOKEN_TTL_SECONDS,
@@ -36,20 +39,26 @@ from .settings import (
     HOTSPOT_EDITOR_ENABLED,
     HOTSPOT_EDITOR_PRIVATE_EDITOR_IDS,
     HOTSPOT_EDITOR_PUBLIC_EDITOR_IDS,
+    PAYMENT_MODE,
     PUBLIC_BASE_URL,
     PUBLIC_SCENES_FILE,
     TASKS_FILE,
     UPLOADS_DIR,
     UPLOADS_FILE,
+    WECHAT_MP_APP_ID,
+    WECHAT_MP_APP_SECRET,
     WORKER_POLL_INTERVAL,
     ZHIPUAI_API_KEY,
 )
 from .task_store import TaskStore
 from .upload_store import UploadStore
+from .wechat_auth import WechatCode2SessionError, WechatMiniProgramAuthClient
 from .worker_runner import InlineSceneWorker
 
 
-auth_store = AuthStore(AUTH_DATA_FILE)
+auth_store = create_auth_store()
+commerce_store = create_commerce_store()
+wechat_auth_client = WechatMiniProgramAuthClient(WECHAT_MP_APP_ID, WECHAT_MP_APP_SECRET)
 public_store = SceneStore(PUBLIC_SCENES_FILE)
 generated_store = GeneratedSceneStore(GENERATED_SCENES_FILE)
 upload_store = UploadStore(UPLOADS_FILE, UPLOADS_DIR)
@@ -228,20 +237,49 @@ def get_request_user(
 
 
 def serialize_me(_: Request, user: dict) -> dict:
+    membership_summary = {
+        'isActive': False,
+        'entitlementCode': '',
+        'expiresAt': None,
+    }
+    credit_summary = {
+        'sceneGenerateBalance': 0,
+        'accounts': [],
+    }
+    if commerce_store:
+        membership_summary = commerce_store.get_membership_summary(user.get('id', ''))
+        credit_summary = commerce_store.get_credit_summary(user.get('id', ''))
     return {
         'id': user.get('id', ''),
         'displayName': user.get('displayName', ''),
         'avatarUrl': user.get('avatarUrl', ''),
         'mobile': user.get('mobile'),
         'mobileVerified': bool(user.get('mobileVerified')),
-        'memberSummary': {
-            'isActive': False,
-            'expiresAt': None,
-        },
-        'creditSummary': {
-            'sceneGenerateBalance': 0,
-        },
+        'memberSummary': membership_summary,
+        'creditSummary': credit_summary,
     }
+
+
+def serialize_product(request: Request, product: dict) -> dict:
+    payload = dict(product)
+    payload['coverUrl'] = asset_url(request, payload.get('coverUrl'))
+    return payload
+
+
+def serialize_order(_: Request, order: dict) -> dict:
+    return dict(order)
+
+
+def require_commerce_store():
+    if not commerce_store:
+        raise HTTPException(
+            status_code=503,
+            detail={
+                'code': 5003,
+                'message': 'commerce store not configured',
+            },
+        )
+    return commerce_store
 
 
 def serialize_entry(request: Request, entry: dict) -> dict:
@@ -288,35 +326,72 @@ def get_current_user_id(request: Request) -> str:
     return user.get('id', '') if user else DEFAULT_MOCK_USER_ID
 
 
+def resolve_auth_login_mode() -> str:
+    configured = (AUTH_WECHAT_LOGIN_MODE or 'mock').strip().lower()
+    if configured == 'auto':
+        return 'code2session' if wechat_auth_client.is_configured() else 'mock'
+    if configured in {'real', 'code2session'}:
+        return 'code2session'
+    return 'mock'
+
+
 @app.get('/api/health')
 def health():
     return success({
         'status': 'ok',
         'workerEnabled': ENABLE_INLINE_SCENE_WORKER,
         'workerMode': 'core100',
+        'authLoginMode': resolve_auth_login_mode(),
     })
 
 
 @app.post('/api/auth/wechat/login')
 def auth_wechat_login(payload: WechatLoginRequest, request: Request):
-    if AUTH_WECHAT_LOGIN_MODE != 'mock':
-        raise HTTPException(
-            status_code=501,
-            detail={
-                'code': 5001,
-                'message': 'wechat login mode not implemented',
-            },
-        )
+    auth_mode = resolve_auth_login_mode()
+    provider_uid = ''
+    union_id = ''
+    session_key_encrypted = ''
+    profile = {
+        'displayName': '微信用户',
+        'avatarUrl': '',
+        'loginMode': auth_mode,
+    }
 
-    provider_uid = make_mock_openid(payload)
+    if auth_mode == 'mock':
+        provider_uid = make_mock_openid(payload)
+        session_key_encrypted = 'mock_session_key'
+    else:
+        if not wechat_auth_client.is_configured():
+            raise HTTPException(
+                status_code=503,
+                detail={
+                    'code': 5003,
+                    'message': 'wechat mini program login is not configured',
+                },
+            )
+        try:
+            wechat_identity = wechat_auth_client.code_to_session(payload.code)
+        except WechatCode2SessionError as error:
+            raise HTTPException(
+                status_code=401,
+                detail={
+                    'code': 4001,
+                    'message': str(error),
+                },
+            )
+        provider_uid = wechat_identity['openid']
+        union_id = wechat_identity.get('unionid', '')
+        session_key_encrypted = encrypt_wechat_session_key(wechat_identity.get('session_key', ''))
+        profile.update({
+            'openid': provider_uid,
+            'unionId': union_id,
+        })
+
     user = auth_store.get_or_create_wechat_user(
         provider_uid=provider_uid,
-        profile={
-            'displayName': '微信用户',
-            'avatarUrl': '',
-            'loginMode': 'mock',
-        },
-        session_key_encrypted='mock_session_key',
+        union_id=union_id,
+        profile=profile,
+        session_key_encrypted=session_key_encrypted,
     )
     refresh_token = generate_refresh_token()
     refresh_session = auth_store.create_refresh_session(
@@ -387,6 +462,149 @@ def auth_logout(request: Request, payload: LogoutRequest | None = None):
 def get_me(request: Request):
     user = get_request_user(request, required=True, allow_debug=True)
     return success(serialize_me(request, user))
+
+
+@app.get('/api/me/membership')
+def get_my_membership(request: Request):
+    user = get_request_user(request, required=True, allow_debug=True)
+    return success(require_commerce_store().get_membership_summary(user.get('id', '')))
+
+
+@app.get('/api/me/credits')
+def get_my_credits(request: Request):
+    user = get_request_user(request, required=True, allow_debug=True)
+    return success(require_commerce_store().get_credit_summary(user.get('id', '')))
+
+
+@app.get('/api/me/entitlements')
+def get_my_entitlements(request: Request):
+    user = get_request_user(request, required=True, allow_debug=True)
+    return success({
+        'list': require_commerce_store().list_user_entitlements(user.get('id', '')),
+    })
+
+
+@app.get('/api/products')
+def list_products(request: Request, productType: str = Query(default='')):
+    products = require_commerce_store().list_products(productType)
+    return success({
+        'list': [serialize_product(request, product) for product in products],
+    })
+
+
+@app.get('/api/products/{product_id}')
+def get_product(product_id: str, request: Request):
+    product = require_commerce_store().get_product(product_id)
+    if not product:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                'code': 4004,
+                'message': 'product not found',
+            },
+        )
+    return success(serialize_product(request, product))
+
+
+@app.get('/api/products/{product_id}/skus')
+def list_product_skus(product_id: str):
+    return success({
+        'list': require_commerce_store().list_product_skus(product_id),
+    })
+
+
+@app.post('/api/orders')
+def create_order(payload: OrderCreateRequest, request: Request):
+    user = get_request_user(request, required=True, allow_debug=True)
+    try:
+        order = require_commerce_store().create_order(
+            user_id=user.get('id', ''),
+            sku_id=payload.skuId,
+            quantity=payload.quantity,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                'code': 4000,
+                'message': str(error),
+            },
+        )
+    return success(serialize_order(request, order))
+
+
+@app.get('/api/orders')
+def list_orders(request: Request):
+    user = get_request_user(request, required=True, allow_debug=True)
+    return success({
+        'list': [serialize_order(request, order) for order in require_commerce_store().list_orders(user.get('id', ''))],
+    })
+
+
+@app.get('/api/orders/{order_id}')
+def get_order(order_id: str, request: Request):
+    user = get_request_user(request, required=True, allow_debug=True)
+    order = require_commerce_store().get_order(order_id=order_id, user_id=user.get('id', ''))
+    if not order:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                'code': 4004,
+                'message': 'order not found',
+            },
+        )
+    return success(serialize_order(request, order))
+
+
+@app.post('/api/orders/{order_id}/pay')
+def create_order_payment(order_id: str, request: Request):
+    user = get_request_user(request, required=True, allow_debug=True)
+    if PAYMENT_MODE != 'mock':
+        raise HTTPException(
+            status_code=501,
+            detail={
+                'code': 5001,
+                'message': 'payment mode not implemented',
+            },
+        )
+    try:
+        result = require_commerce_store().create_payment_intent(
+            order_id=order_id,
+            user_id=user.get('id', ''),
+            payment_mode=PAYMENT_MODE,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                'code': 4000,
+                'message': str(error),
+            },
+        )
+    return success(result)
+
+
+@app.post('/api/orders/{order_id}/mock-pay-success')
+def complete_mock_order_payment(order_id: str, payload: MockPaymentCompleteRequest | None, request: Request):
+    user = get_request_user(request, required=True, allow_debug=True)
+    try:
+        order = require_commerce_store().complete_mock_payment(
+            order_id=order_id,
+            user_id=user.get('id', ''),
+            payment_id=(payload.paymentId if payload else '') or '',
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                'code': 4000,
+                'message': str(error),
+            },
+        )
+    return success({
+        'order': serialize_order(request, order),
+        'me': serialize_me(request, user),
+    })
 
 
 @app.get('/api/scenes')

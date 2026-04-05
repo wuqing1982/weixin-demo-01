@@ -89,6 +89,24 @@
       "errorMessage": "",
       "createdAt": "2026-04-05T11:14:13Z",
       "updatedAt": "2026-04-05T11:20:13Z"
+    },
+    {
+      "taskId": "task_20260405112757_7c2d45",
+      "ownerId": "debug_user_1775305037380_ce29d5",
+      "uploadId": "upload_20260405112757_a9c69b",
+      "title": "",
+      "includeVerbs": true,
+      "sourceLang": "zh-CN",
+      "accent": "en-US",
+      "voiceGender": "female",
+      "voiceName": "JennyNeural",
+      "status": "done",
+      "step": "finished",
+      "progress": 100,
+      "sceneId": "scene_user_20260405112758_3a2564",
+      "errorMessage": "",
+      "createdAt": "2026-04-05T11:27:57Z",
+      "updatedAt": "2026-04-05T11:28:31Z"
     }
   ]
 }

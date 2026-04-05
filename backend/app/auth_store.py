@@ -80,6 +80,12 @@ class AuthStore:
                     identity = item
                     break
 
+            if not identity and union_id:
+                for item in identities:
+                    if item.get('provider') == 'wechat_mp' and item.get('unionId') == union_id:
+                        identity = item
+                        break
+
             user = None
             if identity:
                 for item in users:
@@ -121,6 +127,7 @@ class AuthStore:
                 }
                 identities.append(identity)
             else:
+                identity['providerUid'] = provider_uid or identity.get('providerUid') or ''
                 identity['unionId'] = union_id or identity.get('unionId') or ''
                 identity['sessionKeyEncrypted'] = session_key_encrypted or identity.get('sessionKeyEncrypted') or ''
                 identity['metaJson'] = profile or identity.get('metaJson') or {}

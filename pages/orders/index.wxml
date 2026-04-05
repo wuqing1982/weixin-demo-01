@@ -1,0 +1,45 @@
+<view class="container order-page">
+  <view class="summary-card card">
+    <text class="section-title">我的订单</text>
+    <text class="section-subtitle">支付成功后会立即发放会员权益或场景生成点数。</text>
+    <view class="summary-inline" wx:if="{{me}}">
+      <text class="summary-chip">会员：{{me.memberSummary.isActive ? '已开通' : '未开通'}}</text>
+      <text class="summary-chip">点数：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
+    </view>
+    <button class="btn-secondary" bindtap="onOpenProducts">继续购买</button>
+  </view>
+
+  <view wx:if="{{loading}}" class="state-card">订单加载中...</view>
+  <view wx:elif="{{errorMessage}}" class="state-card">{{errorMessage}}</view>
+  <view wx:elif="{{!orders.length}}" class="state-card">还没有订单，先去商品页下单。</view>
+
+  <view wx:else class="order-list">
+    <view wx:for="{{orders}}" wx:key="orderId" class="order-card card">
+      <view class="order-head">
+        <text class="order-no">{{item.orderNo}}</text>
+        <text class="order-status order-status-{{item.status}}">{{item.status}}</text>
+      </view>
+      <view wx:for="{{item.items}}" wx:key="orderItemId" wx:for-item="orderItem" class="order-item">
+        <view class="order-item-row">
+          <text class="order-item-name">{{orderItem.productName}} / {{orderItem.skuName}}</text>
+          <text class="order-item-price">¥{{orderItem.totalPrice}}</text>
+        </view>
+        <text class="order-item-desc">数量 {{orderItem.quantity}}</text>
+      </view>
+      <view class="order-foot">
+        <text class="order-total">应付 ¥{{item.payableAmount}}</text>
+        <button
+          wx:if="{{item.status !== 'paid'}}"
+          class="btn-primary pay-btn"
+          loading="{{payingOrderId === item.orderId}}"
+          disabled="{{payingOrderId && payingOrderId !== item.orderId}}"
+          bindtap="onPayOrder"
+          data-order-id="{{item.orderId}}"
+        >
+          继续支付
+        </button>
+        <text wx:else class="paid-tip">已支付</text>
+      </view>
+    </view>
+  </view>
+</view>

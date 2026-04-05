@@ -1,6 +1,8 @@
 {
   "pages": [
     "pages/home/index",
+    "pages/products/index",
+    "pages/orders/index",
     "pages/library/index",
     "pages/create_scene/index",
     "pages/my_scenes/index",

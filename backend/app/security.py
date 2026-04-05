@@ -3,10 +3,10 @@ import hashlib
 import hmac
 import json
 from datetime import datetime, timezone
-from secrets import token_urlsafe
+from secrets import token_bytes, token_urlsafe
 from typing import Any
 
-from .settings import AUTH_ACCESS_TOKEN_TTL_SECONDS, AUTH_JWT_SECRET
+from .settings import AUTH_ACCESS_TOKEN_TTL_SECONDS, AUTH_JWT_SECRET, WECHAT_SESSION_KEY_SECRET
 
 
 def _b64url_encode(value: bytes) -> str:
@@ -89,3 +89,50 @@ def generate_refresh_token() -> str:
 
 def hash_refresh_token(raw_token: str) -> str:
     return hashlib.sha256((raw_token or '').encode('utf-8')).hexdigest()
+
+
+def _resolve_wechat_session_secret() -> bytes:
+    return (WECHAT_SESSION_KEY_SECRET or AUTH_JWT_SECRET).encode('utf-8')
+
+
+def _build_stream(secret: bytes, nonce: bytes, length: int) -> bytes:
+    output = bytearray()
+    counter = 0
+    while len(output) < length:
+        digest = hashlib.sha256(secret + nonce + counter.to_bytes(4, 'big')).digest()
+        output.extend(digest)
+        counter += 1
+    return bytes(output[:length])
+
+
+def encrypt_wechat_session_key(raw_value: str) -> str:
+    if not raw_value:
+        return ''
+
+    secret = _resolve_wechat_session_secret()
+    nonce = token_bytes(16)
+    plaintext = raw_value.encode('utf-8')
+    stream = _build_stream(secret, nonce, len(plaintext))
+    ciphertext = bytes(a ^ b for a, b in zip(plaintext, stream))
+    mac = hmac.new(secret, nonce + ciphertext, hashlib.sha256).digest()[:12]
+    return f'wsk1.{_b64url_encode(nonce)}.{_b64url_encode(ciphertext)}.{_b64url_encode(mac)}'
+
+
+def decrypt_wechat_session_key(cipher_text: str) -> str:
+    if not cipher_text:
+        return ''
+    parts = cipher_text.split('.')
+    if len(parts) != 4 or parts[0] != 'wsk1':
+        raise ValueError('invalid encrypted wechat session key')
+
+    secret = _resolve_wechat_session_secret()
+    nonce = _b64url_decode(parts[1])
+    ciphertext = _b64url_decode(parts[2])
+    expected_mac = hmac.new(secret, nonce + ciphertext, hashlib.sha256).digest()[:12]
+    actual_mac = _b64url_decode(parts[3])
+    if not hmac.compare_digest(expected_mac, actual_mac):
+        raise ValueError('wechat session key integrity check failed')
+
+    stream = _build_stream(secret, nonce, len(ciphertext))
+    plaintext = bytes(a ^ b for a, b in zip(ciphertext, stream))
+    return plaintext.decode('utf-8')

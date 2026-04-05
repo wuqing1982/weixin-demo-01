@@ -1,10 +1,10 @@
 <view class="container home-page">
   <view class="hero card">
     <text class="section-title">英语场景前后端联调</text>
-    <text class="section-subtitle">当前前端模板已经改成 API 驱动，现在支持上传图片、创建生成任务、轮询结果并打开私人场景。</text>
+    <text class="section-subtitle">当前前端模板已经改成 API 驱动，现在支持上传图片、创建生成任务、热点编辑，以及 mock 支付购买会员和点数。</text>
     <view class="hero-actions">
-      <button class="btn-primary" bindtap="onOpen" data-url="/pages/library/index">进入场景库</button>
-      <button class="btn-secondary" bindtap="onOpen" data-url="/pages/create_scene/index">生成我的场景</button>
+      <button class="btn-primary" bindtap="onOpen" data-url="/pages/products/index">查看商品</button>
+      <button class="btn-secondary" bindtap="onOpen" data-url="/pages/orders/index">查看订单</button>
     </view>
   </view>
 
