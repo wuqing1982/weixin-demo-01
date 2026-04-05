@@ -59,6 +59,16 @@ class PostgresAuthStoreTests(unittest.TestCase):
         self.assertEqual(first['id'], second['id'])
         self.assertEqual(second['displayName'], 'B')
 
+    def test_update_user_role_round_trip(self):
+        user = self.store.get_or_create_debug_user('debug_user_pg_admin_001')
+        self.assertEqual(user['role'], 'user')
+
+        promoted = self.store.update_user_role(user['id'], 'admin')
+        self.assertEqual(promoted['role'], 'admin')
+
+        fetched = self.store.get_user(user['id'])
+        self.assertEqual(fetched['role'], 'admin')
+
 
 if __name__ == '__main__':
     unittest.main()

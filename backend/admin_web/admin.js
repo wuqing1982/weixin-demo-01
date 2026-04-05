@@ -104,6 +104,7 @@ function renderUsers() {
         <span class="meta-chip">${escapeHtml(state.selectedUser.status || 'active')}</span>
       </div>
       <div class="detail-grid">
+        <div><span>角色</span><strong>${escapeHtml(state.selectedUser.role || 'user')}</strong></div>
         <div><span>手机号</span><strong>${escapeHtml(state.selectedUser.mobile || '-')}</strong></div>
         <div><span>会员</span><strong>${state.selectedUser.memberSummary && state.selectedUser.memberSummary.isActive ? '已开通' : '未开通'}</strong></div>
         <div><span>点数</span><strong>${escapeHtml((state.selectedUser.creditSummary && state.selectedUser.creditSummary.sceneGenerateBalance) || 0)}</strong></div>
@@ -133,6 +134,7 @@ function renderUsers() {
     <div class="table">
       <div class="table-head">
         <strong>用户</strong>
+        <span>角色</span>
         <span>会员</span>
         <span>点数</span>
         <span>状态</span>
@@ -141,11 +143,15 @@ function renderUsers() {
       ${state.users.map((user) => `
         <div class="table-row">
           <strong>${escapeHtml(user.displayName || user.id)}<br><small>${escapeHtml(user.id)}</small></strong>
+          <span>${escapeHtml(user.role || 'user')}</span>
           <span>${user.memberSummary && user.memberSummary.isActive ? '已开通' : '未开通'}</span>
           <span>${escapeHtml((user.creditSummary && user.creditSummary.sceneGenerateBalance) || 0)}</span>
           <span>${escapeHtml(user.status || 'active')}</span>
           <span class="action-group">
             <button class="mini-btn" data-action="user-detail" data-id="${escapeHtml(user.id)}">详情</button>
+            ${user.isAdmin
+              ? `<button class="mini-btn" data-action="user-revoke-admin" data-id="${escapeHtml(user.id)}">撤销 Admin</button>`
+              : `<button class="mini-btn success-btn" data-action="user-grant-admin" data-id="${escapeHtml(user.id)}">设为 Admin</button>`}
             ${user.status === 'blocked'
               ? `<button class="mini-btn success-btn" data-action="user-unblock" data-id="${escapeHtml(user.id)}">解封</button>`
               : `<button class="mini-btn danger-btn" data-action="user-block" data-id="${escapeHtml(user.id)}">封禁</button>`}
@@ -557,6 +563,18 @@ async function handleAction(action, id) {
     await api(`/api/admin/users/${id}/unblock`, { method: 'POST' });
     await loadConsole();
     toast('用户已解封');
+    return;
+  }
+  if (action === 'user-grant-admin') {
+    await api(`/api/admin/users/${id}/grant-admin`, { method: 'POST' });
+    await loadConsole();
+    toast('用户已提升为 Admin');
+    return;
+  }
+  if (action === 'user-revoke-admin') {
+    await api(`/api/admin/users/${id}/revoke-admin`, { method: 'POST' });
+    await loadConsole();
+    toast('用户已降为普通用户');
     return;
   }
   if (action === 'product-edit') {

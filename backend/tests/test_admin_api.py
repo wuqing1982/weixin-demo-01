@@ -15,6 +15,7 @@ from backend.app.auth_store import AuthStore
 from backend.app.commerce_store import CommerceStore
 from backend.app.postgres import connect_postgres
 from backend.app.scene_store import SceneStore
+from backend.app.security import create_access_token
 from backend.app.schemas import AdminLoginRequest, AdminProductRequest, AdminPublicSceneRequest, AdminSkuRequest
 from backend.app.task_store import TaskStore
 from backend.tests.test_auth_api import build_request
@@ -102,6 +103,10 @@ class AdminApiTests(unittest.TestCase):
     def _login_header(self):
         response = main.admin_auth_login(AdminLoginRequest(username='admin_test', password='pass_test'))['data']
         return {'Authorization': f"Bearer {response['accessToken']}"}
+
+    def _user_access_token(self, user_id: str, *, role: str = 'user') -> str:
+        token, _ = create_access_token(user_id, 'session_test_user_role', role=role)
+        return token
 
     def test_admin_login_rejects_invalid_password(self):
         with self.assertRaises(HTTPException):
@@ -235,6 +240,47 @@ class AdminApiTests(unittest.TestCase):
             build_request(method='PUT', path='/api/admin/public-scenes/update', headers=headers),
         )['data']
         self.assertEqual(updated_scene['visibility'], 'member')
+
+    def test_admin_can_grant_and_revoke_user_admin_role(self):
+        headers = self._login_header()
+        request = build_request(path='/api/admin/users', headers=headers)
+
+        promoted = main.admin_grant_user_admin(
+            'debug_user_admin_001',
+            build_request(method='POST', path='/api/admin/users/grant-admin', headers=headers),
+        )['data']
+        self.assertEqual(promoted['role'], 'admin')
+
+        me = main.get_me(
+            build_request(
+                path='/api/me',
+                headers={'Authorization': f"Bearer {self._user_access_token('debug_user_admin_001')}"},
+            )
+        )['data']
+        self.assertEqual(me['role'], 'admin')
+
+        admin_me = main.admin_auth_me(
+            build_request(
+                path='/api/admin/auth/me',
+                headers={'Authorization': f"Bearer {self._user_access_token('debug_user_admin_001')}"},
+            )
+        )['data']
+        self.assertEqual(admin_me['userId'], 'debug_user_admin_001')
+        self.assertEqual(admin_me['role'], 'admin')
+
+        revoked = main.admin_revoke_user_admin(
+            'debug_user_admin_001',
+            build_request(method='POST', path='/api/admin/users/revoke-admin', headers=headers),
+        )['data']
+        self.assertEqual(revoked['role'], 'user')
+
+        with self.assertRaises(HTTPException):
+            main.admin_auth_me(
+                build_request(
+                    path='/api/admin/auth/me',
+                    headers={'Authorization': f"Bearer {self._user_access_token('debug_user_admin_001')}"},
+                )
+            )
 
 
 if __name__ == '__main__':

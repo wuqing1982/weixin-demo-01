@@ -1,6 +1,7 @@
 AUTH_POSTGRES_SCHEMA_SQL = """
 create table if not exists users (
   id varchar(128) primary key,
+  role varchar(32) not null default 'user',
   status varchar(32) not null default 'active',
   display_name varchar(120),
   avatar_url text,
@@ -11,7 +12,10 @@ create table if not exists users (
   updated_at timestamptz not null default now()
 );
 
+alter table if exists users add column if not exists role varchar(32) not null default 'user';
+
 create index if not exists idx_users_mobile on users(mobile);
+create index if not exists idx_users_role on users(role);
 create index if not exists idx_users_status on users(status);
 
 create table if not exists user_identities (

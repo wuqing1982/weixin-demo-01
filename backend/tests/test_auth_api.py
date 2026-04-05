@@ -75,6 +75,7 @@ class AuthApiTests(unittest.TestCase):
         me_response = main.get_me(me_request)
         me_data = me_response['data']
         self.assertEqual(me_data['id'], data['user']['id'])
+        self.assertEqual(me_data['role'], 'user')
         self.assertIn('memberSummary', me_data)
         self.assertIn('creditSummary', me_data)
 

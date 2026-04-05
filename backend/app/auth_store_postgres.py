@@ -29,6 +29,7 @@ def _serialize_user(row: dict[str, Any] | None) -> dict[str, Any] | None:
         return None
     return {
         'id': row.get('id', ''),
+        'role': row.get('role') or 'user',
         'status': row.get('status', 'active'),
         'displayName': row.get('display_name') or '',
         'avatarUrl': row.get('avatar_url') or '',
@@ -114,6 +115,22 @@ class PostgresAuthStore:
                 )
                 return _serialize_user(cursor.fetchone())
 
+    def update_user_role(self, user_id: str, role: str) -> dict[str, Any] | None:
+        normalized_role = (role or 'user').strip() or 'user'
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    '''
+                    update users
+                    set role = %s,
+                        updated_at = now()
+                    where id = %s
+                    returning *
+                    ''',
+                    (normalized_role, user_id),
+                )
+                return _serialize_user(cursor.fetchone())
+
     def update_user_profile(self, user_id: str, *, display_name: str = '', avatar_url: str = '') -> dict[str, Any] | None:
         if not display_name and not avatar_url:
             return self.get_user(user_id)
@@ -150,6 +167,7 @@ class PostgresAuthStore:
         now = utcnow_iso()
         self.upsert_user({
             'id': user_id,
+            'role': 'user',
             'status': 'active',
             'displayName': f'Debug {user_id[-6:]}',
             'avatarUrl': '',
@@ -179,6 +197,7 @@ class PostgresAuthStore:
                         '''
                         select
                           u.id,
+                          u.role,
                           u.status,
                           u.display_name,
                           u.avatar_url,
@@ -206,6 +225,7 @@ class PostgresAuthStore:
                             '''
                             select
                               u.id,
+                              u.role,
                               u.status,
                               u.display_name,
                               u.avatar_url,
@@ -230,15 +250,17 @@ class PostgresAuthStore:
 
                     user_id = current.get('id') if current else build_object_id('user')
                     identity_id = current.get('identity_id') if current else build_object_id('identity')
+                    role = current.get('role') if current else 'user'
                     display_name = profile.get('displayName') or (current.get('display_name') if current else '') or '微信用户'
                     avatar_url = profile.get('avatarUrl') or (current.get('avatar_url') if current else '') or ''
 
                     cursor.execute(
                         '''
                         insert into users (
-                          id, status, display_name, avatar_url, mobile, mobile_verified, last_login_at, created_at, updated_at
-                        ) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                          id, role, status, display_name, avatar_url, mobile, mobile_verified, last_login_at, created_at, updated_at
+                        ) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                         on conflict (id) do update set
+                          role = users.role,
                           display_name = excluded.display_name,
                           avatar_url = excluded.avatar_url,
                           last_login_at = excluded.last_login_at,
@@ -246,6 +268,7 @@ class PostgresAuthStore:
                         ''',
                         (
                             user_id,
+                            role or 'user',
                             'active',
                             display_name,
                             avatar_url,
@@ -404,9 +427,10 @@ class PostgresAuthStore:
                 cursor.execute(
                     '''
                     insert into users (
-                      id, status, display_name, avatar_url, mobile, mobile_verified, last_login_at, created_at, updated_at
-                    ) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                      id, role, status, display_name, avatar_url, mobile, mobile_verified, last_login_at, created_at, updated_at
+                    ) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     on conflict (id) do update set
+                      role = excluded.role,
                       status = excluded.status,
                       display_name = excluded.display_name,
                       avatar_url = excluded.avatar_url,
@@ -418,6 +442,7 @@ class PostgresAuthStore:
                     ''',
                     (
                         user.get('id', ''),
+                        user.get('role') or 'user',
                         user.get('status') or 'active',
                         user.get('displayName') or '',
                         user.get('avatarUrl') or '',

@@ -140,6 +140,10 @@ def require_admin_dashboard_enabled():
         )
 
 
+def is_admin_role(value: str | None) -> bool:
+    return (value or '').strip() in {'admin', 'super_admin'}
+
+
 def build_admin_auth_response(username: str) -> dict:
     access_token, access_expires_at = create_access_token(
         username,
@@ -152,7 +156,9 @@ def build_admin_auth_response(username: str) -> dict:
         'accessTokenExpireAt': datetime.fromtimestamp(access_expires_at, timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z'),
         'admin': {
             'username': username,
+            'userId': '',
             'role': 'super_admin',
+            'loginType': 'dashboard_password',
         },
     }
 
@@ -168,15 +174,25 @@ def get_current_admin(request: Request) -> dict:
     except ValueError as error:
         unauthorized(str(error))
 
-    if payload.get('role') != 'admin':
-        unauthorized('admin unauthorized')
-
     username = str(payload.get('sub') or '').strip()
-    if not username or username != ADMIN_DASHBOARD_USERNAME:
+    if payload.get('role') == 'admin' and username == ADMIN_DASHBOARD_USERNAME:
+        return {
+            'username': username,
+            'userId': '',
+            'role': 'super_admin',
+            'loginType': 'dashboard_password',
+        }
+
+    user = auth_store.get_user(username) if username else None
+    if not user or user.get('status') not in {'', 'active', None}:
+        unauthorized('admin unauthorized')
+    if not is_admin_role(user.get('role')):
         unauthorized('admin unauthorized')
     return {
-        'username': username,
-        'role': 'super_admin',
+        'username': user.get('displayName') or user.get('id') or 'admin_user',
+        'userId': user.get('id', ''),
+        'role': user.get('role') or 'admin',
+        'loginType': 'wechat_user',
     }
 
 
@@ -223,6 +239,8 @@ def make_mock_openid(payload: WechatLoginRequest) -> str:
 def serialize_user_profile(user: dict) -> dict:
     return {
         'id': user.get('id', ''),
+        'role': user.get('role') or 'user',
+        'isAdmin': is_admin_role(user.get('role')),
         'displayName': user.get('displayName', ''),
         'avatarUrl': user.get('avatarUrl', ''),
         'mobile': user.get('mobile'),
@@ -234,6 +252,7 @@ def build_auth_response(request: Request, user: dict, session: dict, refresh_tok
     access_token, access_expires_at = create_access_token(
         user.get('id', ''),
         session.get('id', ''),
+        role=user.get('role') or 'user',
         expires_in=AUTH_ACCESS_TOKEN_TTL_SECONDS,
     )
     return {
@@ -314,6 +333,8 @@ def serialize_me(_: Request, user: dict) -> dict:
         credit_summary = commerce_store.get_credit_summary(user.get('id', ''))
     return {
         'id': user.get('id', ''),
+        'role': user.get('role') or 'user',
+        'isAdmin': is_admin_role(user.get('role')),
         'displayName': user.get('displayName', ''),
         'avatarUrl': user.get('avatarUrl', ''),
         'mobile': user.get('mobile'),
@@ -427,6 +448,8 @@ def admin_index():
 def serialize_admin_user(user: dict) -> dict:
     payload = {
         'id': user.get('id', ''),
+        'role': user.get('role') or 'user',
+        'isAdmin': is_admin_role(user.get('role')),
         'displayName': user.get('displayName', ''),
         'avatarUrl': user.get('avatarUrl', ''),
         'mobile': user.get('mobile'),
@@ -549,6 +572,24 @@ def admin_block_user(user_id: str, request: Request):
 def admin_unblock_user(user_id: str, request: Request):
     get_current_admin(request)
     user = auth_store.update_user_status(user_id, 'active') if hasattr(auth_store, 'update_user_status') else None
+    if not user:
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'user not found'})
+    return success(serialize_admin_user(user))
+
+
+@app.post('/api/admin/users/{user_id}/grant-admin')
+def admin_grant_user_admin(user_id: str, request: Request):
+    get_current_admin(request)
+    user = auth_store.update_user_role(user_id, 'admin') if hasattr(auth_store, 'update_user_role') else None
+    if not user:
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'user not found'})
+    return success(serialize_admin_user(user))
+
+
+@app.post('/api/admin/users/{user_id}/revoke-admin')
+def admin_revoke_user_admin(user_id: str, request: Request):
+    get_current_admin(request)
+    user = auth_store.update_user_role(user_id, 'user') if hasattr(auth_store, 'update_user_role') else None
     if not user:
         raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'user not found'})
     return success(serialize_admin_user(user))

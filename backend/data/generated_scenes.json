@@ -1112,6 +1112,144 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260405173714_db3cbd",
+      "title": "客厅",
+      "category": "existing",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260405173714_db3cbd/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260405173714_db3cbd/background.jpg",
+      "items": [
+        {
+          "id": "globe",
+          "word": "globe",
+          "ipa": "/ɡoʊlb/",
+          "meaning": "地球仪",
+          "sentence": "Look at the globe on the shelf.",
+          "sentenceTranslation": "看架子上面的地球仪。",
+          "audioPath": "/assets/generated/scene_user_20260405173714_db3cbd/scene_user_20260405173714_db3cbd_en-US-JennyNeural_US_female_globe_look_at_the_globe_on_the.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 30.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "books",
+          "word": "book",
+          "ipa": "/bʊk/",
+          "meaning": "书",
+          "sentence": "There are many books on the shelf.",
+          "sentenceTranslation": "架子上有很多书。",
+          "audioPath": "/assets/generated/scene_user_20260405173714_db3cbd/scene_user_20260405173714_db3cbd_en-US-JennyNeural_US_female_books_there_are_many_books_on_the.mp3",
+          "rect": {
+            "l": 45.0,
+            "t": 35.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "sofa",
+          "word": "sofa",
+          "ipa": "/ˈsəʊfə/",
+          "meaning": "沙发",
+          "sentence": "Let's sit on the sofa and read a book.",
+          "sentenceTranslation": "让我们坐在沙发上读一本书吧。",
+          "audioPath": "/assets/generated/scene_user_20260405173714_db3cbd/scene_user_20260405173714_db3cbd_en-US-JennyNeural_US_female_sofa_lets_sit_on_the_sofa_and.mp3",
+          "rect": {
+            "l": 25.0,
+            "t": 40.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "notebook",
+          "word": "notebook",
+          "ipa": "/ˈnəʊtbʊk/",
+          "meaning": "笔记本",
+          "sentence": "The notebook is on the table.",
+          "sentenceTranslation": "笔记本在桌子上。",
+          "audioPath": "/assets/generated/scene_user_20260405173714_db3cbd/scene_user_20260405173714_db3cbd_en-US-JennyNeural_US_female_notebook_the_notebook_is_on_the_table.mp3",
+          "rect": {
+            "l": 5.0,
+            "t": 60.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "flower_vase",
+          "word": "vase",
+          "ipa": "/veɪz/",
+          "meaning": "花瓶",
+          "sentence": "There is a vase with flowers on the shelf.",
+          "sentenceTranslation": "架子上有一个插着花的花瓶。",
+          "audioPath": "/assets/generated/scene_user_20260405173714_db3cbd/scene_user_20260405173714_db3cbd_en-US-JennyNeural_US_female_flower_vase_there_is_a_vase_with_flowers.mp3",
+          "rect": {
+            "l": 55.0,
+            "t": 30.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "read",
+          "word": "read",
+          "ipa": "/riːd/",
+          "meaning": "阅读",
+          "sentence": "Let's read a book together.",
+          "sentenceTranslation": "让我们一起读书吧。",
+          "audioPath": "/assets/generated/scene_user_20260405173714_db3cbd/scene_user_20260405173714_db3cbd_en-US-JennyNeural_US_female_read_lets_read_a_book_together.mp3",
+          "relatedItem": "books"
+        },
+        {
+          "id": "sit",
+          "word": "sit",
+          "ipa": "/sɪt/",
+          "meaning": "坐下",
+          "sentence": "Sit down on the sofa and relax.",
+          "sentenceTranslation": "坐在沙发上放松一下。",
+          "audioPath": "/assets/generated/scene_user_20260405173714_db3cbd/scene_user_20260405173714_db3cbd_en-US-JennyNeural_US_female_sit_sit_down_on_the_sofa_and.mp3",
+          "relatedItem": "sofa"
+        },
+        {
+          "id": "write",
+          "word": "write",
+          "ipa": "/raɪt/",
+          "meaning": "写字",
+          "sentence": "Write your thoughts in the notebook.",
+          "sentenceTranslation": "把你的想法写在笔记本里。",
+          "audioPath": "/assets/generated/scene_user_20260405173714_db3cbd/scene_user_20260405173714_db3cbd_en-US-JennyNeural_US_female_write_write_your_thoughts_in_the_notebook.mp3",
+          "relatedItem": "notebook"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260405145017_f25208",
+        "uploadId": "upload_20260405173712_061cb2",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260405173714_db3cbd",
+        "core100SceneTitle": "客厅",
+        "recommendedCategory": "existing",
+        "tags": [
+          "家庭",
+          "生活空间",
+          "休闲"
+        ],
+        "version": 1
+      }
     }
   ]
 }

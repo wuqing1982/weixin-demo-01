@@ -3,7 +3,7 @@
     <view>
       <text class="profile-eyebrow">已登录会员中心</text>
       <text class="profile-name">{{me.displayName || '微信用户'}}</text>
-      <text class="profile-meta">会员：{{me.memberSummary.isActive ? '已开通' : '未开通'}} · 点数：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
+      <text class="profile-meta">身份：{{me.isAdmin ? 'Admin' : '普通用户'}} · 会员：{{me.memberSummary.isActive ? '已开通' : '未开通'}} · 点数：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
     </view>
     <button class="btn-secondary logout-btn" bindtap="onLogout">退出</button>
   </view>

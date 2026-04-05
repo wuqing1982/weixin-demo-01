@@ -63,6 +63,20 @@ class AuthStore:
                 return copy.deepcopy(user)
         return None
 
+    def update_user_role(self, user_id: str, role: str) -> dict[str, Any] | None:
+        normalized_role = (role or 'user').strip() or 'user'
+        with self.lock:
+            payload = read_json_file(self.data_file)
+            users = payload.get('users', [])
+            for user in users:
+                if user.get('id') != user_id:
+                    continue
+                user['role'] = normalized_role
+                user['updatedAt'] = utcnow_iso()
+                write_json_file(self.data_file, payload)
+                return copy.deepcopy(user)
+        return None
+
     def update_user_profile(self, user_id: str, *, display_name: str = '', avatar_url: str = '') -> dict[str, Any] | None:
         with self.lock:
             payload = read_json_file(self.data_file)
@@ -90,6 +104,7 @@ class AuthStore:
             now = utcnow_iso()
             user = {
                 'id': user_id,
+                'role': 'user',
                 'status': 'active',
                 'displayName': f'Debug {user_id[-6:]}',
                 'avatarUrl': '',
@@ -141,6 +156,7 @@ class AuthStore:
             if not user:
                 user = {
                     'id': build_object_id('user'),
+                    'role': 'user',
                     'status': 'active',
                     'displayName': profile.get('displayName') or '微信用户',
                     'avatarUrl': profile.get('avatarUrl') or '',
@@ -154,6 +170,7 @@ class AuthStore:
 
             user['displayName'] = profile.get('displayName') or user.get('displayName') or '微信用户'
             user['avatarUrl'] = profile.get('avatarUrl') or user.get('avatarUrl') or ''
+            user['role'] = user.get('role') or 'user'
             user['lastLoginAt'] = now
             user['updatedAt'] = now
 
