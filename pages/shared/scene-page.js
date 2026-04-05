@@ -12,8 +12,8 @@ const SWIPE_DISTANCE = 70;
 const SWIPE_VERTICAL_TOLERANCE = 80;
 const DEFAULT_TITLE = '英语场景';
 const DEFAULT_SAVE_BUTTON_POSITION = {
-  x: 72,
-  y: 62
+  left: 10,
+  top: 80
 };
 
 function findEntryById(entries, id) {
@@ -116,6 +116,7 @@ function createScenePage(sceneData) {
       this.stageMetrics = null;
       this.dragState = null;
       this.saveButtonDragState = null;
+      this.viewportRect = this.getViewportRect();
 
       wx.setNavigationBarTitle({
         title: this.data.title || DEFAULT_TITLE
@@ -176,7 +177,7 @@ function createScenePage(sceneData) {
         editingEntry: null,
         isDirty: false,
         isSaving: false,
-        saveButtonPosition: normalizeFloatingButtonPosition(DEFAULT_SAVE_BUTTON_POSITION),
+        saveButtonPosition: normalizeFloatingButtonPosition(DEFAULT_SAVE_BUTTON_POSITION, this.viewportRect),
         activeId: '',
         activeType: '',
         activeEntry: null,
@@ -467,6 +468,28 @@ function createScenePage(sceneData) {
       });
     },
 
+    getViewportRect() {
+      try {
+        if (typeof wx.getWindowInfo === 'function') {
+          const info = wx.getWindowInfo();
+          return {
+            width: info.windowWidth || 375,
+            height: info.windowHeight || 667
+          };
+        }
+        const info = wx.getSystemInfoSync();
+        return {
+          width: info.windowWidth || 375,
+          height: info.windowHeight || 667
+        };
+      } catch (error) {
+        return {
+          width: 375,
+          height: 667
+        };
+      }
+    },
+
     async enterEditorMode() {
       if (!this.data.canEditHotspots || this.data.loading || this.data.isSaving) {
         return;
@@ -489,6 +512,13 @@ function createScenePage(sceneData) {
         activeId: '',
         activeType: '',
         activeEntry: null
+      });
+      this.viewportRect = this.getViewportRect();
+      this.setData({
+        saveButtonPosition: normalizeFloatingButtonPosition(
+          this.data.saveButtonPosition || DEFAULT_SAVE_BUTTON_POSITION,
+          this.viewportRect
+        )
       });
       await this.measureStageRect();
     },
@@ -654,17 +684,18 @@ function createScenePage(sceneData) {
       }
 
       const touch = event.touches && event.touches[0];
-      const metrics = this.stageMetrics;
-      if (!touch || !metrics || !metrics.width || !metrics.height) {
+      if (!touch) {
         return;
       }
 
-      const deltaXPct = ((touch.pageX - this.saveButtonDragState.startX) / metrics.width) * 100;
-      const deltaYPct = ((touch.pageY - this.saveButtonDragState.startY) / metrics.height) * 100;
+      const deltaX = touch.pageX - this.saveButtonDragState.startX;
+      const deltaY = touch.pageY - this.saveButtonDragState.startY;
+      this.viewportRect = this.viewportRect || this.getViewportRect();
       const nextPosition = applyFloatingButtonDelta(
         this.saveButtonDragState.startPosition,
-        deltaXPct,
-        deltaYPct
+        deltaX,
+        deltaY,
+        this.viewportRect
       );
 
       this.setData({

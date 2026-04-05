@@ -1,8 +1,9 @@
 const MIN_HOTSPOT_SIZE = 4;
-const FLOATING_BUTTON_MIN_X = 10;
-const FLOATING_BUTTON_MAX_X = 90;
-const FLOATING_BUTTON_MIN_Y = 8;
-const FLOATING_BUTTON_MAX_Y = 90;
+const FLOATING_BUTTON_MIN_LEFT = 10;
+const FLOATING_BUTTON_MIN_TOP = 20;
+const FLOATING_BUTTON_SAFE_GAP = 10;
+const FLOATING_BUTTON_WIDTH = 116;
+const FLOATING_BUTTON_TOTAL_HEIGHT = 164;
 
 function roundPercent(value) {
   return Math.round(value * 100) / 100;
@@ -74,20 +75,35 @@ function applyResizeDelta(startRect, handle, deltaXPct, deltaYPct) {
   };
 }
 
-function normalizeFloatingButtonPosition(position) {
-  const safePosition = position || {};
+function resolveFloatingButtonBounds(viewport) {
+  const safeViewport = viewport || {};
+  const width = Math.max(FLOATING_BUTTON_WIDTH + FLOATING_BUTTON_SAFE_GAP * 2, parseFloat(safeViewport.width) || 375);
+  const height = Math.max(FLOATING_BUTTON_TOTAL_HEIGHT + FLOATING_BUTTON_SAFE_GAP * 2, parseFloat(safeViewport.height) || 667);
+
   return {
-    x: roundPercent(clamp(clampPercent(safePosition.x), FLOATING_BUTTON_MIN_X, FLOATING_BUTTON_MAX_X)),
-    y: roundPercent(clamp(clampPercent(safePosition.y), FLOATING_BUTTON_MIN_Y, FLOATING_BUTTON_MAX_Y))
+    width,
+    height
   };
 }
 
-function applyFloatingButtonDelta(startPosition, deltaXPct, deltaYPct) {
-  const position = normalizeFloatingButtonPosition(startPosition);
+function normalizeFloatingButtonPosition(position, viewport) {
+  const bounds = resolveFloatingButtonBounds(viewport);
+  const safePosition = position || {};
+  const maxLeft = Math.max(FLOATING_BUTTON_MIN_LEFT, bounds.width - FLOATING_BUTTON_WIDTH - FLOATING_BUTTON_SAFE_GAP);
+  const maxTop = Math.max(FLOATING_BUTTON_MIN_TOP, bounds.height - FLOATING_BUTTON_TOTAL_HEIGHT - FLOATING_BUTTON_SAFE_GAP);
+
+  return {
+    left: roundPercent(clamp(parseFloat(safePosition.left) || 0, FLOATING_BUTTON_MIN_LEFT, maxLeft)),
+    top: roundPercent(clamp(parseFloat(safePosition.top) || 0, FLOATING_BUTTON_MIN_TOP, maxTop))
+  };
+}
+
+function applyFloatingButtonDelta(startPosition, deltaX, deltaY, viewport) {
+  const position = normalizeFloatingButtonPosition(startPosition, viewport);
   return normalizeFloatingButtonPosition({
-    x: position.x + deltaXPct,
-    y: position.y + deltaYPct
-  });
+    left: position.left + deltaX,
+    top: position.top + deltaY
+  }, viewport);
 }
 
 module.exports = {
@@ -96,6 +112,8 @@ module.exports = {
   normalizeEditorRect,
   applyMoveDelta,
   applyResizeDelta,
+  FLOATING_BUTTON_WIDTH,
+  FLOATING_BUTTON_TOTAL_HEIGHT,
   normalizeFloatingButtonPosition,
   applyFloatingButtonDelta
 };

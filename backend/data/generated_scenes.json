@@ -20,8 +20,8 @@
           "rect": {
             "l": 40.0,
             "t": 30.0,
-            "w": 20.0,
-            "h": 35.0
+            "w": 20.51,
+            "h": 16.17
           }
         },
         {
@@ -135,7 +135,10 @@
           "生活",
           "休闲"
         ],
-        "version": 1
+        "version": 2,
+        "hotspotEditable": true,
+        "hotspotUpdatedAt": "2026-04-05T08:39:32Z",
+        "hotspotUpdatedBy": "debug_user_1775305037380_ce29d5"
       }
     },
     {

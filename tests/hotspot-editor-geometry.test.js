@@ -38,13 +38,13 @@ expectRect(
 );
 
 expectRect(
-  normalizeFloatingButtonPosition({ x: 98, y: -5 }),
-  { x: 90, y: 8 }
+  normalizeFloatingButtonPosition({ left: 2, top: -5 }, { width: 375, height: 667 }),
+  { left: 10, top: 20 }
 );
 
 expectRect(
-  applyFloatingButtonDelta({ x: 82, y: 76 }, 40, 20),
-  { x: 90, y: 90 }
+  applyFloatingButtonDelta({ left: 10, top: 80 }, 40, 20, { width: 375, height: 667 }),
+  { left: 50, top: 100 }
 );
 
 console.log('hotspot editor geometry tests passed');

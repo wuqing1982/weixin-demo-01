@@ -128,7 +128,7 @@
             <view
               wx:if="{{editorMode}}"
               class="floating-save-anchor"
-              style="left: {{saveButtonPosition.x}}%; top: {{saveButtonPosition.y}}%;"
+              style="left: {{saveButtonPosition.left}}px; top: {{saveButtonPosition.top}}px;"
             >
               <view
                 class="floating-save-handle"
