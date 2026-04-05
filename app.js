@@ -1,8 +1,6 @@
 const { DEFAULT_RUNTIME_CONFIG } = require('./config/runtime');
-
-function buildDebugUserId() {
-  return `debug_user_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
-}
+const { initializeAuth } = require('./services/auth');
+const { applySessionToApp, readSession } = require('./services/session');
 
 App({
   globalData: {
@@ -10,20 +8,23 @@ App({
     staticBaseUrl: DEFAULT_RUNTIME_CONFIG.staticBaseUrl,
     currentUser: null,
     authToken: '',
+    accessToken: '',
+    refreshToken: '',
+    deviceId: '',
     debugUserId: ''
   },
 
   onLaunch() {
-    try {
-      const token = wx.getStorageSync('authToken') || '';
-      const currentUser = wx.getStorageSync('currentUser') || null;
-      const debugUserId = wx.getStorageSync('debugUserId') || buildDebugUserId();
-      wx.setStorageSync('debugUserId', debugUserId);
-      this.globalData.authToken = token;
-      this.globalData.currentUser = currentUser;
-      this.globalData.debugUserId = debugUserId;
-    } catch (error) {
-      console.log('load app storage failed', error);
-    }
+    const session = readSession();
+    applySessionToApp(session, this);
+    this.globalData.isAuthReady = false;
+    this.globalData.authReadyPromise = initializeAuth(this)
+      .catch((error) => {
+        console.log('initialize auth failed', error);
+        return null;
+      })
+      .finally(() => {
+        this.globalData.isAuthReady = true;
+      });
   }
 });

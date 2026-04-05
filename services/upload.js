@@ -1,15 +1,10 @@
 const { getConfig } = require('./config');
+const { buildBaseHeader, waitForAuthReady } = require('./api');
 
-function uploadImage(filePath) {
-  const app = getApp();
+async function uploadImage(filePath) {
   const { apiBaseUrl } = getConfig();
-  const token = (app && app.globalData && app.globalData.authToken) || wx.getStorageSync('authToken') || '';
-  const debugUserId = (app && app.globalData && app.globalData.debugUserId) || wx.getStorageSync('debugUserId') || '';
-  const header = Object.assign(
-    {},
-    token ? { Authorization: `Bearer ${token}` } : {},
-    debugUserId ? { 'X-Debug-User-Id': debugUserId } : {}
-  );
+  await waitForAuthReady();
+  const header = buildBaseHeader();
 
   return new Promise((resolve, reject) => {
     wx.uploadFile({

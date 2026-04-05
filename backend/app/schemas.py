@@ -11,6 +11,25 @@ class SceneGenerateRequest(BaseModel):
     voiceName: str = 'JennyNeural'
 
 
+class AuthDevicePayload(BaseModel):
+    deviceId: str = Field(default='', max_length=128)
+    deviceType: str = Field(default='wechat_mini_program', max_length=64)
+    appVersion: str = Field(default='', max_length=32)
+
+
+class WechatLoginRequest(BaseModel):
+    code: str = Field(min_length=1)
+    device: AuthDevicePayload = Field(default_factory=AuthDevicePayload)
+
+
+class RefreshTokenRequest(BaseModel):
+    refreshToken: str = Field(min_length=1)
+
+
+class LogoutRequest(BaseModel):
+    refreshToken: str | None = None
+
+
 class HotspotRectPayload(BaseModel):
     l: float = Field(ge=0, le=100)
     t: float = Field(ge=0, le=100)

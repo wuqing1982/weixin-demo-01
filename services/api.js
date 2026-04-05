@@ -1,23 +1,47 @@
 const { getConfig } = require('./config');
+const { getAccessToken, getDebugUserId } = require('./session');
 
-function request({ url, method = 'GET', data, header = {} }) {
-  const app = getApp();
+function getAppSafe() {
+  try {
+    return getApp();
+  } catch (error) {
+    return null;
+  }
+}
+
+function buildBaseHeader() {
+  const token = getAccessToken();
+  if (token) {
+    return { Authorization: `Bearer ${token}` };
+  }
+
+  const debugUserId = getDebugUserId();
+  return debugUserId ? { 'X-Debug-User-Id': debugUserId } : {};
+}
+
+async function waitForAuthReady() {
+  const app = getAppSafe();
+  const pending = app && app.globalData && app.globalData.authReadyPromise;
+  if (!pending) {
+    return;
+  }
+
+  try {
+    await pending;
+  } catch (error) {
+    console.log('wait auth ready failed', error);
+  }
+}
+
+function rawRequest({ url, method = 'GET', data, header = {} }) {
   const { apiBaseUrl } = getConfig();
-  const token = (app && app.globalData && app.globalData.authToken) || wx.getStorageSync('authToken') || '';
-  const debugUserId = (app && app.globalData && app.globalData.debugUserId) || wx.getStorageSync('debugUserId') || '';
-  const baseHeader = Object.assign(
-    {},
-    token ? { Authorization: `Bearer ${token}` } : {},
-    debugUserId ? { 'X-Debug-User-Id': debugUserId } : {}
-  );
-
   return new Promise((resolve, reject) => {
     wx.request({
       url: `${apiBaseUrl}${url}`,
       method,
       data,
       timeout: 12000,
-      header: Object.assign({}, baseHeader, header),
+      header: Object.assign({}, header),
       success(res) {
         const body = res.data || {};
 
@@ -48,6 +72,19 @@ function request({ url, method = 'GET', data, header = {} }) {
   });
 }
 
+async function request({ url, method = 'GET', data, header = {} }) {
+  await waitForAuthReady();
+  return rawRequest({
+    url,
+    method,
+    data,
+    header: Object.assign({}, buildBaseHeader(), header)
+  });
+}
+
 module.exports = {
-  request
+  buildBaseHeader,
+  rawRequest,
+  request,
+  waitForAuthReady
 };

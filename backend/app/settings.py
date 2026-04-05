@@ -50,6 +50,12 @@ GENERATED_DIR = ASSETS_DIR / 'generated'
 PUBLIC_BASE_URL = _normalize_base_url(os.getenv('PUBLIC_BASE_URL', 'https://e.cps.vin'))
 DATABASE_URL = (os.getenv('DATABASE_URL', '') or '').strip() or None
 DEFAULT_MOCK_USER_ID = os.getenv('DEFAULT_MOCK_USER_ID', 'mock_user_001')
+AUTH_DATA_FILE = DATA_DIR / 'auth.json'
+AUTH_ENABLE_DEBUG_USER_HEADER = _normalize_bool(os.getenv('AUTH_ENABLE_DEBUG_USER_HEADER'), default=True)
+AUTH_WECHAT_LOGIN_MODE = (os.getenv('AUTH_WECHAT_LOGIN_MODE', 'mock') or 'mock').strip().lower()
+AUTH_JWT_SECRET = (os.getenv('AUTH_JWT_SECRET', 'dev-jwt-secret-change-me') or 'dev-jwt-secret-change-me').strip()
+AUTH_ACCESS_TOKEN_TTL_SECONDS = int(os.getenv('AUTH_ACCESS_TOKEN_TTL_SECONDS', '7200'))
+AUTH_REFRESH_TOKEN_TTL_SECONDS = int(os.getenv('AUTH_REFRESH_TOKEN_TTL_SECONDS', '2592000'))
 WORKER_POLL_INTERVAL = float(os.getenv('WORKER_POLL_INTERVAL', '2'))
 ENABLE_INLINE_SCENE_WORKER = _normalize_bool(os.getenv('ENABLE_INLINE_SCENE_WORKER'), default=True)
 CORE100_MODEL = (os.getenv('CORE100_MODEL', 'glm-4v-flash') or 'glm-4v-flash').strip()

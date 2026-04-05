@@ -1,14 +1,30 @@
+import hashlib
+from datetime import datetime, timedelta, timezone
+
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from .auth_store import AuthStore
 from .generated_scene_store import GeneratedSceneStore
 from .hotspot_permissions import can_edit_scene_hotspots
-from .schemas import SceneGenerateRequest, SceneHotspotUpdateRequest
+from .schemas import (
+    LogoutRequest,
+    RefreshTokenRequest,
+    SceneGenerateRequest,
+    SceneHotspotUpdateRequest,
+    WechatLoginRequest,
+)
 from .scene_store import SceneStore
+from .security import create_access_token, decode_access_token, generate_refresh_token, hash_refresh_token
 from .settings import (
     ASSETS_DIR,
+    AUTH_ACCESS_TOKEN_TTL_SECONDS,
+    AUTH_DATA_FILE,
+    AUTH_ENABLE_DEBUG_USER_HEADER,
+    AUTH_REFRESH_TOKEN_TTL_SECONDS,
+    AUTH_WECHAT_LOGIN_MODE,
     CORE100_MODEL,
     CORE100_ROOT,
     CORE100_TTS_URL,
@@ -33,6 +49,7 @@ from .upload_store import UploadStore
 from .worker_runner import InlineSceneWorker
 
 
+auth_store = AuthStore(AUTH_DATA_FILE)
 public_store = SceneStore(PUBLIC_SCENES_FILE)
 generated_store = GeneratedSceneStore(GENERATED_SCENES_FILE)
 upload_store = UploadStore(UPLOADS_FILE, UPLOADS_DIR)
@@ -81,6 +98,16 @@ def hotspot_permission_config():
     }
 
 
+def unauthorized(message: str = 'unauthorized'):
+    raise HTTPException(
+        status_code=401,
+        detail={
+            'code': 4001,
+            'message': message,
+        },
+    )
+
+
 @app.exception_handler(HTTPException)
 async def handle_http_exception(_: Request, exc: HTTPException):
     detail = exc.detail if isinstance(exc.detail, dict) else {
@@ -111,6 +138,112 @@ def asset_url(request: Request, value: str | None) -> str:
     return f'{base}{path}'
 
 
+def iso_after_seconds(seconds: int) -> str:
+    return (datetime.now(timezone.utc) + timedelta(seconds=max(1, int(seconds)))).replace(microsecond=0).isoformat().replace('+00:00', 'Z')
+
+
+def make_mock_openid(payload: WechatLoginRequest) -> str:
+    seed = (payload.device.deviceId or payload.code or DEFAULT_MOCK_USER_ID).strip()
+    digest = hashlib.sha256(seed.encode('utf-8')).hexdigest()[:24]
+    return f'mock_openid_{digest}'
+
+
+def serialize_user_profile(user: dict) -> dict:
+    return {
+        'id': user.get('id', ''),
+        'displayName': user.get('displayName', ''),
+        'avatarUrl': user.get('avatarUrl', ''),
+        'mobile': user.get('mobile'),
+        'mobileVerified': bool(user.get('mobileVerified')),
+    }
+
+
+def build_auth_response(request: Request, user: dict, session: dict, refresh_token: str) -> dict:
+    access_token, access_expires_at = create_access_token(
+        user.get('id', ''),
+        session.get('id', ''),
+        expires_in=AUTH_ACCESS_TOKEN_TTL_SECONDS,
+    )
+    return {
+        'accessToken': access_token,
+        'accessTokenExpiresIn': AUTH_ACCESS_TOKEN_TTL_SECONDS,
+        'accessTokenExpireAt': datetime.fromtimestamp(access_expires_at, timezone.utc).replace(microsecond=0).isoformat().replace('+00:00', 'Z'),
+        'refreshToken': refresh_token,
+        'refreshTokenExpiresIn': AUTH_REFRESH_TOKEN_TTL_SECONDS,
+        'refreshTokenExpireAt': session.get('expiresAt', ''),
+        'user': serialize_user_profile(user),
+        'me': serialize_me(request, user),
+    }
+
+
+def get_bearer_token(request: Request) -> str:
+    header = (request.headers.get('Authorization') or '').strip()
+    if not header.lower().startswith('bearer '):
+        return ''
+    return header[7:].strip()
+
+
+def get_authenticated_user(request: Request) -> dict | None:
+    token = get_bearer_token(request)
+    if not token:
+        return None
+
+    try:
+        payload = decode_access_token(token)
+    except ValueError as error:
+        unauthorized(str(error))
+
+    user = auth_store.get_user(payload.get('sub', ''))
+    if not user:
+        unauthorized('user not found')
+    if user.get('status') not in {'', 'active', None}:
+        unauthorized('user disabled')
+    return user
+
+
+def get_request_user(
+    request: Request,
+    *,
+    required: bool = False,
+    allow_debug: bool = False,
+    fallback_default: bool = False,
+) -> dict | None:
+    authenticated_user = get_authenticated_user(request)
+    if authenticated_user:
+        return authenticated_user
+
+    debug_user_id = ''
+    if allow_debug and AUTH_ENABLE_DEBUG_USER_HEADER:
+        debug_user_id = (request.headers.get('X-Debug-User-Id') or '').strip()
+
+    if debug_user_id:
+        return auth_store.get_or_create_debug_user(debug_user_id)
+
+    if fallback_default and DEFAULT_MOCK_USER_ID:
+        return auth_store.get_or_create_debug_user(DEFAULT_MOCK_USER_ID)
+
+    if required:
+        unauthorized()
+    return None
+
+
+def serialize_me(_: Request, user: dict) -> dict:
+    return {
+        'id': user.get('id', ''),
+        'displayName': user.get('displayName', ''),
+        'avatarUrl': user.get('avatarUrl', ''),
+        'mobile': user.get('mobile'),
+        'mobileVerified': bool(user.get('mobileVerified')),
+        'memberSummary': {
+            'isActive': False,
+            'expiresAt': None,
+        },
+        'creditSummary': {
+            'sceneGenerateBalance': 0,
+        },
+    }
+
+
 def serialize_entry(request: Request, entry: dict) -> dict:
     payload = dict(entry)
     audio_path = payload.pop('audioPath', '')
@@ -130,9 +263,10 @@ def serialize_scene_summary(request: Request, scene: dict) -> dict:
 
 
 def serialize_scene_detail(request: Request, scene: dict) -> dict:
+    actor = get_request_user(request, allow_debug=True, fallback_default=True)
     can_edit_hotspots = can_edit_scene_hotspots(
         scene,
-        get_current_user_id(request),
+        actor.get('id', '') if actor else '',
         hotspot_permission_config(),
     )
     return {
@@ -150,7 +284,8 @@ def serialize_scene_detail(request: Request, scene: dict) -> dict:
 
 
 def get_current_user_id(request: Request) -> str:
-    return request.headers.get('X-Debug-User-Id', '').strip() or DEFAULT_MOCK_USER_ID
+    user = get_request_user(request, allow_debug=True, fallback_default=True)
+    return user.get('id', '') if user else DEFAULT_MOCK_USER_ID
 
 
 @app.get('/api/health')
@@ -160,6 +295,98 @@ def health():
         'workerEnabled': ENABLE_INLINE_SCENE_WORKER,
         'workerMode': 'core100',
     })
+
+
+@app.post('/api/auth/wechat/login')
+def auth_wechat_login(payload: WechatLoginRequest, request: Request):
+    if AUTH_WECHAT_LOGIN_MODE != 'mock':
+        raise HTTPException(
+            status_code=501,
+            detail={
+                'code': 5001,
+                'message': 'wechat login mode not implemented',
+            },
+        )
+
+    provider_uid = make_mock_openid(payload)
+    user = auth_store.get_or_create_wechat_user(
+        provider_uid=provider_uid,
+        profile={
+            'displayName': '微信用户',
+            'avatarUrl': '',
+            'loginMode': 'mock',
+        },
+        session_key_encrypted='mock_session_key',
+    )
+    refresh_token = generate_refresh_token()
+    refresh_session = auth_store.create_refresh_session(
+        user_id=user['id'],
+        token_hash=hash_refresh_token(refresh_token),
+        expires_at=iso_after_seconds(AUTH_REFRESH_TOKEN_TTL_SECONDS),
+        device=payload.device.model_dump(),
+        ip=request.client.host if request.client else '',
+        user_agent=request.headers.get('User-Agent', ''),
+    )
+    return success(build_auth_response(request, user, refresh_session, refresh_token))
+
+
+@app.post('/api/auth/refresh')
+def auth_refresh_token(payload: RefreshTokenRequest, request: Request):
+    token_hash = hash_refresh_token(payload.refreshToken)
+    session = auth_store.get_active_refresh_session(token_hash)
+    if not session:
+        unauthorized('refresh token invalid')
+
+    user = auth_store.get_user(session.get('userId', ''))
+    if not user:
+        unauthorized('user not found')
+
+    auth_store.revoke_session(session.get('id', ''))
+    next_refresh_token = generate_refresh_token()
+    next_session = auth_store.create_refresh_session(
+        user_id=user['id'],
+        token_hash=hash_refresh_token(next_refresh_token),
+        expires_at=iso_after_seconds(AUTH_REFRESH_TOKEN_TTL_SECONDS),
+        device={
+            'deviceType': session.get('deviceType', ''),
+            'deviceId': session.get('deviceId', ''),
+            'appVersion': session.get('appVersion', ''),
+        },
+        ip=request.client.host if request.client else '',
+        user_agent=request.headers.get('User-Agent', ''),
+    )
+    return success(build_auth_response(request, user, next_session, next_refresh_token))
+
+
+@app.post('/api/auth/logout')
+def auth_logout(request: Request, payload: LogoutRequest | None = None):
+    revoked = False
+    if payload and payload.refreshToken:
+        revoked = auth_store.revoke_refresh_token(hash_refresh_token(payload.refreshToken)) or revoked
+
+    token = get_bearer_token(request)
+    if token:
+        try:
+            access_payload = decode_access_token(token)
+            revoked = auth_store.revoke_session(access_payload.get('sid', '')) or revoked
+        except ValueError:
+            revoked = revoked
+
+    if not revoked:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                'code': 4000,
+                'message': 'no active session to logout',
+            },
+        )
+    return success({'revoked': True})
+
+
+@app.get('/api/me')
+def get_me(request: Request):
+    user = get_request_user(request, required=True, allow_debug=True)
+    return success(serialize_me(request, user))
 
 
 @app.get('/api/scenes')
