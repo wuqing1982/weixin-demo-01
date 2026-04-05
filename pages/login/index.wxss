@@ -174,8 +174,96 @@
 
 .current-user-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 14rpx;
   margin-top: 18rpx;
+}
+
+.profile-sync-panel {
+  margin-top: 22rpx;
+  padding: 22rpx;
+  border-radius: 22rpx;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10rpx);
+}
+
+.profile-sync-row {
+  display: flex;
+  align-items: center;
+  gap: 18rpx;
+}
+
+.profile-avatar-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 184rpx;
+  min-width: 184rpx;
+  height: 196rpx;
+  padding: 16rpx 14rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.12);
+  color: #f8f1e6;
+}
+
+.profile-avatar-picker::after {
+  border: 0;
+}
+
+.profile-avatar-preview {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.profile-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40rpx;
+  font-weight: 700;
+}
+
+.profile-avatar-copy {
+  margin-top: 14rpx;
+  font-size: 22rpx;
+  line-height: 1.4;
+  color: rgba(248, 241, 230, 0.86);
+}
+
+.profile-sync-fields {
+  flex: 1;
+  min-width: 0;
+}
+
+.profile-sync-label,
+.profile-editor-tip {
+  display: block;
+  line-height: 1.6;
+}
+
+.profile-sync-label {
+  font-size: 22rpx;
+  color: rgba(248, 241, 230, 0.72);
+}
+
+.profile-nickname-input {
+  height: 86rpx;
+  margin-top: 12rpx;
+  padding: 0 22rpx;
+  border-radius: 18rpx;
+  background: rgba(255, 255, 255, 0.92);
+  color: #16302b;
+  font-size: 28rpx;
+  font-weight: 600;
+}
+
+.profile-editor-tip {
+  margin-top: 12rpx;
+  font-size: 22rpx;
+  color: rgba(248, 241, 230, 0.7);
 }
 
 .benefit-list {
@@ -275,4 +363,21 @@
 .agreement-copy {
   margin-top: 18rpx;
   color: rgba(22, 48, 43, 0.66);
+}
+
+@media (max-width: 420px) {
+  .current-user-actions {
+    flex-direction: column;
+  }
+
+  .profile-sync-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .profile-avatar-picker {
+    width: 100%;
+    min-width: 0;
+    height: 176rpx;
+  }
 }

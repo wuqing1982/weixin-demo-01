@@ -24,8 +24,29 @@
             <text class="current-user-meta">会员：{{me.memberSummary.isActive ? '已开通' : '未开通'}} · 点数：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
           </view>
         </view>
+        <view class="profile-sync-panel">
+          <view class="profile-sync-row">
+            <button class="profile-avatar-picker" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+              <image wx:if="{{profileDraftAvatarPreview}}" class="profile-avatar-preview" src="{{profileDraftAvatarPreview}}" mode="aspectFill"></image>
+              <view wx:else class="profile-avatar-preview profile-avatar-fallback">{{avatarLetter}}</view>
+              <text class="profile-avatar-copy">点击选择头像</text>
+            </button>
+            <view class="profile-sync-fields">
+              <text class="profile-sync-label">微信昵称</text>
+              <input
+                class="profile-nickname-input"
+                type="nickname"
+                maxlength="20"
+                placeholder="输入昵称后保存"
+                value="{{profileDraftName}}"
+                bindinput="onProfileNicknameInput"
+              />
+              <text class="profile-editor-tip">先选头像、再填昵称，最后点保存即可同步到当前账号。</text>
+            </view>
+          </view>
+        </view>
         <view class="current-user-actions">
-          <button class="cta-outline compact-btn" bindtap="onSyncWechatProfile" loading="{{syncingProfile}}">同步微信头像昵称</button>
+          <button class="cta-outline compact-btn" bindtap="onSyncWechatProfile" loading="{{syncingProfile}}">保存头像昵称</button>
           <button class="cta-login compact-btn" bindtap="onOpenHome">进入会员中心</button>
         </view>
       </view>

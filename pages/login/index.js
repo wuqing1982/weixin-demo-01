@@ -2,6 +2,11 @@ const { loginSilently } = require('../../services/auth');
 const { getProducts, getProductSkus } = require('../../services/product');
 const { readSession } = require('../../services/session');
 const { getMe, updateMyProfile } = require('../../services/user');
+const { uploadImage } = require('../../services/upload');
+
+function buildAvatarLetter(name) {
+  return ((name || '微').slice(0, 1) || '微').toUpperCase();
+}
 
 function pickFeaturedSku(products) {
   const membershipProduct = products.find((item) => item.productType === 'membership') || products[0] || null;
@@ -23,7 +28,11 @@ Page({
     profileMessage: '',
     featuredProduct: null,
     me: null,
-    avatarLetter: '微'
+    avatarLetter: '微',
+    profileDraftName: '',
+    profileDraftAvatarPreview: '',
+    profileDraftRemoteAvatar: '',
+    profilePendingAvatarPath: ''
   },
 
   async onShow() {
@@ -45,7 +54,11 @@ Page({
       this.setData({
         me: null,
         avatarLetter: '微',
-        profileMessage: ''
+        profileMessage: '',
+        profileDraftName: '',
+        profileDraftAvatarPreview: '',
+        profileDraftRemoteAvatar: '',
+        profilePendingAvatarPath: ''
       });
       return;
     }
@@ -58,8 +71,12 @@ Page({
       const displayName = (me.displayName || '').trim();
       this.setData({
         me,
-        avatarLetter: (displayName || '微').slice(0, 1).toUpperCase(),
-        profileMessage: ''
+        avatarLetter: buildAvatarLetter(displayName),
+        profileMessage: '',
+        profileDraftName: displayName,
+        profileDraftAvatarPreview: (me.avatarUrl || '').trim(),
+        profileDraftRemoteAvatar: (me.avatarUrl || '').trim(),
+        profilePendingAvatarPath: ''
       });
     } catch (error) {
       this.setData({
@@ -149,13 +166,6 @@ Page({
       });
       return;
     }
-    if (!wx.getUserProfile) {
-      this.setData({
-        errorMessage: '当前微信版本不支持同步头像昵称'
-      });
-      return;
-    }
-
     this.setData({
       syncingProfile: true,
       errorMessage: '',
@@ -163,23 +173,35 @@ Page({
     });
 
     try {
-      const profile = await new Promise((resolve, reject) => {
-        wx.getUserProfile({
-          desc: '用于完善会员资料',
-          success: resolve,
-          fail: reject
-        });
-      });
-      const userInfo = profile && profile.userInfo ? profile.userInfo : {};
+      const displayName = (this.data.profileDraftName || '').trim();
+      const pendingAvatarPath = (this.data.profilePendingAvatarPath || '').trim();
+      let avatarUrl = (this.data.profileDraftRemoteAvatar || '').trim();
+
+      if (pendingAvatarPath) {
+        const upload = await uploadImage(pendingAvatarPath);
+        avatarUrl = (upload.fileUrl || upload.url || '').trim();
+        if (!avatarUrl) {
+          throw new Error('头像上传成功，但未返回可用地址');
+        }
+      }
+
+      if (!displayName && !avatarUrl) {
+        throw new Error('请先选择头像或填写昵称');
+      }
+
       const me = await updateMyProfile({
-        displayName: userInfo.nickName || '',
-        avatarUrl: userInfo.avatarUrl || ''
+        displayName,
+        avatarUrl
       });
       getApp().globalData.currentUser = me;
       this.setData({
         me,
-        avatarLetter: ((me.displayName || '微').slice(0, 1) || '微').toUpperCase(),
-        profileMessage: '微信头像昵称已同步'
+        avatarLetter: buildAvatarLetter(me.displayName || displayName),
+        profileDraftName: (me.displayName || '').trim(),
+        profileDraftAvatarPreview: (me.avatarUrl || avatarUrl || '').trim(),
+        profileDraftRemoteAvatar: (me.avatarUrl || avatarUrl || '').trim(),
+        profilePendingAvatarPath: '',
+        profileMessage: '头像昵称已保存到当前账号'
       });
     } catch (error) {
       this.setData({
@@ -190,5 +212,29 @@ Page({
         syncingProfile: false
       });
     }
+  },
+
+  onProfileNicknameInput(event) {
+    this.setData({
+      profileDraftName: event.detail.value || '',
+      errorMessage: '',
+      profileMessage: ''
+    });
+  },
+
+  onChooseAvatar(event) {
+    const avatarPath = (event.detail && event.detail.avatarUrl) || '';
+    if (!avatarPath) {
+      this.setData({
+        errorMessage: '没有拿到头像，请重新选择'
+      });
+      return;
+    }
+    this.setData({
+      profileDraftAvatarPreview: avatarPath,
+      profilePendingAvatarPath: avatarPath,
+      errorMessage: '',
+      profileMessage: '新头像已选中，点击保存后同步'
+    });
   }
 });
