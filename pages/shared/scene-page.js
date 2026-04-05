@@ -12,8 +12,8 @@ const SWIPE_DISTANCE = 70;
 const SWIPE_VERTICAL_TOLERANCE = 80;
 const DEFAULT_TITLE = '英语场景';
 const DEFAULT_SAVE_BUTTON_POSITION = {
-  x: 82,
-  y: 78
+  x: 72,
+  y: 62
 };
 
 function findEntryById(entries, id) {
@@ -116,7 +116,6 @@ function createScenePage(sceneData) {
       this.stageMetrics = null;
       this.dragState = null;
       this.saveButtonDragState = null;
-      this.saveButtonTapSuppressedUntil = 0;
 
       wx.setNavigationBarTitle({
         title: this.data.title || DEFAULT_TITLE
@@ -645,8 +644,7 @@ function createScenePage(sceneData) {
       this.saveButtonDragState = {
         startX: touch.pageX,
         startY: touch.pageY,
-        startPosition: Object.assign({}, this.data.saveButtonPosition),
-        moved: false
+        startPosition: Object.assign({}, this.data.saveButtonPosition)
       };
     },
 
@@ -669,27 +667,16 @@ function createScenePage(sceneData) {
         deltaYPct
       );
 
-      this.saveButtonDragState.moved = this.saveButtonDragState.moved
-        || Math.abs(touch.pageX - this.saveButtonDragState.startX) > 6
-        || Math.abs(touch.pageY - this.saveButtonDragState.startY) > 6;
-
       this.setData({
         saveButtonPosition: nextPosition
       });
     },
 
     onSaveButtonTouchEnd() {
-      if (this.saveButtonDragState && this.saveButtonDragState.moved) {
-        this.saveButtonTapSuppressedUntil = Date.now() + 300;
-      }
       this.saveButtonDragState = null;
     },
 
     onTapFloatingSave() {
-      if (Date.now() < this.saveButtonTapSuppressedUntil) {
-        return;
-      }
-
       this.onSaveHotspots();
     },
 

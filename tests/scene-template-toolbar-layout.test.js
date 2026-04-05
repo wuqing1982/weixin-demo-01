@@ -25,4 +25,14 @@ assert(
   'editor mode should render a floating save button'
 );
 
+assert(
+  template.includes('floating-save-handle'),
+  'floating save button should expose a dedicated drag handle'
+);
+
+assert(
+  !template.includes('class="editor-panel"'),
+  'legacy hotspot adjustment panel should be removed from edit mode'
+);
+
 console.log('scene template toolbar layout tests passed');

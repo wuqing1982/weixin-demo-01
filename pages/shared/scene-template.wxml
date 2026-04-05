@@ -127,14 +127,23 @@
 
             <view
               wx:if="{{editorMode}}"
-              class="floating-save-btn {{isDirty ? 'floating-save-btn-dirty' : ''}} {{isSaving ? 'floating-save-btn-saving' : ''}}"
+              class="floating-save-anchor"
               style="left: {{saveButtonPosition.x}}%; top: {{saveButtonPosition.y}}%;"
-              catchtap="onTapFloatingSave"
-              catchtouchstart="onSaveButtonTouchStart"
-              catchtouchmove="onSaveButtonTouchMove"
-              catchtouchend="onSaveButtonTouchEnd"
             >
-              <text class="floating-save-text">{{isSaving ? '保存中' : '保存'}}</text>
+              <view
+                class="floating-save-handle"
+                catchtouchstart="onSaveButtonTouchStart"
+                catchtouchmove="onSaveButtonTouchMove"
+                catchtouchend="onSaveButtonTouchEnd"
+              >
+                <view class="floating-save-grip"></view>
+              </view>
+              <view
+                class="floating-save-btn {{isDirty ? 'floating-save-btn-dirty' : ''}} {{isSaving ? 'floating-save-btn-saving' : ''}}"
+                catchtap="onTapFloatingSave"
+              >
+                <text class="floating-save-text">{{isSaving ? '保存中' : '保存'}}</text>
+              </view>
             </view>
 
             <view wx:if="{{!editorMode}}" class="overlay {{activeEntry ? 'overlay-visible' : ''}}">
@@ -166,33 +175,6 @@
                 bindtap="onTapVerb"
               >
                 {{item.word}}
-              </view>
-            </view>
-
-            <view wx:if="{{editorMode}}" class="editor-panel">
-              <view class="editor-panel-header">
-                <view class="editor-panel-copy">
-                  <text class="editor-panel-title">{{editingEntry ? editingEntry.word : '选择热点'}}</text>
-                  <text class="editor-panel-subtitle">{{isDirty ? '有未保存改动' : '拖动热点或用按钮微调'}}</text>
-                </view>
-              </view>
-
-              <view wx:if="{{editingEntry}}" class="editor-actions">
-                <view class="editor-grid">
-                  <button class="editor-mini-btn" bindtap="onEditorNudge" data-dt="-1">上移</button>
-                  <button class="editor-mini-btn" bindtap="onEditorNudge" data-dl="-1">左移</button>
-                  <button class="editor-mini-btn" bindtap="onEditorNudge" data-dl="1">右移</button>
-                  <button class="editor-mini-btn" bindtap="onEditorNudge" data-dt="1">下移</button>
-                </view>
-
-                <view class="editor-grid editor-grid-size">
-                  <button class="editor-mini-btn" bindtap="onEditorNudge" data-dw="-1">变窄</button>
-                  <button class="editor-mini-btn" bindtap="onEditorNudge" data-dw="1">变宽</button>
-                  <button class="editor-mini-btn" bindtap="onEditorNudge" data-dh="-1">变矮</button>
-                  <button class="editor-mini-btn" bindtap="onEditorNudge" data-dh="1">变高</button>
-                </view>
-
-                <button class="editor-reset-btn" bindtap="onEditorResetCurrent">重置当前热点</button>
               </view>
             </view>
           </view>
