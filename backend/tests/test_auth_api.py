@@ -11,7 +11,7 @@ os.environ['COMMERCE_STORE_BACKEND'] = 'disabled'
 
 from backend.app.auth_store import AuthStore
 from backend.app import main
-from backend.app.schemas import LogoutRequest, RefreshTokenRequest, WechatLoginRequest
+from backend.app.schemas import LogoutRequest, MeProfileUpdateRequest, RefreshTokenRequest, WechatLoginRequest
 
 
 def build_request(*, method: str = 'GET', path: str = '/', headers: dict[str, str] | None = None) -> Request:
@@ -134,6 +134,39 @@ class AuthApiTests(unittest.TestCase):
                 RefreshTokenRequest(refreshToken=refreshed['refreshToken']),
                 build_request(method='POST', path='/api/auth/refresh'),
             )
+
+    def test_update_profile_persists_display_name_and_avatar(self):
+        login_data = main.auth_wechat_login(
+            WechatLoginRequest.model_validate({
+                'code': 'wx-code-profile',
+                'device': {'deviceId': 'profile-device'},
+            }),
+            build_request(method='POST', path='/api/auth/wechat/login'),
+        )['data']
+
+        updated = main.update_my_profile(
+            MeProfileUpdateRequest(
+                displayName='测试昵称',
+                avatarUrl='https://wx.qlogo.cn/mock-avatar.png',
+            ),
+            build_request(
+                method='PUT',
+                path='/api/me/profile',
+                headers={'Authorization': f"Bearer {login_data['accessToken']}"},
+            ),
+        )['data']
+
+        self.assertEqual(updated['displayName'], '测试昵称')
+        self.assertEqual(updated['avatarUrl'], 'https://wx.qlogo.cn/mock-avatar.png')
+
+        me = main.get_me(
+            build_request(
+                path='/api/me',
+                headers={'Authorization': f"Bearer {login_data['accessToken']}"},
+            )
+        )['data']
+        self.assertEqual(me['displayName'], '测试昵称')
+        self.assertEqual(me['avatarUrl'], 'https://wx.qlogo.cn/mock-avatar.png')
 
     def test_code2session_mode_uses_real_identity_response(self):
         class FakeWechatClient:

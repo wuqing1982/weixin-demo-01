@@ -10,7 +10,7 @@ os.environ['COMMERCE_STORE_BACKEND'] = 'disabled'
 from backend.app import main
 from backend.app.auth_store_postgres import PostgresAuthStore
 from backend.app.postgres import connect_postgres
-from backend.app.schemas import LogoutRequest, RefreshTokenRequest, WechatLoginRequest
+from backend.app.schemas import LogoutRequest, MeProfileUpdateRequest, RefreshTokenRequest, WechatLoginRequest
 from backend.tests.test_auth_api import build_request
 
 
@@ -73,6 +73,34 @@ class AuthApiPostgresTests(unittest.TestCase):
                 RefreshTokenRequest(refreshToken=refreshed['refreshToken']),
                 build_request(method='POST', path='/api/auth/refresh'),
             )
+
+    def test_update_profile_round_trip(self):
+        login_data = main.auth_wechat_login(
+            WechatLoginRequest.model_validate({
+                'code': 'wx-pg-code-profile',
+                'device': {
+                    'deviceId': 'device-pg-profile-001',
+                    'deviceType': 'wechat_mini_program',
+                    'appVersion': '1.0.0',
+                },
+            }),
+            build_request(method='POST', path='/api/auth/wechat/login'),
+        )['data']
+
+        updated = main.update_my_profile(
+            MeProfileUpdateRequest(
+                displayName='Postgres 昵称',
+                avatarUrl='https://wx.qlogo.cn/postgres-avatar.png',
+            ),
+            build_request(
+                method='PUT',
+                path='/api/me/profile',
+                headers={'Authorization': f"Bearer {login_data['accessToken']}"},
+            ),
+        )['data']
+
+        self.assertEqual(updated['displayName'], 'Postgres 昵称')
+        self.assertEqual(updated['avatarUrl'], 'https://wx.qlogo.cn/postgres-avatar.png')
 
 
 if __name__ == '__main__':

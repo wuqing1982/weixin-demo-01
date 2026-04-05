@@ -63,6 +63,22 @@ class AuthStore:
                 return copy.deepcopy(user)
         return None
 
+    def update_user_profile(self, user_id: str, *, display_name: str = '', avatar_url: str = '') -> dict[str, Any] | None:
+        with self.lock:
+            payload = read_json_file(self.data_file)
+            users = payload.get('users', [])
+            for user in users:
+                if user.get('id') != user_id:
+                    continue
+                if display_name:
+                    user['displayName'] = display_name
+                if avatar_url:
+                    user['avatarUrl'] = avatar_url
+                user['updatedAt'] = utcnow_iso()
+                write_json_file(self.data_file, payload)
+                return copy.deepcopy(user)
+        return None
+
     def get_or_create_debug_user(self, user_id: str) -> dict[str, Any]:
         with self.lock:
             payload = read_json_file(self.data_file)

@@ -852,10 +852,10 @@
           "sentenceTranslation": "蓝色的瓶子在桌子上。",
           "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_bottle_1_the_blue_bottle_is_on_the.mp3",
           "rect": {
-            "l": 21.4,
-            "t": 31.69,
-            "w": 12.0,
-            "h": 30.0
+            "l": 23.9,
+            "t": 33.46,
+            "w": 12.01,
+            "h": 16.33
           }
         },
         {
@@ -969,10 +969,148 @@
           "办公",
           "室内"
         ],
-        "version": 2,
+        "version": 3,
         "hotspotEditable": true,
-        "hotspotUpdatedAt": "2026-04-05T14:52:34Z",
+        "hotspotUpdatedAt": "2026-04-05T16:57:02Z",
         "hotspotUpdatedBy": "user_20260405145017_f25208"
+      }
+    },
+    {
+      "sceneId": "scene_user_20260405165724_17c0f2",
+      "title": "卧室",
+      "category": "existing",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260405165724_17c0f2/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260405165724_17c0f2/background.jpg",
+      "items": [
+        {
+          "id": "pillow",
+          "word": "pillow",
+          "ipa": "/pɪloʊ/",
+          "meaning": "枕头",
+          "sentence": "She put the pillow on the bed.",
+          "sentenceTranslation": "她把枕头放在床上。",
+          "audioPath": "/assets/generated/scene_user_20260405165724_17c0f2/scene_user_20260405165724_17c0f2_en-US-JennyNeural_US_female_pillow_she_put_the_pillow_on_the.mp3",
+          "rect": {
+            "l": 70.0,
+            "t": 50.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "blanket",
+          "word": "blanket",
+          "ipa": "/ˈblæŋkɪt/",
+          "meaning": "毯子",
+          "sentence": "He covered himself with a blanket.",
+          "sentenceTranslation": "他用毯子把自己盖住。",
+          "audioPath": "/assets/generated/scene_user_20260405165724_17c0f2/scene_user_20260405165724_17c0f2_en-US-JennyNeural_US_female_blanket_he_covered_himself_with_a_blanket.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 60.0,
+            "w": 30.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "nightstand",
+          "word": "nightstand",
+          "ipa": "/naɪtstænd/",
+          "meaning": "床头柜",
+          "sentence": "The nightstand is next to the bed.",
+          "sentenceTranslation": "床头柜在床旁边。",
+          "audioPath": "/assets/generated/scene_user_20260405165724_17c0f2/scene_user_20260405165724_17c0f2_en-US-JennyNeural_US_female_nightstand_the_nightstand_is_next_to_the.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 40.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "water_bottle",
+          "word": "water bottle",
+          "ipa": "/ˈwɔːtər ˈbɒtl/",
+          "meaning": "水瓶",
+          "sentence": "Please take the water bottle from the nightstand.",
+          "sentenceTranslation": "请从床头柜上拿走水瓶。",
+          "audioPath": "/assets/generated/scene_user_20260405165724_17c0f2/scene_user_20260405165724_17c0f2_en-US-JennyNeural_US_female_water_bottle_please_take_the_water_bottle_from.mp3",
+          "rect": {
+            "l": 25.0,
+            "t": 45.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "remote_control",
+          "word": "remote control",
+          "ipa": "/ˈremoʊt ˈkɒntrəʊl/",
+          "meaning": "遥控器",
+          "sentence": "Put the remote control back in your pocket.",
+          "sentenceTranslation": "把遥控器放回你的口袋里。",
+          "audioPath": "/assets/generated/scene_user_20260405165724_17c0f2/scene_user_20260405165724_17c0f2_en-US-JennyNeural_US_female_remote_control_put_the_remote_control_back_in.mp3",
+          "rect": {
+            "l": 35.0,
+            "t": 45.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "sleep",
+          "word": "sleep",
+          "ipa": "/slɪp/",
+          "meaning": "睡觉",
+          "sentence": "Go to sleep on the pillow.",
+          "sentenceTranslation": "躺在枕头上睡觉。",
+          "audioPath": "/assets/generated/scene_user_20260405165724_17c0f2/scene_user_20260405165724_17c0f2_en-US-JennyNeural_US_female_sleep_go_to_sleep_on_the_pillow.mp3",
+          "relatedItem": "pillow"
+        },
+        {
+          "id": "cover",
+          "word": "cover",
+          "ipa": "/ˈkʌvər/",
+          "meaning": "覆盖",
+          "sentence": "Cover yourself with the blanket.",
+          "sentenceTranslation": "用毯子把自己盖住。",
+          "audioPath": "/assets/generated/scene_user_20260405165724_17c0f2/scene_user_20260405165724_17c0f2_en-US-JennyNeural_US_female_cover_cover_yourself_with_the_blanket.mp3",
+          "relatedItem": "blanket"
+        },
+        {
+          "id": "put",
+          "word": "put",
+          "ipa": "/pʊt/",
+          "meaning": "放置",
+          "sentence": "Put the water bottle on the nightstand.",
+          "sentenceTranslation": "把水瓶放在床头柜上。",
+          "audioPath": "/assets/generated/scene_user_20260405165724_17c0f2/scene_user_20260405165724_17c0f2_en-US-JennyNeural_US_female_put_put_the_water_bottle_on_the.mp3",
+          "relatedItem": "water_bottle"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260405145017_f25208",
+        "uploadId": "upload_20260405165722_65eb2b",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260405165724_17c0f2",
+        "core100SceneTitle": "卧室",
+        "recommendedCategory": "existing",
+        "tags": [
+          "家庭",
+          "休息",
+          "舒适"
+        ],
+        "version": 1
       }
     }
   ]

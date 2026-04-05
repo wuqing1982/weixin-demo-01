@@ -15,6 +15,7 @@ from .schemas import (
     AdminProductRequest,
     AdminPublicSceneRequest,
     AdminSkuRequest,
+    MeProfileUpdateRequest,
     MockPaymentCompleteRequest,
     LogoutRequest,
     OrderCreateRequest,
@@ -877,6 +878,35 @@ def auth_logout(request: Request, payload: LogoutRequest | None = None):
 def get_me(request: Request):
     user = get_request_user(request, required=True, allow_debug=True)
     return success(serialize_me(request, user))
+
+
+@app.put('/api/me/profile')
+def update_my_profile(payload: MeProfileUpdateRequest, request: Request):
+    user = get_request_user(request, required=True, allow_debug=True)
+    display_name = (payload.displayName or '').strip()
+    avatar_url = (payload.avatarUrl or '').strip()
+    if not display_name and not avatar_url:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                'code': 4000,
+                'message': 'profile payload is empty',
+            },
+        )
+    updated = auth_store.update_user_profile(
+        user.get('id', ''),
+        display_name=display_name,
+        avatar_url=avatar_url,
+    ) if hasattr(auth_store, 'update_user_profile') else None
+    if not updated:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                'code': 4004,
+                'message': 'user not found',
+            },
+        )
+    return success(serialize_me(request, updated))
 
 
 @app.get('/api/me/membership')

@@ -14,6 +14,22 @@
       <text class="hero-title">一键登录</text>
       <text class="hero-desc">使用当前微信身份登录。首次进入会自动创建平台用户，后续订单、会员权益和私人场景都会绑定到同一个账号。</text>
 
+      <view wx:if="{{me}}" class="current-user-card">
+        <view class="current-user-head">
+          <image wx:if="{{me.avatarUrl}}" class="current-user-avatar" src="{{me.avatarUrl}}" mode="aspectFill"></image>
+          <view wx:else class="current-user-avatar current-user-avatar-fallback">{{avatarLetter}}</view>
+          <view class="current-user-copy">
+            <text class="current-user-label">当前登录用户</text>
+            <text class="current-user-name">{{me.displayName || '微信用户'}}</text>
+            <text class="current-user-meta">会员：{{me.memberSummary.isActive ? '已开通' : '未开通'}} · 点数：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
+          </view>
+        </view>
+        <view class="current-user-actions">
+          <button class="cta-outline compact-btn" bindtap="onSyncWechatProfile" loading="{{syncingProfile}}">同步微信头像昵称</button>
+          <button class="cta-login compact-btn" bindtap="onOpenHome">进入会员中心</button>
+        </view>
+      </view>
+
       <view class="benefit-list">
         <view class="benefit-pill">真实微信登录</view>
         <view class="benefit-pill">包年会员购买</view>
@@ -30,12 +46,13 @@
       <view class="offer-empty" wx:elif="{{offerMessage}}">{{offerMessage}}</view>
       <view class="offer-empty" wx:elif="{{loadingOffers}}">正在加载会员套餐...</view>
 
-      <button class="cta-login" bindtap="onWechatLogin" loading="{{loggingIn}}">
+      <button wx:if="{{!me}}" class="cta-login" bindtap="onWechatLogin" loading="{{loggingIn}}">
         微信一键登录
       </button>
       <button class="cta-outline" bindtap="onOpenProducts">先看看会员套餐</button>
 
       <text wx:if="{{errorMessage}}" class="error-text">{{errorMessage}}</text>
+      <text wx:if="{{profileMessage}}" class="success-text">{{profileMessage}}</text>
       <text class="agreement-copy">继续即表示你将使用当前微信身份登录，并在支付后自动绑定会员订单与点数权益。</text>
     </view>
   </view>

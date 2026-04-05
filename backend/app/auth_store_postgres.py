@@ -114,6 +114,34 @@ class PostgresAuthStore:
                 )
                 return _serialize_user(cursor.fetchone())
 
+    def update_user_profile(self, user_id: str, *, display_name: str = '', avatar_url: str = '') -> dict[str, Any] | None:
+        if not display_name and not avatar_url:
+            return self.get_user(user_id)
+
+        assignments = []
+        params: list[Any] = []
+        if display_name:
+            assignments.append('display_name = %s')
+            params.append(display_name)
+        if avatar_url:
+            assignments.append('avatar_url = %s')
+            params.append(avatar_url)
+        assignments.append('updated_at = now()')
+        params.append(user_id)
+
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    f'''
+                    update users
+                    set {", ".join(assignments)}
+                    where id = %s
+                    returning *
+                    ''',
+                    params,
+                )
+                return _serialize_user(cursor.fetchone())
+
     def get_or_create_debug_user(self, user_id: str) -> dict[str, Any]:
         user = self.get_user(user_id)
         if user:

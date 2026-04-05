@@ -24,9 +24,18 @@ function getEntitlements() {
   });
 }
 
+function updateMyProfile(payload) {
+  return request({
+    url: '/me/profile',
+    method: 'PUT',
+    data: payload
+  });
+}
+
 module.exports = {
   getCredits,
   getEntitlements,
   getMe,
-  getMembership
+  getMembership,
+  updateMyProfile
 };

@@ -30,6 +30,11 @@ class LogoutRequest(BaseModel):
     refreshToken: str | None = None
 
 
+class MeProfileUpdateRequest(BaseModel):
+    displayName: str = Field(default='', max_length=64)
+    avatarUrl: str = Field(default='', max_length=1000)
+
+
 class AdminLoginRequest(BaseModel):
     username: str = Field(min_length=1, max_length=64)
     password: str = Field(min_length=1, max_length=128)
