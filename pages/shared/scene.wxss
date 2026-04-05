@@ -328,37 +328,57 @@
   position: fixed;
   z-index: 10000;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   gap: 10rpx;
 }
 
+.floating-save-anchor-dragging {
+  transform: scale(1.02);
+}
+
 .floating-save-handle {
-  width: 78rpx;
-  height: 38rpx;
-  border-radius: 999rpx;
+  width: 46rpx;
+  height: 82rpx;
+  border-radius: 20rpx;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(8, 20, 12, 0.72);
-  border: 2rpx solid rgba(213, 255, 224, 0.38);
-  box-shadow: 0 10rpx 24rpx rgba(0, 0, 0, 0.22);
+  gap: 10rpx;
+  background: rgba(248, 251, 249, 0.96);
+  border: 2rpx solid rgba(20, 48, 28, 0.18);
+  box-shadow: 0 12rpx 28rpx rgba(0, 0, 0, 0.24);
   backdrop-filter: blur(10rpx);
   -webkit-backdrop-filter: blur(10rpx);
 }
 
+.floating-save-handle-active {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(40, 186, 96, 0.65);
+  box-shadow: 0 0 0 6rpx rgba(40, 186, 96, 0.14), 0 16rpx 32rpx rgba(0, 0, 0, 0.28);
+}
+
 .floating-save-grip {
-  width: 28rpx;
-  height: 8rpx;
+  width: 6rpx;
+  height: 18rpx;
   border-radius: 999rpx;
-  background: rgba(235, 255, 241, 0.92);
-  box-shadow: 0 0 0 8rpx rgba(235, 255, 241, 0.08);
+  background: rgba(57, 77, 63, 0.82);
+}
+
+.floating-save-grip-top {
+  box-shadow: 10rpx 0 0 rgba(57, 77, 63, 0.82);
+}
+
+.floating-save-grip-bottom {
+  box-shadow: 10rpx 0 0 rgba(57, 77, 63, 0.82);
 }
 
 .floating-save-btn {
-  width: 116rpx;
-  height: 116rpx;
-  border-radius: 999rpx;
+  min-width: 112rpx;
+  height: 72rpx;
+  padding: 0 24rpx;
+  border-radius: 18rpx;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -378,10 +398,10 @@
 }
 
 .floating-save-text {
-  font-size: 28rpx;
+  font-size: 26rpx;
   font-weight: 700;
   color: #f4fff7;
-  letter-spacing: 2rpx;
+  letter-spacing: 1rpx;
 }
 
 .overlay {
@@ -553,11 +573,12 @@
   }
 
   .floating-save-btn {
-    width: 104rpx;
-    height: 104rpx;
+    min-width: 104rpx;
+    height: 68rpx;
   }
 
   .floating-save-handle {
-    width: 72rpx;
+    width: 42rpx;
+    height: 76rpx;
   }
 }

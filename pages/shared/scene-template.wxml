@@ -127,22 +127,24 @@
 
             <view
               wx:if="{{editorMode}}"
-              class="floating-save-anchor"
+              class="floating-save-anchor {{isDraggingSaveHandle ? 'floating-save-anchor-dragging' : ''}}"
               style="left: {{saveButtonPosition.left}}px; top: {{saveButtonPosition.top}}px;"
+              catchtouchmove="onSaveButtonTouchMove"
+              catchtouchend="onSaveButtonTouchEnd"
+              catchtouchcancel="onSaveButtonTouchCancel"
             >
-              <view
-                class="floating-save-handle"
-                catchtouchstart="onSaveButtonTouchStart"
-                catchtouchmove="onSaveButtonTouchMove"
-                catchtouchend="onSaveButtonTouchEnd"
-              >
-                <view class="floating-save-grip"></view>
-              </view>
               <view
                 class="floating-save-btn {{isDirty ? 'floating-save-btn-dirty' : ''}} {{isSaving ? 'floating-save-btn-saving' : ''}}"
                 catchtap="onTapFloatingSave"
               >
                 <text class="floating-save-text">{{isSaving ? '保存中' : '保存'}}</text>
+              </view>
+              <view
+                class="floating-save-handle {{isDraggingSaveHandle ? 'floating-save-handle-active' : ''}}"
+                catchtouchstart="onSaveButtonTouchStart"
+              >
+                <view class="floating-save-grip floating-save-grip-top"></view>
+                <view class="floating-save-grip floating-save-grip-bottom"></view>
               </view>
             </view>
 

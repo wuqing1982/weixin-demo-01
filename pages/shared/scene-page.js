@@ -99,6 +99,7 @@ function createScenePage(sceneData) {
       editingEntry: null,
       isDirty: false,
       isSaving: false,
+      isDraggingSaveHandle: false,
       saveButtonPosition: normalizeFloatingButtonPosition(DEFAULT_SAVE_BUTTON_POSITION),
       deviceMode: 'mobile',
       playbackRate: 1.0,
@@ -177,6 +178,7 @@ function createScenePage(sceneData) {
         editingEntry: null,
         isDirty: false,
         isSaving: false,
+        isDraggingSaveHandle: false,
         saveButtonPosition: normalizeFloatingButtonPosition(DEFAULT_SAVE_BUTTON_POSITION, this.viewportRect),
         activeId: '',
         activeType: '',
@@ -676,6 +678,9 @@ function createScenePage(sceneData) {
         startY: touch.pageY,
         startPosition: Object.assign({}, this.data.saveButtonPosition)
       };
+      this.setData({
+        isDraggingSaveHandle: true
+      });
     },
 
     onSaveButtonTouchMove(event) {
@@ -705,6 +710,15 @@ function createScenePage(sceneData) {
 
     onSaveButtonTouchEnd() {
       this.saveButtonDragState = null;
+      if (this.data.isDraggingSaveHandle) {
+        this.setData({
+          isDraggingSaveHandle: false
+        });
+      }
+    },
+
+    onSaveButtonTouchCancel() {
+      this.onSaveButtonTouchEnd();
     },
 
     onTapFloatingSave() {

@@ -2,8 +2,8 @@ const MIN_HOTSPOT_SIZE = 4;
 const FLOATING_BUTTON_MIN_LEFT = 10;
 const FLOATING_BUTTON_MIN_TOP = 20;
 const FLOATING_BUTTON_SAFE_GAP = 10;
-const FLOATING_BUTTON_WIDTH = 116;
-const FLOATING_BUTTON_TOTAL_HEIGHT = 164;
+const FLOATING_BUTTON_WIDTH = 178;
+const FLOATING_BUTTON_TOTAL_HEIGHT = 84;
 
 function roundPercent(value) {
   return Math.round(value * 100) / 100;
