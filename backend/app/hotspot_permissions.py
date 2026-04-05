@@ -42,7 +42,10 @@ def can_edit_scene_hotspots(
     scene_type = scene.get('sceneType') or meta.get('sceneType') or 'public'
     if scene_type == 'private':
         owner_id = str(meta.get('ownerId') or '').strip()
-        if owner_id and owner_id == user_id:
+        if not owner_id:
+            return True
+
+        if owner_id == user_id:
             return True
 
         private_editor_ids = _normalize_id_set(config.get('private_editor_ids'))

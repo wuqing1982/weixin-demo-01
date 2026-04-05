@@ -16,6 +16,11 @@ assert(
 );
 
 assert(
+  template.includes('<view class="rate-control-row">') && template.includes('editor-mode-group'),
+  'editor mode group should be rendered on the same toolbar row as the rate controls'
+);
+
+assert(
   template.includes('floating-save-btn'),
   'editor mode should render a floating save button'
 );

@@ -11,22 +11,22 @@
     <view wx:else class="scene-stage">
       <!-- 顶部工具栏 -->
       <view class="scene-toolbar">
-        <view wx:if="{{canEditHotspots}}" class="toolbar-group editor-mode-group">
-          <view
-            class="mode-dot mode-dot-edit {{editorMode ? 'mode-dot-active' : 'mode-dot-inactive'}}"
-            bindtap="onEnterEditorMode"
-            title="编辑态"
-          ></view>
-          <view
-            class="mode-dot mode-dot-browse {{!editorMode ? 'mode-dot-active' : 'mode-dot-inactive'}}"
-            bindtap="onExitEditorMode"
-            title="浏览态"
-          ></view>
-        </view>
-
         <!-- 语速控制 -->
         <view class="toolbar-group rate-group">
           <view class="rate-control-row">
+            <view wx:if="{{canEditHotspots}}" class="toolbar-group editor-mode-group">
+              <view
+                class="mode-dot mode-dot-edit {{editorMode ? 'mode-dot-active' : 'mode-dot-inactive'}}"
+                bindtap="onEnterEditorMode"
+                title="编辑态"
+              ></view>
+              <view
+                class="mode-dot mode-dot-browse {{!editorMode ? 'mode-dot-active' : 'mode-dot-inactive'}}"
+                bindtap="onExitEditorMode"
+                title="浏览态"
+              ></view>
+            </view>
+
             <view 
               class="rate-icon {{playbackRate <= 0.8 ? 'active' : ''}}"
               bindtap="onRatePreset"
