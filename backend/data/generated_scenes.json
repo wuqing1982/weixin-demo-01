@@ -554,6 +554,144 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260405111939_805208",
+      "title": "tmp_41159b80ebf48fa8c88bba0e2ce8602bc4ca093ff9319c7a",
+      "category": "existing",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260405111939_805208/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260405111939_805208/background.jpg",
+      "items": [
+        {
+          "id": "sink",
+          "word": "sink",
+          "ipa": "/sɪŋk/",
+          "meaning": "水槽",
+          "sentence": "The sink is where we wash dishes.",
+          "sentenceTranslation": "水槽是我们洗碗的地方。",
+          "audioPath": "/assets/generated/scene_user_20260405111939_805208/scene_user_20260405111939_805208_en-US-JennyNeural_US_female_sink_the_sink_is_where_we_wash.mp3",
+          "rect": {
+            "l": 10.31,
+            "t": 50.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "stove",
+          "word": "stove",
+          "ipa": "/stoʊv/",
+          "meaning": "炉灶",
+          "sentence": "We cook food on the stove.",
+          "sentenceTranslation": "我们在炉灶上做饭。",
+          "audioPath": "/assets/generated/scene_user_20260405111939_805208/scene_user_20260405111939_805208_en-US-JennyNeural_US_female_stove_we_cook_food_on_the_stove.mp3",
+          "rect": {
+            "l": 60.0,
+            "t": 70.0,
+            "w": 30.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "gasoline",
+          "word": "gasoline",
+          "ipa": "/ˈɡeɪsiːn/",
+          "meaning": "汽油",
+          "sentence": "Gasoline powers the stove.",
+          "sentenceTranslation": "汽油给炉灶供电。",
+          "audioPath": "/assets/generated/scene_user_20260405111939_805208/scene_user_20260405111939_805208_en-US-JennyNeural_US_female_gasoline_gasoline_powers_the_stove.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 80.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "rice",
+          "word": "rice",
+          "ipa": "/raɪs/",
+          "meaning": "米饭",
+          "sentence": "Rice is a staple food in many countries.",
+          "sentenceTranslation": "米饭在很多国家都是主食。",
+          "audioPath": "/assets/generated/scene_user_20260405111939_805208/scene_user_20260405111939_805208_en-US-JennyNeural_US_female_rice_rice_is_a_staple_food_in.mp3",
+          "rect": {
+            "l": 75.0,
+            "t": 90.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "spatula",
+          "word": "spatula",
+          "ipa": "/ˈspætjʊlə/",
+          "meaning": "铲子",
+          "sentence": "Use a spatula to flip the pancakes.",
+          "sentenceTranslation": "用铲子翻煎饼。",
+          "audioPath": "/assets/generated/scene_user_20260405111939_805208/scene_user_20260405111939_805208_en-US-JennyNeural_US_female_spatula_use_a_spatula_to_flip_the.mp3",
+          "rect": {
+            "l": 85.0,
+            "t": 65.0,
+            "w": 5.0,
+            "h": 5.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "cook",
+          "word": "cook",
+          "ipa": "/kʊk/",
+          "meaning": "烹饪",
+          "sentence": "Cooking happens on the stove.",
+          "sentenceTranslation": "烹饪是在炉灶上进行的。",
+          "audioPath": "/assets/generated/scene_user_20260405111939_805208/scene_user_20260405111939_805208_en-US-JennyNeural_US_female_cook_cooking_happens_on_the_stove.mp3",
+          "relatedItem": "stove"
+        },
+        {
+          "id": "wash",
+          "word": "wash",
+          "ipa": "/wɒʃ/",
+          "meaning": "清洗",
+          "sentence": "Washing dishes is done at the sink.",
+          "sentenceTranslation": "洗碗是在水槽里做的。",
+          "audioPath": "/assets/generated/scene_user_20260405111939_805208/scene_user_20260405111939_805208_en-US-JennyNeural_US_female_wash_washing_dishes_is_done_at_the.mp3",
+          "relatedItem": "sink"
+        },
+        {
+          "id": "prepare",
+          "word": "prepare",
+          "ipa": "/prɪˈpɛr/",
+          "meaning": "准备",
+          "sentence": "Preparing rice involves washing and cooking it.",
+          "sentenceTranslation": "准备米饭包括洗米和煮饭。",
+          "audioPath": "/assets/generated/scene_user_20260405111939_805208/scene_user_20260405111939_805208_en-US-JennyNeural_US_female_prepare_preparing_rice_involves_washing_and_cooking.mp3",
+          "relatedItem": "rice"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "debug_user_1775305037380_ce29d5",
+        "uploadId": "upload_20260405111411_4f517a",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260405111939_805208",
+        "core100SceneTitle": "tmp_41159b80ebf48fa8c88bba0e2ce8602bc4ca093ff9319c7a",
+        "recommendedCategory": "existing",
+        "tags": [
+          "家庭",
+          "烹饪",
+          "生活空间"
+        ],
+        "version": 1
+      }
     }
   ]
 }

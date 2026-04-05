@@ -1,5 +1,6 @@
 import importlib
 import json
+import re
 import shutil
 import sys
 import tempfile
@@ -11,6 +12,52 @@ from .scene_adapter import build_generated_scene_from_core_result
 from .store_utils import build_object_id
 from .task_store import TaskStore
 from .upload_store import UploadStore
+
+
+INVALID_UPLOAD_TITLE_PATTERNS = (
+    re.compile(r'^tmp_[a-f0-9]{12,}$', re.IGNORECASE),
+    re.compile(r'^source$', re.IGNORECASE),
+    re.compile(r'^upload_[0-9]{8,}_[a-f0-9]+$', re.IGNORECASE),
+)
+
+
+def normalize_candidate_title(value: str | None) -> str:
+    text = (value or '').strip()
+    if not text:
+        return ''
+    text = Path(text).stem.strip()
+    text = re.sub(r'[_-]+', ' ', text).strip()
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text
+
+
+def is_placeholder_upload_title(value: str | None) -> bool:
+    raw_title = Path((value or '').strip()).stem.strip()
+    normalized_title = normalize_candidate_title(value)
+    if not raw_title or not normalized_title:
+        return True
+    return any(pattern.match(raw_title) for pattern in INVALID_UPLOAD_TITLE_PATTERNS)
+
+
+def derive_scene_title(
+    *,
+    explicit_title: str,
+    ai_title: str,
+    upload_filename: str,
+) -> str:
+    user_title = normalize_candidate_title(explicit_title)
+    if user_title:
+        return user_title
+
+    model_title = normalize_candidate_title(ai_title)
+    if model_title and not is_placeholder_upload_title(ai_title):
+        return model_title
+
+    upload_title = normalize_candidate_title(upload_filename)
+    if upload_title and not is_placeholder_upload_title(upload_filename):
+        return upload_title
+
+    return '未命名场景'
 
 
 class InlineSceneWorker:
@@ -76,15 +123,21 @@ class InlineSceneWorker:
             self.task_store.update_task(task_id, step='prepare_assets', progress=45, sceneId=scene_id)
 
             image_asset_path = self._copy_source_image(scene_id, upload)
-            scene_title = task.get('title') or self._derive_title_from_upload(upload)
+            explicit_title = (task.get('title') or '').strip()
 
             self.task_store.update_task(task_id, step='analyze_scene', progress=55, sceneId=scene_id)
             core_scene = self._analyze_scene(
                 scene_id=scene_id,
-                scene_title=scene_title,
+                preferred_title=explicit_title,
                 task=task,
                 upload=upload,
             )
+            scene_title = derive_scene_title(
+                explicit_title=explicit_title,
+                ai_title=core_scene.get('scene_title', ''),
+                upload_filename=upload.get('originalFilename', ''),
+            )
+            core_scene['scene_title'] = scene_title
 
             self.task_store.update_task(task_id, step='generate_audio', progress=75, sceneId=scene_id)
             self._generate_audio(core_scene, task)
@@ -121,7 +174,7 @@ class InlineSceneWorker:
                 errorMessage=str(exc),
             )
 
-    def _analyze_scene(self, *, scene_id: str, scene_title: str, task: dict, upload: dict) -> dict:
+    def _analyze_scene(self, *, scene_id: str, preferred_title: str, task: dict, upload: dict) -> dict:
         analyze_scene_with_glm4v = self._get_core100_symbol('analyze_scene', 'analyze_scene_with_glm4v')
         source_path = self.upload_store.resolve_disk_path(upload['filePath'])
         if not source_path.exists():
@@ -141,7 +194,10 @@ class InlineSceneWorker:
 
         core_scene = dict(raw_result)
         core_scene['scene_id'] = scene_id
-        core_scene['scene_title'] = scene_title
+        if preferred_title:
+            core_scene['scene_title'] = preferred_title
+        else:
+            core_scene['scene_title'] = normalize_candidate_title(core_scene.get('scene_title', ''))
         return core_scene
 
     def _generate_audio(self, core_scene: dict, task: dict) -> None:
@@ -198,18 +254,24 @@ class InlineSceneWorker:
         if not self.core100_root.exists():
             raise RuntimeError(f'core100 root not found: {self.core100_root}')
 
+        compat_root = str(Path(__file__).resolve().parent / 'core100_compat')
+        if compat_root not in sys.path:
+            sys.path.insert(0, compat_root)
+
         root = str(self.core100_root)
         if root not in sys.path:
-            sys.path.insert(0, root)
+            sys.path.insert(1, root)
 
         module = importlib.import_module(module_name)
         self.module_cache[module_name] = module
         return module
 
     def _derive_title_from_upload(self, upload: dict) -> str:
-        filename = upload.get('originalFilename') or ''
-        stem = Path(filename).stem.strip()
-        return stem or '未命名场景'
+        return derive_scene_title(
+            explicit_title='',
+            ai_title='',
+            upload_filename=upload.get('originalFilename') or '',
+        )
 
     def _copy_source_image(self, scene_id: str, upload: dict) -> str:
         source_path = self.upload_store.resolve_disk_path(upload['filePath'])

@@ -1,0 +1,184 @@
+#!/usr/bin/env python3
+"""
+兼容版 JSON 修复工具。
+
+优先用于兜住模型输出里常见的尾逗号问题，例如：
+
+{
+  "a": 1,
+}
+"""
+
+import json
+import re
+from typing import Any, Dict, Optional, Tuple
+
+
+def repair_truncated_json(json_str: str, verbose: bool = False) -> Tuple[bool, Optional[Dict], str]:
+    cleaned = (json_str or '').strip()
+
+    if cleaned.startswith('```json'):
+        cleaned = cleaned[7:]
+    if cleaned.startswith('```'):
+        cleaned = cleaned[3:]
+    if cleaned.endswith('```'):
+        cleaned = cleaned[:-3]
+    cleaned = cleaned.strip()
+
+    for label, candidate in (
+        ('直接解析成功（未截断）', cleaned),
+        ('移除尾逗号成功', remove_trailing_commas(cleaned)),
+    ):
+        try:
+            return True, json.loads(candidate), label
+        except json.JSONDecodeError:
+            if verbose:
+                print(f'📝 {label} 失败，尝试进一步修复...')
+
+    for repair_func, label in (
+        (repair_by_adding_braces, '补全闭合括号成功'),
+        (repair_by_truncating_to_last_hotspot, '截取到最后完整hotspot成功'),
+        (repair_by_regex_extraction, '正则提取成功'),
+        (repair_by_bracket_matching, '括号匹配修复成功'),
+    ):
+        try:
+            repaired = remove_trailing_commas(repair_func(cleaned))
+            return True, json.loads(repaired), label
+        except Exception as error:
+            if verbose:
+                print(f'📝 {label} 失败 - {error}')
+
+    return False, None, '所有修复方法均失败'
+
+
+def remove_trailing_commas(text: str) -> str:
+    previous = None
+    current = text
+    while current != previous:
+        previous = current
+        current = re.sub(r',(\s*[}\]])', r'\1', current)
+    return current
+
+
+def repair_by_adding_braces(json_str: str) -> str:
+    text = json_str
+    open_braces = text.count('{')
+    close_braces = text.count('}')
+    open_brackets = text.count('[')
+    close_brackets = text.count(']')
+
+    for _ in range(open_braces - close_braces):
+        text += '\n}'
+
+    if open_brackets > close_brackets and text.rfind(']') == -1:
+        text += '\n]'
+
+    if not text.rstrip().endswith('}'):
+        text += '\n}'
+
+    return text
+
+
+def repair_by_truncating_to_last_hotspot(json_str: str) -> str:
+    if '"hotspots"' not in json_str and '"items"' not in json_str:
+        raise ValueError('未找到 hotspots 或 items 数组')
+
+    array_key = '"hotspots"' if '"hotspots"' in json_str else '"items"'
+    start = json_str.find(f'{array_key}: [')
+    if start == -1:
+        start = json_str.find(f'{array_key}"')
+    if start == -1:
+        raise ValueError('未找到数组开始位置')
+
+    array_start = json_str.find('[', start)
+    if array_start == -1:
+        raise ValueError('未找到数组开始括号')
+
+    text_after_array = json_str[array_start + 1:]
+    brace_level = 0
+    last_complete_pos = -1
+
+    for index, char in enumerate(text_after_array):
+        if char == '{':
+            brace_level += 1
+        elif char == '}':
+            brace_level -= 1
+            if brace_level == 0:
+                last_complete_pos = index
+
+    if last_complete_pos == -1:
+        raise ValueError('未找到任何完整对象')
+
+    prefix = json_str[:array_start + 1]
+    truncated_content = text_after_array[:last_complete_pos + 1]
+    return prefix + truncated_content + '\n  ]\n}'
+
+
+def repair_by_regex_extraction(json_str: str) -> str:
+    pattern = r'\{[^{}]*"(?:id|word|ipa|meaning|sentence|rect)"[^{}]*\}'
+    matches = re.findall(pattern, json_str, re.DOTALL)
+    if not matches:
+        raise ValueError('未找到任何完整对象')
+
+    valid_objects = []
+    for match in matches:
+        try:
+            obj = json.loads(remove_trailing_commas(match))
+            if 'id' in obj:
+                valid_objects.append(obj)
+        except Exception:
+            continue
+
+    if not valid_objects:
+        raise ValueError('未找到有效的 hotspot 对象')
+
+    scene_id = 'unknown'
+    image = 'unknown.png'
+    scene_match = re.search(r'"scene_id"\s*:\s*"([^"]+)"', json_str)
+    image_match = re.search(r'"image"\s*:\s*"([^"]+)"', json_str)
+    if scene_match:
+        scene_id = scene_match.group(1)
+    if image_match:
+        image = image_match.group(1)
+
+    return json.dumps({
+        'scene_id': scene_id,
+        'image': image,
+        'hotspots': valid_objects,
+    }, indent=2, ensure_ascii=False)
+
+
+def repair_by_bracket_matching(json_str: str) -> str:
+    text = json_str
+    stack = []
+    last_valid_pos = 0
+
+    for index, char in enumerate(text):
+        if char in '{[(':
+            stack.append((char, index))
+        elif char in '}])' and stack:
+            open_char, _ = stack[-1]
+            if ((char == '}' and open_char == '{') or
+                    (char == ']' and open_char == '[') or
+                    (char == ')' and open_char == '(')):
+                stack.pop()
+                last_valid_pos = index
+
+    if not stack:
+        return text
+
+    truncated = text[:last_valid_pos + 1]
+    remaining_open = []
+    for char, _ in stack:
+        if char == '{':
+            remaining_open.append('}')
+        elif char == '[':
+            remaining_open.append(']')
+
+    for closing in reversed(remaining_open):
+        truncated += closing
+
+    if not truncated.rstrip().endswith('}'):
+        truncated += '\n}'
+
+    return truncated
