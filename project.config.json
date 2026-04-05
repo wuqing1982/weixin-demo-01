@@ -36,6 +36,10 @@
         "type": "folder"
       },
       {
+        "value": ".git",
+        "type": "folder"
+      },
+      {
         "value": "backend",
         "type": "folder"
       },
@@ -76,6 +80,14 @@
         "type": "folder"
       },
       {
+        "value": "tests",
+        "type": "folder"
+      },
+      {
+        "value": "tools",
+        "type": "folder"
+      },
+      {
         "value": "todolist",
         "type": "folder"
       },
@@ -93,6 +105,10 @@
       },
       {
         "value": "111.jpg",
+        "type": "file"
+      },
+      {
+        "value": "w.jpg",
         "type": "file"
       },
       {

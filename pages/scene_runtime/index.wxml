@@ -1,4 +1,4 @@
-<import src="../shared/scene-template.wxml" />
+<import src="../../shared/scene/scene-template.wxml" />
 
 <template
   is="scenePage"

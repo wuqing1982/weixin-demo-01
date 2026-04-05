@@ -4,7 +4,7 @@ const {
   applyResizeDelta,
   normalizeFloatingButtonPosition,
   applyFloatingButtonDelta
-} = require('../pages/shared/hotspot-editor');
+} = require('../shared/scene/hotspot-editor');
 
 const baseRect = { l: 20, t: 30, w: 20, h: 20 };
 

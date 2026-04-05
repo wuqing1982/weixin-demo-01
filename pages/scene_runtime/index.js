@@ -1,4 +1,4 @@
-const { createScenePage } = require('../shared/scene-page');
+const { createScenePage } = require('../../shared/scene/scene-page');
 const { getMyScenes, getSceneDetail, getSceneList } = require('../../services/scene');
 
 function buildSceneTabs(publicList, myList, currentScene) {
