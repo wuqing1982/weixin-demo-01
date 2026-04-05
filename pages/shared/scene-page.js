@@ -1,3 +1,9 @@
+const { saveSceneHotspots } = require('../../services/scene');
+const {
+  normalizeEditorRect,
+  applyMoveDelta,
+  applyResizeDelta
+} = require('./hotspot-editor');
 const { getSceneNeighbors } = require('./scene-registry');
 
 const SWIPE_DISTANCE = 70;
@@ -8,13 +14,18 @@ function findEntryById(entries, id) {
   return (entries || []).find((entry) => entry.id === id) || null;
 }
 
+function cloneEntries(entries) {
+  return JSON.parse(JSON.stringify(entries || []));
+}
+
 function normalizeEntry(entry) {
   if (!entry) {
     return null;
   }
 
   return Object.assign({}, entry, {
-    sentenceTranslation: entry.sentenceTranslation || entry.sentence_translation || ''
+    sentenceTranslation: entry.sentenceTranslation || entry.sentence_translation || '',
+    rect: entry.rect ? normalizeEditorRect(entry.rect) : null
   });
 }
 
@@ -51,7 +62,9 @@ function buildSceneState(sceneData) {
     verbs: (safeSceneData.verbs || []).map(normalizeEntry).filter(Boolean),
     prevScene: navigation.prevScene,
     nextScene: navigation.nextScene,
-    sceneTabs: navigation.sceneTabs
+    sceneTabs: navigation.sceneTabs,
+    capabilities: safeSceneData.capabilities || {},
+    canEditHotspots: !!(safeSceneData.capabilities && safeSceneData.capabilities.canEditHotspots)
   };
 }
 
@@ -64,6 +77,8 @@ function createScenePage(sceneData) {
       title: initialState.title,
       background: initialState.background,
       items: initialState.items,
+      hotspotItems: initialState.items,
+      draftItems: [],
       verbs: initialState.verbs,
       activeId: '',
       activeType: '',
@@ -71,6 +86,13 @@ function createScenePage(sceneData) {
       prevScene: initialState.prevScene,
       nextScene: initialState.nextScene,
       sceneTabs: initialState.sceneTabs,
+      capabilities: initialState.capabilities,
+      canEditHotspots: initialState.canEditHotspots,
+      editorMode: false,
+      editingItemId: '',
+      editingEntry: null,
+      isDirty: false,
+      isSaving: false,
       deviceMode: 'mobile',
       playbackRate: 1.0,
       isLooping: false,
@@ -84,6 +106,8 @@ function createScenePage(sceneData) {
       }
 
       this.scenePageInitialized = true;
+      this.stageMetrics = null;
+      this.dragState = null;
 
       wx.setNavigationBarTitle({
         title: this.data.title || DEFAULT_TITLE
@@ -119,6 +143,7 @@ function createScenePage(sceneData) {
     },
 
     onUnload() {
+      this.dragState = null;
       this.destroyAudio();
     },
 
@@ -129,16 +154,27 @@ function createScenePage(sceneData) {
         title: nextState.title,
         background: nextState.background,
         items: nextState.items,
+        hotspotItems: nextState.items,
+        draftItems: [],
         verbs: nextState.verbs,
         prevScene: nextState.prevScene,
         nextScene: nextState.nextScene,
         sceneTabs: nextState.sceneTabs,
+        capabilities: nextState.capabilities,
+        canEditHotspots: nextState.canEditHotspots,
+        editorMode: false,
+        editingItemId: '',
+        editingEntry: null,
+        isDirty: false,
+        isSaving: false,
         activeId: '',
         activeType: '',
         activeEntry: null,
         loading: false,
         errorMessage: ''
       });
+      this.stageMetrics = null;
+      this.dragState = null;
 
       wx.setNavigationBarTitle({
         title: nextState.title || DEFAULT_TITLE
@@ -153,6 +189,10 @@ function createScenePage(sceneData) {
     },
 
     onTouchStart(event) {
+      if (this.data.editorMode) {
+        return;
+      }
+
       const touch = event.changedTouches && event.changedTouches[0];
       if (!touch) {
         return;
@@ -165,6 +205,10 @@ function createScenePage(sceneData) {
     },
 
     onTouchEnd(event) {
+      if (this.data.editorMode) {
+        return;
+      }
+
       const touch = event.changedTouches && event.changedTouches[0];
       const start = this.touchStartPoint;
 
@@ -191,9 +235,14 @@ function createScenePage(sceneData) {
 
     onTapHotspot(event) {
       const { id } = event.currentTarget.dataset;
-      const item = findEntryById(this.data.items, id);
+      const item = findEntryById(this.data.editorMode ? this.data.draftItems : this.data.items, id);
 
       if (!item) {
+        return;
+      }
+
+      if (this.data.editorMode) {
+        this.selectEditingItem(item.id);
         return;
       }
 
@@ -201,6 +250,10 @@ function createScenePage(sceneData) {
     },
 
     onTapVerb(event) {
+      if (this.data.editorMode) {
+        return;
+      }
+
       const { id } = event.currentTarget.dataset;
       const verb = findEntryById(this.data.verbs, id);
 
@@ -221,14 +274,27 @@ function createScenePage(sceneData) {
     },
 
     onTapPrevScene() {
+      if (this.data.editorMode) {
+        this.showEditorToast();
+        return;
+      }
       this.navigateToScene(this.data.prevScene);
     },
 
     onTapNextScene() {
+      if (this.data.editorMode) {
+        this.showEditorToast();
+        return;
+      }
       this.navigateToScene(this.data.nextScene);
     },
 
     onTapScenePill(event) {
+      if (this.data.editorMode) {
+        this.showEditorToast();
+        return;
+      }
+
       const { sceneId } = event.currentTarget.dataset;
       const targetScene = this.data.sceneTabs.find((item) => item.sceneId === sceneId);
       this.navigateToScene(targetScene);
@@ -238,6 +304,10 @@ function createScenePage(sceneData) {
       const { mode } = event.currentTarget.dataset;
       this.setData({
         deviceMode: mode
+      }, () => {
+        if (this.data.editorMode) {
+          this.measureStageRect();
+        }
       });
       wx.showToast({
         title: mode === 'mobile' ? '手机视图' : mode === 'tablet' ? '平板视图' : '电脑视图',
@@ -289,6 +359,11 @@ function createScenePage(sceneData) {
     },
 
     onOpenCamera() {
+      if (this.data.editorMode) {
+        this.showEditorToast();
+        return;
+      }
+
       wx.navigateTo({
         url: '/pages/create_scene/index'
       });
@@ -314,6 +389,11 @@ function createScenePage(sceneData) {
     },
 
     navigateToScene(scene) {
+      if (this.data.editorMode) {
+        this.showEditorToast();
+        return;
+      }
+
       if (!scene || !scene.sceneId || scene.sceneId === this.data.sceneId) {
         return;
       }
@@ -353,6 +433,261 @@ function createScenePage(sceneData) {
 
     simulateTTS(entry) {
       console.log('TTS:', entry.word, entry.sentence);
+    },
+
+    showEditorToast(message) {
+      wx.showToast({
+        title: message || '请先保存或退出编辑',
+        icon: 'none',
+        duration: 1200
+      });
+    },
+
+    measureStageRect() {
+      return new Promise((resolve) => {
+        wx.nextTick(() => {
+          this.createSelectorQuery()
+            .select('#sceneContent')
+            .boundingClientRect((rect) => {
+              this.stageMetrics = rect || null;
+              resolve(rect || null);
+            })
+            .exec();
+        });
+      });
+    },
+
+    selectEditingItem(itemId) {
+      const entry = findEntryById(this.data.draftItems, itemId);
+      if (!entry) {
+        return;
+      }
+
+      this.setData({
+        editingItemId: entry.id,
+        editingEntry: entry,
+        activeId: '',
+        activeType: '',
+        activeEntry: null
+      });
+    },
+
+    async onToggleEditor() {
+      if (!this.data.canEditHotspots || this.data.loading || this.data.isSaving) {
+        return;
+      }
+
+      if (!this.data.editorMode) {
+        const draftItems = cloneEntries(this.data.items);
+        const firstItem = draftItems[0] || null;
+        this.stopAudio();
+        this.setData({
+          editorMode: true,
+          draftItems,
+          hotspotItems: draftItems,
+          editingItemId: firstItem ? firstItem.id : '',
+          editingEntry: firstItem,
+          isDirty: false,
+          activeId: '',
+          activeType: '',
+          activeEntry: null
+        });
+        await this.measureStageRect();
+        return;
+      }
+
+      if (!this.data.isDirty) {
+        this.setData({
+          editorMode: false,
+          draftItems: [],
+          hotspotItems: this.data.items,
+          editingItemId: '',
+          editingEntry: null
+        });
+        this.dragState = null;
+        return;
+      }
+
+      wx.showModal({
+        title: '放弃未保存改动？',
+        content: '当前热点位置还没有保存，退出后会丢失这些修改。',
+        success: (result) => {
+          if (!result.confirm) {
+            return;
+          }
+
+          this.setData({
+            editorMode: false,
+            draftItems: [],
+            hotspotItems: this.data.items,
+            editingItemId: '',
+            editingEntry: null,
+            isDirty: false
+          });
+          this.dragState = null;
+        }
+      });
+    },
+
+    updateDraftRect(itemId, rect, options = {}) {
+      const nextDraftItems = cloneEntries(this.data.draftItems);
+      const index = nextDraftItems.findIndex((item) => item.id === itemId);
+
+      if (index < 0) {
+        return;
+      }
+
+      nextDraftItems[index].rect = normalizeEditorRect(rect);
+      const editingEntry = nextDraftItems[index];
+      this.setData({
+        draftItems: nextDraftItems,
+        hotspotItems: nextDraftItems,
+        editingItemId: itemId,
+        editingEntry,
+        isDirty: options.markDirty === false ? this.data.isDirty : true
+      });
+    },
+
+    onEditorZoneTouchStart(event) {
+      if (!this.data.editorMode || this.data.isSaving) {
+        return;
+      }
+
+      const touch = event.touches && event.touches[0];
+      const { id } = event.currentTarget.dataset;
+      const item = findEntryById(this.data.draftItems, id);
+
+      if (!touch || !item || !item.rect) {
+        return;
+      }
+
+      this.selectEditingItem(id);
+      this.dragState = {
+        itemId: id,
+        mode: 'move',
+        startX: touch.pageX,
+        startY: touch.pageY,
+        startRect: Object.assign({}, item.rect)
+      };
+    },
+
+    onEditorHandleTouchStart(event) {
+      if (!this.data.editorMode || this.data.isSaving) {
+        return;
+      }
+
+      const touch = event.touches && event.touches[0];
+      const { id, handle } = event.currentTarget.dataset;
+      const item = findEntryById(this.data.draftItems, id);
+
+      if (!touch || !item || !item.rect || !handle) {
+        return;
+      }
+
+      this.selectEditingItem(id);
+      this.dragState = {
+        itemId: id,
+        mode: 'resize',
+        handle,
+        startX: touch.pageX,
+        startY: touch.pageY,
+        startRect: Object.assign({}, item.rect)
+      };
+    },
+
+    onEditorZoneTouchMove(event) {
+      if (!this.data.editorMode || !this.dragState || this.data.isSaving) {
+        return;
+      }
+
+      const touch = event.touches && event.touches[0];
+      const metrics = this.stageMetrics;
+
+      if (!touch || !metrics || !metrics.width || !metrics.height) {
+        return;
+      }
+
+      const deltaX = ((touch.pageX - this.dragState.startX) / metrics.width) * 100;
+      const deltaY = ((touch.pageY - this.dragState.startY) / metrics.height) * 100;
+      const nextRect = this.dragState.mode === 'resize'
+        ? applyResizeDelta(this.dragState.startRect, this.dragState.handle, deltaX, deltaY)
+        : applyMoveDelta(this.dragState.startRect, deltaX, deltaY);
+      this.updateDraftRect(this.dragState.itemId, nextRect);
+    },
+
+    onEditorZoneTouchEnd() {
+      this.dragState = null;
+    },
+
+    onEditorNudge(event) {
+      if (!this.data.editorMode || !this.data.editingItemId || this.data.isSaving) {
+        return;
+      }
+
+      const item = findEntryById(this.data.draftItems, this.data.editingItemId);
+      if (!item || !item.rect) {
+        return;
+      }
+
+      const { dl, dt, dw, dh } = event.currentTarget.dataset;
+      this.updateDraftRect(item.id, {
+        l: item.rect.l + (parseFloat(dl) || 0),
+        t: item.rect.t + (parseFloat(dt) || 0),
+        w: item.rect.w + (parseFloat(dw) || 0),
+        h: item.rect.h + (parseFloat(dh) || 0)
+      });
+    },
+
+    onEditorResetCurrent() {
+      if (!this.data.editorMode || !this.data.editingItemId || this.data.isSaving) {
+        return;
+      }
+
+      const sourceItem = findEntryById(this.data.items, this.data.editingItemId);
+      if (!sourceItem || !sourceItem.rect) {
+        return;
+      }
+
+      this.updateDraftRect(sourceItem.id, sourceItem.rect);
+    },
+
+    async onSaveHotspots() {
+      if (!this.data.editorMode || !this.data.isDirty || this.data.isSaving) {
+        return;
+      }
+
+      this.setData({
+        isSaving: true
+      });
+
+      try {
+        const detail = await saveSceneHotspots(
+          this.data.sceneId,
+          (this.data.draftItems || []).map((item) => ({
+            id: item.id,
+            rect: item.rect
+          }))
+        );
+
+        this.setupScene(Object.assign({}, detail, {
+          sceneTabs: this.data.sceneTabs
+        }));
+
+        wx.showToast({
+          title: '热点已保存',
+          icon: 'success',
+          duration: 1200
+        });
+      } catch (error) {
+        this.setData({
+          isSaving: false
+        });
+        wx.showToast({
+          title: error.message || '热点保存失败',
+          icon: 'none',
+          duration: 1500
+        });
+      }
     },
 
     stopAudio() {

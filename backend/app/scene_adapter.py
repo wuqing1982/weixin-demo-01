@@ -1,4 +1,8 @@
+import copy
 from typing import Any
+
+
+MIN_HOTSPOT_SIZE = 4.0
 
 
 def clamp_percent(value: Any) -> float:
@@ -17,6 +21,65 @@ def normalize_rect(rect: dict[str, Any] | None) -> dict[str, float]:
         'w': clamp_percent(rect.get('w', 0)),
         'h': clamp_percent(rect.get('h', 0)),
     }
+
+
+def normalize_hotspot_rect(rect: dict[str, Any] | None) -> dict[str, float]:
+    safe_rect = normalize_rect(rect)
+    width = round(min(100.0, max(MIN_HOTSPOT_SIZE, safe_rect['w'])), 2)
+    height = round(min(100.0, max(MIN_HOTSPOT_SIZE, safe_rect['h'])), 2)
+    left = round(min(safe_rect['l'], 100.0 - width), 2)
+    top = round(min(safe_rect['t'], 100.0 - height), 2)
+
+    return {
+        'l': max(0.0, left),
+        't': max(0.0, top),
+        'w': width,
+        'h': height,
+    }
+
+
+def apply_hotspot_updates(
+    scene: dict[str, Any],
+    hotspot_items: list[dict[str, Any]],
+    *,
+    operator_id: str,
+    updated_at: str,
+) -> dict[str, Any]:
+    if not hotspot_items:
+        raise ValueError('at least one hotspot update is required')
+
+    updates_by_id = {}
+    for item in hotspot_items:
+        item_id = (item or {}).get('id', '')
+        if not item_id:
+            raise ValueError('hotspot id is required')
+        updates_by_id[item_id] = normalize_hotspot_rect((item or {}).get('rect'))
+
+    next_scene = copy.deepcopy(scene)
+    found_ids = set()
+
+    for item in next_scene.get('items', []):
+        item_id = item.get('id', '')
+        if item_id in updates_by_id:
+            item['rect'] = updates_by_id[item_id]
+            found_ids.add(item_id)
+
+    missing_ids = sorted(set(updates_by_id.keys()) - found_ids)
+    if missing_ids:
+        raise ValueError(f'unknown hotspot ids: {", ".join(missing_ids)}')
+
+    meta = next_scene.setdefault('meta', {})
+    current_version = meta.get('version')
+    try:
+        version_number = int(current_version)
+    except (TypeError, ValueError):
+        version_number = 0
+
+    meta['version'] = max(1, version_number + 1)
+    meta['hotspotEditable'] = True
+    meta['hotspotUpdatedAt'] = updated_at
+    meta['hotspotUpdatedBy'] = operator_id
+    return next_scene
 
 
 def build_runtime_entry(entry: dict[str, Any], *, include_rect: bool) -> dict[str, Any]:

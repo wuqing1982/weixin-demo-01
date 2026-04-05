@@ -4,7 +4,8 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .generated_scene_store import GeneratedSceneStore
-from .schemas import SceneGenerateRequest
+from .hotspot_permissions import can_edit_scene_hotspots
+from .schemas import SceneGenerateRequest, SceneHotspotUpdateRequest
 from .scene_store import SceneStore
 from .settings import (
     ASSETS_DIR,
@@ -15,6 +16,10 @@ from .settings import (
     ENABLE_INLINE_SCENE_WORKER,
     GENERATED_DIR,
     GENERATED_SCENES_FILE,
+    HOTSPOT_EDITOR_ADMIN_USER_IDS,
+    HOTSPOT_EDITOR_ENABLED,
+    HOTSPOT_EDITOR_PRIVATE_EDITOR_IDS,
+    HOTSPOT_EDITOR_PUBLIC_EDITOR_IDS,
     PUBLIC_BASE_URL,
     PUBLIC_SCENES_FILE,
     TASKS_FILE,
@@ -67,6 +72,15 @@ def success(data):
     }
 
 
+def hotspot_permission_config():
+    return {
+        'enabled': HOTSPOT_EDITOR_ENABLED,
+        'admin_user_ids': HOTSPOT_EDITOR_ADMIN_USER_IDS,
+        'public_editor_ids': HOTSPOT_EDITOR_PUBLIC_EDITOR_IDS,
+        'private_editor_ids': HOTSPOT_EDITOR_PRIVATE_EDITOR_IDS,
+    }
+
+
 @app.exception_handler(HTTPException)
 async def handle_http_exception(_: Request, exc: HTTPException):
     detail = exc.detail if isinstance(exc.detail, dict) else {
@@ -116,6 +130,11 @@ def serialize_scene_summary(request: Request, scene: dict) -> dict:
 
 
 def serialize_scene_detail(request: Request, scene: dict) -> dict:
+    can_edit_hotspots = can_edit_scene_hotspots(
+        scene,
+        get_current_user_id(request),
+        hotspot_permission_config(),
+    )
     return {
         'sceneId': scene['sceneId'],
         'title': scene['title'],
@@ -123,7 +142,10 @@ def serialize_scene_detail(request: Request, scene: dict) -> dict:
         'cover': asset_url(request, scene.get('coverPath')),
         'items': [serialize_entry(request, item) for item in scene.get('items', [])],
         'verbs': [serialize_entry(request, verb) for verb in scene.get('verbs', [])],
-        'meta': scene.get('meta', {})
+        'meta': scene.get('meta', {}),
+        'capabilities': {
+            'canEditHotspots': can_edit_hotspots
+        }
     }
 
 
@@ -185,6 +207,75 @@ def get_scene(scene_id: str, request: Request):
         )
 
     return success(serialize_scene_detail(request, scene))
+
+
+@app.post('/api/scenes/{scene_id}/hotspots')
+def save_scene_hotspots(scene_id: str, payload: SceneHotspotUpdateRequest, request: Request):
+    operator_id = get_current_user_id(request)
+    hotspot_items = [item.model_dump() for item in payload.items]
+    permission_config = hotspot_permission_config()
+
+    scene = public_store.get_scene(scene_id)
+    if scene:
+        if not can_edit_scene_hotspots(scene, operator_id, permission_config):
+            raise HTTPException(
+                status_code=403,
+                detail={
+                    'code': 4003,
+                    'message': 'hotspot edit denied'
+                }
+            )
+        try:
+            updated_scene = public_store.update_hotspots(
+                scene_id,
+                hotspot_items,
+                operator_id=operator_id,
+            )
+        except ValueError as error:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    'code': 4000,
+                    'message': str(error)
+                }
+            ) from error
+        return success(serialize_scene_detail(request, updated_scene))
+
+    scene = generated_store.get_scene(scene_id)
+    if scene and not can_edit_scene_hotspots(scene, operator_id, permission_config):
+        raise HTTPException(
+            status_code=403,
+            detail={
+                'code': 4003,
+                'message': 'hotspot edit denied'
+            }
+        )
+
+    if not scene:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                'code': 4004,
+                'message': 'scene not found'
+            }
+        )
+
+    try:
+        updated_scene = generated_store.update_hotspots(
+            scene_id,
+            hotspot_items,
+            operator_id=operator_id,
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                'code': 4000,
+                'message': str(error)
+            }
+        ) from error
+
+    return success(serialize_scene_detail(request, updated_scene))
 
 
 @app.get('/api/my/scenes')

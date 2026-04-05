@@ -20,8 +20,19 @@ function getMyScenes(params = {}) {
   });
 }
 
+function saveSceneHotspots(sceneId, items) {
+  return request({
+    url: `/scenes/${sceneId}/hotspots`,
+    method: 'POST',
+    data: {
+      items
+    }
+  });
+}
+
 module.exports = {
   getSceneList,
   getSceneDetail,
-  getMyScenes
+  getMyScenes,
+  saveSceneHotspots
 };

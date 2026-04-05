@@ -82,11 +82,18 @@
           bindtap="onExportVideo"
           title="导出视频"
         >🎬</view>
+
+        <view
+          wx:if="{{canEditHotspots}}"
+          class="toolbar-btn editor-toggle-btn {{editorMode ? 'active' : ''}}"
+          bindtap="onToggleEditor"
+          title="热点编辑"
+        >{{editorMode ? '完' : '编'}}</view>
       </view>
 
       <view class="scene-frame-wrapper {{deviceMode === 'tablet' ? 'frame-tablet' : ''}} {{deviceMode === 'desktop' ? 'frame-desktop' : ''}}">
         <view class="scene-frame {{verbs.length ? 'scene-frame-has-verbs' : ''}}">
-          <view class="scene-content">
+          <view class="scene-content" id="sceneContent">
             <image
               class="scene-bg"
               src="{{background}}"
@@ -95,18 +102,32 @@
 
             <view class="scene-hotspots">
               <view
-                wx:for="{{items}}"
+                wx:for="{{hotspotItems}}"
                 wx:key="id"
-                class="zone {{activeType === 'item' && activeId === item.id ? 'zone-active' : ''}}"
+                class="zone {{editorMode ? 'zone-editor' : ''}} {{!editorMode && activeType === 'item' && activeId === item.id ? 'zone-active' : ''}} {{editorMode && editingItemId === item.id ? 'zone-editor-active' : ''}}"
                 style="left: {{item.rect.l}}%; top: {{item.rect.t}}%; width: {{item.rect.w}}%; height: {{item.rect.h}}%;"
                 data-id="{{item.id}}"
-                bindtap="onTapHotspot"
+                catchtap="onTapHotspot"
+                catchtouchstart="onEditorZoneTouchStart"
+                catchtouchmove="onEditorZoneTouchMove"
+                catchtouchend="onEditorZoneTouchEnd"
               >
                 <view class="zone-dot"></view>
+                <block wx:if="{{editorMode && editingItemId === item.id}}">
+                  <view class="zone-label">{{item.word}}</view>
+                  <view class="zone-handle zone-handle-nw" data-id="{{item.id}}" data-handle="nw" catchtouchstart="onEditorHandleTouchStart" catchtouchmove="onEditorZoneTouchMove" catchtouchend="onEditorZoneTouchEnd"></view>
+                  <view class="zone-handle zone-handle-n" data-id="{{item.id}}" data-handle="n" catchtouchstart="onEditorHandleTouchStart" catchtouchmove="onEditorZoneTouchMove" catchtouchend="onEditorZoneTouchEnd"></view>
+                  <view class="zone-handle zone-handle-ne" data-id="{{item.id}}" data-handle="ne" catchtouchstart="onEditorHandleTouchStart" catchtouchmove="onEditorZoneTouchMove" catchtouchend="onEditorZoneTouchEnd"></view>
+                  <view class="zone-handle zone-handle-e" data-id="{{item.id}}" data-handle="e" catchtouchstart="onEditorHandleTouchStart" catchtouchmove="onEditorZoneTouchMove" catchtouchend="onEditorZoneTouchEnd"></view>
+                  <view class="zone-handle zone-handle-se" data-id="{{item.id}}" data-handle="se" catchtouchstart="onEditorHandleTouchStart" catchtouchmove="onEditorZoneTouchMove" catchtouchend="onEditorZoneTouchEnd"></view>
+                  <view class="zone-handle zone-handle-s" data-id="{{item.id}}" data-handle="s" catchtouchstart="onEditorHandleTouchStart" catchtouchmove="onEditorZoneTouchMove" catchtouchend="onEditorZoneTouchEnd"></view>
+                  <view class="zone-handle zone-handle-sw" data-id="{{item.id}}" data-handle="sw" catchtouchstart="onEditorHandleTouchStart" catchtouchmove="onEditorZoneTouchMove" catchtouchend="onEditorZoneTouchEnd"></view>
+                  <view class="zone-handle zone-handle-w" data-id="{{item.id}}" data-handle="w" catchtouchstart="onEditorHandleTouchStart" catchtouchmove="onEditorZoneTouchMove" catchtouchend="onEditorZoneTouchEnd"></view>
+                </block>
               </view>
             </view>
 
-            <view class="overlay {{activeEntry ? 'overlay-visible' : ''}}">
+            <view wx:if="{{!editorMode}}" class="overlay {{activeEntry ? 'overlay-visible' : ''}}">
               <view class="overlay-header">
                 <view class="overlay-title-wrap">
                   <text class="word">{{activeEntry ? activeEntry.word : ''}}</text> 
@@ -126,7 +147,7 @@
               </view>
             </view>
 
-            <view wx:if="{{verbs.length}}" class="verb-strip">
+            <view wx:if="{{verbs.length && !editorMode}}" class="verb-strip">
               <view
                 wx:for="{{verbs}}"
                 wx:key="id"
@@ -135,6 +156,39 @@
                 bindtap="onTapVerb"
               >
                 {{item.word}}
+              </view>
+            </view>
+
+            <view wx:if="{{editorMode}}" class="editor-panel">
+              <view class="editor-panel-header">
+                <view class="editor-panel-copy">
+                  <text class="editor-panel-title">{{editingEntry ? editingEntry.word : '选择热点'}}</text>
+                  <text class="editor-panel-subtitle">{{isDirty ? '有未保存改动' : '拖动热点或用按钮微调'}}</text>
+                </view>
+                <button
+                  class="editor-save-btn {{isDirty ? 'editor-save-btn-dirty' : ''}}"
+                  bindtap="onSaveHotspots"
+                  loading="{{isSaving}}"
+                  disabled="{{!isDirty || isSaving}}"
+                >{{isSaving ? '保存中' : '保存'}}</button>
+              </view>
+
+              <view wx:if="{{editingEntry}}" class="editor-actions">
+                <view class="editor-grid">
+                  <button class="editor-mini-btn" bindtap="onEditorNudge" data-dt="-1">上移</button>
+                  <button class="editor-mini-btn" bindtap="onEditorNudge" data-dl="-1">左移</button>
+                  <button class="editor-mini-btn" bindtap="onEditorNudge" data-dl="1">右移</button>
+                  <button class="editor-mini-btn" bindtap="onEditorNudge" data-dt="1">下移</button>
+                </view>
+
+                <view class="editor-grid editor-grid-size">
+                  <button class="editor-mini-btn" bindtap="onEditorNudge" data-dw="-1">变窄</button>
+                  <button class="editor-mini-btn" bindtap="onEditorNudge" data-dw="1">变宽</button>
+                  <button class="editor-mini-btn" bindtap="onEditorNudge" data-dh="-1">变矮</button>
+                  <button class="editor-mini-btn" bindtap="onEditorNudge" data-dh="1">变高</button>
+                </view>
+
+                <button class="editor-reset-btn" bindtap="onEditorResetCurrent">重置当前热点</button>
               </view>
             </view>
           </view>

@@ -3,7 +3,9 @@ from pathlib import Path
 from threading import Lock
 from typing import Any
 
+from .scene_adapter import apply_hotspot_updates
 from .store_utils import ensure_json_file, read_json_file, write_json_file
+from .store_utils import utcnow_iso
 
 
 class GeneratedSceneStore:
@@ -44,3 +46,30 @@ class GeneratedSceneStore:
             write_json_file(self.data_file, payload)
 
         return copy.deepcopy(scene)
+
+    def update_hotspots(
+        self,
+        scene_id: str,
+        hotspot_items: list[dict[str, Any]],
+        *,
+        operator_id: str,
+    ) -> dict[str, Any] | None:
+        with self.lock:
+            payload = read_json_file(self.data_file)
+            scenes = payload.setdefault('scenes', [])
+
+            for index, scene in enumerate(scenes):
+                if scene.get('sceneId') != scene_id:
+                    continue
+
+                updated = apply_hotspot_updates(
+                    scene,
+                    hotspot_items,
+                    operator_id=operator_id,
+                    updated_at=utcnow_iso(),
+                )
+                scenes[index] = updated
+                write_json_file(self.data_file, payload)
+                return copy.deepcopy(updated)
+
+        return None
