@@ -1,1 +1,4 @@
-{}
+{
+  "navigationBarTitleText": "场景库",
+  "enablePullDownRefresh": true
+}

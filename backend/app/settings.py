@@ -1,5 +1,6 @@
 import os
 import json
+import warnings
 from pathlib import Path
 
 
@@ -65,7 +66,7 @@ DATABASE_SCHEMA = (os.getenv('DATABASE_SCHEMA', 'public') or 'public').strip()
 DEFAULT_MOCK_USER_ID = os.getenv('DEFAULT_MOCK_USER_ID', 'mock_user_001')
 AUTH_DATA_FILE = DATA_DIR / 'auth.json'
 AUTH_STORE_BACKEND = (os.getenv('AUTH_STORE_BACKEND', 'json') or 'json').strip().lower()
-AUTH_ENABLE_DEBUG_USER_HEADER = _normalize_bool(os.getenv('AUTH_ENABLE_DEBUG_USER_HEADER'), default=True)
+AUTH_ENABLE_DEBUG_USER_HEADER = _normalize_bool(os.getenv('AUTH_ENABLE_DEBUG_USER_HEADER'), default=False)
 WECHAT_MP_APP_ID = (os.getenv('WECHAT_MP_APP_ID', '') or _load_project_app_id(REPO_ROOT / 'project.config.json')).strip()
 WECHAT_MP_APP_SECRET = (os.getenv('WECHAT_MP_APP_SECRET', '') or '').strip()
 WECHAT_SESSION_KEY_SECRET = (os.getenv('WECHAT_SESSION_KEY_SECRET', '') or '').strip() or None
@@ -97,3 +98,19 @@ HOTSPOT_EDITOR_PRIVATE_EDITOR_IDS = _normalize_csv_set(os.getenv('HOTSPOT_EDITOR
 ADMIN_DASHBOARD_ENABLED = _normalize_bool(os.getenv('ADMIN_DASHBOARD_ENABLED'), default=True)
 ADMIN_DASHBOARD_USERNAME = (os.getenv('ADMIN_DASHBOARD_USERNAME', 'admin') or 'admin').strip()
 ADMIN_DASHBOARD_PASSWORD = (os.getenv('ADMIN_DASHBOARD_PASSWORD', 'admin123456') or 'admin123456').strip()
+
+# --- Security-hardened settings ---
+CORS_ALLOWED_ORIGINS = [o.strip() for o in os.getenv('CORS_ALLOWED_ORIGINS', 'https://e.cps.vin').split(',') if o.strip()]
+MAX_UPLOAD_SIZE_BYTES = int(os.getenv('MAX_UPLOAD_SIZE_BYTES', str(10 * 1024 * 1024)))
+
+
+def check_security_warnings() -> list[str]:
+    """Return a list of security warnings for the current configuration."""
+    warnings_list = []
+    if AUTH_JWT_SECRET == 'dev-jwt-secret-change-me':
+        warnings_list.append('AUTH_JWT_SECRET is using the default value "dev-jwt-secret-change-me". Set a strong secret in production!')
+    if ADMIN_DASHBOARD_PASSWORD == 'admin123456':
+        warnings_list.append('ADMIN_DASHBOARD_PASSWORD is using the default value "admin123456". Change it in production!')
+    if AUTH_ENABLE_DEBUG_USER_HEADER:
+        warnings_list.append('AUTH_ENABLE_DEBUG_USER_HEADER is True. X-Debug-User-Id header allows user impersonation. Disable in production!')
+    return warnings_list

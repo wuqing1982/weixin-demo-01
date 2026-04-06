@@ -430,7 +430,23 @@ function createScenePage(sceneData) {
     },
 
     simulateTTS(entry) {
-      console.log('TTS:', entry.word, entry.sentence);
+      const { getTtsUrl } = require('../../services/scene');
+      const text = entry.sentence || entry.word || '';
+      if (!text) {
+        return;
+      }
+      const ttsUrl = getTtsUrl(text);
+      if (this.ttsAudioContext) {
+        this.ttsAudioContext.stop();
+        this.ttsAudioContext.destroy();
+      }
+      this.ttsAudioContext = wx.createInnerAudioContext();
+      this.ttsAudioContext.obeyMuteSwitch = false;
+      this.ttsAudioContext.onError((err) => {
+        console.log('TTS audio error', err);
+      });
+      this.ttsAudioContext.src = ttsUrl;
+      this.ttsAudioContext.play();
     },
 
     showEditorToast(message) {
@@ -806,6 +822,11 @@ function createScenePage(sceneData) {
       if (this.audioContext) {
         this.audioContext.destroy();
         this.audioContext = null;
+      }
+      if (this.ttsAudioContext) {
+        this.ttsAudioContext.stop();
+        this.ttsAudioContext.destroy();
+        this.ttsAudioContext = null;
       }
     }
   };

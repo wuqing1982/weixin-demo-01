@@ -63,5 +63,20 @@ Page(Object.assign({}, createScenePage(), {
     } catch (error) {
       this.setLoadError(error.message || '场景加载失败');
     }
+  },
+
+  onShareAppMessage() {
+    const scene = this.data.scene || {};
+    return {
+      title: scene.title || '全景英语场景',
+      path: `/pages/scene_runtime/index?sceneId=${this.data.sceneId || ''}`
+    };
+  },
+
+  onShareTimeline() {
+    const scene = this.data.scene || {};
+    return {
+      title: scene.title || '全景英语场景'
+    };
   }
 }));

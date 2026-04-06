@@ -1,4 +1,5 @@
 const { request } = require('./api');
+const { getConfig } = require('./config');
 
 function getSceneList(params = {}) {
   return request({
@@ -42,11 +43,17 @@ function saveSceneHotspots(sceneId, items) {
   });
 }
 
+function getTtsUrl(text) {
+  const { apiBaseUrl } = getConfig();
+  return `${apiBaseUrl}/tts?text=${encodeURIComponent(text)}`;
+}
+
 module.exports = {
   getSceneList,
   getSceneDetail,
   getMyScenes,
   getSceneCategories,
   getSceneCollections,
-  saveSceneHotspots
+  saveSceneHotspots,
+  getTtsUrl
 };

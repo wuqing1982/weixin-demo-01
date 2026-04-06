@@ -1,11 +1,17 @@
 import hashlib
+import logging
+from contextlib import asynccontextmanager
 from decimal import Decimal
 from datetime import datetime, timedelta, timezone
 
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+logger = logging.getLogger('english_scene_api')
 
 from .auth_store_factory import create_auth_store
 from .commerce_store_factory import create_commerce_store
@@ -47,6 +53,7 @@ from .settings import (
     CORE100_MODEL,
     CORE100_ROOT,
     CORE100_TTS_URL,
+    CORS_ALLOWED_ORIGINS,
     DEFAULT_MOCK_USER_ID,
     ENABLE_INLINE_SCENE_WORKER,
     GENERATED_DIR,
@@ -55,6 +62,7 @@ from .settings import (
     HOTSPOT_EDITOR_ENABLED,
     HOTSPOT_EDITOR_PRIVATE_EDITOR_IDS,
     HOTSPOT_EDITOR_PUBLIC_EDITOR_IDS,
+    MAX_UPLOAD_SIZE_BYTES,
     PAYMENT_MODE,
     PUBLIC_BASE_URL,
     PUBLIC_SCENES_FILE,
@@ -75,6 +83,7 @@ from .settings import (
     WECHAT_PAY_TIMEOUT_SECONDS,
     WORKER_POLL_INTERVAL,
     ZHIPUAI_API_KEY,
+    check_security_warnings,
 )
 from .task_store import TaskStore
 from .upload_store import UploadStore
@@ -117,14 +126,41 @@ scene_worker = InlineSceneWorker(
     poll_interval=WORKER_POLL_INTERVAL,
 )
 
+
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+    )
+    for warning in check_security_warnings():
+        logger.warning(warning)
+    logger.info(
+        'English Scene API starting | auth=%s | payment=%s | store=%s | worker=%s',
+        AUTH_WECHAT_LOGIN_MODE,
+        PAYMENT_MODE,
+        AUTH_STORE_BACKEND,
+        'enabled' if ENABLE_INLINE_SCENE_WORKER else 'disabled',
+    )
+    if ENABLE_INLINE_SCENE_WORKER:
+        scene_worker.start()
+    yield
+    scene_worker.stop()
+    logger.info('English Scene API stopped')
+
+
 app = FastAPI(
     title='English Scene API',
-    version='0.1.0'
+    version='0.1.0',
+    lifespan=lifespan
 )
+
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=['*'],
+    allow_origins=CORS_ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=['*'],
     allow_headers=['*']
@@ -239,17 +275,6 @@ async def handle_http_exception(_: Request, exc: HTTPException):
         'message': str(exc.detail)
     }
     return JSONResponse(status_code=exc.status_code, content=detail)
-
-
-@app.on_event('startup')
-def on_startup():
-    if ENABLE_INLINE_SCENE_WORKER:
-        scene_worker.start()
-
-
-@app.on_event('shutdown')
-def on_shutdown():
-    scene_worker.stop()
 
 
 def asset_url(request: Request, value: str | None) -> str:
@@ -496,6 +521,24 @@ def health():
         'workerMode': 'core100',
         'authLoginMode': resolve_auth_login_mode(),
     })
+
+
+@app.get('/api/tts')
+def tts_proxy(text: str = Query(..., min_length=1, max_length=500)):
+    import urllib.request
+    import urllib.parse
+    if not CORE100_TTS_URL:
+        raise HTTPException(status_code=503, detail={'code': 5003, 'message': 'TTS service not configured'})
+    encoded = urllib.parse.urlencode({'text': text})
+    url = f'{CORE100_TTS_URL}/tts?{encoded}'
+    req = urllib.request.Request(url)
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            audio_data = resp.read()
+            content_type = resp.headers.get('Content-Type', 'audio/mpeg')
+            return Response(content=audio_data, media_type=content_type)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail={'code': 5002, 'message': f'TTS service error: {exc}'})
 
 
 @app.get('/admin')
@@ -1156,6 +1199,7 @@ def admin_republish_public_scene(scene_id: str, request: Request):
     return success(payload)
 
 
+@limiter.limit('10/minute')
 @app.post('/api/auth/wechat/login')
 def auth_wechat_login(payload: WechatLoginRequest, request: Request):
     auth_mode = resolve_auth_login_mode()
@@ -1216,6 +1260,7 @@ def auth_wechat_login(payload: WechatLoginRequest, request: Request):
     return success(build_auth_response(request, user, refresh_session, refresh_token))
 
 
+@limiter.limit('20/minute')
 @app.post('/api/auth/refresh')
 def auth_refresh_token(payload: RefreshTokenRequest, request: Request):
     token_hash = hash_refresh_token(payload.refreshToken)
@@ -1353,6 +1398,7 @@ def list_product_skus(product_id: str):
     })
 
 
+@limiter.limit('10/minute')
 @app.post('/api/orders')
 def create_order(payload: OrderCreateRequest, request: Request):
     user = get_request_user(request, required=True, allow_debug=True)
@@ -1563,6 +1609,7 @@ def sync_order_payment(order_id: str, request: Request):
     })
 
 
+@limiter.limit('60/minute')
 @app.post('/api/payments/wechat/notify')
 async def handle_wechat_payment_notify(request: Request):
     body = await request.body()
@@ -1771,6 +1818,15 @@ async def upload_image(request: Request, file: UploadFile = File(...)):
             }
         )
 
+    if len(content) > MAX_UPLOAD_SIZE_BYTES:
+        raise HTTPException(
+            status_code=413,
+            detail={
+                'code': 4013,
+                'message': f'file too large, max {MAX_UPLOAD_SIZE_BYTES // (1024 * 1024)}MB'
+            }
+        )
+
     content_type = file.content_type or ''
     if content_type and not content_type.startswith('image/'):
         raise HTTPException(
@@ -1804,6 +1860,9 @@ async def admin_upload_image(request: Request, file: UploadFile = File(...)):
 
     if not content:
         raise HTTPException(status_code=400, detail={'code': 4000, 'message': 'empty file'})
+
+    if len(content) > MAX_UPLOAD_SIZE_BYTES:
+        raise HTTPException(status_code=413, detail={'code': 4013, 'message': f'file too large, max {MAX_UPLOAD_SIZE_BYTES // (1024 * 1024)}MB'})
 
     content_type = file.content_type or ''
     if content_type and not content_type.startswith('image/'):

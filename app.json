@@ -16,6 +16,11 @@
     "backgroundColor": "#0b0b0c",
     "backgroundTextStyle": "light"
   },
+  "permission": {
+    "scope.camera": {
+      "desc": "用于拍摄全景图片创建场景"
+    }
+  },
   "lazyCodeLoading": "requiredComponents",
   "style": "v2",
   "sitemapLocation": "sitemap.json"

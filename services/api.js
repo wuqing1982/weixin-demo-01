@@ -1,5 +1,7 @@
 const { getConfig } = require('./config');
 const { getAccessToken, getDebugUserId } = require('./session');
+const { refreshSession } = require('./auth');
+const { saveSession } = require('./session');
 
 function getAppSafe() {
   try {
@@ -39,6 +41,25 @@ async function waitForAuthReady() {
   }
 }
 
+let _isRefreshing = false;
+
+async function tryRefreshToken() {
+  if (_isRefreshing) {
+    return false;
+  }
+  _isRefreshing = true;
+  try {
+    const app = getAppSafe();
+    await refreshSession(app);
+    return true;
+  } catch (error) {
+    console.log('auto token refresh failed', error);
+    return false;
+  } finally {
+    _isRefreshing = false;
+  }
+}
+
 function rawRequest({ url, method = 'GET', data, header = {} }) {
   const { apiBaseUrl } = getConfig();
   return new Promise((resolve, reject) => {
@@ -64,6 +85,7 @@ function rawRequest({ url, method = 'GET', data, header = {} }) {
         reject({
           code: body.code || res.statusCode,
           message: body.message || 'request failed',
+          statusCode: res.statusCode,
           raw: body
         });
       },
@@ -78,14 +100,29 @@ function rawRequest({ url, method = 'GET', data, header = {} }) {
   });
 }
 
-async function request({ url, method = 'GET', data, header = {} }) {
+async function request({ url, method = 'GET', data, header = {}, _retry = false }) {
   await waitForAuthReady();
-  return rawRequest({
-    url,
-    method,
-    data,
-    header: Object.assign({}, buildBaseHeader(), header)
-  });
+  try {
+    return await rawRequest({
+      url,
+      method,
+      data,
+      header: Object.assign({}, buildBaseHeader(), header)
+    });
+  } catch (error) {
+    if (!_retry && (error.statusCode === 401 || error.code === 4001)) {
+      const refreshed = await tryRefreshToken();
+      if (refreshed) {
+        return rawRequest({
+          url,
+          method,
+          data,
+          header: Object.assign({}, buildBaseHeader(), header)
+        });
+      }
+    }
+    throw error;
+  }
 }
 
 module.exports = {
