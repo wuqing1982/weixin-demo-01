@@ -1,10 +1,9 @@
-const { getMyScenes, getSceneList, getSceneCategories, getSceneCollections } = require('../../services/scene');
+const { getSceneList, getSceneCategories, getSceneCollections } = require('../../services/scene');
 
 Page({
   data: {
     loading: true,
     scenes: [],
-    myScenes: [],
     categories: [],
     collections: [],
     selectedCategoryId: '',
@@ -43,17 +42,13 @@ Page({
     });
 
     try {
-      const [publicData, myData, categoriesData, collectionsData] = await Promise.all([
+      const [publicData, categoriesData, collectionsData] = await Promise.all([
         getSceneList({
           type: 'public',
           categoryId: this.data.selectedCategoryId,
           collectionId: this.data.selectedCollectionId,
           page: 1,
           pageSize: this.data.pageSize
-        }),
-        getMyScenes({
-          page: 1,
-          pageSize: 20
         }),
         getSceneCategories(),
         getSceneCollections()
@@ -62,7 +57,6 @@ Page({
       const list = publicData.list || [];
       this.setData({
         scenes: list,
-        myScenes: myData.list || [],
         categories: categoriesData.list || [],
         collections: collectionsData.list || [],
         hasMore: list.length >= this.data.pageSize,

@@ -1,6 +1,6 @@
 <view class="container">
   <text class="section-title">公开场景库</text>
-  <text class="section-subtitle">这里同时展示公开场景和当前调试用户生成的私人场景。</text>
+  <text class="section-subtitle">浏览所有公开的英语学习全景场景。</text>
   <button class="btn-secondary create-btn" bindtap="onOpenCreate">拍照生成新场景</button>
 
   <view wx:if="{{loading}}" class="state-card">加载场景列表中...</view>
@@ -46,23 +46,6 @@
           >{{item.name}}</view>
         </view>
       </scroll-view>
-    </view>
-
-    <view wx:if="{{myScenes.length}}" class="section-block">
-      <text class="section-heading">我的生成场景</text>
-      <view
-        wx:for="{{myScenes}}"
-        wx:key="sceneId"
-        class="scene-card card"
-        bindtap="onOpenScene"
-        data-scene-id="{{item.sceneId}}"
-      >
-        <image class="scene-cover" src="{{item.coverUrl}}" mode="aspectFill" />
-        <view class="scene-meta">
-          <text class="scene-title">{{item.title}}</text>
-          <text class="scene-desc">{{item.category || 'generated'}} · {{item.visibility}}</text>
-        </view>
-      </view>
     </view>
 
     <view class="section-block">

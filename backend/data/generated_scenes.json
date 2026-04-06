@@ -1802,6 +1802,144 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260406071527_11bf0d",
+      "title": "公交车站",
+      "category": "transportation",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260406071527_11bf0d/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260406071527_11bf0d/background.jpg",
+      "items": [
+        {
+          "id": "bus_shelter",
+          "word": "bus shelter",
+          "ipa": "/bʌsˈʃɛltər/",
+          "meaning": "公交车站亭",
+          "sentence": "Let's wait at the bus shelter.",
+          "sentenceTranslation": "让我们在公交车站亭里等车。",
+          "audioPath": "/assets/generated/scene_user_20260406071527_11bf0d/scene_user_20260406071527_11bf0d_en-US-JennyNeural_US_female_bus_shelter_lets_wait_at_the_bus_shelter.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 60.0,
+            "w": 30.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "motorcycle",
+          "word": "motorcycle",
+          "ipa": "/mɔːtəˈraɪkəl/",
+          "meaning": "摩托车",
+          "sentence": "Look, there is a motorcycle parked near the bus shelter.",
+          "sentenceTranslation": "看，有一辆摩托车停在公交车站亭附近。",
+          "audioPath": "/assets/generated/scene_user_20260406071527_11bf0d/scene_user_20260406071527_11bf0d_en-US-JennyNeural_US_female_motorcycle_look_there_is_a_motorcycle_parked.mp3",
+          "rect": {
+            "l": 55.0,
+            "t": 65.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "car",
+          "word": "car",
+          "ipa": "/kɑːr/",
+          "meaning": "汽车",
+          "sentence": "A car is driving on the road.",
+          "sentenceTranslation": "一辆汽车正在马路上行驶。",
+          "audioPath": "/assets/generated/scene_user_20260406071527_11bf0d/scene_user_20260406071527_11bf0d_en-US-JennyNeural_US_female_car_a_car_is_driving_on_the.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 70.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "grass",
+          "word": "grass",
+          "ipa": "/grɑːs/",
+          "meaning": "草地",
+          "sentence": "The grass is green and lush.",
+          "sentenceTranslation": "草是绿油油的，非常茂盛。",
+          "audioPath": "/assets/generated/scene_user_20260406071527_11bf0d/scene_user_20260406071527_11bf0d_en-US-JennyNeural_US_female_grass_the_grass_is_green_and_lush.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 80.0,
+            "w": 50.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "building",
+          "word": "building",
+          "ipa": "/ˈbɪldɪŋ/",
+          "meaning": "建筑物",
+          "sentence": "There are tall buildings in the background.",
+          "sentenceTranslation": "背景中有一些高楼大厦。",
+          "audioPath": "/assets/generated/scene_user_20260406071527_11bf0d/scene_user_20260406071527_11bf0d_en-US-JennyNeural_US_female_building_there_are_tall_buildings_in_the.mp3",
+          "rect": {
+            "l": 70.0,
+            "t": 30.0,
+            "w": 30.0,
+            "h": 40.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "verb1",
+          "word": "wait",
+          "ipa": "/weɪt/",
+          "meaning": "等待",
+          "sentence": "Let's wait at the bus shelter.",
+          "sentenceTranslation": "我们在公交亭等。",
+          "audioPath": "/assets/generated/scene_user_20260406071527_11bf0d/scene_user_20260406071527_11bf0d_en-US-JennyNeural_US_female_verb1_lets_wait_at_the_bus_shelter.mp3",
+          "relatedItem": "bus_shelter"
+        },
+        {
+          "id": "verb2",
+          "word": "look",
+          "ipa": "/lʊk/",
+          "meaning": "看",
+          "sentence": "Look, there is a motorcycle parked near the bus shelter.",
+          "sentenceTranslation": "看，有一辆摩托车停在公交亭附近。",
+          "audioPath": "/assets/generated/scene_user_20260406071527_11bf0d/scene_user_20260406071527_11bf0d_en-US-JennyNeural_US_female_verb2_look_there_is_a_motorcycle_parked.mp3",
+          "relatedItem": "motorcycle"
+        },
+        {
+          "id": "verb3",
+          "word": "drive",
+          "ipa": "/draɪv/",
+          "meaning": "开车",
+          "sentence": "A car is driving on the road.",
+          "sentenceTranslation": "一辆汽车在马路上开车。",
+          "audioPath": "/assets/generated/scene_user_20260406071527_11bf0d/scene_user_20260406071527_11bf0d_en-US-JennyNeural_US_female_verb3_a_car_is_driving_on_the.mp3",
+          "relatedItem": "car"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260405145017_f25208",
+        "uploadId": "upload_20260406071525_f0c7f0",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260406071527_11bf0d",
+        "core100SceneTitle": "公交车站",
+        "recommendedCategory": "transportation",
+        "tags": [
+          "交通",
+          "户外",
+          "公共设施"
+        ],
+        "version": 1
+      }
     }
   ]
 }
