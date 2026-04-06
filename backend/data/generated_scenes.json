@@ -1526,6 +1526,144 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260406063407_af63d3",
+      "title": "客厅",
+      "category": "existing",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260406063407_af63d3/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260406063407_af63d3/background.jpg",
+      "items": [
+        {
+          "id": "sofa",
+          "word": "sofa",
+          "ipa": "/ˈsəʊfə/",
+          "meaning": "沙发",
+          "sentence": "The sofa is where we sit to relax.",
+          "sentenceTranslation": "沙发是我们放松时坐的地方。",
+          "audioPath": "/assets/generated/scene_user_20260406063407_af63d3/scene_user_20260406063407_af63d3_en-US-JennyNeural_US_female_sofa_the_sofa_is_where_we_sit.mp3",
+          "rect": {
+            "l": 10.31,
+            "t": 20.0,
+            "w": 35.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "box",
+          "word": "box",
+          "ipa": "/bɑːks/",
+          "meaning": "箱子",
+          "sentence": "We can store things in a box.",
+          "sentenceTranslation": "我们可以把东西放在箱子里。",
+          "audioPath": "/assets/generated/scene_user_20260406063407_af63d3/scene_user_20260406063407_af63d3_en-US-JennyNeural_US_female_box_we_can_store_things_in_a.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 40.0,
+            "w": 25.0,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "table",
+          "word": "table",
+          "ipa": "/ˈteɪbl/",
+          "meaning": "桌子",
+          "sentence": "We use the table to put our books on.",
+          "sentenceTranslation": "我们用桌子来放书。",
+          "audioPath": "/assets/generated/scene_user_20260406063407_af63d3/scene_user_20260406063407_af63d3_en-US-JennyNeural_US_female_table_we_use_the_table_to_put.mp3",
+          "rect": {
+            "l": 60.0,
+            "t": 70.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "book",
+          "word": "book",
+          "ipa": "/bʊk/",
+          "meaning": "书",
+          "sentence": "Books are fun to read.",
+          "sentenceTranslation": "看书很有趣。",
+          "audioPath": "/assets/generated/scene_user_20260406063407_af63d3/scene_user_20260406063407_af63d3_en-US-JennyNeural_US_female_book_books_are_fun_to_read.mp3",
+          "rect": {
+            "l": 65.0,
+            "t": 75.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "bowl",
+          "word": "bowl",
+          "ipa": "/boʊl/",
+          "meaning": "碗",
+          "sentence": "We can eat food from a bowl.",
+          "sentenceTranslation": "我们可以从碗里吃东西。",
+          "audioPath": "/assets/generated/scene_user_20260406063407_af63d3/scene_user_20260406063407_af63d3_en-US-JennyNeural_US_female_bowl_we_can_eat_food_from_a.mp3",
+          "rect": {
+            "l": 80.0,
+            "t": 85.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "sit",
+          "word": "sit",
+          "ipa": "/sɪt/",
+          "meaning": "坐下",
+          "sentence": "Let's sit on the sofa and watch TV.",
+          "sentenceTranslation": "让我们坐在沙发上看电视吧。",
+          "audioPath": "/assets/generated/scene_user_20260406063407_af63d3/scene_user_20260406063407_af63d3_en-US-JennyNeural_US_female_sit_lets_sit_on_the_sofa_and.mp3",
+          "relatedItem": "sofa"
+        },
+        {
+          "id": "store",
+          "word": "store",
+          "ipa": "/stɔːr/",
+          "meaning": "储存",
+          "sentence": "Put your toys in the box when you're done playing.",
+          "sentenceTranslation": "玩完玩具后把它们放进盒子里。",
+          "audioPath": "/assets/generated/scene_user_20260406063407_af63d3/scene_user_20260406063407_af63d3_en-US-JennyNeural_US_female_store_put_your_toys_in_the_box.mp3",
+          "relatedItem": "box"
+        },
+        {
+          "id": "read",
+          "word": "read",
+          "ipa": "/riːd/",
+          "meaning": "阅读",
+          "sentence": "Reading books helps us learn new things.",
+          "sentenceTranslation": "读书能帮助我们学到新知识。",
+          "audioPath": "/assets/generated/scene_user_20260406063407_af63d3/scene_user_20260406063407_af63d3_en-US-JennyNeural_US_female_read_reading_books_helps_us_learn_new.mp3",
+          "relatedItem": "book"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260405145017_f25208",
+        "uploadId": "upload_20260406063406_304a92",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260406063407_af63d3",
+        "core100SceneTitle": "客厅",
+        "recommendedCategory": "existing",
+        "tags": [
+          "家庭",
+          "居住空间",
+          "休闲区"
+        ],
+        "version": 1
+      }
     }
   ]
 }

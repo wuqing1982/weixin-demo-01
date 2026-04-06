@@ -129,5 +129,6 @@ module.exports = {
   buildBaseHeader,
   rawRequest,
   request,
+  tryRefreshToken,
   waitForAuthReady
 };

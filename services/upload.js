@@ -1,11 +1,8 @@
 const { getConfig } = require('./config');
-const { buildBaseHeader, waitForAuthReady } = require('./api');
+const { buildBaseHeader, waitForAuthReady, tryRefreshToken } = require('./api');
 
-async function uploadImage(filePath) {
+function doUpload(filePath, header) {
   const { apiBaseUrl } = getConfig();
-  await waitForAuthReady();
-  const header = buildBaseHeader();
-
   return new Promise((resolve, reject) => {
     wx.uploadFile({
       url: `${apiBaseUrl}/uploads/image`,
@@ -17,7 +14,7 @@ async function uploadImage(filePath) {
         try {
           const body = JSON.parse(res.data || '{}');
           if (typeof body.code === 'number' && body.code !== 0) {
-            reject(body);
+            reject({ statusCode: res.statusCode, code: body.code, message: body.message || 'upload failed', raw: body });
             return;
           }
           resolve(body.data !== undefined ? body.data : body);
@@ -38,6 +35,22 @@ async function uploadImage(filePath) {
       }
     });
   });
+}
+
+async function uploadImage(filePath) {
+  await waitForAuthReady();
+
+  try {
+    return await doUpload(filePath, buildBaseHeader());
+  } catch (error) {
+    if (error.statusCode === 401 || error.code === 4001) {
+      const refreshed = await tryRefreshToken();
+      if (refreshed) {
+        return doUpload(filePath, buildBaseHeader());
+      }
+    }
+    throw error;
+  }
 }
 
 module.exports = {
