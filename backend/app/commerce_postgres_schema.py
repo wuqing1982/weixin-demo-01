@@ -136,6 +136,57 @@ create index if not exists idx_orders_user_id on orders(user_id);
 create index if not exists idx_orders_status on orders(status);
 create index if not exists idx_order_items_order_id on order_items(order_id);
 create index if not exists idx_payments_order_id on payments(order_id);
+
+create table if not exists scene_categories (
+  id varchar(128) primary key,
+  category_code varchar(64) not null unique,
+  name varchar(128) not null,
+  description text not null default '',
+  status varchar(32) not null default 'active',
+  sort_order int not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists scene_collections (
+  id varchar(128) primary key,
+  collection_code varchar(64) not null unique,
+  name varchar(128) not null,
+  description text not null default '',
+  status varchar(32) not null default 'active',
+  cover_url text not null default '',
+  sort_order int not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists scene_publications (
+  source_generated_scene_id varchar(128) primary key,
+  public_scene_id varchar(128) not null unique,
+  category_id varchar(128) references scene_categories(id),
+  visibility varchar(32) not null default 'public',
+  published_by varchar(128) not null,
+  published_at timestamptz not null default now(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists scene_publication_collections (
+  id varchar(128) primary key,
+  public_scene_id varchar(128) not null,
+  collection_id varchar(128) not null references scene_collections(id),
+  sort_order int not null default 0,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique(public_scene_id, collection_id)
+);
+
+create index if not exists idx_scene_categories_status on scene_categories(status);
+create index if not exists idx_scene_collections_status on scene_collections(status);
+create index if not exists idx_scene_publications_public_scene_id on scene_publications(public_scene_id);
+create index if not exists idx_scene_publications_category_id on scene_publications(category_id);
+create index if not exists idx_scene_publication_collections_public_scene_id on scene_publication_collections(public_scene_id);
+create index if not exists idx_scene_publication_collections_collection_id on scene_publication_collections(collection_id);
 """.strip()
 
 

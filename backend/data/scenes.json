@@ -249,6 +249,438 @@
           "animals"
         ]
       }
+    },
+    {
+      "sceneId": "scene_20260405212610_c2829a",
+      "title": "办公室",
+      "category": "动物",
+      "visibility": "public",
+      "sceneType": "public",
+      "backgroundPath": "/assets/generated/scene_user_20260405145130_86bae9/background.jpg",
+      "coverPath": "/assets/generated/scene_user_20260405145130_86bae9/background.jpg",
+      "items": [
+        {
+          "id": "bottle_1",
+          "word": "bottle",
+          "ipa": "/ˈbɒtl/",
+          "meaning": "瓶子",
+          "sentence": "The blue bottle is on the desk.",
+          "sentenceTranslation": "蓝色的瓶子在桌子上。",
+          "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_bottle_1_the_blue_bottle_is_on_the.mp3",
+          "rect": {
+            "l": 23.9,
+            "t": 33.46,
+            "w": 12.01,
+            "h": 16.33
+          }
+        },
+        {
+          "id": "bottle_2",
+          "word": "bottle",
+          "ipa": "/ˈbɒtl/",
+          "meaning": "瓶子",
+          "sentence": "The yellow bottle is next to the computer.",
+          "sentenceTranslation": "黄色的瓶子在电脑旁边。",
+          "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_bottle_2_the_yellow_bottle_is_next_to.mp3",
+          "rect": {
+            "l": 35.0,
+            "t": 55.0,
+            "w": 12.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "book",
+          "word": "book",
+          "ipa": "/bʊk/",
+          "meaning": "书",
+          "sentence": "The book is on the desk.",
+          "sentenceTranslation": "书在桌子上。",
+          "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_book_the_book_is_on_the_desk.mp3",
+          "rect": {
+            "l": 60.0,
+            "t": 70.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "computer",
+          "word": "computer",
+          "ipa": "/kəmˈpjuːtər/",
+          "meaning": "电脑",
+          "sentence": "The computer is on the desk.",
+          "sentenceTranslation": "电脑在桌子上。",
+          "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_computer_the_computer_is_on_the_desk.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 45.0,
+            "w": 30.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "mouse",
+          "word": "mouse",
+          "ipa": "/maʊs/",
+          "meaning": "鼠标",
+          "sentence": "The mouse is next to the keyboard.",
+          "sentenceTranslation": "鼠标在键盘旁边。",
+          "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_mouse_the_mouse_is_next_to_the.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 65.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "drink",
+          "word": "drink",
+          "ipa": "/drɪŋk/",
+          "meaning": "喝",
+          "sentence": "I will drink water from the bottle.",
+          "sentenceTranslation": "我会从瓶子里喝水。",
+          "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_drink_i_will_drink_water_from_the.mp3",
+          "relatedItem": "bottle_1"
+        },
+        {
+          "id": "drink",
+          "word": "drink",
+          "ipa": "/drɪŋk/",
+          "meaning": "喝",
+          "sentence": "I will drink tea from the bottle.",
+          "sentenceTranslation": "我会从瓶子里喝茶。",
+          "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_drink_i_will_drink_tea_from_the.mp3",
+          "relatedItem": "bottle_2"
+        },
+        {
+          "id": "read",
+          "word": "read",
+          "ipa": "/riːd/",
+          "meaning": "读",
+          "sentence": "I will read a book.",
+          "sentenceTranslation": "我会读书。",
+          "audioPath": "/assets/generated/scene_user_20260405145130_86bae9/scene_user_20260405145130_86bae9_en-US-JennyNeural_US_female_read_i_will_read_a_book.mp3",
+          "relatedItem": "book"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260405145017_f25208",
+        "uploadId": "upload_20260405145129_b5b831",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260405145130_86bae9",
+        "core100SceneTitle": "办公室",
+        "recommendedCategory": "existing",
+        "tags": [
+          "工作",
+          "办公",
+          "室内"
+        ],
+        "version": 3,
+        "hotspotEditable": true,
+        "hotspotUpdatedAt": "2026-04-05T16:57:02Z",
+        "hotspotUpdatedBy": "user_20260405145017_f25208",
+        "sourceGeneratedSceneId": "scene_user_20260405145130_86bae9",
+        "publishedBy": "admin",
+        "publishedAt": "2026-04-05T21:26:10Z",
+        "categoryId": "scene_category_001",
+        "collectionIds": []
+      }
+    },
+    {
+      "sceneId": "scene_20260405220601_5e6689",
+      "title": "动物园",
+      "category": "动物",
+      "visibility": "public",
+      "sceneType": "public",
+      "backgroundPath": "/assets/generated/scene_user_20260405220519_335a62/background.jpg",
+      "coverPath": "/assets/generated/scene_user_20260405220519_335a62/background.jpg",
+      "items": [
+        {
+          "id": "peacock",
+          "word": "peacock",
+          "ipa": "/ˈpiːkɒk/",
+          "meaning": "孔雀",
+          "sentence": "Look at the peacock with colorful feathers.",
+          "sentenceTranslation": "看那只羽毛多彩的孔雀。",
+          "audioPath": "/assets/generated/scene_user_20260405220519_335a62/scene_user_20260405220519_335a62_en-US-JennyNeural_US_female_peacock_look_at_the_peacock_with_colorful.mp3",
+          "rect": {
+            "l": 10.31,
+            "t": 20.52,
+            "w": 12.54,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "giraffe",
+          "word": "giraffe",
+          "ipa": "/ˈdʒɪrəf/",
+          "meaning": "长颈鹿",
+          "sentence": "The giraffes are eating leaves from the tree.",
+          "sentenceTranslation": "长颈鹿正在从树上吃叶子。",
+          "audioPath": "/assets/generated/scene_user_20260405220519_335a62/scene_user_20260405220519_335a62_en-US-JennyNeural_US_female_giraffe_the_giraffes_are_eating_leaves_from.mp3",
+          "rect": {
+            "l": 35.31,
+            "t": 30.52,
+            "w": 18.54,
+            "h": 28.0
+          }
+        },
+        {
+          "id": "tiger",
+          "word": "tiger",
+          "ipa": "/ˈtaɪɡər/",
+          "meaning": "老虎",
+          "sentence": "The tiger is walking in its enclosure.",
+          "sentenceTranslation": "老虎正在它的围栏里走动。",
+          "audioPath": "/assets/generated/scene_user_20260405220519_335a62/scene_user_20260405220519_335a62_en-US-JennyNeural_US_female_tiger_the_tiger_is_walking_in_its.mp3",
+          "rect": {
+            "l": 55.31,
+            "t": 40.52,
+            "w": 14.54,
+            "h": 24.0
+          }
+        },
+        {
+          "id": "panda",
+          "word": "panda",
+          "ipa": "/ˈpændə/",
+          "meaning": "熊猫",
+          "sentence": "The panda is eating bamboo.",
+          "sentenceTranslation": "熊猫正在吃竹子。",
+          "audioPath": "/assets/generated/scene_user_20260405220519_335a62/scene_user_20260405220519_335a62_en-US-JennyNeural_US_female_panda_the_panda_is_eating_bamboo.mp3",
+          "rect": {
+            "l": 10.31,
+            "t": 60.52,
+            "w": 12.54,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "zebra",
+          "word": "zebra",
+          "ipa": "/ˈziːbrə/",
+          "meaning": "斑马",
+          "sentence": "The zebras are standing together.",
+          "sentenceTranslation": "斑马们正站在一起。",
+          "audioPath": "/assets/generated/scene_user_20260405220519_335a62/scene_user_20260405220519_335a62_en-US-JennyNeural_US_female_zebra_the_zebras_are_standing_together.mp3",
+          "rect": {
+            "l": 30.31,
+            "t": 70.52,
+            "w": 16.54,
+            "h": 26.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "eat",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "The panda eats bamboo every day.",
+          "sentenceTranslation": "这只熊猫每天吃竹子。",
+          "audioPath": "/assets/generated/scene_user_20260405220519_335a62/scene_user_20260405220519_335a62_en-US-JennyNeural_US_female_eat_the_panda_eats_bamboo_every_day.mp3",
+          "relatedItem": "panda"
+        },
+        {
+          "id": "walk",
+          "word": "walk",
+          "ipa": "/wɔːk/",
+          "meaning": "走路",
+          "sentence": "The tiger walks around its enclosure.",
+          "sentenceTranslation": "老虎在其围栏内四处走动。",
+          "audioPath": "/assets/generated/scene_user_20260405220519_335a62/scene_user_20260405220519_335a62_en-US-JennyNeural_US_female_walk_the_tiger_walks_around_its_enclosure.mp3",
+          "relatedItem": "tiger"
+        },
+        {
+          "id": "stand",
+          "word": "stand",
+          "ipa": "/stænd/",
+          "meaning": "站立",
+          "sentence": "The zebras stand together in a group.",
+          "sentenceTranslation": "斑马们成群地站着。",
+          "audioPath": "/assets/generated/scene_user_20260405220519_335a62/scene_user_20260405220519_335a62_en-US-JennyNeural_US_female_stand_the_zebras_stand_together_in_a.mp3",
+          "relatedItem": "zebra"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260405220517_12ed13",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260405220519_335a62",
+        "core100SceneTitle": "动物园",
+        "recommendedCategory": "outdoor",
+        "tags": [
+          "动物",
+          "自然",
+          "户外"
+        ],
+        "version": 1,
+        "sourceGeneratedSceneId": "scene_user_20260405220519_335a62",
+        "publishedBy": "admin_console:admin",
+        "publishedAt": "2026-04-05T22:06:01Z",
+        "categoryId": "scene_category_001",
+        "collectionIds": []
+      }
+    },
+    {
+      "sceneId": "scene_20260405220634_f2bc91",
+      "title": "动物园",
+      "category": "动物",
+      "visibility": "public",
+      "sceneType": "public",
+      "backgroundPath": "/assets/generated/scene_user_20260405220601_202341/background.jpg",
+      "coverPath": "/assets/generated/scene_user_20260405220601_202341/background.jpg",
+      "items": [
+        {
+          "id": "peacock",
+          "word": "peacock",
+          "ipa": "/ˈpiːkɒk/",
+          "meaning": "孔雀",
+          "sentence": "Look at the beautiful peacock!",
+          "sentenceTranslation": "看那只美丽的孔雀！",
+          "audioPath": "/assets/generated/scene_user_20260405220601_202341/scene_user_20260405220601_202341_en-US-JennyNeural_US_female_peacock_look_at_the_beautiful_peacock.mp3",
+          "rect": {
+            "l": 10.31,
+            "t": 20.52,
+            "w": 25.64,
+            "h": 35.0
+          }
+        },
+        {
+          "id": "swan",
+          "word": "swan",
+          "ipa": "/swɑːn/",
+          "meaning": "天鹅",
+          "sentence": "The swan is swimming in the pond.",
+          "sentenceTranslation": "天鹅正在池塘里游泳。",
+          "audioPath": "/assets/generated/scene_user_20260405220601_202341/scene_user_20260405220601_202341_en-US-JennyNeural_US_female_swan_the_swan_is_swimming_in_the.mp3",
+          "rect": {
+            "l": 50.31,
+            "t": 30.52,
+            "w": 25.64,
+            "h": 35.0
+          }
+        },
+        {
+          "id": "giraffe",
+          "word": "giraffe",
+          "ipa": "/dʒɪˈræf/",
+          "meaning": "长颈鹿",
+          "sentence": "The giraffes are eating leaves from the tree.",
+          "sentenceTranslation": "长颈鹿正在从树上吃叶子。",
+          "audioPath": "/assets/generated/scene_user_20260405220601_202341/scene_user_20260405220601_202341_en-US-JennyNeural_US_female_giraffe_the_giraffes_are_eating_leaves_from.mp3",
+          "rect": {
+            "l": 70.31,
+            "t": 40.52,
+            "w": 25.64,
+            "h": 35.0
+          }
+        },
+        {
+          "id": "flamingo",
+          "word": "flamingo",
+          "ipa": "/ˈfleɪmɪŋɡəʊ/",
+          "meaning": "火烈鸟",
+          "sentence": "The flamingos are standing together in the water.",
+          "sentenceTranslation": "火烈鸟正站在水里一起站着。",
+          "audioPath": "/assets/generated/scene_user_20260405220601_202341/scene_user_20260405220601_202341_en-US-JennyNeural_US_female_flamingo_the_flamingos_are_standing_together_in.mp3",
+          "rect": {
+            "l": 10.31,
+            "t": 60.52,
+            "w": 25.64,
+            "h": 35.0
+          }
+        },
+        {
+          "id": "goldfish",
+          "word": "goldfish",
+          "ipa": "/ˈgoʊldfɪʃ/",
+          "meaning": "金鱼",
+          "sentence": "The goldfish are swimming in the aquarium.",
+          "sentenceTranslation": "金鱼正在水族箱里游动。",
+          "audioPath": "/assets/generated/scene_user_20260405220601_202341/scene_user_20260405220601_202341_en-US-JennyNeural_US_female_goldfish_the_goldfish_are_swimming_in_the.mp3",
+          "rect": {
+            "l": 50.31,
+            "t": 80.52,
+            "w": 25.64,
+            "h": 35.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "swim",
+          "word": "swim",
+          "ipa": "/swɪm/",
+          "meaning": "游泳",
+          "sentence": "The swan swims in the pond.",
+          "sentenceTranslation": "天鹅在池塘里游泳。",
+          "audioPath": "/assets/generated/scene_user_20260405220601_202341/scene_user_20260405220601_202341_en-US-JennyNeural_US_female_swim_the_swan_swims_in_the_pond.mp3",
+          "relatedItem": "swan"
+        },
+        {
+          "id": "eat",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "The giraffe eats leaves from the tree.",
+          "sentenceTranslation": "长颈鹿从树上吃叶子。",
+          "audioPath": "/assets/generated/scene_user_20260405220601_202341/scene_user_20260405220601_202341_en-US-JennyNeural_US_female_eat_the_giraffe_eats_leaves_from_the.mp3",
+          "relatedItem": "giraffe"
+        },
+        {
+          "id": "stand",
+          "word": "stand",
+          "ipa": "/stænd/",
+          "meaning": "站立",
+          "sentence": "The flamingos stand together in the water.",
+          "sentenceTranslation": "火烈鸟在水里一起站着。",
+          "audioPath": "/assets/generated/scene_user_20260405220601_202341/scene_user_20260405220601_202341_en-US-JennyNeural_US_female_stand_the_flamingos_stand_together_in_the.mp3",
+          "relatedItem": "flamingo"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260405220518_d18863",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260405220601_202341",
+        "core100SceneTitle": "动物园",
+        "recommendedCategory": "outdoor",
+        "tags": [
+          "动物",
+          "自然",
+          "户外"
+        ],
+        "version": 1,
+        "sourceGeneratedSceneId": "scene_user_20260405220601_202341",
+        "publishedBy": "admin_console:admin",
+        "publishedAt": "2026-04-05T22:06:34Z",
+        "categoryId": "scene_category_001",
+        "collectionIds": []
+      }
     }
   ]
 }

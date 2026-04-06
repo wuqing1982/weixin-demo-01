@@ -20,6 +20,18 @@ function getMyScenes(params = {}) {
   });
 }
 
+function getSceneCategories() {
+  return request({
+    url: '/scene-categories'
+  });
+}
+
+function getSceneCollections() {
+  return request({
+    url: '/scene-collections'
+  });
+}
+
 function saveSceneHotspots(sceneId, items) {
   return request({
     url: `/scenes/${sceneId}/hotspots`,
@@ -34,5 +46,7 @@ module.exports = {
   getSceneList,
   getSceneDetail,
   getMyScenes,
+  getSceneCategories,
+  getSceneCollections,
   saveSceneHotspots
 };

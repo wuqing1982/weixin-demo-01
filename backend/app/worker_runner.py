@@ -8,6 +8,7 @@ from pathlib import Path
 from threading import Event, Thread
 
 from .generated_scene_store import GeneratedSceneStore
+from .scene_publication import publish_generated_scene_to_public
 from .scene_adapter import build_generated_scene_from_core_result
 from .store_utils import build_object_id
 from .task_store import TaskStore
@@ -71,6 +72,8 @@ class InlineSceneWorker:
         core100_root: Path,
         tts_url: str,
         model: str,
+        public_scene_store=None,
+        commerce_store=None,
         api_key: str | None = None,
         poll_interval: float = 2.0,
     ):
@@ -81,6 +84,8 @@ class InlineSceneWorker:
         self.core100_root = core100_root
         self.tts_url = tts_url
         self.model = model
+        self.public_scene_store = public_scene_store
+        self.commerce_store = commerce_store
         self.api_key = api_key
         self.poll_interval = poll_interval
         self.stop_event = Event()
@@ -157,12 +162,28 @@ class InlineSceneWorker:
 
             self.task_store.update_task(task_id, step='write_scene', progress=90, sceneId=scene_id)
             self.generated_scene_store.upsert_scene(scene)
+            published_scene_id = ''
+            if task.get('autoPublish') and self.public_scene_store and self.commerce_store and task.get('categoryId'):
+                self.task_store.update_task(task_id, step='publish_scene', progress=95, sceneId=scene_id)
+                public_scene, _ = publish_generated_scene_to_public(
+                    source_scene=scene,
+                    source_scene_id=scene_id,
+                    public_store=self.public_scene_store,
+                    commerce_store=self.commerce_store,
+                    category_id=task.get('categoryId', ''),
+                    collection_ids=task.get('collectionIds', []) or [],
+                    visibility=task.get('publishVisibility', 'public') or 'public',
+                    published_by=task.get('ownerId', ''),
+                    title=(task.get('title') or '').strip(),
+                )
+                published_scene_id = public_scene.get('sceneId', '')
             self.task_store.update_task(
                 task_id,
                 status='done',
                 step='finished',
                 progress=100,
                 sceneId=scene_id,
+                publishedSceneId=published_scene_id,
                 errorMessage='',
             )
         except Exception as exc:

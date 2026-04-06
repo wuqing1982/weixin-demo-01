@@ -81,6 +81,55 @@ class CommerceStoreTests(unittest.TestCase):
         self.assertEqual(membership['entitlementCode'], 'basic_member')
         self.assertEqual(credits['sceneGenerateBalance'], 12)
 
+    def test_scene_taxonomy_and_publication_round_trip(self):
+        self.store.upsert_scene_category({
+            'id': 'cat_family_daily',
+            'categoryCode': 'family_daily',
+            'name': '家庭日常',
+            'description': '家庭里的日常英语场景',
+            'status': 'active',
+            'sortOrder': 10,
+        })
+        self.store.upsert_scene_collection({
+            'id': 'col_breakfast',
+            'collectionCode': 'breakfast',
+            'name': '早餐主题合集',
+            'description': '围绕早餐场景的合集',
+            'status': 'active',
+            'sortOrder': 5,
+        })
+        self.store.upsert_scene_collection({
+            'id': 'col_beginner',
+            'collectionCode': 'beginner',
+            'name': '启蒙合集',
+            'description': '面向初学者的场景合集',
+            'status': 'active',
+            'sortOrder': 6,
+        })
+
+        publication = self.store.upsert_scene_publication(
+            source_generated_scene_id='scene_generated_001',
+            public_scene_id='scene_public_001',
+            category_id='cat_family_daily',
+            collection_ids=['col_breakfast', 'col_beginner'],
+            visibility='public',
+            published_by='user_admin_001',
+        )
+
+        self.assertEqual(publication['categoryId'], 'cat_family_daily')
+        self.assertEqual(publication['publicSceneId'], 'scene_public_001')
+        self.assertEqual(publication['collectionIds'], ['col_breakfast', 'col_beginner'])
+
+        by_source = self.store.get_scene_publication_by_source('scene_generated_001')
+        by_public = self.store.get_scene_publication_by_public_scene('scene_public_001')
+        categories = self.store.list_scene_categories()
+        collections = self.store.list_scene_collections()
+
+        self.assertEqual(by_source['categoryName'], '家庭日常')
+        self.assertEqual(by_public['sourceGeneratedSceneId'], 'scene_generated_001')
+        self.assertEqual(categories[0]['categoryCode'], 'family_daily')
+        self.assertEqual(len(collections), 2)
+
 
 if __name__ == '__main__':
     unittest.main()

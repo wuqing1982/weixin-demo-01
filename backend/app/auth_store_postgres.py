@@ -159,6 +159,36 @@ class PostgresAuthStore:
                 )
                 return _serialize_user(cursor.fetchone())
 
+    def get_wechat_identity(self, user_id: str) -> dict[str, Any] | None:
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    '''
+                    select *
+                    from user_identities
+                    where user_id = %s
+                      and provider = %s
+                    order by updated_at desc, created_at desc
+                    limit 1
+                    ''',
+                    (user_id, 'wechat_mp'),
+                )
+                row = cursor.fetchone()
+                if not row:
+                    return None
+                return {
+                    'id': row.get('id', ''),
+                    'userId': row.get('user_id', ''),
+                    'provider': row.get('provider', ''),
+                    'providerUid': row.get('provider_uid', ''),
+                    'unionId': row.get('union_id', '') or '',
+                    'sessionKeyEncrypted': row.get('session_key_encrypted', '') or '',
+                    'metaJson': row.get('meta_json') or {},
+                    'lastLoginAt': _to_iso(row.get('last_login_at')),
+                    'createdAt': _to_iso(row.get('created_at')),
+                    'updatedAt': _to_iso(row.get('updated_at')),
+                }
+
     def get_or_create_debug_user(self, user_id: str) -> dict[str, Any]:
         user = self.get_user(user_id)
         if user:

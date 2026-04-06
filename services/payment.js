@@ -1,5 +1,5 @@
 const { fetchMe } = require('./auth');
-const { completeMockOrderPayment, createOrderPayment } = require('./order');
+const { completeMockOrderPayment, createOrderPayment, syncOrderPayment } = require('./order');
 const { getAccessToken, storeCurrentUser } = require('./session');
 
 function showModalAsync(options) {
@@ -64,8 +64,13 @@ async function payOrder(orderId, appInstance) {
   }
 
   await requestPaymentAsync(payment.requestPayment || {});
-  await refreshCurrentUser(appInstance);
-  return payment.order;
+  const synced = await syncOrderPayment(orderId);
+  if (synced && synced.me) {
+    storeCurrentUser(synced.me, appInstance);
+  } else {
+    await refreshCurrentUser(appInstance);
+  }
+  return synced.order || payment.order;
 }
 
 module.exports = {

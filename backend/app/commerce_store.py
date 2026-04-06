@@ -1,5 +1,6 @@
 import json
 import secrets
+import time
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from typing import Any
@@ -95,6 +96,54 @@ def _serialize_payment(row: dict[str, Any]) -> dict[str, Any]:
         'paidAt': _to_iso(row.get('paid_at')),
         'createdAt': _to_iso(row.get('created_at')),
         'updatedAt': _to_iso(row.get('updated_at')),
+    }
+
+
+def _serialize_scene_category(row: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not row:
+        return None
+    return {
+        'categoryId': row.get('id', ''),
+        'categoryCode': row.get('category_code', ''),
+        'name': row.get('name', ''),
+        'description': row.get('description', ''),
+        'status': row.get('status', 'active'),
+        'sortOrder': int(row.get('sort_order') or 0),
+        'createdAt': _to_iso(row.get('created_at')),
+        'updatedAt': _to_iso(row.get('updated_at')),
+    }
+
+
+def _serialize_scene_collection(row: dict[str, Any] | None) -> dict[str, Any] | None:
+    if not row:
+        return None
+    return {
+        'collectionId': row.get('id', ''),
+        'collectionCode': row.get('collection_code', ''),
+        'name': row.get('name', ''),
+        'description': row.get('description', ''),
+        'status': row.get('status', 'active'),
+        'coverUrl': row.get('cover_url', ''),
+        'sortOrder': int(row.get('sort_order') or 0),
+        'createdAt': _to_iso(row.get('created_at')),
+        'updatedAt': _to_iso(row.get('updated_at')),
+    }
+
+
+def _serialize_scene_publication(row: dict[str, Any] | None, collection_ids: list[str]) -> dict[str, Any] | None:
+    if not row:
+        return None
+    return {
+        'sourceGeneratedSceneId': row.get('source_generated_scene_id', ''),
+        'publicSceneId': row.get('public_scene_id', ''),
+        'categoryId': row.get('category_id') or '',
+        'categoryName': row.get('category_name') or '',
+        'visibility': row.get('visibility', 'public'),
+        'publishedBy': row.get('published_by', ''),
+        'publishedAt': _to_iso(row.get('published_at')),
+        'createdAt': _to_iso(row.get('created_at')),
+        'updatedAt': _to_iso(row.get('updated_at')),
+        'collectionIds': collection_ids,
     }
 
 
@@ -252,6 +301,308 @@ class CommerceStore:
                     }
                     for row in sku_rows
                 ]
+
+    def list_scene_categories(self, *, status: str = '') -> list[dict[str, Any]]:
+        clauses = []
+        params: list[Any] = []
+        if status:
+            clauses.append('status = %s')
+            params.append(status)
+
+        sql = 'select * from scene_categories'
+        if clauses:
+            sql += ' where ' + ' and '.join(clauses)
+        sql += ' order by sort_order asc, created_at asc'
+
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(sql, params)
+                return [_serialize_scene_category(row) for row in cursor.fetchall()]
+
+    def get_scene_category(self, category_id: str) -> dict[str, Any] | None:
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute('select * from scene_categories where id = %s limit 1', (category_id,))
+                return _serialize_scene_category(cursor.fetchone())
+
+    def upsert_scene_category(self, category: dict[str, Any]) -> None:
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    '''
+                    insert into scene_categories (
+                      id, category_code, name, description, status, sort_order, created_at, updated_at
+                    ) values (%s, %s, %s, %s, %s, %s, %s, %s)
+                    on conflict (id) do update set
+                      category_code = excluded.category_code,
+                      name = excluded.name,
+                      description = excluded.description,
+                      status = excluded.status,
+                      sort_order = excluded.sort_order,
+                      created_at = excluded.created_at,
+                      updated_at = excluded.updated_at
+                    ''',
+                    (
+                        category.get('id') or category.get('categoryId') or '',
+                        category.get('categoryCode') or '',
+                        category.get('name') or '',
+                        category.get('description') or '',
+                        category.get('status') or 'active',
+                        int(category.get('sortOrder') or 0),
+                        _parse_iso(category.get('createdAt')) or _parse_iso(utcnow_iso()),
+                        _parse_iso(category.get('updatedAt')) or _parse_iso(utcnow_iso()),
+                    ),
+                )
+
+    def delete_scene_category(self, category_id: str) -> bool:
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    'select count(*) as count from scene_publications where category_id = %s',
+                    (category_id,),
+                )
+                if int((cursor.fetchone() or {}).get('count') or 0) > 0:
+                    raise ValueError('scene category is still used by published scenes')
+                cursor.execute('delete from scene_categories where id = %s', (category_id,))
+                return cursor.rowcount > 0
+
+    def list_scene_collections(self, *, status: str = '') -> list[dict[str, Any]]:
+        clauses = []
+        params: list[Any] = []
+        if status:
+            clauses.append('status = %s')
+            params.append(status)
+
+        sql = 'select * from scene_collections'
+        if clauses:
+            sql += ' where ' + ' and '.join(clauses)
+        sql += ' order by sort_order asc, created_at asc'
+
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(sql, params)
+                return [_serialize_scene_collection(row) for row in cursor.fetchall()]
+
+    def get_scene_collection(self, collection_id: str) -> dict[str, Any] | None:
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute('select * from scene_collections where id = %s limit 1', (collection_id,))
+                return _serialize_scene_collection(cursor.fetchone())
+
+    def upsert_scene_collection(self, collection: dict[str, Any]) -> None:
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    '''
+                    insert into scene_collections (
+                      id, collection_code, name, description, status, cover_url, sort_order, created_at, updated_at
+                    ) values (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    on conflict (id) do update set
+                      collection_code = excluded.collection_code,
+                      name = excluded.name,
+                      description = excluded.description,
+                      status = excluded.status,
+                      cover_url = excluded.cover_url,
+                      sort_order = excluded.sort_order,
+                      created_at = excluded.created_at,
+                      updated_at = excluded.updated_at
+                    ''',
+                    (
+                        collection.get('id') or collection.get('collectionId') or '',
+                        collection.get('collectionCode') or '',
+                        collection.get('name') or '',
+                        collection.get('description') or '',
+                        collection.get('status') or 'active',
+                        collection.get('coverUrl') or '',
+                        int(collection.get('sortOrder') or 0),
+                        _parse_iso(collection.get('createdAt')) or _parse_iso(utcnow_iso()),
+                        _parse_iso(collection.get('updatedAt')) or _parse_iso(utcnow_iso()),
+                    ),
+                )
+
+    def delete_scene_collection(self, collection_id: str) -> bool:
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    'select count(*) as count from scene_publication_collections where collection_id = %s',
+                    (collection_id,),
+                )
+                if int((cursor.fetchone() or {}).get('count') or 0) > 0:
+                    raise ValueError('scene collection is still used by published scenes')
+                cursor.execute('delete from scene_collections where id = %s', (collection_id,))
+                return cursor.rowcount > 0
+
+    def _load_publication_collection_ids(
+        self,
+        cursor,
+        *,
+        public_scene_ids: list[str] | None = None,
+        source_generated_scene_ids: list[str] | None = None,
+    ) -> dict[str, list[str]]:
+        clauses = []
+        params: list[Any] = []
+        if public_scene_ids:
+            clauses.append('spc.public_scene_id = any(%s)')
+            params.append(public_scene_ids)
+        if source_generated_scene_ids:
+            clauses.append('sp.source_generated_scene_id = any(%s)')
+            params.append(source_generated_scene_ids)
+        if not clauses:
+            return {}
+
+        cursor.execute(
+            f'''
+            select sp.source_generated_scene_id, sp.public_scene_id, spc.collection_id
+            from scene_publication_collections spc
+            join scene_publications sp on sp.public_scene_id = spc.public_scene_id
+            where {' and '.join(clauses)}
+            order by spc.sort_order asc, spc.created_at asc
+            ''',
+            params,
+        )
+        by_public_scene: dict[str, list[str]] = {}
+        by_source: dict[str, list[str]] = {}
+        for row in cursor.fetchall():
+            public_scene_id = row.get('public_scene_id', '')
+            source_generated_scene_id = row.get('source_generated_scene_id', '')
+            collection_id = row.get('collection_id', '')
+            if public_scene_id:
+                by_public_scene.setdefault(public_scene_id, []).append(collection_id)
+            if source_generated_scene_id:
+                by_source.setdefault(source_generated_scene_id, []).append(collection_id)
+        return {
+            **{f'public:{key}': value for key, value in by_public_scene.items()},
+            **{f'source:{key}': value for key, value in by_source.items()},
+        }
+
+    def list_scene_publications_by_source_ids(self, source_generated_scene_ids: list[str]) -> dict[str, dict[str, Any]]:
+        if not source_generated_scene_ids:
+            return {}
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    '''
+                    select
+                      sp.*,
+                      sc.name as category_name
+                    from scene_publications sp
+                    left join scene_categories sc on sc.id = sp.category_id
+                    where sp.source_generated_scene_id = any(%s)
+                    ''',
+                    (source_generated_scene_ids,),
+                )
+                rows = cursor.fetchall()
+                collection_map = self._load_publication_collection_ids(
+                    cursor,
+                    source_generated_scene_ids=source_generated_scene_ids,
+                )
+                return {
+                    row.get('source_generated_scene_id', ''): _serialize_scene_publication(
+                        row,
+                        collection_map.get(f"source:{row.get('source_generated_scene_id', '')}", []),
+                    )
+                    for row in rows
+                }
+
+    def list_scene_publications_by_public_scene_ids(self, public_scene_ids: list[str]) -> dict[str, dict[str, Any]]:
+        if not public_scene_ids:
+            return {}
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    '''
+                    select
+                      sp.*,
+                      sc.name as category_name
+                    from scene_publications sp
+                    left join scene_categories sc on sc.id = sp.category_id
+                    where sp.public_scene_id = any(%s)
+                    ''',
+                    (public_scene_ids,),
+                )
+                rows = cursor.fetchall()
+                collection_map = self._load_publication_collection_ids(
+                    cursor,
+                    public_scene_ids=public_scene_ids,
+                )
+                return {
+                    row.get('public_scene_id', ''): _serialize_scene_publication(
+                        row,
+                        collection_map.get(f"public:{row.get('public_scene_id', '')}", []),
+                    )
+                    for row in rows
+                }
+
+    def get_scene_publication_by_source(self, source_generated_scene_id: str) -> dict[str, Any] | None:
+        return self.list_scene_publications_by_source_ids([source_generated_scene_id]).get(source_generated_scene_id)
+
+    def get_scene_publication_by_public_scene(self, public_scene_id: str) -> dict[str, Any] | None:
+        return self.list_scene_publications_by_public_scene_ids([public_scene_id]).get(public_scene_id)
+
+    def upsert_scene_publication(
+        self,
+        *,
+        source_generated_scene_id: str,
+        public_scene_id: str,
+        category_id: str,
+        collection_ids: list[str],
+        visibility: str,
+        published_by: str,
+    ) -> dict[str, Any]:
+        now = utcnow_iso()
+        normalized_collection_ids = []
+        for index, collection_id in enumerate(collection_ids or []):
+            if collection_id and collection_id not in normalized_collection_ids:
+                normalized_collection_ids.append(collection_id)
+
+        with self._connect() as connection:
+            with connection.transaction():
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        '''
+                        insert into scene_publications (
+                          source_generated_scene_id, public_scene_id, category_id, visibility, published_by, published_at, created_at, updated_at
+                        ) values (%s, %s, %s, %s, %s, %s, %s, %s)
+                        on conflict (source_generated_scene_id) do update set
+                          public_scene_id = excluded.public_scene_id,
+                          category_id = excluded.category_id,
+                          visibility = excluded.visibility,
+                          published_by = excluded.published_by,
+                          published_at = excluded.published_at,
+                          updated_at = excluded.updated_at
+                        ''',
+                        (
+                            source_generated_scene_id,
+                            public_scene_id,
+                            category_id or None,
+                            visibility or 'public',
+                            published_by,
+                            _parse_iso(now),
+                            _parse_iso(now),
+                            _parse_iso(now),
+                        ),
+                    )
+                    cursor.execute(
+                        'delete from scene_publication_collections where public_scene_id = %s',
+                        (public_scene_id,),
+                    )
+                    for sort_order, collection_id in enumerate(normalized_collection_ids):
+                        cursor.execute(
+                            '''
+                            insert into scene_publication_collections (
+                              id, public_scene_id, collection_id, sort_order, created_at, updated_at
+                            ) values (%s, %s, %s, %s, %s, %s)
+                            ''',
+                            (
+                                build_object_id('scene_collection_item'),
+                                public_scene_id,
+                                collection_id,
+                                sort_order,
+                                _parse_iso(now),
+                                _parse_iso(now),
+                            ),
+                        )
+        return self.get_scene_publication_by_source(source_generated_scene_id)
 
     def get_membership_summary(self, user_id: str) -> dict[str, Any]:
         with self._connect() as connection:
@@ -654,7 +1005,7 @@ class CommerceStore:
                             balance_after,
                             'order_grant',
                             order_row.get('id', ''),
-                            f'mock payment grant via order {order_row.get("order_no", "")}',
+                            f'payment grant via order {order_row.get("order_no", "")}',
                         ),
                     )
 
@@ -811,7 +1162,16 @@ class CommerceStore:
                     return None
                 return self._serialize_order_detail(cursor, row)
 
-    def create_payment_intent(self, *, order_id: str, user_id: str, payment_mode: str = 'mock') -> dict[str, Any]:
+    def get_order_by_order_no(self, order_no: str) -> dict[str, Any] | None:
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute('select * from orders where order_no = %s limit 1', (order_no,))
+                row = cursor.fetchone()
+                if not row:
+                    return None
+                return self._serialize_order_detail(cursor, row)
+
+    def start_payment_intent(self, *, order_id: str, user_id: str, payment_mode: str = 'mock') -> dict[str, Any]:
         with self._connect() as connection:
             with connection.transaction():
                 with connection.cursor() as cursor:
@@ -825,11 +1185,13 @@ class CommerceStore:
                             'alreadyPaid': True,
                         }
 
+                    items = self._fetch_order_items(cursor, order_id)
+                    description = '订单支付'
+                    if items:
+                        description = items[0].get('product_name') or items[0].get('sku_name') or description
                     payment_id = build_object_id('payment')
                     payment_no = _build_business_no('PAY')
                     now = datetime.now(timezone.utc)
-                    nonce = secrets.token_hex(8)
-                    package_value = f'prepay_id=mock_{payment_no}'
                     cursor.execute(
                         '''
                         insert into payments (
@@ -847,33 +1209,149 @@ class CommerceStore:
                             None,
                             json.dumps({
                                 'paymentMode': payment_mode,
-                                'timeStamp': str(int(now.timestamp())),
-                                'nonceStr': nonce,
-                                'package': package_value,
-                                'signType': 'RSA',
-                                'paySign': f'mock_sign_{nonce}',
                             }, ensure_ascii=False),
                             now,
                             now,
                         ),
                     )
-                    cursor.execute('select * from payments where id = %s limit 1', (payment_id,))
-                    payment_row = cursor.fetchone()
-                    payload = payment_row.get('channel_payload') or {}
                     return {
                         'paymentMode': payment_mode,
                         'paymentId': payment_id,
+                        'paymentNo': payment_no,
                         'orderId': order_id,
-                        'requestPayment': {
-                            'timeStamp': payload.get('timeStamp', ''),
-                            'nonceStr': payload.get('nonceStr', ''),
-                            'package': payload.get('package', ''),
-                            'signType': payload.get('signType', 'RSA'),
-                            'paySign': payload.get('paySign', ''),
-                        },
+                        'orderNo': order_row.get('order_no', ''),
+                        'description': description,
+                        'amount': _to_amount(order_row.get('payable_amount')),
+                        'currency': order_row.get('currency', 'CNY'),
                         'order': self._serialize_order_detail(cursor, order_row),
                         'alreadyPaid': False,
                     }
+
+    def update_payment_channel_payload(
+        self,
+        *,
+        payment_id: str,
+        channel_payload: dict[str, Any],
+    ) -> dict[str, Any] | None:
+        with self._connect() as connection:
+            with connection.transaction():
+                with connection.cursor() as cursor:
+                    cursor.execute('select * from payments where id = %s limit 1', (payment_id,))
+                    row = cursor.fetchone()
+                    if not row:
+                        return None
+                    payload = (row.get('channel_payload') or {}) | (channel_payload or {})
+                    cursor.execute(
+                        '''
+                        update payments
+                        set channel_payload = %s::jsonb,
+                            updated_at = now()
+                        where id = %s
+                        returning *
+                        ''',
+                        (json.dumps(payload, ensure_ascii=False), payment_id),
+                    )
+                    return _serialize_payment(cursor.fetchone())
+
+    def create_payment_intent(self, *, order_id: str, user_id: str, payment_mode: str = 'mock') -> dict[str, Any]:
+        started = self.start_payment_intent(order_id=order_id, user_id=user_id, payment_mode=payment_mode)
+        if started.get('alreadyPaid'):
+            return started
+        nonce = secrets.token_hex(8)
+        package_value = f'mock_{started.get("paymentNo", "")}'
+        payload = {
+            'paymentMode': payment_mode,
+            'timeStamp': str(int(time.time())),
+            'nonceStr': nonce,
+            'package': f'prepay_id={package_value}',
+            'signType': 'RSA',
+            'paySign': f'mock_sign_{nonce}',
+        }
+        self.update_payment_channel_payload(payment_id=started.get('paymentId', ''), channel_payload=payload)
+        return {
+            'paymentMode': payment_mode,
+            'paymentId': started.get('paymentId', ''),
+            'orderId': order_id,
+            'requestPayment': {
+                'timeStamp': payload.get('timeStamp', ''),
+                'nonceStr': payload.get('nonceStr', ''),
+                'package': payload.get('package', ''),
+                'signType': payload.get('signType', 'RSA'),
+                'paySign': payload.get('paySign', ''),
+            },
+            'order': started.get('order', {}),
+            'alreadyPaid': False,
+        }
+
+    def complete_wechat_payment(
+        self,
+        *,
+        order_no: str,
+        transaction_id: str,
+        payment_payload: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        payment_payload = payment_payload or {}
+        with self._connect() as connection:
+            with connection.transaction():
+                with connection.cursor() as cursor:
+                    cursor.execute('select * from orders where order_no = %s limit 1', (order_no,))
+                    order_row = cursor.fetchone()
+                    if not order_row:
+                        raise ValueError('order not found')
+                    if order_row.get('status') == 'paid':
+                        return self._serialize_order_detail(cursor, order_row)
+
+                    cursor.execute(
+                        '''
+                        select *
+                        from payments
+                        where order_id = %s
+                        order by created_at desc
+                        limit 1
+                        ''',
+                        (order_row.get('id', ''),),
+                    )
+                    payment_row = cursor.fetchone()
+                    if not payment_row:
+                        raise ValueError('payment not found')
+
+                    channel_payload = (payment_row.get('channel_payload') or {}) | payment_payload
+                    now = datetime.now(timezone.utc)
+                    cursor.execute(
+                        '''
+                        update payments
+                        set status = %s,
+                            channel_trade_no = %s,
+                            channel_payload = %s::jsonb,
+                            paid_at = %s,
+                            updated_at = %s
+                        where id = %s
+                        ''',
+                        (
+                            'success',
+                            transaction_id,
+                            json.dumps(channel_payload, ensure_ascii=False),
+                            now,
+                            now,
+                            payment_row.get('id', ''),
+                        ),
+                    )
+                    cursor.execute(
+                        '''
+                        update orders
+                        set status = %s,
+                            payment_status = %s,
+                            paid_amount = payable_amount,
+                            paid_at = %s,
+                            updated_at = %s
+                        where id = %s
+                        ''',
+                        ('paid', 'success', now, now, order_row.get('id', '')),
+                    )
+                    order_row = self._fetch_order_row(cursor, order_row.get('id', ''))
+                    items = self._fetch_order_items(cursor, order_row.get('id', ''))
+                    self._grant_benefits_for_order(cursor, order_row, items)
+                    return self._serialize_order_detail(cursor, order_row)
 
     def complete_mock_payment(self, *, order_id: str, user_id: str, payment_id: str = '') -> dict[str, Any]:
         with self._connect() as connection:

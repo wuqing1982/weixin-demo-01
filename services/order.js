@@ -27,6 +27,13 @@ function createOrderPayment(orderId) {
   });
 }
 
+function syncOrderPayment(orderId) {
+  return request({
+    url: `/orders/${orderId}/payment-sync`,
+    method: 'POST'
+  });
+}
+
 function completeMockOrderPayment(orderId, paymentId) {
   return request({
     url: `/orders/${orderId}/mock-pay-success`,
@@ -42,5 +49,6 @@ module.exports = {
   createOrder,
   createOrderPayment,
   getOrder,
-  getOrders
+  getOrders,
+  syncOrderPayment
 };

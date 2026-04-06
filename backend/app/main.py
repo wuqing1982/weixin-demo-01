@@ -1,4 +1,5 @@
 import hashlib
+from decimal import Decimal
 from datetime import datetime, timedelta, timezone
 
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
@@ -11,9 +12,13 @@ from .commerce_store_factory import create_commerce_store
 from .generated_scene_store import GeneratedSceneStore
 from .hotspot_permissions import can_edit_scene_hotspots
 from .schemas import (
+    AdminBatchSceneGenerateRequest,
     AdminLoginRequest,
+    AdminPublishGeneratedSceneRequest,
     AdminProductRequest,
     AdminPublicSceneRequest,
+    AdminSceneCategoryRequest,
+    AdminSceneCollectionRequest,
     AdminSkuRequest,
     MeProfileUpdateRequest,
     MockPaymentCompleteRequest,
@@ -24,6 +29,7 @@ from .schemas import (
     SceneHotspotUpdateRequest,
     WechatLoginRequest,
 )
+from .scene_publication import publish_generated_scene_to_public
 from .store_utils import utcnow_iso
 from .scene_store import SceneStore
 from .security import create_access_token, decode_access_token, encrypt_wechat_session_key, generate_refresh_token, hash_refresh_token
@@ -57,18 +63,42 @@ from .settings import (
     UPLOADS_FILE,
     WECHAT_MP_APP_ID,
     WECHAT_MP_APP_SECRET,
+    WECHAT_PAY_API_BASE,
+    WECHAT_PAY_API_V3_KEY,
+    WECHAT_PAY_CURRENCY,
+    WECHAT_PAY_MCH_ID,
+    WECHAT_PAY_MCH_PRIVATE_KEY_PATH,
+    WECHAT_PAY_MCH_SERIAL_NO,
+    WECHAT_PAY_NOTIFY_URL,
+    WECHAT_PAY_PLATFORM_CERT_PATH,
+    WECHAT_PAY_PLATFORM_SERIAL_NO,
+    WECHAT_PAY_TIMEOUT_SECONDS,
     WORKER_POLL_INTERVAL,
     ZHIPUAI_API_KEY,
 )
 from .task_store import TaskStore
 from .upload_store import UploadStore
 from .wechat_auth import WechatCode2SessionError, WechatMiniProgramAuthClient
+from .wechat_pay import WechatPayClient, build_wechat_pay_config
 from .worker_runner import InlineSceneWorker
 
 
 auth_store = create_auth_store()
 commerce_store = create_commerce_store()
 wechat_auth_client = WechatMiniProgramAuthClient(WECHAT_MP_APP_ID, WECHAT_MP_APP_SECRET)
+wechat_pay_client = WechatPayClient(build_wechat_pay_config(
+    app_id=WECHAT_MP_APP_ID,
+    mch_id=WECHAT_PAY_MCH_ID,
+    api_v3_key=WECHAT_PAY_API_V3_KEY,
+    mch_serial_no=WECHAT_PAY_MCH_SERIAL_NO,
+    mch_private_key_path=WECHAT_PAY_MCH_PRIVATE_KEY_PATH,
+    platform_cert_path=WECHAT_PAY_PLATFORM_CERT_PATH,
+    platform_serial_no=WECHAT_PAY_PLATFORM_SERIAL_NO,
+    notify_url=WECHAT_PAY_NOTIFY_URL,
+    api_base=WECHAT_PAY_API_BASE,
+    currency=WECHAT_PAY_CURRENCY,
+    timeout_seconds=WECHAT_PAY_TIMEOUT_SECONDS,
+))
 public_store = SceneStore(PUBLIC_SCENES_FILE)
 generated_store = GeneratedSceneStore(GENERATED_SCENES_FILE)
 upload_store = UploadStore(UPLOADS_FILE, UPLOADS_DIR)
@@ -81,6 +111,8 @@ scene_worker = InlineSceneWorker(
     core100_root=CORE100_ROOT,
     tts_url=CORE100_TTS_URL,
     model=CORE100_MODEL,
+    public_scene_store=public_store,
+    commerce_store=commerce_store,
     api_key=ZHIPUAI_API_KEY,
     poll_interval=WORKER_POLL_INTERVAL,
 )
@@ -194,6 +226,10 @@ def get_current_admin(request: Request) -> dict:
         'role': user.get('role') or 'admin',
         'loginType': 'wechat_user',
     }
+
+
+def resolve_admin_actor_id(admin: dict) -> str:
+    return admin.get('userId') or f"admin_console:{admin.get('username', 'admin')}"
 
 
 @app.exception_handler(HTTPException)
@@ -366,6 +402,33 @@ def require_commerce_store():
     return commerce_store
 
 
+def require_wechat_pay_client(*, need_callback_verify: bool = False):
+    if not wechat_pay_client or not wechat_pay_client.is_configured():
+        raise HTTPException(
+            status_code=503,
+            detail={
+                'code': 5003,
+                'message': 'wechat pay not configured',
+            },
+        )
+    if need_callback_verify and not wechat_pay_client.config.can_verify_callbacks():
+        raise HTTPException(
+            status_code=503,
+            detail={
+                'code': 5003,
+                'message': 'wechat pay callback verify not configured',
+            },
+        )
+    return wechat_pay_client
+
+
+def get_user_wechat_openid(user_id: str) -> str:
+    identity = auth_store.get_wechat_identity(user_id) if hasattr(auth_store, 'get_wechat_identity') else None
+    if not identity:
+        return ''
+    return str(identity.get('providerUid') or '').strip()
+
+
 def serialize_entry(request: Request, entry: dict) -> dict:
     payload = dict(entry)
     audio_path = payload.pop('audioPath', '')
@@ -374,13 +437,19 @@ def serialize_entry(request: Request, entry: dict) -> dict:
 
 
 def serialize_scene_summary(request: Request, scene: dict) -> dict:
+    meta = scene.get('meta', {}) or {}
     return {
         'sceneId': scene['sceneId'],
         'title': scene['title'],
         'coverUrl': asset_url(request, scene.get('coverPath')),
         'category': scene.get('category', ''),
+        'categoryId': meta.get('categoryId', ''),
+        'categoryName': meta.get('categoryName', '') or scene.get('category', ''),
+        'collectionIds': meta.get('collectionIds', []) or [],
         'visibility': scene.get('visibility', 'member'),
-        'sceneType': scene.get('sceneType', 'public')
+        'sceneType': scene.get('sceneType', 'public'),
+        'publishedAt': meta.get('publishedAt', ''),
+        'sourceGeneratedSceneId': meta.get('sourceGeneratedSceneId', ''),
     }
 
 
@@ -469,11 +538,18 @@ def serialize_admin_task(task: dict) -> dict:
     return {
         'taskId': task.get('taskId', ''),
         'ownerId': task.get('ownerId', ''),
+        'uploadId': task.get('uploadId', ''),
         'title': task.get('title', ''),
+        'requestSource': task.get('requestSource', 'miniapp'),
+        'autoPublish': bool(task.get('autoPublish')),
+        'categoryId': task.get('categoryId', ''),
+        'collectionIds': task.get('collectionIds', []) or [],
+        'publishVisibility': task.get('publishVisibility', 'public'),
         'status': task.get('status', ''),
         'step': task.get('step', ''),
         'progress': task.get('progress', 0),
         'sceneId': task.get('sceneId', ''),
+        'publishedSceneId': task.get('publishedSceneId', ''),
         'errorMessage': task.get('errorMessage', ''),
         'createdAt': task.get('createdAt', ''),
         'updatedAt': task.get('updatedAt', ''),
@@ -481,10 +557,13 @@ def serialize_admin_task(task: dict) -> dict:
 
 
 def serialize_admin_scene(scene: dict) -> dict:
+    meta = scene.get('meta', {}) or {}
     return {
         'sceneId': scene.get('sceneId', ''),
         'title': scene.get('title', ''),
         'category': scene.get('category', ''),
+        'categoryId': meta.get('categoryId', ''),
+        'collectionIds': meta.get('collectionIds', []) or [],
         'visibility': scene.get('visibility', 'public'),
         'sceneType': scene.get('sceneType', 'public'),
         'backgroundPath': scene.get('backgroundPath', ''),
@@ -495,6 +574,77 @@ def serialize_admin_scene(scene: dict) -> dict:
         'verbs': scene.get('verbs', []),
         'meta': scene.get('meta', {}),
     }
+
+
+def serialize_admin_scene_category(category: dict) -> dict:
+    return dict(category)
+
+
+def serialize_admin_scene_collection(collection: dict) -> dict:
+    return dict(collection)
+
+
+def serialize_admin_generated_scene(request: Request, scene: dict, publication: dict | None = None) -> dict:
+    meta = scene.get('meta', {}) or {}
+    return {
+        'sceneId': scene.get('sceneId', ''),
+        'title': scene.get('title', ''),
+        'category': scene.get('category', ''),
+        'visibility': scene.get('visibility', 'private'),
+        'sceneType': scene.get('sceneType', 'private'),
+        'backgroundUrl': asset_url(request, scene.get('backgroundPath')),
+        'coverUrl': asset_url(request, scene.get('coverPath')),
+        'ownerId': meta.get('ownerId', ''),
+        'itemCount': len(scene.get('items', []) or []),
+        'verbCount': len(scene.get('verbs', []) or []),
+        'meta': meta,
+        'publication': publication,
+    }
+
+
+def load_public_scene_publication_map(scenes: list[dict]) -> dict[str, dict]:
+    if not commerce_store:
+        return {}
+    scene_ids = [scene.get('sceneId', '') for scene in scenes if scene.get('sceneId')]
+    return require_commerce_store().list_scene_publications_by_public_scene_ids(scene_ids)
+
+
+def merge_public_scene_publication(scene: dict, publication: dict | None = None) -> dict:
+    payload = dict(scene)
+    meta = dict(payload.get('meta', {}) or {})
+    publication = publication or {}
+    if publication.get('categoryId'):
+        meta['categoryId'] = publication.get('categoryId', '')
+    if publication.get('categoryName'):
+        meta['categoryName'] = publication.get('categoryName', '')
+    if publication.get('collectionIds') is not None:
+        meta['collectionIds'] = publication.get('collectionIds', []) or []
+    if publication.get('sourceGeneratedSceneId'):
+        meta['sourceGeneratedSceneId'] = publication.get('sourceGeneratedSceneId', '')
+    if publication.get('publishedAt'):
+        meta['publishedAt'] = publication.get('publishedAt', '')
+    payload['meta'] = meta
+    if publication.get('categoryName'):
+        payload['category'] = publication.get('categoryName', '') or payload.get('category', '')
+    return payload
+
+
+def filter_public_scenes_by_taxonomy(
+    scenes: list[dict],
+    publication_map: dict[str, dict],
+    *,
+    category_id: str = '',
+    collection_id: str = '',
+) -> list[dict]:
+    filtered: list[dict] = []
+    for scene in scenes:
+        publication = publication_map.get(scene.get('sceneId', ''), {})
+        if category_id and publication.get('categoryId') != category_id:
+            continue
+        if collection_id and collection_id not in (publication.get('collectionIds', []) or []):
+            continue
+        filtered.append(scene)
+    return filtered
 
 
 @app.post('/api/admin/auth/login')
@@ -758,10 +908,152 @@ def admin_retry_task(task_id: str, request: Request):
     return success(serialize_admin_task(task))
 
 
+@app.get('/api/admin/scene-categories')
+def admin_list_scene_categories(request: Request):
+    get_current_admin(request)
+    store = require_commerce_store()
+    return success({'list': [serialize_admin_scene_category(item) for item in store.list_scene_categories(status='')]})
+
+
+@app.post('/api/admin/scene-categories')
+def admin_create_scene_category(payload: AdminSceneCategoryRequest, request: Request):
+    get_current_admin(request)
+    store = require_commerce_store()
+    category_id = f"scene_category_{payload.categoryCode}"
+    store.upsert_scene_category({
+        'id': category_id,
+        'categoryCode': payload.categoryCode,
+        'name': payload.name,
+        'description': payload.description,
+        'status': payload.status,
+        'sortOrder': payload.sortOrder,
+        'createdAt': utcnow_iso(),
+        'updatedAt': utcnow_iso(),
+    })
+    return success(serialize_admin_scene_category(store.get_scene_category(category_id)))
+
+
+@app.put('/api/admin/scene-categories/{category_id}')
+def admin_update_scene_category(category_id: str, payload: AdminSceneCategoryRequest, request: Request):
+    get_current_admin(request)
+    store = require_commerce_store()
+    current = store.get_scene_category(category_id)
+    if not current:
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'scene category not found'})
+    store.upsert_scene_category({
+        **current,
+        'categoryId': category_id,
+        'categoryCode': payload.categoryCode,
+        'name': payload.name,
+        'description': payload.description,
+        'status': payload.status,
+        'sortOrder': payload.sortOrder,
+        'updatedAt': utcnow_iso(),
+    })
+    return success(serialize_admin_scene_category(store.get_scene_category(category_id)))
+
+
+@app.delete('/api/admin/scene-categories/{category_id}')
+def admin_delete_scene_category(category_id: str, request: Request):
+    get_current_admin(request)
+    store = require_commerce_store()
+    try:
+        deleted = store.delete_scene_category(category_id)
+    except ValueError as error:
+        raise HTTPException(status_code=409, detail={'code': 4090, 'message': str(error)})
+    if not deleted:
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'scene category not found'})
+    return success({'deleted': True})
+
+
+@app.get('/api/admin/scene-collections')
+def admin_list_scene_collections(request: Request):
+    get_current_admin(request)
+    store = require_commerce_store()
+    return success({'list': [serialize_admin_scene_collection(item) for item in store.list_scene_collections(status='')]})
+
+
+@app.post('/api/admin/scene-collections')
+def admin_create_scene_collection(payload: AdminSceneCollectionRequest, request: Request):
+    get_current_admin(request)
+    store = require_commerce_store()
+    collection_id = f"scene_collection_{payload.collectionCode}"
+    store.upsert_scene_collection({
+        'id': collection_id,
+        'collectionCode': payload.collectionCode,
+        'name': payload.name,
+        'description': payload.description,
+        'status': payload.status,
+        'coverUrl': payload.coverUrl,
+        'sortOrder': payload.sortOrder,
+        'createdAt': utcnow_iso(),
+        'updatedAt': utcnow_iso(),
+    })
+    return success(serialize_admin_scene_collection(store.get_scene_collection(collection_id)))
+
+
+@app.put('/api/admin/scene-collections/{collection_id}')
+def admin_update_scene_collection(collection_id: str, payload: AdminSceneCollectionRequest, request: Request):
+    get_current_admin(request)
+    store = require_commerce_store()
+    current = store.get_scene_collection(collection_id)
+    if not current:
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'scene collection not found'})
+    store.upsert_scene_collection({
+        **current,
+        'collectionId': collection_id,
+        'collectionCode': payload.collectionCode,
+        'name': payload.name,
+        'description': payload.description,
+        'status': payload.status,
+        'coverUrl': payload.coverUrl,
+        'sortOrder': payload.sortOrder,
+        'updatedAt': utcnow_iso(),
+    })
+    return success(serialize_admin_scene_collection(store.get_scene_collection(collection_id)))
+
+
+@app.delete('/api/admin/scene-collections/{collection_id}')
+def admin_delete_scene_collection(collection_id: str, request: Request):
+    get_current_admin(request)
+    store = require_commerce_store()
+    try:
+        deleted = store.delete_scene_collection(collection_id)
+    except ValueError as error:
+        raise HTTPException(status_code=409, detail={'code': 4090, 'message': str(error)})
+    if not deleted:
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'scene collection not found'})
+    return success({'deleted': True})
+
+
+@app.get('/api/admin/generated-scenes')
+def admin_list_generated_scenes(request: Request, limit: int = Query(default=100, ge=1, le=500)):
+    get_current_admin(request)
+    scenes = generated_store.list_scenes()[:limit]
+    publication_map = require_commerce_store().list_scene_publications_by_source_ids(
+        [scene.get('sceneId', '') for scene in scenes if scene.get('sceneId')]
+    ) if commerce_store else {}
+    return success({
+        'list': [
+            serialize_admin_generated_scene(request, scene, publication_map.get(scene.get('sceneId', '')))
+            for scene in scenes
+        ],
+    })
+
+
 @app.get('/api/admin/public-scenes')
 def admin_list_public_scenes(request: Request):
     get_current_admin(request)
-    return success({'list': [serialize_admin_scene(scene) for scene in public_store.list_scenes('')]})
+    scenes = public_store.list_scenes('')
+    publication_map = load_public_scene_publication_map(scenes)
+    enriched = []
+    for scene in scenes:
+        payload = serialize_admin_scene(scene)
+        publication = publication_map.get(scene.get('sceneId', ''))
+        if publication:
+            payload['publication'] = publication
+        enriched.append(payload)
+    return success({'list': enriched})
 
 
 @app.post('/api/admin/public-scenes')
@@ -800,6 +1092,68 @@ def admin_update_public_scene(scene_id: str, payload: AdminPublicSceneRequest, r
         'meta': payload.meta,
     })
     return success(serialize_admin_scene(scene))
+
+
+@app.post('/api/admin/generated-scenes/{scene_id}/publish')
+def admin_publish_generated_scene(scene_id: str, payload: AdminPublishGeneratedSceneRequest, request: Request):
+    admin = get_current_admin(request)
+    store = require_commerce_store()
+    source_scene = generated_store.get_scene(scene_id)
+    if not source_scene:
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'generated scene not found'})
+    try:
+        public_scene, publication = publish_generated_scene_to_public(
+            source_scene=source_scene,
+            source_scene_id=scene_id,
+            public_store=public_store,
+            commerce_store=store,
+            category_id=payload.categoryId,
+            collection_ids=payload.collectionIds,
+            visibility=payload.visibility or 'public',
+            published_by=resolve_admin_actor_id(admin),
+            title=(payload.title or '').strip(),
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': str(error)})
+    payload = serialize_admin_scene(public_scene)
+    payload['publication'] = publication
+    return success(payload)
+
+
+@app.post('/api/admin/public-scenes/{scene_id}/republish')
+def admin_republish_public_scene(scene_id: str, request: Request):
+    admin = get_current_admin(request)
+    store = require_commerce_store()
+    current_public_scene = public_store.get_scene(scene_id)
+    if not current_public_scene:
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'public scene not found'})
+
+    publication = store.get_scene_publication_by_public_scene(scene_id)
+    if not publication or not publication.get('sourceGeneratedSceneId'):
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'scene publication source not found'})
+
+    source_scene = generated_store.get_scene(publication.get('sourceGeneratedSceneId', ''))
+    if not source_scene:
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'generated scene not found'})
+
+    try:
+        next_public_scene, next_publication = publish_generated_scene_to_public(
+            source_scene=source_scene,
+            source_scene_id=publication.get('sourceGeneratedSceneId', ''),
+            public_store=public_store,
+            commerce_store=store,
+            category_id=publication.get('categoryId', ''),
+            collection_ids=publication.get('collectionIds', []) or [],
+            visibility=current_public_scene.get('visibility', '') or publication.get('visibility', 'public'),
+            published_by=resolve_admin_actor_id(admin),
+            title=(current_public_scene.get('title') or '').strip(),
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': str(error)})
+
+    payload = serialize_admin_scene(next_public_scene)
+    payload['publication'] = next_publication
+    return success(payload)
 
 
 @app.post('/api/auth/wechat/login')
@@ -1045,7 +1399,24 @@ def get_order(order_id: str, request: Request):
 @app.post('/api/orders/{order_id}/pay')
 def create_order_payment(order_id: str, request: Request):
     user = get_request_user(request, required=True, allow_debug=True)
-    if PAYMENT_MODE != 'mock':
+    if PAYMENT_MODE == 'mock':
+        try:
+            result = require_commerce_store().create_payment_intent(
+                order_id=order_id,
+                user_id=user.get('id', ''),
+                payment_mode=PAYMENT_MODE,
+            )
+        except ValueError as error:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    'code': 4000,
+                    'message': str(error),
+                },
+            )
+        return success(result)
+
+    if PAYMENT_MODE != 'wechat_pay':
         raise HTTPException(
             status_code=501,
             detail={
@@ -1053,11 +1424,46 @@ def create_order_payment(order_id: str, request: Request):
                 'message': 'payment mode not implemented',
             },
         )
+
+    payer_openid = get_user_wechat_openid(user.get('id', ''))
+    if not payer_openid:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                'code': 4000,
+                'message': 'wechat openid not found for current user',
+            },
+        )
+
     try:
-        result = require_commerce_store().create_payment_intent(
+        started = require_commerce_store().start_payment_intent(
             order_id=order_id,
             user_id=user.get('id', ''),
             payment_mode=PAYMENT_MODE,
+        )
+        if started.get('alreadyPaid'):
+            return success(started)
+
+        order = started.get('order', {}) or {}
+        payable_amount = Decimal(str(order.get('payableAmount') or started.get('amount') or '0'))
+        transaction = require_wechat_pay_client().create_jsapi_transaction(
+            out_trade_no=started.get('orderNo', ''),
+            description=started.get('description', '') or '订单支付',
+            total_fen=int(payable_amount * Decimal('100')),
+            payer_openid=payer_openid,
+        )
+        prepay_id = str(transaction.get('prepay_id') or '').strip()
+        if not prepay_id:
+            raise ValueError('wechat pay prepay_id missing')
+        request_payment = require_wechat_pay_client().build_miniapp_request_payment(prepay_id)
+        require_commerce_store().update_payment_channel_payload(
+            payment_id=started.get('paymentId', ''),
+            channel_payload={
+                'paymentMode': PAYMENT_MODE,
+                'prepayId': prepay_id,
+                'requestPayment': request_payment,
+                'wechatTransaction': transaction,
+            },
         )
     except ValueError as error:
         raise HTTPException(
@@ -1067,7 +1473,15 @@ def create_order_payment(order_id: str, request: Request):
                 'message': str(error),
             },
         )
-    return success(result)
+
+    return success({
+        'paymentMode': PAYMENT_MODE,
+        'paymentId': started.get('paymentId', ''),
+        'orderId': started.get('orderId', ''),
+        'order': started.get('order', {}),
+        'alreadyPaid': False,
+        'requestPayment': request_payment,
+    })
 
 
 @app.post('/api/orders/{order_id}/mock-pay-success')
@@ -1093,24 +1507,137 @@ def complete_mock_order_payment(order_id: str, payload: MockPaymentCompleteReque
     })
 
 
+@app.post('/api/orders/{order_id}/payment-sync')
+def sync_order_payment(order_id: str, request: Request):
+    user = get_request_user(request, required=True, allow_debug=True)
+    if PAYMENT_MODE != 'wechat_pay':
+        raise HTTPException(
+            status_code=400,
+            detail={
+                'code': 4000,
+                'message': 'payment sync only available in wechat_pay mode',
+            },
+        )
+    order = require_commerce_store().get_order(order_id=order_id, user_id=user.get('id', ''))
+    if not order:
+        raise HTTPException(
+            status_code=404,
+            detail={
+                'code': 4004,
+                'message': 'order not found',
+            },
+        )
+    if order.get('status') == 'paid':
+        return success({
+            'order': serialize_order(request, order),
+            'me': serialize_me(request, user),
+        })
+    try:
+        transaction = require_wechat_pay_client().query_order_by_out_trade_no(order.get('orderNo', ''))
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail={'code': 4000, 'message': str(error)})
+
+    trade_state = str(transaction.get('trade_state') or '').strip().upper()
+    if trade_state != 'SUCCESS':
+        return success({
+            'order': serialize_order(request, order),
+            'me': serialize_me(request, user),
+            'tradeState': trade_state or 'NOTPAY',
+        })
+    try:
+        completed = require_commerce_store().complete_wechat_payment(
+            order_no=order.get('orderNo', ''),
+            transaction_id=str(transaction.get('transaction_id') or ''),
+            payment_payload={
+                'paymentMode': PAYMENT_MODE,
+                'tradeState': trade_state,
+                'wechatQuery': transaction,
+            },
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail={'code': 4000, 'message': str(error)})
+    return success({
+        'order': serialize_order(request, completed),
+        'me': serialize_me(request, user),
+        'tradeState': trade_state,
+    })
+
+
+@app.post('/api/payments/wechat/notify')
+async def handle_wechat_payment_notify(request: Request):
+    body = await request.body()
+    try:
+        resource = require_wechat_pay_client(need_callback_verify=True).verify_and_decrypt_callback(
+            headers={key: value for key, value in request.headers.items()},
+            body=body,
+        )
+        if str(resource.get('trade_state') or '').upper() == 'SUCCESS':
+            require_commerce_store().complete_wechat_payment(
+                order_no=str(resource.get('out_trade_no') or ''),
+                transaction_id=str(resource.get('transaction_id') or ''),
+                payment_payload={
+                    'paymentMode': 'wechat_pay',
+                    'tradeState': str(resource.get('trade_state') or ''),
+                    'wechatNotify': resource,
+                },
+            )
+    except HTTPException:
+        raise
+    except Exception as error:
+        raise HTTPException(status_code=400, detail={'code': 4000, 'message': str(error)})
+    return {'code': 'SUCCESS', 'message': '成功'}
+
+
+@app.get('/api/scene-categories')
+def list_public_scene_categories(_: Request):
+    if not commerce_store:
+        return success({'list': []})
+    return success({'list': require_commerce_store().list_scene_categories(status='active')})
+
+
+@app.get('/api/scene-collections')
+def list_public_scene_collections(_: Request):
+    if not commerce_store:
+        return success({'list': []})
+    return success({'list': require_commerce_store().list_scene_collections(status='active')})
+
+
 @app.get('/api/scenes')
 def list_scenes(
     request: Request,
     type: str = Query(default='public'),
+    categoryId: str = Query(default=''),
+    collectionId: str = Query(default=''),
     page: int = Query(default=1, ge=1),
     pageSize: int = Query(default=20, ge=1, le=100)
 ):
     scenes = public_store.list_scenes(type)
+    publication_map = load_public_scene_publication_map(scenes)
+    if categoryId or collectionId:
+        scenes = filter_public_scenes_by_taxonomy(
+            scenes,
+            publication_map,
+            category_id=categoryId,
+            collection_id=collectionId,
+        )
     total = len(scenes)
     start = (page - 1) * pageSize
     end = start + pageSize
     page_items = scenes[start:end]
 
     return success({
-        'list': [serialize_scene_summary(request, scene) for scene in page_items],
+        'list': [
+            serialize_scene_summary(
+                request,
+                merge_public_scene_publication(scene, publication_map.get(scene.get('sceneId', ''))),
+            )
+            for scene in page_items
+        ],
         'total': total,
         'page': page,
-        'pageSize': pageSize
+        'pageSize': pageSize,
+        'categoryId': categoryId,
+        'collectionId': collectionId,
     })
 
 
@@ -1269,6 +1796,33 @@ async def upload_image(request: Request, file: UploadFile = File(...)):
     })
 
 
+@app.post('/api/admin/uploads/image')
+async def admin_upload_image(request: Request, file: UploadFile = File(...)):
+    admin = get_current_admin(request)
+    owner_id = resolve_admin_actor_id(admin)
+    content = await file.read()
+
+    if not content:
+        raise HTTPException(status_code=400, detail={'code': 4000, 'message': 'empty file'})
+
+    content_type = file.content_type or ''
+    if content_type and not content_type.startswith('image/'):
+        raise HTTPException(status_code=400, detail={'code': 4000, 'message': 'only image upload is supported'})
+
+    upload = upload_store.create_upload(
+        owner_id=owner_id,
+        filename=file.filename or 'upload.jpg',
+        content_type=content_type,
+        content=content,
+    )
+    return success({
+        'uploadId': upload['uploadId'],
+        'fileUrl': asset_url(request, upload['filePath']),
+        'width': upload.get('width'),
+        'height': upload.get('height'),
+    })
+
+
 @app.post('/api/my/tasks/scene-generate')
 def create_scene_generate_task(request: Request, payload: SceneGenerateRequest):
     owner_id = get_current_user_id(request)
@@ -1301,6 +1855,47 @@ def create_scene_generate_task(request: Request, payload: SceneGenerateRequest):
     })
 
 
+@app.post('/api/admin/tasks/scene-generate-batch')
+def admin_create_scene_generate_batch(request: Request, payload: AdminBatchSceneGenerateRequest):
+    admin = get_current_admin(request)
+    owner_id = resolve_admin_actor_id(admin)
+    store = require_commerce_store()
+    if payload.autoPublish and not payload.categoryId:
+        raise HTTPException(status_code=400, detail={'code': 4000, 'message': 'categoryId is required when autoPublish is enabled'})
+    if payload.categoryId and not store.get_scene_category(payload.categoryId):
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'scene category not found'})
+    for collection_id in payload.collectionIds:
+        if not store.get_scene_collection(collection_id):
+            raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'scene collection not found'})
+
+    created = []
+    for item in payload.items:
+        upload = upload_store.get_upload(item.uploadId)
+        if not upload:
+            raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'upload not found'})
+        if upload.get('ownerId') != owner_id:
+            raise HTTPException(status_code=403, detail={'code': 4003, 'message': 'upload access denied'})
+
+        task = task_store.create_task(
+            owner_id=owner_id,
+            payload={
+                'uploadId': item.uploadId,
+                'title': (item.title or '').strip(),
+                'includeVerbs': payload.includeVerbs,
+                'accent': payload.accent,
+                'voiceGender': payload.voiceGender,
+                'voiceName': payload.voiceName,
+                'requestSource': 'admin_web_generator',
+                'autoPublish': payload.autoPublish,
+                'categoryId': payload.categoryId,
+                'collectionIds': payload.collectionIds,
+                'publishVisibility': payload.publishVisibility,
+            },
+        )
+        created.append(serialize_admin_task(task))
+    return success({'list': created})
+
+
 @app.get('/api/my/tasks/{task_id}')
 def get_scene_generate_task(request: Request, task_id: str):
     owner_id = get_current_user_id(request)
@@ -1329,5 +1924,6 @@ def get_scene_generate_task(request: Request, task_id: str):
         'step': task['step'],
         'progress': task['progress'],
         'sceneId': task.get('sceneId', ''),
+        'publishedSceneId': task.get('publishedSceneId', ''),
         'errorMessage': task.get('errorMessage', '')
     })

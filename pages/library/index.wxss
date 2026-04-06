@@ -22,6 +22,35 @@
   color: rgba(255, 255, 255, 0.92);
 }
 
+.filter-scroll {
+  width: 100%;
+}
+
+.filter-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 16rpx;
+  min-width: 100%;
+  padding-bottom: 4rpx;
+}
+
+.filter-chip {
+  flex-shrink: 0;
+  padding: 14rpx 24rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2rpx solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 24rpx;
+  line-height: 1;
+}
+
+.filter-chip-active {
+  background: rgba(126, 240, 191, 0.16);
+  border-color: rgba(126, 240, 191, 0.4);
+  color: #d8fff0;
+}
+
 .scene-card {
   overflow: hidden;
 }

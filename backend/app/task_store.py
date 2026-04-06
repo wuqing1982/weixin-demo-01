@@ -25,10 +25,16 @@ class TaskStore:
             'accent': payload.get('accent', 'en-US'),
             'voiceGender': payload.get('voiceGender', 'female'),
             'voiceName': payload.get('voiceName', 'JennyNeural'),
+            'requestSource': payload.get('requestSource', 'miniapp'),
+            'autoPublish': bool(payload.get('autoPublish', False)),
+            'categoryId': payload.get('categoryId', ''),
+            'collectionIds': list(payload.get('collectionIds', []) or []),
+            'publishVisibility': payload.get('publishVisibility', 'public'),
             'status': 'queued',
             'step': 'queued',
             'progress': 0,
             'sceneId': '',
+            'publishedSceneId': '',
             'errorMessage': '',
             'createdAt': now,
             'updatedAt': now,
@@ -90,6 +96,7 @@ class TaskStore:
                 next_task['step'] = 'queued'
                 next_task['progress'] = 0
                 next_task['sceneId'] = ''
+                next_task['publishedSceneId'] = ''
                 next_task['errorMessage'] = ''
                 next_task['updatedAt'] = utcnow_iso()
                 tasks[index] = next_task

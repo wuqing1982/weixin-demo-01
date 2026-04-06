@@ -12,6 +12,7 @@ from backend.app import main
 from backend.app.auth_store import AuthStore
 from backend.app.commerce_store import CommerceStore
 from backend.app.postgres import connect_postgres
+from backend.app.security import create_access_token
 from backend.app.schemas import MockPaymentCompleteRequest, OrderCreateRequest
 from backend.tests.test_auth_api import build_request
 
@@ -28,6 +29,7 @@ class MockOrderFlowTests(unittest.TestCase):
         self.original_commerce_store = getattr(main, 'commerce_store', None)
         self.original_debug_header = main.AUTH_ENABLE_DEBUG_USER_HEADER
         self.original_payment_mode = main.PAYMENT_MODE
+        self.original_wechat_pay_client = getattr(main, 'wechat_pay_client', None)
 
         main.auth_store = AuthStore(self.temp_auth_file)
         main.commerce_store = CommerceStore(DATABASE_URL, self.schema_name)
@@ -73,6 +75,7 @@ class MockOrderFlowTests(unittest.TestCase):
         main.commerce_store = self.original_commerce_store
         main.AUTH_ENABLE_DEBUG_USER_HEADER = self.original_debug_header
         main.PAYMENT_MODE = self.original_payment_mode
+        main.wechat_pay_client = self.original_wechat_pay_client
         with connect_postgres(DATABASE_URL, 'public') as connection:
             with connection.cursor() as cursor:
                 cursor.execute(f'drop schema if exists {self.schema_name} cascade')
@@ -110,6 +113,82 @@ class MockOrderFlowTests(unittest.TestCase):
         orders = main.list_orders(build_request(path='/api/orders', headers=headers))['data']['list']
         self.assertEqual(len(orders), 1)
         self.assertEqual(orders[0]['status'], 'paid')
+
+    def test_real_wechat_pay_create_and_sync(self):
+        user = main.auth_store.get_or_create_wechat_user(
+            provider_uid='openid_real_pay_001',
+            union_id='union_real_pay_001',
+            profile={'displayName': '真实支付用户'},
+            session_key_encrypted='session_key_encrypted',
+        )
+        access_token, _ = create_access_token(user['id'], 'session_real_pay_001', role='user')
+        headers = {'Authorization': f'Bearer {access_token}'}
+
+        class FakeWechatPayClient:
+            class _Config:
+                def can_verify_callbacks(self):
+                    return True
+
+            def __init__(self):
+                self.config = self._Config()
+                self.created = []
+                self.queried = []
+
+            def is_configured(self):
+                return True
+
+            def create_jsapi_transaction(self, *, out_trade_no, description, total_fen, payer_openid):
+                self.created.append({
+                    'out_trade_no': out_trade_no,
+                    'description': description,
+                    'total_fen': total_fen,
+                    'payer_openid': payer_openid,
+                })
+                return {'prepay_id': 'wx_prepay_test_001'}
+
+            def build_miniapp_request_payment(self, prepay_id):
+                return {
+                    'timeStamp': '1710000000',
+                    'nonceStr': 'nonce_test',
+                    'package': f'prepay_id={prepay_id}',
+                    'signType': 'RSA',
+                    'paySign': 'sign_test',
+                }
+
+            def query_order_by_out_trade_no(self, out_trade_no):
+                self.queried.append(out_trade_no)
+                return {
+                    'trade_state': 'SUCCESS',
+                    'transaction_id': '4200000000000001',
+                    'out_trade_no': out_trade_no,
+                }
+
+        main.PAYMENT_MODE = 'wechat_pay'
+        main.wechat_pay_client = FakeWechatPayClient()
+
+        order = main.create_order(
+            OrderCreateRequest(skuId='sku_combo_test', quantity=1),
+            build_request(method='POST', path='/api/orders', headers=headers),
+        )['data']
+
+        pay_result = main.create_order_payment(
+            order['orderId'],
+            build_request(method='POST', path=f"/api/orders/{order['orderId']}/pay", headers=headers),
+        )['data']
+        self.assertEqual(pay_result['paymentMode'], 'wechat_pay')
+        self.assertEqual(pay_result['requestPayment']['package'], 'prepay_id=wx_prepay_test_001')
+        self.assertEqual(main.wechat_pay_client.created[0]['payer_openid'], 'openid_real_pay_001')
+
+        synced = main.sync_order_payment(
+            order['orderId'],
+            build_request(method='POST', path=f"/api/orders/{order['orderId']}/payment-sync", headers=headers),
+        )['data']
+        self.assertEqual(synced['tradeState'], 'SUCCESS')
+        self.assertEqual(synced['order']['status'], 'paid')
+
+        me = main.get_me(build_request(path='/api/me', headers=headers))['data']
+        self.assertTrue(me['memberSummary']['isActive'])
+        self.assertEqual(me['creditSummary']['sceneGenerateBalance'], 15)
 
 
 if __name__ == '__main__':

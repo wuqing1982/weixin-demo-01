@@ -379,6 +379,23 @@ input {
   resize: vertical;
 }
 
+.checkbox-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 6px 0;
+}
+
+.checkbox-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(30, 42, 39, 0.05);
+  color: var(--ink);
+}
+
 .form-actions {
   margin-top: 14px;
 }

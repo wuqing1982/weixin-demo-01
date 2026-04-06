@@ -93,6 +93,17 @@ class AuthStore:
                 return copy.deepcopy(user)
         return None
 
+    def get_wechat_identity(self, user_id: str) -> dict[str, Any] | None:
+        with self.lock:
+            payload = read_json_file(self.data_file)
+        for identity in payload.get('identities', []):
+            if identity.get('userId') != user_id:
+                continue
+            if identity.get('provider') != 'wechat_mp':
+                continue
+            return copy.deepcopy(identity)
+        return None
+
     def get_or_create_debug_user(self, user_id: str) -> dict[str, Any]:
         with self.lock:
             payload = read_json_file(self.data_file)

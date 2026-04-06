@@ -13,11 +13,22 @@ from fastapi import HTTPException
 from backend.app import main
 from backend.app.auth_store import AuthStore
 from backend.app.commerce_store import CommerceStore
+from backend.app.generated_scene_store import GeneratedSceneStore
 from backend.app.postgres import connect_postgres
 from backend.app.scene_store import SceneStore
 from backend.app.security import create_access_token
-from backend.app.schemas import AdminLoginRequest, AdminProductRequest, AdminPublicSceneRequest, AdminSkuRequest
+from backend.app.schemas import (
+    AdminBatchSceneGenerateRequest,
+    AdminLoginRequest,
+    AdminProductRequest,
+    AdminPublicSceneRequest,
+    AdminPublishGeneratedSceneRequest,
+    AdminSceneCategoryRequest,
+    AdminSceneCollectionRequest,
+    AdminSkuRequest,
+)
 from backend.app.task_store import TaskStore
+from backend.app.upload_store import UploadStore
 from backend.tests.test_auth_api import build_request
 
 
@@ -30,12 +41,17 @@ class AdminApiTests(unittest.TestCase):
         self.temp_auth_file = Path(self.temp_dir.name) / 'auth.json'
         self.temp_tasks_file = Path(self.temp_dir.name) / 'tasks.json'
         self.temp_public_scenes_file = Path(self.temp_dir.name) / 'scenes.json'
+        self.temp_generated_scenes_file = Path(self.temp_dir.name) / 'generated_scenes.json'
+        self.temp_uploads_file = Path(self.temp_dir.name) / 'uploads.json'
+        self.temp_uploads_dir = Path(self.temp_dir.name) / 'uploads'
         self.schema_name = f'admin_api_{uuid4().hex[:12]}'
 
         self.original_auth_store = main.auth_store
         self.original_commerce_store = getattr(main, 'commerce_store', None)
         self.original_task_store = main.task_store
         self.original_public_store = main.public_store
+        self.original_generated_store = main.generated_store
+        self.original_upload_store = main.upload_store
         self.original_admin_enabled = main.ADMIN_DASHBOARD_ENABLED
         self.original_admin_username = main.ADMIN_DASHBOARD_USERNAME
         self.original_admin_password = main.ADMIN_DASHBOARD_PASSWORD
@@ -44,6 +60,8 @@ class AdminApiTests(unittest.TestCase):
         main.commerce_store = CommerceStore(DATABASE_URL, self.schema_name)
         main.task_store = TaskStore(self.temp_tasks_file)
         main.public_store = SceneStore(self.temp_public_scenes_file)
+        main.generated_store = GeneratedSceneStore(self.temp_generated_scenes_file)
+        main.upload_store = UploadStore(self.temp_uploads_file, self.temp_uploads_dir)
         main.ADMIN_DASHBOARD_ENABLED = True
         main.ADMIN_DASHBOARD_USERNAME = 'admin_test'
         main.ADMIN_DASHBOARD_PASSWORD = 'pass_test'
@@ -86,12 +104,26 @@ class AdminApiTests(unittest.TestCase):
         main.task_store.create_task(owner_id=user['id'], payload={'uploadId': 'upload_001', 'title': '厨房场景'})
         task = main.task_store.create_task(owner_id=user['id'], payload={'uploadId': 'upload_002', 'title': '客厅场景'})
         main.task_store.update_task(task['taskId'], status='done', step='finished', progress=100, sceneId='scene_done_001')
+        main.generated_store.upsert_scene({
+            'sceneId': 'scene_generated_admin_001',
+            'title': '厨房早餐草稿',
+            'category': 'generated',
+            'visibility': 'private',
+            'sceneType': 'private',
+            'backgroundPath': '/assets/generated/kitchen/background.jpg',
+            'coverPath': '/assets/generated/kitchen/cover.jpg',
+            'items': [{'id': 'item_1'}],
+            'verbs': [{'id': 'verb_1'}],
+            'meta': {'ownerId': user['id']},
+        })
 
     def tearDown(self):
         main.auth_store = self.original_auth_store
         main.commerce_store = self.original_commerce_store
         main.task_store = self.original_task_store
         main.public_store = self.original_public_store
+        main.generated_store = self.original_generated_store
+        main.upload_store = self.original_upload_store
         main.ADMIN_DASHBOARD_ENABLED = self.original_admin_enabled
         main.ADMIN_DASHBOARD_USERNAME = self.original_admin_username
         main.ADMIN_DASHBOARD_PASSWORD = self.original_admin_password
@@ -281,6 +313,187 @@ class AdminApiTests(unittest.TestCase):
                     headers={'Authorization': f"Bearer {self._user_access_token('debug_user_admin_001')}"},
                 )
             )
+
+    def test_admin_scene_taxonomy_crud_and_publish(self):
+        headers = self._login_header()
+
+        category = main.admin_create_scene_category(
+            AdminSceneCategoryRequest(
+                categoryCode='family_daily',
+                name='家庭日常',
+                description='家庭英语场景',
+                status='active',
+                sortOrder=10,
+            ),
+            build_request(method='POST', path='/api/admin/scene-categories', headers=headers),
+        )['data']
+        self.assertEqual(category['categoryCode'], 'family_daily')
+
+        collection_a = main.admin_create_scene_collection(
+            AdminSceneCollectionRequest(
+                collectionCode='breakfast',
+                name='早餐合集',
+                description='早餐专题',
+                status='active',
+                coverUrl='',
+                sortOrder=1,
+            ),
+            build_request(method='POST', path='/api/admin/scene-collections', headers=headers),
+        )['data']
+        collection_b = main.admin_create_scene_collection(
+            AdminSceneCollectionRequest(
+                collectionCode='beginner',
+                name='启蒙合集',
+                description='启蒙专题',
+                status='active',
+                coverUrl='',
+                sortOrder=2,
+            ),
+            build_request(method='POST', path='/api/admin/scene-collections', headers=headers),
+        )['data']
+
+        categories = main.admin_list_scene_categories(build_request(path='/api/admin/scene-categories', headers=headers))['data']['list']
+        collections = main.admin_list_scene_collections(build_request(path='/api/admin/scene-collections', headers=headers))['data']['list']
+        drafts = main.admin_list_generated_scenes(build_request(path='/api/admin/generated-scenes', headers=headers), limit=20)['data']['list']
+
+        self.assertEqual(categories[0]['name'], '家庭日常')
+        self.assertEqual(len(collections), 2)
+        self.assertEqual(drafts[0]['sceneId'], 'scene_generated_admin_001')
+
+        published = main.admin_publish_generated_scene(
+            'scene_generated_admin_001',
+            AdminPublishGeneratedSceneRequest(
+                title='厨房早餐公开版',
+                categoryId=category['categoryId'],
+                collectionIds=[collection_a['collectionId'], collection_b['collectionId']],
+                visibility='public',
+            ),
+            build_request(method='POST', path='/api/admin/generated-scenes/publish', headers=headers),
+        )['data']
+
+        self.assertEqual(published['title'], '厨房早餐公开版')
+        self.assertEqual(published['publication']['categoryId'], category['categoryId'])
+        self.assertEqual(published['publication']['collectionIds'], [collection_a['collectionId'], collection_b['collectionId']])
+
+        public_scenes = main.admin_list_public_scenes(build_request(path='/api/admin/public-scenes', headers=headers))['data']['list']
+        self.assertEqual(public_scenes[0]['publication']['publicSceneId'], published['sceneId'])
+
+    def test_admin_batch_generate_task_creation(self):
+        headers = self._login_header()
+        upload = main.upload_store.create_upload(
+            owner_id='admin_console:admin_test',
+            filename='kitchen.jpg',
+            content_type='image/jpeg',
+            content=b'fake-image-content',
+        )
+        category = main.admin_create_scene_category(
+            AdminSceneCategoryRequest(
+                categoryCode='family_daily',
+                name='家庭日常',
+                description='家庭英语场景',
+                status='active',
+                sortOrder=10,
+            ),
+            build_request(method='POST', path='/api/admin/scene-categories', headers=headers),
+        )['data']
+        collection = main.admin_create_scene_collection(
+            AdminSceneCollectionRequest(
+                collectionCode='breakfast',
+                name='早餐合集',
+                description='早餐专题',
+                status='active',
+                coverUrl='',
+                sortOrder=1,
+            ),
+            build_request(method='POST', path='/api/admin/scene-collections', headers=headers),
+        )['data']
+
+        result = main.admin_create_scene_generate_batch(
+            build_request(method='POST', path='/api/admin/tasks/scene-generate-batch', headers=headers),
+            AdminBatchSceneGenerateRequest.model_validate({
+                'items': [{'uploadId': upload['uploadId'], 'title': '厨房早餐'}],
+                'includeVerbs': True,
+                'autoPublish': True,
+                'categoryId': category['categoryId'],
+                'collectionIds': [collection['collectionId']],
+                'publishVisibility': 'public',
+            }),
+        )['data']['list']
+
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0]['requestSource'], 'admin_web_generator')
+        self.assertTrue(result[0]['autoPublish'])
+
+    def test_public_scene_filters_and_admin_republish(self):
+        headers = self._login_header()
+
+        category = main.admin_create_scene_category(
+            AdminSceneCategoryRequest(
+                categoryCode='family_daily',
+                name='家庭日常',
+                description='家庭英语场景',
+                status='active',
+                sortOrder=10,
+            ),
+            build_request(method='POST', path='/api/admin/scene-categories', headers=headers),
+        )['data']
+        collection = main.admin_create_scene_collection(
+            AdminSceneCollectionRequest(
+                collectionCode='breakfast',
+                name='早餐合集',
+                description='早餐专题',
+                status='active',
+                coverUrl='',
+                sortOrder=1,
+            ),
+            build_request(method='POST', path='/api/admin/scene-collections', headers=headers),
+        )['data']
+
+        published = main.admin_publish_generated_scene(
+            'scene_generated_admin_001',
+            AdminPublishGeneratedSceneRequest(
+                title='厨房早餐公开版',
+                categoryId=category['categoryId'],
+                collectionIds=[collection['collectionId']],
+                visibility='public',
+            ),
+            build_request(method='POST', path='/api/admin/generated-scenes/publish', headers=headers),
+        )['data']
+
+        categories = main.list_public_scene_categories(build_request(path='/api/scene-categories'))['data']['list']
+        collections = main.list_public_scene_collections(build_request(path='/api/scene-collections'))['data']['list']
+        filtered = main.list_scenes(
+            build_request(path='/api/scenes'),
+            type='public',
+            categoryId=category['categoryId'],
+            collectionId=collection['collectionId'],
+            page=1,
+            pageSize=20,
+        )['data']['list']
+
+        self.assertEqual(categories[0]['categoryId'], category['categoryId'])
+        self.assertEqual(collections[0]['collectionId'], collection['collectionId'])
+        self.assertEqual(len(filtered), 1)
+        self.assertEqual(filtered[0]['sceneId'], published['sceneId'])
+        self.assertEqual(filtered[0]['categoryId'], category['categoryId'])
+        self.assertEqual(filtered[0]['collectionIds'], [collection['collectionId']])
+
+        source_scene = main.generated_store.get_scene('scene_generated_admin_001')
+        main.generated_store.upsert_scene(source_scene | {
+            'title': '厨房早餐草稿 V2',
+            'items': [{'id': 'item_1'}, {'id': 'item_2'}],
+            'verbs': [{'id': 'verb_1'}, {'id': 'verb_2'}],
+        })
+
+        republished = main.admin_republish_public_scene(
+            published['sceneId'],
+            build_request(method='POST', path='/api/admin/public-scenes/republish', headers=headers),
+        )['data']
+
+        self.assertEqual(republished['sceneId'], published['sceneId'])
+        self.assertEqual(republished['title'], '厨房早餐公开版')
+        self.assertEqual(republished['itemCount'], 2)
+        self.assertEqual(republished['publication']['categoryId'], category['categoryId'])
 
 
 if __name__ == '__main__':

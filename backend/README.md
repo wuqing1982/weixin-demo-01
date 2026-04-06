@@ -73,8 +73,12 @@ python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 - `GET /api/orders`
 - `GET /api/orders/{orderId}`
 - `POST /api/orders/{orderId}/pay`
+- `POST /api/orders/{orderId}/payment-sync`
 - `POST /api/orders/{orderId}/mock-pay-success`
+- `POST /api/payments/wechat/notify`
 - `PAYMENT_MODE=mock` 时，小程序可直接走模拟支付成功并发放权益
+- `PAYMENT_MODE=wechat_pay` 时，后端会调用微信支付小程序下单接口并返回 `wx.requestPayment` 所需参数
+- 真实支付模式下，小程序支付成功后会调用 `POST /api/orders/{orderId}/payment-sync` 做一次查单同步
 
 现在已经支持 Admin 最小后台：
 
@@ -122,6 +126,16 @@ python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 - `AUTH_REFRESH_TOKEN_TTL_SECONDS`
 - `COMMERCE_STORE_BACKEND`
 - `PAYMENT_MODE`
+- `WECHAT_PAY_MCH_ID`
+- `WECHAT_PAY_API_V3_KEY`
+- `WECHAT_PAY_MCH_SERIAL_NO`
+- `WECHAT_PAY_MCH_PRIVATE_KEY_PATH`
+- `WECHAT_PAY_PLATFORM_CERT_PATH`
+- `WECHAT_PAY_PLATFORM_SERIAL_NO`
+- `WECHAT_PAY_NOTIFY_URL`
+- `WECHAT_PAY_API_BASE`
+- `WECHAT_PAY_CURRENCY`
+- `WECHAT_PAY_TIMEOUT_SECONDS`
 - `ADMIN_DASHBOARD_ENABLED`
 - `ADMIN_DASHBOARD_USERNAME`
 - `ADMIN_DASHBOARD_PASSWORD`
@@ -260,3 +274,40 @@ COMMERCE_STORE_BACKEND=postgres
 - `GET /api/me/membership`
 - `GET /api/me/credits`
 - `GET /api/me/entitlements`
+
+## 真实微信支付
+
+当前已经支持普通商户直连模式的第一版：
+
+- `POST /api/orders/{orderId}/pay`
+  - `PAYMENT_MODE=wechat_pay` 时，后端调用微信支付 `JSAPI/小程序下单`
+  - 返回小程序 `wx.requestPayment` 所需的 `timeStamp`、`nonceStr`、`package`、`signType`、`paySign`
+- `POST /api/orders/{orderId}/payment-sync`
+  - 小程序支付成功后调用
+  - 后端按 `out_trade_no` 查单
+  - 若支付成功，则更新订单、支付记录并发放权益
+- `POST /api/payments/wechat/notify`
+  - 用于接收微信支付回调
+  - 第一版要求配置平台证书文件，以完成回调验签和资源解密
+
+普通商户直连模式配置示例：
+
+```bash
+PAYMENT_MODE=wechat_pay
+WECHAT_PAY_MCH_ID=你的商户号
+WECHAT_PAY_API_V3_KEY=你的APIv3密钥
+WECHAT_PAY_MCH_SERIAL_NO=商户证书序列号
+WECHAT_PAY_MCH_PRIVATE_KEY_PATH=/www/wwwroot/e.cps.vin/weixin-demo-01/backend/certs/apiclient_key.pem
+WECHAT_PAY_PLATFORM_CERT_PATH=/www/wwwroot/e.cps.vin/weixin-demo-01/backend/certs/wechatpay_platform_cert.pem
+WECHAT_PAY_PLATFORM_SERIAL_NO=平台证书序列号
+WECHAT_PAY_NOTIFY_URL=https://e.cps.vin/api/payments/wechat/notify
+WECHAT_PAY_API_BASE=https://api.mch.weixin.qq.com
+WECHAT_PAY_CURRENCY=CNY
+WECHAT_PAY_TIMEOUT_SECONDS=10
+```
+
+说明：
+
+- `WECHAT_MP_APP_ID` 必须与支付商户绑定的小程序 `AppID` 一致
+- 小程序支付使用当前登录用户的真实 `openid`
+- 未补齐支付参数时，真实支付模式会返回配置错误，不会自动降级成 mock

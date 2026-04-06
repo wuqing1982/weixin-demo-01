@@ -8,6 +8,46 @@
   <view wx:elif="{{errorMessage}}" class="state-card">{{errorMessage}}</view>
 
   <view wx:else class="scene-list">
+    <view class="section-block">
+      <text class="section-heading">场景分类</text>
+      <scroll-view class="filter-scroll" scroll-x="true" enable-flex="true">
+        <view class="filter-row">
+          <view
+            class="filter-chip {{selectedCategoryId ? '' : 'filter-chip-active'}}"
+            bindtap="onSelectCategory"
+            data-category-id=""
+          >全部分类</view>
+          <view
+            wx:for="{{categories}}"
+            wx:key="categoryId"
+            class="filter-chip {{selectedCategoryId === item.categoryId ? 'filter-chip-active' : ''}}"
+            bindtap="onSelectCategory"
+            data-category-id="{{item.categoryId}}"
+          >{{item.name}}</view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <view class="section-block">
+      <text class="section-heading">场景合集</text>
+      <scroll-view class="filter-scroll" scroll-x="true" enable-flex="true">
+        <view class="filter-row">
+          <view
+            class="filter-chip {{selectedCollectionId ? '' : 'filter-chip-active'}}"
+            bindtap="onSelectCollection"
+            data-collection-id=""
+          >全部合集</view>
+          <view
+            wx:for="{{collections}}"
+            wx:key="collectionId"
+            class="filter-chip {{selectedCollectionId === item.collectionId ? 'filter-chip-active' : ''}}"
+            bindtap="onSelectCollection"
+            data-collection-id="{{item.collectionId}}"
+          >{{item.name}}</view>
+        </view>
+      </scroll-view>
+    </view>
+
     <view wx:if="{{myScenes.length}}" class="section-block">
       <text class="section-heading">我的生成场景</text>
       <view
@@ -27,19 +67,20 @@
 
     <view class="section-block">
       <text class="section-heading">公开场景</text>
-    <view
-      wx:for="{{scenes}}"
-      wx:key="sceneId"
-      class="scene-card card"
-      bindtap="onOpenScene"
-      data-scene-id="{{item.sceneId}}"
-    >
-      <image class="scene-cover" src="{{item.coverUrl}}" mode="aspectFill" />
-      <view class="scene-meta">
-        <text class="scene-title">{{item.title}}</text>
-        <text class="scene-desc">{{item.category}} · {{item.visibility}}</text>
+      <view wx:if="{{!scenes.length}}" class="state-card">当前筛选条件下还没有公开场景。</view>
+      <view
+        wx:for="{{scenes}}"
+        wx:key="sceneId"
+        class="scene-card card"
+        bindtap="onOpenScene"
+        data-scene-id="{{item.sceneId}}"
+      >
+        <image class="scene-cover" src="{{item.coverUrl}}" mode="aspectFill" />
+        <view class="scene-meta">
+          <text class="scene-title">{{item.title}}</text>
+          <text class="scene-desc">{{item.categoryName || item.category || '未分类'}} · {{item.visibility}}</text>
+        </view>
       </view>
-    </view>
     </view>
   </view>
 </view>

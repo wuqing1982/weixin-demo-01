@@ -2,3 +2,5 @@ fastapi>=0.110,<1
 uvicorn>=0.29,<1
 python-multipart>=0.0.9,<1
 psycopg[binary]>=3.2,<4
+requests>=2.31,<3
+cryptography>=42,<46

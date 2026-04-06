@@ -8,13 +8,19 @@ const state = {
   skus: [],
   orders: [],
   tasks: [],
+  categories: [],
+  collections: [],
+  generatedScenes: [],
   scenes: [],
   selectedUser: null,
   selectedOrder: null,
   selectedTask: null,
   editingProduct: null,
   editingSku: null,
-  editingScene: null
+  editingScene: null,
+  editingCategory: null,
+  editingCollection: null,
+  publishingDraft: null
 };
 
 const loginForm = document.getElementById('login-form');
@@ -66,6 +72,62 @@ async function api(path, options = {}) {
   return body.data;
 }
 
+async function uploadAdminImage(file, filename) {
+  const formData = new FormData();
+  formData.append('file', file, filename || file.name || 'upload.jpg');
+  const response = await fetch('/api/admin/uploads/image', {
+    method: 'POST',
+    headers: {
+      ...(state.token ? { Authorization: `Bearer ${state.token}` } : {})
+    },
+    body: formData
+  });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok || body.code !== 0) {
+    throw new Error(body.message || '图片上传失败');
+  }
+  return body.data;
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error('图片读取失败'));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function compressImageFile(file, maxEdge = 1600, quality = 0.82) {
+  const dataUrl = await readFileAsDataUrl(file);
+  const image = await new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('图片解码失败'));
+    img.src = dataUrl;
+  });
+  const longestEdge = Math.max(image.width, image.height) || 1;
+  const scale = longestEdge > maxEdge ? maxEdge / longestEdge : 1;
+  const targetWidth = Math.max(1, Math.round(image.width * scale));
+  const targetHeight = Math.max(1, Math.round(image.height * scale));
+  const canvas = document.createElement('canvas');
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
+  const context = canvas.getContext('2d');
+  context.drawImage(image, 0, 0, targetWidth, targetHeight);
+  const blob = await new Promise((resolve, reject) => {
+    canvas.toBlob((result) => {
+      if (!result) {
+        reject(new Error('图片压缩失败'));
+        return;
+      }
+      resolve(result);
+    }, 'image/jpeg', quality);
+  });
+  const safeName = String(file.name || 'upload.jpg').replace(/\.[^.]+$/, '') + '.jpg';
+  return new File([blob], safeName, { type: 'image/jpeg' });
+}
+
 function toast(message) {
   window.alert(message);
 }
@@ -77,6 +139,29 @@ function metricCard(label, value) {
       <div class="metric-value">${escapeHtml(value)}</div>
     </article>
   `;
+}
+
+function categoryOptions(selectedCategoryId = '') {
+  return state.categories.map((category) => `
+    <option value="${escapeHtml(category.categoryId)}" ${category.categoryId === selectedCategoryId ? 'selected' : ''}>${escapeHtml(category.name)}</option>
+  `).join('');
+}
+
+function collectionCheckboxes(selectedCollectionIds = []) {
+  const selected = new Set(selectedCollectionIds || []);
+  return state.collections.map((collection) => `
+    <label class="checkbox-chip">
+      <input type="checkbox" name="collectionIds" value="${escapeHtml(collection.collectionId)}" ${selected.has(collection.collectionId) ? 'checked' : ''}>
+      <span>${escapeHtml(collection.name)}</span>
+    </label>
+  `).join('');
+}
+
+function renderPublicationSummary(publication) {
+  if (!publication) {
+    return '<span class="meta-chip">未发布</span>';
+  }
+  return `<span class="meta-chip">已发布 · ${escapeHtml(publication.categoryName || publication.categoryId || '-')} · ${escapeHtml((publication.collectionIds || []).length)} 个合集</span>`;
 }
 
 function renderOverview() {
@@ -374,7 +459,7 @@ function renderScenes() {
   panelHead.innerHTML = `
     <div>
       <h3 class="panel-title">公共场景管理</h3>
-      <p class="panel-subtitle">支持新增和编辑公共场景元数据，便于内容运营。</p>
+      <p class="panel-subtitle">支持新增和编辑公共场景元数据；对有源草稿映射的公开场景，可直接覆盖发布最新生成结果。</p>
     </div>
     <span class="meta-chip">${state.scenes.length} 个场景</span>
   `;
@@ -409,12 +494,255 @@ function renderScenes() {
       ${state.scenes.map((item) => `
         <div class="table-row">
           <strong>${escapeHtml(item.title)}<br><small>${escapeHtml(item.sceneId)}</small></strong>
-          <span>${escapeHtml(item.category || '-')}</span>
+          <span>${escapeHtml((item.publication && (item.publication.categoryName || item.publication.categoryId)) || item.category || '-')}</span>
           <span>${escapeHtml(item.itemCount || 0)} / ${escapeHtml(item.verbCount || 0)}</span>
           <span>${escapeHtml(item.visibility || 'public')}</span>
-          <span class="action-group"><button class="mini-btn" data-action="scene-edit" data-id="${escapeHtml(item.sceneId)}">编辑</button></span>
+          <span class="action-group">
+            <button class="mini-btn" data-action="scene-edit" data-id="${escapeHtml(item.sceneId)}">编辑</button>
+            ${item.publication && item.publication.sourceGeneratedSceneId
+              ? `<button class="mini-btn success-btn" data-action="scene-republish" data-id="${escapeHtml(item.sceneId)}">覆盖发布</button>`
+              : ''}
+          </span>
         </div>
       `).join('')}
+    </div>
+  `;
+}
+
+function renderGenerator() {
+  const generatorTasks = state.tasks.filter((task) => task.requestSource === 'admin_web_generator');
+  panelHead.innerHTML = `
+    <div>
+      <h3 class="panel-title">Admin 场景生成器</h3>
+      <p class="panel-subtitle">浏览器端先压缩图片，再批量上传并创建异步任务。生成完成后可自动发布到公开场景库。</p>
+    </div>
+    <span class="meta-chip">${generatorTasks.length} 条生成任务</span>
+  `;
+
+  panelBody.innerHTML = `
+    <form id="generator-form" class="editor-card">
+      <div class="editor-title-row">
+        <h4>批量生成公开场景</h4>
+        <span class="meta-chip">多图 -> 多任务</span>
+      </div>
+      <div class="field-grid">
+        <label class="full"><span>选择图片</span><input name="files" type="file" accept="image/*" multiple required></label>
+        <label><span>主分类</span>
+          <select name="categoryId" required>
+            <option value="">请选择分类</option>
+            ${categoryOptions('')}
+          </select>
+        </label>
+        <label><span>公开可见性</span><input name="publishVisibility" value="public" required></label>
+        <label><span>生成动词</span><select name="includeVerbs"><option value="true" selected>生成</option><option value="false">不生成</option></select></label>
+        <label class="full"><span>合集</span><div class="checkbox-grid">${collectionCheckboxes([]) || '<span class="empty-copy">请先创建合集</span>'}</div></label>
+        <label class="full"><span>发布策略</span><div class="checkbox-grid"><label class="checkbox-chip"><input type="checkbox" name="autoPublish" checked><span>生成完成后自动发布到公开库</span></label></div></label>
+      </div>
+      <div class="form-actions">
+        <button class="primary-btn compact" type="submit">压缩上传并开始批量生成</button>
+      </div>
+    </form>
+
+    <div class="table">
+      <div class="table-head">
+        <strong>任务</strong>
+        <span>状态</span>
+        <span>进度</span>
+        <span>生成场景</span>
+        <span>公开场景</span>
+      </div>
+      ${generatorTasks.map((task) => `
+        <div class="table-row">
+          <strong>${escapeHtml(task.title || task.uploadId || task.taskId)}<br><small>${escapeHtml(task.taskId)}</small></strong>
+          <span>${escapeHtml(task.status)}</span>
+          <span>${escapeHtml(task.progress || 0)}% · ${escapeHtml(task.step || '-')}</span>
+          <span>${escapeHtml(task.sceneId || '-')}</span>
+          <span>${escapeHtml(task.publishedSceneId || '-')}</span>
+        </div>
+      `).join('') || '<div class="empty-copy">暂无 admin 生成任务</div>'}
+    </div>
+  `;
+}
+
+function renderTaxonomy() {
+  const category = state.editingCategory || {};
+  const collection = state.editingCollection || {};
+  panelHead.innerHTML = `
+    <div>
+      <h3 class="panel-title">场景分类与合集</h3>
+      <p class="panel-subtitle">分类单选，合集多选。这里负责运营基础数据，不直接发布场景。</p>
+    </div>
+    <span class="meta-chip">${state.categories.length} 个分类 / ${state.collections.length} 个合集</span>
+  `;
+
+  panelBody.innerHTML = `
+    <div class="editor-grid">
+      <form id="category-form" class="editor-card">
+        <div class="editor-title-row">
+          <h4>${category.categoryId ? '编辑分类' : '新建分类'}</h4>
+          ${category.categoryId ? '<button type="button" class="mini-btn" data-action="category-cancel-edit">取消</button>' : ''}
+        </div>
+        <div class="field-grid">
+          <label><span>分类编码</span><input name="categoryCode" value="${escapeHtml(category.categoryCode || '')}" required></label>
+          <label><span>分类名称</span><input name="name" value="${escapeHtml(category.name || '')}" required></label>
+          <label><span>状态</span><input name="status" value="${escapeHtml(category.status || 'active')}" required></label>
+          <label><span>排序</span><input name="sortOrder" value="${escapeHtml(category.sortOrder || 0)}" required></label>
+          <label class="full"><span>描述</span><textarea name="description">${escapeHtml(category.description || '')}</textarea></label>
+        </div>
+        <div class="form-actions">
+          <button class="primary-btn compact" type="submit">${category.categoryId ? '保存分类' : '创建分类'}</button>
+        </div>
+      </form>
+
+      <form id="collection-form" class="editor-card">
+        <div class="editor-title-row">
+          <h4>${collection.collectionId ? '编辑合集' : '新建合集'}</h4>
+          ${collection.collectionId ? '<button type="button" class="mini-btn" data-action="collection-cancel-edit">取消</button>' : ''}
+        </div>
+        <div class="field-grid">
+          <label><span>合集编码</span><input name="collectionCode" value="${escapeHtml(collection.collectionCode || '')}" required></label>
+          <label><span>合集名称</span><input name="name" value="${escapeHtml(collection.name || '')}" required></label>
+          <label><span>状态</span><input name="status" value="${escapeHtml(collection.status || 'active')}" required></label>
+          <label><span>排序</span><input name="sortOrder" value="${escapeHtml(collection.sortOrder || 0)}" required></label>
+          <label class="full"><span>封面地址</span><input name="coverUrl" value="${escapeHtml(collection.coverUrl || '')}"></label>
+          <label class="full"><span>描述</span><textarea name="description">${escapeHtml(collection.description || '')}</textarea></label>
+        </div>
+        <div class="form-actions">
+          <button class="primary-btn compact" type="submit">${collection.collectionId ? '保存合集' : '创建合集'}</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="stack">
+      <article class="detail-card">
+        <div class="editor-title-row">
+          <h4>分类列表</h4>
+          <span class="meta-chip">${state.categories.length} 个</span>
+        </div>
+        <div class="table">
+          <div class="table-head">
+            <strong>分类</strong>
+            <span>编码</span>
+            <span>状态</span>
+            <span>操作</span>
+          </div>
+          ${state.categories.map((item) => `
+            <div class="table-row">
+              <strong>${escapeHtml(item.name)}<br><small>${escapeHtml(item.description || '')}</small></strong>
+              <span>${escapeHtml(item.categoryCode)}</span>
+              <span>${escapeHtml(item.status)}</span>
+              <span class="action-group">
+                <button class="mini-btn" data-action="category-edit" data-id="${escapeHtml(item.categoryId)}">编辑</button>
+                <button class="mini-btn danger-btn" data-action="category-delete" data-id="${escapeHtml(item.categoryId)}">删除</button>
+              </span>
+            </div>
+          `).join('') || '<div class="empty-copy">暂无分类</div>'}
+        </div>
+      </article>
+
+      <article class="detail-card">
+        <div class="editor-title-row">
+          <h4>合集列表</h4>
+          <span class="meta-chip">${state.collections.length} 个</span>
+        </div>
+        <div class="table">
+          <div class="table-head">
+            <strong>合集</strong>
+            <span>编码</span>
+            <span>状态</span>
+            <span>操作</span>
+          </div>
+          ${state.collections.map((item) => `
+            <div class="table-row">
+              <strong>${escapeHtml(item.name)}<br><small>${escapeHtml(item.description || '')}</small></strong>
+              <span>${escapeHtml(item.collectionCode)}</span>
+              <span>${escapeHtml(item.status)}</span>
+              <span class="action-group">
+                <button class="mini-btn" data-action="collection-edit" data-id="${escapeHtml(item.collectionId)}">编辑</button>
+                <button class="mini-btn danger-btn" data-action="collection-delete" data-id="${escapeHtml(item.collectionId)}">删除</button>
+              </span>
+            </div>
+          `).join('') || '<div class="empty-copy">暂无合集</div>'}
+        </div>
+      </article>
+    </div>
+  `;
+}
+
+function renderDrafts() {
+  const draft = state.publishingDraft || state.generatedScenes[0] || null;
+  const publication = draft && draft.publication ? draft.publication : null;
+  panelHead.innerHTML = `
+    <div>
+      <h3 class="panel-title">草稿发布到公开库</h3>
+      <p class="panel-subtitle">Admin 复用当前拍照生成链路，先生成私有草稿，再在这里选分类和合集后发布。</p>
+    </div>
+    <span class="meta-chip">${state.generatedScenes.length} 个草稿</span>
+  `;
+
+  panelBody.innerHTML = `
+    ${draft ? `
+      <div class="editor-grid">
+        <article class="detail-card">
+          <div class="detail-head">
+            <div>
+              <h4>${escapeHtml(draft.title)}</h4>
+              <p>${escapeHtml(draft.sceneId)} · ${escapeHtml(draft.ownerId || '-')}</p>
+            </div>
+            ${renderPublicationSummary(publication)}
+          </div>
+          <div class="detail-grid">
+            <div><span>热点数</span><strong>${escapeHtml(draft.itemCount || 0)}</strong></div>
+            <div><span>动词数</span><strong>${escapeHtml(draft.verbCount || 0)}</strong></div>
+            <div><span>可见性</span><strong>${escapeHtml(draft.visibility || 'private')}</strong></div>
+            <div><span>分类</span><strong>${escapeHtml(publication && (publication.categoryName || publication.categoryId) || '-')}</strong></div>
+          </div>
+        </article>
+
+        <form id="publish-form" class="editor-card">
+          <div class="editor-title-row">
+            <h4>${publication ? '更新公开版本' : '发布到公开库'}</h4>
+          </div>
+          <input type="hidden" name="sceneId" value="${escapeHtml(draft.sceneId)}">
+          <div class="field-grid">
+            <label class="full"><span>公开标题</span><input name="title" value="${escapeHtml((publication && draft.title) || draft.title || '')}" required></label>
+            <label><span>公开可见性</span><input name="visibility" value="${escapeHtml((publication && publication.visibility) || 'public')}" required></label>
+            <label><span>主分类</span>
+              <select name="categoryId" required>
+                <option value="">请选择分类</option>
+                ${categoryOptions(publication ? publication.categoryId : '')}
+              </select>
+            </label>
+            <label class="full"><span>合集</span>
+              <div class="checkbox-grid">
+                ${collectionCheckboxes(publication ? publication.collectionIds : []) || '<span class="empty-copy">请先创建合集</span>'}
+              </div>
+            </label>
+          </div>
+          <div class="form-actions">
+            <button class="primary-btn compact" type="submit">${publication ? '更新发布' : '发布场景'}</button>
+          </div>
+        </form>
+      </div>
+    ` : '<div class="empty-copy">暂无可发布草稿</div>'}
+
+    <div class="table">
+      <div class="table-head">
+        <strong>草稿场景</strong>
+        <span>归属用户</span>
+        <span>发布状态</span>
+        <span>操作</span>
+      </div>
+      ${state.generatedScenes.map((item) => `
+        <div class="table-row">
+          <strong>${escapeHtml(item.title)}<br><small>${escapeHtml(item.sceneId)}</small></strong>
+          <span>${escapeHtml(item.ownerId || '-')}</span>
+          <span>${item.publication ? '已发布' : '未发布'}</span>
+          <span class="action-group">
+            <button class="mini-btn" data-action="draft-publish" data-id="${escapeHtml(item.sceneId)}">${item.publication ? '重新发布' : '去发布'}</button>
+          </span>
+        </div>
+      `).join('') || '<div class="empty-copy">暂无草稿</div>'}
     </div>
   `;
 }
@@ -436,6 +764,18 @@ function renderCurrentView() {
     renderTasks();
     return;
   }
+  if (state.currentView === 'generator') {
+    renderGenerator();
+    return;
+  }
+  if (state.currentView === 'taxonomy') {
+    renderTaxonomy();
+    return;
+  }
+  if (state.currentView === 'drafts') {
+    renderDrafts();
+    return;
+  }
   if (state.currentView === 'scenes') {
     renderScenes();
     return;
@@ -444,7 +784,7 @@ function renderCurrentView() {
 }
 
 async function loadConsole() {
-  const [admin, overview, users, products, skus, orders, tasks, scenes] = await Promise.all([
+  const [admin, overview, users, products, skus, orders, tasks, categories, collections, drafts, scenes] = await Promise.all([
     api('/api/admin/auth/me'),
     api('/api/admin/overview'),
     api('/api/admin/users'),
@@ -452,6 +792,9 @@ async function loadConsole() {
     api('/api/admin/skus'),
     api('/api/admin/orders'),
     api('/api/admin/tasks'),
+    api('/api/admin/scene-categories'),
+    api('/api/admin/scene-collections'),
+    api('/api/admin/generated-scenes'),
     api('/api/admin/public-scenes')
   ]);
 
@@ -462,7 +805,11 @@ async function loadConsole() {
   state.skus = skus.list || [];
   state.orders = orders.list || [];
   state.tasks = tasks.list || [];
+  state.categories = categories.list || [];
+  state.collections = collections.list || [];
+  state.generatedScenes = drafts.list || [];
   state.scenes = scenes.list || [];
+  state.publishingDraft = state.generatedScenes.find((item) => item.sceneId === (state.publishingDraft && state.publishingDraft.sceneId)) || null;
   renderOverview();
   renderCurrentView();
 }
@@ -547,6 +894,96 @@ async function submitSceneForm(form) {
   await loadConsole();
 }
 
+async function submitCategoryForm(form) {
+  const payload = {
+    categoryCode: form.categoryCode.value.trim(),
+    name: form.name.value.trim(),
+    description: form.description.value.trim(),
+    status: form.status.value.trim() || 'active',
+    sortOrder: Number(form.sortOrder.value || 0)
+  };
+  if (state.editingCategory && state.editingCategory.categoryId) {
+    await api(`/api/admin/scene-categories/${state.editingCategory.categoryId}`, { method: 'PUT', body: payload });
+    toast('分类已更新');
+  } else {
+    await api('/api/admin/scene-categories', { method: 'POST', body: payload });
+    toast('分类已创建');
+  }
+  state.editingCategory = null;
+  await loadConsole();
+}
+
+async function submitCollectionForm(form) {
+  const payload = {
+    collectionCode: form.collectionCode.value.trim(),
+    name: form.name.value.trim(),
+    description: form.description.value.trim(),
+    status: form.status.value.trim() || 'active',
+    coverUrl: form.coverUrl.value.trim(),
+    sortOrder: Number(form.sortOrder.value || 0)
+  };
+  if (state.editingCollection && state.editingCollection.collectionId) {
+    await api(`/api/admin/scene-collections/${state.editingCollection.collectionId}`, { method: 'PUT', body: payload });
+    toast('合集已更新');
+  } else {
+    await api('/api/admin/scene-collections', { method: 'POST', body: payload });
+    toast('合集已创建');
+  }
+  state.editingCollection = null;
+  await loadConsole();
+}
+
+async function submitPublishForm(form) {
+  const collectionIds = Array.from(form.querySelectorAll('input[name="collectionIds"]:checked')).map((input) => input.value);
+  const sceneId = form.sceneId.value.trim();
+  const payload = {
+    title: form.title.value.trim(),
+    visibility: form.visibility.value.trim() || 'public',
+    categoryId: form.categoryId.value,
+    collectionIds
+  };
+  await api(`/api/admin/generated-scenes/${sceneId}/publish`, { method: 'POST', body: payload });
+  toast('草稿已发布到公开库');
+  await loadConsole();
+}
+
+async function submitGeneratorForm(form) {
+  const files = Array.from(form.files.files || []);
+  if (!files.length) {
+    throw new Error('请先选择至少一张图片');
+  }
+  const categoryId = form.categoryId.value;
+  const collectionIds = Array.from(form.querySelectorAll('input[name="collectionIds"]:checked')).map((input) => input.value);
+  const includeVerbs = form.includeVerbs.value === 'true';
+  const autoPublish = !!form.autoPublish.checked;
+  const publishVisibility = form.publishVisibility.value.trim() || 'public';
+
+  const items = [];
+  for (const file of files) {
+    const compressed = await compressImageFile(file);
+    const upload = await uploadAdminImage(compressed, compressed.name);
+    items.push({
+      uploadId: upload.uploadId,
+      title: ''
+    });
+  }
+
+  const result = await api('/api/admin/tasks/scene-generate-batch', {
+    method: 'POST',
+    body: {
+      items,
+      includeVerbs,
+      autoPublish,
+      categoryId,
+      collectionIds,
+      publishVisibility
+    }
+  });
+  toast(`已创建 ${result.list.length} 条生成任务`);
+  form.reset();
+  await loadConsole();
+}
+
 async function handleAction(action, id) {
   if (action === 'user-detail') {
     state.selectedUser = await api(`/api/admin/users/${id}`);
@@ -575,6 +1012,43 @@ async function handleAction(action, id) {
     await api(`/api/admin/users/${id}/revoke-admin`, { method: 'POST' });
     await loadConsole();
     toast('用户已降为普通用户');
+    return;
+  }
+  if (action === 'category-edit') {
+    state.editingCategory = state.categories.find((item) => item.categoryId === id) || null;
+    renderCurrentView();
+    return;
+  }
+  if (action === 'category-cancel-edit') {
+    state.editingCategory = null;
+    renderCurrentView();
+    return;
+  }
+  if (action === 'category-delete') {
+    await api(`/api/admin/scene-categories/${id}`, { method: 'DELETE' });
+    await loadConsole();
+    toast('分类已删除');
+    return;
+  }
+  if (action === 'collection-edit') {
+    state.editingCollection = state.collections.find((item) => item.collectionId === id) || null;
+    renderCurrentView();
+    return;
+  }
+  if (action === 'collection-cancel-edit') {
+    state.editingCollection = null;
+    renderCurrentView();
+    return;
+  }
+  if (action === 'collection-delete') {
+    await api(`/api/admin/scene-collections/${id}`, { method: 'DELETE' });
+    await loadConsole();
+    toast('合集已删除');
+    return;
+  }
+  if (action === 'draft-publish') {
+    state.publishingDraft = state.generatedScenes.find((item) => item.sceneId === id) || null;
+    renderCurrentView();
     return;
   }
   if (action === 'product-edit') {
@@ -630,6 +1104,12 @@ async function handleAction(action, id) {
     renderCurrentView();
     return;
   }
+  if (action === 'scene-republish') {
+    await api(`/api/admin/public-scenes/${id}/republish`, { method: 'POST' });
+    await loadConsole();
+    toast('公开场景已按源草稿重新覆盖发布');
+    return;
+  }
   if (action === 'scene-cancel-edit') {
     state.editingScene = null;
     renderCurrentView();
@@ -649,6 +1129,22 @@ panelBody.addEventListener('submit', async (event) => {
     }
     if (event.target.id === 'scene-form') {
       await submitSceneForm(event.target);
+      return;
+    }
+    if (event.target.id === 'category-form') {
+      await submitCategoryForm(event.target);
+      return;
+    }
+    if (event.target.id === 'collection-form') {
+      await submitCollectionForm(event.target);
+      return;
+    }
+    if (event.target.id === 'publish-form') {
+      await submitPublishForm(event.target);
+      return;
+    }
+    if (event.target.id === 'generator-form') {
+      await submitGeneratorForm(event.target);
     }
   } catch (error) {
     toast(error.message || '提交失败');
@@ -694,6 +1190,9 @@ logoutBtn.addEventListener('click', () => {
   state.skus = [];
   state.orders = [];
   state.tasks = [];
+  state.categories = [];
+  state.collections = [];
+  state.generatedScenes = [];
   state.scenes = [];
   state.selectedUser = null;
   state.selectedOrder = null;
@@ -701,6 +1200,9 @@ logoutBtn.addEventListener('click', () => {
   state.editingProduct = null;
   state.editingSku = null;
   state.editingScene = null;
+  state.editingCategory = null;
+  state.editingCollection = null;
+  state.publishingDraft = null;
 });
 
 refreshBtn.addEventListener('click', async () => {
