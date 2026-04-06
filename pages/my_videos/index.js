@@ -24,12 +24,12 @@ Page({
       const data = await getMyVideoExports();
       const list = (data.list || []).map(item => {
         if (item.videoUrl && !item.videoUrl.startsWith('http')) {
-          const { apiBaseUrl } = getConfig();
-          item.videoUrl = apiBaseUrl + item.videoUrl;
+          const { staticBaseUrl } = getConfig();
+          item.videoUrl = staticBaseUrl + item.videoUrl;
         }
         if (item.coverUrl && !item.coverUrl.startsWith('http')) {
-          const { apiBaseUrl } = getConfig();
-          item.coverUrl = apiBaseUrl + item.coverUrl;
+          const { staticBaseUrl } = getConfig();
+          item.coverUrl = staticBaseUrl + item.coverUrl;
         }
         return item;
       });
