@@ -4,13 +4,13 @@ Scene video generator using FFmpeg.
 Generates learning videos from panoramic scene images with:
 - Per-hotspot highlight overlay (glow effect via drawbox)
 - Info panel (word, IPA, meaning, sentence, translation)
+- Auto-wrapping long sentences to fit video width
 - Synchronized TTS audio playback
 - Segment concatenation into final MP4
 
-Adapted from core-video-export architecture.
+Output is always 720x1280 (portrait phone screen) regardless of source image size.
 """
 
-import json
 import logging
 import os
 import shutil
@@ -22,6 +22,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Callable, Optional
 
+from PIL import ImageFont
+
 logger = logging.getLogger('video_generator')
 
 FFMPEG_PATH = os.getenv('FFMPEG_PATH', 'ffmpeg')
@@ -29,6 +31,10 @@ FFPROBE_PATH = os.getenv('FFPROBE_PATH', 'ffprobe')
 
 CHINESE_FONT = '/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf'
 ENGLISH_FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
+
+# Fixed output resolution (portrait phone screen)
+VIDEO_W = 720
+VIDEO_H = 1280
 
 
 def _get_image_size(image_path: str) -> tuple[int, int]:
@@ -86,7 +92,6 @@ def _build_highlight_filter(x: int, y: int, w: int, h: int,
 def _escape_text(text: str) -> str:
     if not text:
         return ''
-    # Order matters: backslash first, then everything else
     t = text.replace('\\', '\\\\')
     t = t.replace("'", "\\'")
     t = t.replace(':', '\\:')
@@ -99,52 +104,166 @@ def _escape_text(text: str) -> str:
     return t
 
 
-def _build_panel_filter(img_w: int, img_h: int, item: dict) -> str:
-    panel_height = 260
-    panel_y = img_h - panel_height
-    pad = 12
+def _measure_text_width(text: str, font_path: str, font_size: int) -> int:
+    """Measure rendered text width in pixels using PIL."""
+    try:
+        font = ImageFont.truetype(font_path, font_size)
+        return int(font.getlength(text))
+    except Exception:
+        return len(text) * font_size
 
+
+def _wrap_text(text: str, font_path: str, font_size: int, max_width: int) -> list[str]:
+    """Wrap text into multiple lines that fit within max_width pixels."""
+    if not text:
+        return []
+    full_width = _measure_text_width(text, font_path, font_size)
+    if full_width <= max_width:
+        return [text]
+
+    # Try splitting at word boundaries (for English)
+    if any(c.isascii() and c.isalpha() for c in text):
+        words = text.split(' ')
+        lines = []
+        current = ''
+        for word in words:
+            test = f'{current} {word}'.strip() if current else word
+            if _measure_text_width(test, font_path, font_size) <= max_width:
+                current = test
+            else:
+                if current:
+                    lines.append(current)
+                current = word
+        if current:
+            lines.append(current)
+        return lines if lines else [text]
+
+    # For Chinese / other CJK: split into individual chars and group
+    lines = []
+    current = ''
+    for char in text:
+        test = current + char
+        if _measure_text_width(test, font_path, font_size) <= max_width:
+            current = test
+        else:
+            if current:
+                lines.append(current)
+            current = char
+    if current:
+        lines.append(current)
+    return lines if lines else [text]
+
+
+def _write_text_file(text: str, filepath: str) -> str:
+    """Write text to a temp file for FFmpeg textfile parameter (avoids encoding issues)."""
+    with open(filepath, 'w', encoding='utf-8') as f:
+        f.write(text)
+    return filepath
+
+
+def _build_panel_filter(tmp_dir: Path, img_w: int, img_h: int, item: dict) -> tuple[str, int]:
+    """
+    Build the info panel filter chain. Returns (filter_string, panel_height).
+    Uses textfile for Chinese text to avoid shell encoding issues.
+    Font sizes are proportional to img_w (720 at standard).
+    """
+    pad = int(img_w * 0.035)
+    usable_w = img_w - pad * 2
+
+    # Scale font sizes relative to standard 720px width
+    scale = img_w / 720.0
+    font_word = int(60 * scale)
+    font_ipa = int(36 * scale)
+    font_meaning = int(42 * scale)
+    font_sentence = int(38 * scale)
+    font_translation = int(36 * scale)
+
+    line_spacing_word = int(font_word * 1.05)
+    line_spacing = int(font_sentence * 1.25)
+
+    word = item.get('word', '')
+    ipa = item.get('ipa', '')
+    meaning = item.get('meaning', '')
+    sentence = item.get('sentence', '')
+    translation = item.get('sentenceTranslation', '') or item.get('sentence_translation', '')
+
+    # Wrap long texts
+    sentence_lines = _wrap_text(sentence, ENGLISH_FONT, font_sentence, usable_w) if sentence else []
+    translation_lines = _wrap_text(translation, CHINESE_FONT, font_translation, usable_w) if translation else []
+
+    # Calculate total panel height
+    total_height = pad
+    total_height += line_spacing_word  # word line
+    if ipa:
+        total_height += int(font_ipa * 1.2)  # ipa line
+    if meaning:
+        total_height += int(font_meaning * 1.3)  # meaning line
+    total_height += len(sentence_lines) * line_spacing
+    total_height += len(translation_lines) * line_spacing
+    total_height += pad  # bottom padding
+
+    panel_height = total_height
+    panel_y = img_h - panel_height
+
+    # Background boxes (layered transparency)
     bg = (
-        f'drawbox=x={pad}:y={panel_y+pad}:w={img_w-pad*2}:h={panel_height-pad*2}:color=black@0.22:t=fill,'
-        f'drawbox=x={pad}:y={panel_y+pad+43}:w={img_w-pad*2}:h={panel_height-pad*2-43}:color=black@0.27:t=fill,'
-        f'drawbox=x={pad}:y={panel_y+pad+86}:w={img_w-pad*2}:h={panel_height-pad*2-86}:color=black@0.32:t=fill,'
-        f'drawbox=x={pad}:y={panel_y+pad}:w={img_w-pad*2}:h={panel_height-pad*2}:color=white@0.18:t=1'
+        f'drawbox=x={pad}:y={panel_y}:w={usable_w}:h={panel_height}:color=black@0.55:t=fill,'
+        f'drawbox=x={pad}:y={panel_y}:w={usable_w}:h={panel_height}:color=white@0.10:t=1'
     )
 
+    text_parts = []
     ty = panel_y + pad
-    word = _escape_text(item.get('word', ''))
-    ipa = _escape_text(item.get('ipa', ''))
-    meaning = _escape_text(item.get('meaning', ''))
-    sentence = _escape_text(item.get('sentence', ''))
-    translation = _escape_text(item.get('sentenceTranslation', '')
-                               or item.get('sentence_translation', ''))
 
-    text_parts = [
-        f"drawtext=text='{word}':fontfile='{ENGLISH_FONT}'"
-        f':fontcolor=white:fontsize=66:x=(w-tw)/2:y={ty}',
-    ]
+    # Word (English)
+    tf_path = str(tmp_dir / 'panel_word.txt')
+    _write_text_file(word, tf_path)
+    text_parts.append(
+        f"drawtext=textfile='{tf_path}':fontfile='{ENGLISH_FONT}'"
+        f':fontcolor=white:fontsize={font_word}:x=(w-tw)/2:y={ty}'
+    )
+    ty += line_spacing_word
+
+    # IPA
     if ipa:
+        tf_path = str(tmp_dir / 'panel_ipa.txt')
+        _write_text_file(ipa, tf_path)
         text_parts.append(
-            f"drawtext=text='{ipa}':fontfile='{ENGLISH_FONT}'"
-            f':fontcolor=white@0.72:fontsize=40:x=(w-tw)/2:y={ty+65}'
+            f"drawtext=textfile='{tf_path}':fontfile='{ENGLISH_FONT}'"
+            f':fontcolor=white@0.72:fontsize={font_ipa}:x=(w-tw)/2:y={ty}'
         )
-    if meaning:
-        text_parts.append(
-            f"drawtext=text='{meaning}':fontfile='{CHINESE_FONT}'"
-            f':fontcolor=#ffd93d:fontsize=45:x=(w-tw)/2:y={ty+105}'
-        )
-    if sentence:
-        text_parts.append(
-            f"drawtext=text='{sentence}':fontfile='{ENGLISH_FONT}'"
-            f':fontcolor=white:fontsize=50:x=(w-tw)/2:y={ty+150}'
-        )
-    if translation:
-        text_parts.append(
-            f"drawtext=text='{translation}':fontfile='{CHINESE_FONT}'"
-            f':fontcolor=#ffd93d:fontsize=45:x=(w-tw)/2:y={ty+200}'
-        )
+        ty += int(font_ipa * 1.2)
 
-    return bg + ',' + ','.join(text_parts)
+    # Meaning (Chinese)
+    if meaning:
+        tf_path = str(tmp_dir / 'panel_meaning.txt')
+        _write_text_file(meaning, tf_path)
+        text_parts.append(
+            f"drawtext=textfile='{tf_path}':fontfile='{CHINESE_FONT}'"
+            f':fontcolor=#ffd93d:fontsize={font_meaning}:x=(w-tw)/2:y={ty}'
+        )
+        ty += int(font_meaning * 1.3)
+
+    # Sentence (English, potentially multi-line)
+    for i, line in enumerate(sentence_lines):
+        tf_path = str(tmp_dir / f'panel_sent_{i}.txt')
+        _write_text_file(line, tf_path)
+        text_parts.append(
+            f"drawtext=textfile='{tf_path}':fontfile='{ENGLISH_FONT}'"
+            f':fontcolor=white:fontsize={font_sentence}:x=(w-tw)/2:y={ty}'
+        )
+        ty += line_spacing
+
+    # Translation (Chinese, potentially multi-line)
+    for i, line in enumerate(translation_lines):
+        tf_path = str(tmp_dir / f'panel_trans_{i}.txt')
+        _write_text_file(line, tf_path)
+        text_parts.append(
+            f"drawtext=textfile='{tf_path}':fontfile='{CHINESE_FONT}'"
+            f':fontcolor=#ffd93d:fontsize={font_translation}:x=(w-tw)/2:y={ty}'
+        )
+        ty += line_spacing
+
+    return bg + ',' + ','.join(text_parts), panel_height
 
 
 def _to_pixel_rect(rect: dict, img_w: int, img_h: int) -> tuple[int, int, int, int]:
@@ -163,8 +282,8 @@ def _run_ffmpeg(cmd: list[str]) -> None:
 
 
 def _generate_move_segment(image_path: str, output_path: str,
-                           duration: float, width: int, height: int) -> None:
-    sw, sh = _ensure_even(width, height)
+                           duration: float) -> None:
+    sw, sh = _ensure_even(VIDEO_W, VIDEO_H)
     cmd = [
         FFMPEG_PATH, '-y',
         '-loop', '1', '-i', str(image_path),
@@ -173,30 +292,31 @@ def _generate_move_segment(image_path: str, output_path: str,
         '-c:v', 'libx264', '-tune', 'stillimage',
         '-c:a', 'aac', '-b:a', '192k',
         '-pix_fmt', 'yuv420p',
-        '-vf', f'scale={sw}:{sh}',
+        '-vf', f'scale={sw}:{sh}:force_original_aspect_ratio=decrease,pad={sw}:{sh}:(ow-iw)/2:(oh-ih)/2:color=black',
         '-shortest',
         str(output_path),
     ]
     _run_ffmpeg(cmd)
 
 
-def _generate_display_segment(image_path: str, audio_path: str,
-                              output_path: str, item: dict,
-                              width: int, height: int) -> None:
-    sw, sh = _ensure_even(width, height)
+def _generate_display_segment(tmp_dir: Path, image_path: str, audio_path: str,
+                              output_path: str, item: dict) -> None:
+    sw, sh = _ensure_even(VIDEO_W, VIDEO_H)
     rect = item.get('rect')
     if rect:
-        x, y, w, h = _to_pixel_rect(rect, width, height)
-        highlight = _build_highlight_filter(x, y, w, h, width, height)
+        x, y, w, h = _to_pixel_rect(rect, VIDEO_W, VIDEO_H)
+        highlight = _build_highlight_filter(x, y, w, h, VIDEO_W, VIDEO_H)
     else:
         highlight = ''
 
-    panel = _build_panel_filter(width, height, item)
+    panel, _ = _build_panel_filter(tmp_dir, VIDEO_W, VIDEO_H, item)
+
+    scale_filter = f'scale={sw}:{sh}:force_original_aspect_ratio=decrease,pad={sw}:{sh}:(ow-iw)/2:(oh-ih)/2:color=black'
 
     if highlight:
-        vf = f'scale={sw}:{sh},{highlight},{panel}'
+        vf = f'{scale_filter},{highlight},{panel}'
     else:
-        vf = f'scale={sw}:{sh},{panel}'
+        vf = f'{scale_filter},{panel}'
 
     cmd = [
         FFMPEG_PATH, '-y',
@@ -259,7 +379,6 @@ def generate_scene_video(
 
     # 1. Resolve background image
     bg_rel = scene.get('backgroundPath', '')
-    # Strip /assets/ prefix since assets_root already points to the assets dir
     if bg_rel.startswith('/assets/'):
         bg_rel = bg_rel[len('/assets/'):]
     bg_path = assets_root / bg_rel.lstrip('/') if bg_rel else None
@@ -267,8 +386,7 @@ def generate_scene_video(
         raise FileNotFoundError(f'Background image not found: {bg_path}')
     _progress(5, '读取场景图片...')
 
-    img_w, img_h = _get_image_size(str(bg_path))
-    _progress(10, f'图片尺寸: {img_w}x{img_h}')
+    _progress(10, f'输出尺寸: {VIDEO_W}x{VIDEO_H}')
 
     # 2. Collect items with audio
     items = scene.get('items', [])
@@ -307,18 +425,22 @@ def generate_scene_video(
             base_pct = 15 + int(idx / total * 65)
             word = item.get('word', f'item-{idx}')
 
+            # Per-item temp dir for text files
+            item_tmp = tmp_dir / f'item_{idx:03d}'
+            item_tmp.mkdir(exist_ok=True)
+
             # Move segment (short pause between items)
             if idx > 0:
                 _progress(base_pct, f'移动片段 {idx+1}/{total}')
                 move_out = str(tmp_dir / f'move_{idx:03d}.mp4')
-                _generate_move_segment(str(bg_path), move_out, 0.3, img_w, img_h)
+                _generate_move_segment(str(bg_path), move_out, 0.3)
                 segments.append(move_out)
 
             # Display segment (highlight + panel + audio)
             _progress(base_pct + 3, f'展示 {idx+1}/{total}: {word}')
             display_out = str(tmp_dir / f'display_{idx:03d}.mp4')
             _generate_display_segment(
-                str(bg_path), str(audio_path), display_out, item, img_w, img_h
+                item_tmp, str(bg_path), str(audio_path), display_out, item
             )
             segments.append(display_out)
 
