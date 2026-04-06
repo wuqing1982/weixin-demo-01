@@ -1940,6 +1940,144 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260406074416_b50e98",
+      "title": "客厅",
+      "category": "existing",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260406074416_b50e98/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260406074416_b50e98/background.jpg",
+      "items": [
+        {
+          "id": "television",
+          "word": "television",
+          "ipa": "/ˈtelɪvɪʒən/",
+          "meaning": "电视",
+          "sentence": "The television is on the stand.",
+          "sentenceTranslation": "电视在柜子上。",
+          "audioPath": "/assets/generated/scene_user_20260406074416_b50e98/scene_user_20260406074416_b50e98_en-US-JennyNeural_US_female_television_the_television_is_on_the_stand.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 30.0,
+            "w": 20.0,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "chair",
+          "word": "chair",
+          "ipa": "/tʃeər/",
+          "meaning": "椅子",
+          "sentence": "I like to sit in this chair.",
+          "sentenceTranslation": "我喜欢坐在这把椅子上。",
+          "audioPath": "/assets/generated/scene_user_20260406074416_b50e98/scene_user_20260406074416_b50e98_en-US-JennyNeural_US_female_chair_i_like_to_sit_in_this.mp3",
+          "rect": {
+            "l": 80.0,
+            "t": 60.0,
+            "w": 15.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "table",
+          "word": "table",
+          "ipa": "/ˈteɪbl/",
+          "meaning": "桌子",
+          "sentence": "Put your books on the table.",
+          "sentenceTranslation": "把书放在桌子上。",
+          "audioPath": "/assets/generated/scene_user_20260406074416_b50e98/scene_user_20260406074416_b50e98_en-US-JennyNeural_US_female_table_put_your_books_on_the_table.mp3",
+          "rect": {
+            "l": 90.0,
+            "t": 70.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "remote_control",
+          "word": "remote control",
+          "ipa": "/ˈrɛmət ˈkɒntroʊl/",
+          "meaning": "遥控器",
+          "sentence": "Use the remote control to turn on the TV.",
+          "sentenceTranslation": "用遥控器打开电视。",
+          "audioPath": "/assets/generated/scene_user_20260406074416_b50e98/scene_user_20260406074416_b50e98_en-US-JennyNeural_US_female_remote_control_use_the_remote_control_to_turn.mp3",
+          "rect": {
+            "l": 45.0,
+            "t": 35.0,
+            "w": 5.0,
+            "h": 5.0
+          }
+        },
+        {
+          "id": "book",
+          "word": "book",
+          "ipa": "/bʊk/",
+          "meaning": "书",
+          "sentence": "Read a book while sitting in the chair.",
+          "sentenceTranslation": "坐在椅子上看书。",
+          "audioPath": "/assets/generated/scene_user_20260406074416_b50e98/scene_user_20260406074416_b50e98_en-US-JennyNeural_US_female_book_read_a_book_while_sitting_in.mp3",
+          "rect": {
+            "l": 85.0,
+            "t": 65.0,
+            "w": 5.0,
+            "h": 5.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "watch",
+          "word": "watch",
+          "ipa": "/wɒtʃ/",
+          "meaning": "观看",
+          "sentence": "Let's watch a movie on the television.",
+          "sentenceTranslation": "我们看电视上看一部电影吧。",
+          "audioPath": "/assets/generated/scene_user_20260406074416_b50e98/scene_user_20260406074416_b50e98_en-US-JennyNeural_US_female_watch_lets_watch_a_movie_on_the.mp3",
+          "relatedItem": "television"
+        },
+        {
+          "id": "sit",
+          "word": "sit",
+          "ipa": "/sɪt/",
+          "meaning": "坐下",
+          "sentence": "Sit down and relax in the chair.",
+          "sentenceTranslation": "坐下来放松一下。",
+          "audioPath": "/assets/generated/scene_user_20260406074416_b50e98/scene_user_20260406074416_b50e98_en-US-JennyNeural_US_female_sit_sit_down_and_relax_in_the.mp3",
+          "relatedItem": "chair"
+        },
+        {
+          "id": "read",
+          "word": "read",
+          "ipa": "/riːd/",
+          "meaning": "阅读",
+          "sentence": "Read a story from the book.",
+          "sentenceTranslation": "从书中读一个故事。",
+          "audioPath": "/assets/generated/scene_user_20260406074416_b50e98/scene_user_20260406074416_b50e98_en-US-JennyNeural_US_female_read_read_a_story_from_the_book.mp3",
+          "relatedItem": "book"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260405145017_f25208",
+        "uploadId": "upload_20260406074415_90015e",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260406074416_b50e98",
+        "core100SceneTitle": "客厅",
+        "recommendedCategory": "existing",
+        "tags": [
+          "家庭",
+          "居住空间",
+          "休闲"
+        ],
+        "version": 1
+      }
     }
   ]
 }

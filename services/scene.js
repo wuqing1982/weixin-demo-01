@@ -48,6 +48,19 @@ function getTtsUrl(text) {
   return `${apiBaseUrl}/tts?text=${encodeURIComponent(text)}`;
 }
 
+function startVideoExport(sceneId) {
+  return request({
+    url: `/scenes/${sceneId}/export-video`,
+    method: 'POST'
+  });
+}
+
+function getVideoExportStatus(jobId) {
+  return request({
+    url: `/video-exports/${jobId}`
+  });
+}
+
 module.exports = {
   getSceneList,
   getSceneDetail,
@@ -55,5 +68,7 @@ module.exports = {
   getSceneCategories,
   getSceneCollections,
   saveSceneHotspots,
-  getTtsUrl
+  getTtsUrl,
+  startVideoExport,
+  getVideoExportStatus
 };

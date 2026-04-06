@@ -1,4 +1,4 @@
-const { saveSceneHotspots } = require('../../services/scene');
+const { saveSceneHotspots, startVideoExport, getVideoExportStatus } = require('../../services/scene');
 const {
   normalizeEditorRect,
   applyMoveDelta,
@@ -368,11 +368,164 @@ function createScenePage(sceneData) {
     },
 
     onExportVideo() {
+      if (this.data.editorMode) {
+        this.showEditorToast();
+        return;
+      }
+
+      const sceneId = this.data.sceneId;
+      if (!sceneId) {
+        wx.showToast({ title: '场景信息缺失', icon: 'none' });
+        return;
+      }
+
+      if (this._exporting) {
+        wx.showToast({ title: '正在导出中...', icon: 'none' });
+        return;
+      }
+
       wx.showModal({
-        title: '🎬 导出视频',
-        content: '视频导出功能开发中...\n\n将支持：\n• 场景学习记录导出\n• 带配音的视频生成\n• 分享到朋友圈',
-        showCancel: false,
-        confirmText: '知道了'
+        title: '导出学习视频',
+        content: '将为此场景生成带热点标注和配音的学习视频，确定导出吗？',
+        success: (res) => {
+          if (!res.confirm) return;
+          this._doExportVideo(sceneId);
+        }
+      });
+    },
+
+    async _doExportVideo(sceneId) {
+      this._exporting = true;
+      wx.showLoading({ title: '提交导出任务...', mask: true });
+
+      try {
+        const data = await startVideoExport(sceneId);
+        const jobId = data.jobId;
+        wx.hideLoading();
+
+        if (!jobId) {
+          this._exporting = false;
+          wx.showToast({ title: '导出任务创建失败', icon: 'none' });
+          return;
+        }
+
+        // Show progress dialog
+        this._exportJobId = jobId;
+        this.setData({
+          exportProgress: 0,
+          exportMessage: '准备中...',
+          exportJobId: jobId
+        });
+
+        this._showExportProgressDialog();
+
+        // Poll for status (don't clear _exporting here - poll handles it)
+        this._pollExportStatus(jobId);
+      } catch (err) {
+        wx.hideLoading();
+        this._exporting = false;
+        const msg = (err && (err.message || err.errMsg)) || '导出失败';
+        wx.showModal({
+          title: '导出失败',
+          content: String(msg),
+          showCancel: false
+        });
+      }
+    },
+
+    _showExportProgressDialog() {
+      wx.showLoading({
+        title: '导出中 0%',
+        mask: true
+      });
+    },
+
+    async _pollExportStatus(jobId) {
+      let retries = 0;
+      const maxRetries = 120; // 2 minutes max at 1s interval
+
+      const poll = async () => {
+        try {
+          const data = await getVideoExportStatus(jobId);
+          const progress = data.progress || 0;
+          const message = data.message || '';
+          const status = data.status || '';
+
+          if (status === 'completed') {
+            wx.hideLoading();
+            this._exporting = false;
+            const videoUrl = data.videoUrl || '';
+            if (videoUrl) {
+              wx.showModal({
+                title: '导出完成',
+                content: '视频已生成，可以保存到相册或分享给好友。',
+                confirmText: '查看视频',
+                cancelText: '关闭',
+                success: (res) => {
+                  if (res.confirm && videoUrl) {
+                    this._previewExportVideo(videoUrl);
+                  }
+                }
+              });
+            } else {
+              wx.showToast({ title: '导出完成', icon: 'success' });
+            }
+            return;
+          }
+
+          if (status === 'failed') {
+            wx.hideLoading();
+            this._exporting = false;
+            wx.showModal({
+              title: '导出失败',
+              content: message || '视频生成过程中出错',
+              showCancel: false
+            });
+            return;
+          }
+
+          // Still processing - update loading title
+          wx.showLoading({
+            title: `导出中 ${progress}%`,
+            mask: true
+          });
+
+          retries++;
+          if (retries < maxRetries) {
+            setTimeout(poll, 1000);
+          } else {
+            wx.hideLoading();
+            this._exporting = false;
+            wx.showToast({ title: '导出超时，请稍后重试', icon: 'none', duration: 3000 });
+          }
+        } catch (err) {
+          retries++;
+          if (retries < maxRetries) {
+            setTimeout(poll, 2000);
+          } else {
+            wx.hideLoading();
+            this._exporting = false;
+            wx.showToast({ title: '查询状态失败', icon: 'none' });
+          }
+        }
+      };
+
+      // Start polling after 1 second
+      setTimeout(poll, 1000);
+    },
+
+    _previewExportVideo(videoUrl) {
+      const { apiBaseUrl } = require('../../services/config').getConfig();
+      const fullUrl = videoUrl.startsWith('http')
+        ? videoUrl
+        : `${apiBaseUrl}${videoUrl.startsWith('/') ? '' : '/'}${videoUrl}`;
+
+      wx.previewMedia({
+        sources: [{
+          url: fullUrl,
+          type: 'video'
+        }],
+        current: 0
       });
     },
 

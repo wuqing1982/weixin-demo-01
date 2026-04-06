@@ -89,6 +89,12 @@ from .task_store import TaskStore
 from .upload_store import UploadStore
 from .wechat_auth import WechatCode2SessionError, WechatMiniProgramAuthClient
 from .wechat_pay import WechatPayClient, build_wechat_pay_config
+from .video_generator import (
+    create_export_job,
+    get_export_job,
+    init_video_export,
+    start_export,
+)
 from .worker_runner import InlineSceneWorker
 
 
@@ -144,6 +150,7 @@ async def lifespan(application: FastAPI):
     )
     if ENABLE_INLINE_SCENE_WORKER:
         scene_worker.start()
+    init_video_export(ASSETS_DIR / 'video_exports')
     yield
     scene_worker.stop()
     logger.info('English Scene API stopped')
@@ -1986,3 +1993,69 @@ def get_scene_generate_task(request: Request, task_id: str):
         'publishedSceneId': task.get('publishedSceneId', ''),
         'errorMessage': task.get('errorMessage', '')
     })
+
+
+# ---------------------------------------------------------------------------
+# Video export
+# ---------------------------------------------------------------------------
+
+VIDEO_EXPORTS_DIR = ASSETS_DIR / 'video_exports'
+
+
+@app.post('/api/scenes/{scene_id}/export-video')
+def export_scene_video(scene_id: str, request: Request):
+    user = get_request_user(request, allow_debug=True, fallback_default=True)
+    if not user:
+        raise HTTPException(status_code=401, detail={'code': 4001, 'message': 'login required'})
+
+    scene = public_store.get_scene(scene_id)
+    if not scene:
+        scene = generated_store.get_scene(scene_id)
+
+    if not scene:
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'scene not found'})
+
+    items_with_audio = [i for i in scene.get('items', []) if i.get('audioPath')]
+    if not items_with_audio:
+        raise HTTPException(
+            status_code=400,
+            detail={'code': 4100, 'message': 'scene has no items with audio to export'}
+        )
+
+    job = create_export_job(scene_id, user.get('id', ''))
+
+    start_export(job['jobId'], scene, ASSETS_DIR)
+
+    return success({
+        'jobId': job['jobId'],
+        'status': job['status'],
+        'message': '视频导出已开始'
+    })
+
+
+@app.get('/api/video-exports/{job_id}')
+def get_video_export_status(job_id: str, request: Request):
+    user = get_request_user(request, allow_debug=True, fallback_default=True)
+    job = get_export_job(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'export job not found'})
+
+    # Verify ownership
+    if user and job.get('userId') and job['userId'] != user.get('id', ''):
+        raise HTTPException(status_code=403, detail={'code': 4003, 'message': 'access denied'})
+
+    result = {
+        'jobId': job['jobId'],
+        'sceneId': job['sceneId'],
+        'status': job['status'],
+        'progress': job['progress'],
+        'message': job['message'],
+        'createdAt': job['createdAt'],
+        'completedAt': job.get('completedAt', ''),
+    }
+
+    if job['status'] == 'completed' and job.get('outputPath'):
+        filename = Path(job['outputPath']).name
+        result['videoUrl'] = f'/assets/video_exports/{filename}'
+
+    return success(result)
