@@ -61,6 +61,10 @@ function getVideoExportStatus(jobId) {
   });
 }
 
+function getMyVideoExports() {
+  return request({ url: '/me/video-exports' });
+}
+
 module.exports = {
   getSceneList,
   getSceneDetail,
@@ -70,5 +74,6 @@ module.exports = {
   saveSceneHotspots,
   getTtsUrl,
   startVideoExport,
-  getVideoExportStatus
+  getVideoExportStatus,
+  getMyVideoExports
 };

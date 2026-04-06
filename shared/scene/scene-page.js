@@ -485,6 +485,7 @@ function createScenePage(sceneData) {
           }
 
           // Still processing - update loading title
+          wx.hideLoading();
           wx.showLoading({
             title: `导出中 ${progress}%`,
             mask: true
@@ -515,10 +516,10 @@ function createScenePage(sceneData) {
     },
 
     _previewExportVideo(videoUrl) {
-      const { apiBaseUrl } = require('../../services/config').getConfig();
+      const { staticBaseUrl } = require('../../services/config').getConfig();
       const fullUrl = videoUrl.startsWith('http')
         ? videoUrl
-        : `${apiBaseUrl}${videoUrl.startsWith('/') ? '' : '/'}${videoUrl}`;
+        : `${staticBaseUrl}${videoUrl.startsWith('/') ? '' : '/'}${videoUrl}`;
 
       wx.previewMedia({
         sources: [{

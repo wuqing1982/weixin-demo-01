@@ -3,6 +3,7 @@ import logging
 from contextlib import asynccontextmanager
 from decimal import Decimal
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, Query, Request, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
@@ -93,6 +94,7 @@ from .wechat_pay import WechatPayClient, build_wechat_pay_config
 from .video_generator import (
     create_export_job,
     get_export_job,
+    get_user_export_jobs,
     init_video_export,
     start_export,
 )
@@ -2060,3 +2062,34 @@ def get_video_export_status(job_id: str, request: Request):
         result['videoUrl'] = f'/assets/video_exports/{filename}'
 
     return success(result)
+
+
+@app.get('/api/me/video-exports')
+def list_my_video_exports(request: Request):
+    user_id = get_current_user_id(request)
+    jobs = get_user_export_jobs(user_id)
+    result = []
+    for job in jobs:
+        video_url = ''
+        if job.get('outputPath'):
+            filename = Path(job['outputPath']).name
+            video_url = f'/assets/video_exports/{filename}'
+        scene = public_store.get_scene(job['sceneId'])
+        if not scene:
+            scene = generated_store.get_scene(job['sceneId'])
+        cover_url = ''
+        if scene:
+            bg = scene.get('backgroundPath', '')
+            if bg and not bg.startswith('http'):
+                cover_url = f'{PUBLIC_BASE_URL}{bg}'
+            elif bg:
+                cover_url = bg
+        result.append({
+            'jobId': job['jobId'],
+            'sceneId': job['sceneId'],
+            'videoUrl': video_url,
+            'coverUrl': cover_url,
+            'sceneTitle': (scene or {}).get('title', ''),
+            'completedAt': job.get('completedAt', ''),
+        })
+    return success({'list': result, 'total': len(result)})

@@ -42,6 +42,12 @@ Page({
         title: '直接打开早餐场景',
         desc: '跳过列表，直接验证场景详情接口和图片音频加载。',
         url: '/pages/scene_runtime/index?sceneId=scene_breakfast'
+      },
+      {
+        id: 'videos',
+        title: '我的导出视频',
+        desc: '查看已导出的学习视频，点击即可播放。',
+        url: '/pages/my_videos/index'
       }
     ]
   },

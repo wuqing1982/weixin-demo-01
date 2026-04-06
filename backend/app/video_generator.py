@@ -373,6 +373,17 @@ def get_export_job(job_id: str) -> Optional[dict]:
         return dict(_jobs[job_id]) if job_id in _jobs else None
 
 
+def get_user_export_jobs(user_id: str) -> list[dict]:
+    """Return completed export jobs for a user, sorted newest first."""
+    with _jobs_lock:
+        jobs = [
+            dict(job) for job in _jobs.values()
+            if job.get('userId') == user_id and job.get('status') == 'completed'
+        ]
+    jobs.sort(key=lambda j: j.get('completedAt', ''), reverse=True)
+    return jobs
+
+
 def _update_job(job_id: str, **kwargs) -> None:
     with _jobs_lock:
         if job_id in _jobs:
