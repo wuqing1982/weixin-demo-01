@@ -112,6 +112,14 @@
         "type": "file"
       },
       {
+        "value": "q.jpg",
+        "type": "file"
+      },
+      {
+        "value": "CLAUDE.md",
+        "type": "file"
+      },
+      {
         "value": "project.private.config.json",
         "type": "file"
       }

@@ -1664,6 +1664,144 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260406064858_66aad6",
+      "title": "办公桌",
+      "category": "existing",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260406064858_66aad6/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260406064858_66aad6/background.jpg",
+      "items": [
+        {
+          "id": "bottle",
+          "word": "bottle",
+          "ipa": "/ˈboʊtl/",
+          "meaning": "瓶子",
+          "sentence": "Look at the bottle on the desk.",
+          "sentenceTranslation": "看桌子上的瓶子。",
+          "audioPath": "/assets/generated/scene_user_20260406064858_66aad6/scene_user_20260406064858_66aad6_en-US-JennyNeural_US_female_bottle_look_at_the_bottle_on_the.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 25.0,
+            "w": 30.0,
+            "h": 40.0
+          }
+        },
+        {
+          "id": "book",
+          "word": "book",
+          "ipa": "/bʊk/",
+          "meaning": "书",
+          "sentence": "There is a book next to the bottle.",
+          "sentenceTranslation": "瓶子的旁边有一本书。",
+          "audioPath": "/assets/generated/scene_user_20260406064858_66aad6/scene_user_20260406064858_66aad6_en-US-JennyNeural_US_female_book_there_is_a_book_next_to.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 50.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "bowl",
+          "word": "bowl",
+          "ipa": "/boʊl/",
+          "meaning": "碗",
+          "sentence": "The bowl is empty.",
+          "sentenceTranslation": "这个碗是空的。",
+          "audioPath": "/assets/generated/scene_user_20260406064858_66aad6/scene_user_20260406064858_66aad6_en-US-JennyNeural_US_female_bowl_the_bowl_is_empty.mp3",
+          "rect": {
+            "l": 60.0,
+            "t": 55.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "tissue",
+          "word": "tissue",
+          "ipa": "/ˈtɪʃuː/",
+          "meaning": "纸巾",
+          "sentence": "A tissue is on the desk.",
+          "sentenceTranslation": "桌子上有一张纸巾。",
+          "audioPath": "/assets/generated/scene_user_20260406064858_66aad6/scene_user_20260406064858_66aad6_en-US-JennyNeural_US_female_tissue_a_tissue_is_on_the_desk.mp3",
+          "rect": {
+            "l": 70.0,
+            "t": 75.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "keyboard",
+          "word": "keyboard",
+          "ipa": "/ˈkiːbɔːrduː/",
+          "meaning": "键盘",
+          "sentence": "The keyboard is in front of the monitor.",
+          "sentenceTranslation": "键盘在显示器前面。",
+          "audioPath": "/assets/generated/scene_user_20260406064858_66aad6/scene_user_20260406064858_66aad6_en-US-JennyNeural_US_female_keyboard_the_keyboard_is_in_front_of.mp3",
+          "rect": {
+            "l": 80.0,
+            "t": 85.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "drink",
+          "word": "drink",
+          "ipa": "/drɪŋk/",
+          "meaning": "喝",
+          "sentence": "He drinks water from the bottle.",
+          "sentenceTranslation": "他喝了瓶子里的水。",
+          "audioPath": "/assets/generated/scene_user_20260406064858_66aad6/scene_user_20260406064858_66aad6_en-US-JennyNeural_US_female_drink_he_drinks_water_from_the_bottle.mp3",
+          "relatedItem": "bottle"
+        },
+        {
+          "id": "read",
+          "word": "read",
+          "ipa": "/riːd/",
+          "meaning": "读",
+          "sentence": "She reads a book.",
+          "sentenceTranslation": "她正在读书。",
+          "audioPath": "/assets/generated/scene_user_20260406064858_66aad6/scene_user_20260406064858_66aad6_en-US-JennyNeural_US_female_read_she_reads_a_book.mp3",
+          "relatedItem": "book"
+        },
+        {
+          "id": "eat",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "They are eating food from the bowl.",
+          "sentenceTranslation": "他们从碗里吃东西。",
+          "audioPath": "/assets/generated/scene_user_20260406064858_66aad6/scene_user_20260406064858_66aad6_en-US-JennyNeural_US_female_eat_they_are_eating_food_from_the.mp3",
+          "relatedItem": "bowl"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260405145017_f25208",
+        "uploadId": "upload_20260406064856_668563",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260406064858_66aad6",
+        "core100SceneTitle": "办公桌",
+        "recommendedCategory": "existing",
+        "tags": [
+          "工作",
+          "办公室",
+          "桌面"
+        ],
+        "version": 1
+      }
     }
   ]
 }
