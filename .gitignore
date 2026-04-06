@@ -3,3 +3,8 @@ __pycache__/
 .codex/
 .env
 *.env
+
+# User-generated assets (images, audio, uploads)
+assets/generated/
+assets/uploads/
+assets/audio/
