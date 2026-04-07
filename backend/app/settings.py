@@ -52,7 +52,6 @@ REPO_ROOT = BACKEND_ROOT.parent
 ASSETS_DIR = REPO_ROOT / 'assets'
 DATA_DIR = BACKEND_ROOT / 'data'
 ADMIN_WEB_DIR = BACKEND_ROOT / 'admin_web'
-CORE100_ROOT = Path(os.getenv('CORE100_ROOT', str(REPO_ROOT.parent / 'core100')))
 PUBLIC_SCENES_FILE = DATA_DIR / 'scenes.json'
 GENERATED_SCENES_FILE = DATA_DIR / 'generated_scenes.json'
 TASKS_FILE = DATA_DIR / 'tasks.json'
@@ -102,6 +101,8 @@ ADMIN_DASHBOARD_PASSWORD = (os.getenv('ADMIN_DASHBOARD_PASSWORD', 'admin123456')
 # --- Security-hardened settings ---
 CORS_ALLOWED_ORIGINS = [o.strip() for o in os.getenv('CORS_ALLOWED_ORIGINS', 'https://e.cps.vin').split(',') if o.strip()]
 MAX_UPLOAD_SIZE_BYTES = int(os.getenv('MAX_UPLOAD_SIZE_BYTES', str(10 * 1024 * 1024)))
+FREE_SCENE_IDS = _normalize_csv_set(os.getenv('FREE_SCENE_IDS', 'scene_breakfast,scene_zoo'))
+VIDEO_RETENTION_HOURS = int(os.getenv('VIDEO_RETENTION_HOURS', '3'))
 
 
 def check_security_warnings() -> list[str]:

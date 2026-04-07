@@ -18,7 +18,7 @@ import subprocess
 import tempfile
 import threading
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Callable, Optional
 
@@ -465,6 +465,10 @@ _jobs: dict[str, dict] = {}
 _jobs_lock = threading.Lock()
 _output_dir: Optional[Path] = None
 
+# Concurrency control: limit simultaneous FFmpeg processes
+_MAX_CONCURRENT_EXPORTS = int(os.getenv('VIDEO_EXPORT_MAX_CONCURRENT', '2'))
+_export_semaphore = threading.Semaphore(_MAX_CONCURRENT_EXPORTS)
+
 
 def init_video_export(output_dir: Path) -> None:
     global _output_dir
@@ -506,6 +510,17 @@ def get_user_export_jobs(user_id: str) -> list[dict]:
     return jobs
 
 
+def has_active_export(scene_id: str, user_id: str) -> Optional[str]:
+    """Check if user already has an active export for this scene. Returns job_id or None."""
+    with _jobs_lock:
+        for job_id, job in _jobs.items():
+            if (job.get('sceneId') == scene_id
+                    and job.get('userId') == user_id
+                    and job.get('status') in ('pending', 'processing')):
+                return job_id
+    return None
+
+
 def _update_job(job_id: str, **kwargs) -> None:
     with _jobs_lock:
         if job_id in _jobs:
@@ -513,6 +528,10 @@ def _update_job(job_id: str, **kwargs) -> None:
 
 
 def _run_export(job_id: str, scene: dict, assets_root: Path) -> None:
+    acquired = _export_semaphore.acquire(timeout=600)
+    if not acquired:
+        _update_job(job_id, status='failed', message='导出排队超时，请稍后重试')
+        return
     try:
         _update_job(job_id, status='processing', message='开始生成视频...')
         out = _output_dir / f'{job_id}.mp4'
@@ -540,6 +559,8 @@ def _run_export(job_id: str, scene: dict, assets_root: Path) -> None:
             message=str(exc),
             completedAt=datetime.now(timezone.utc).isoformat(),
         )
+    finally:
+        _export_semaphore.release()
 
 
 def start_export(job_id: str, scene: dict, assets_root: Path) -> None:
@@ -550,3 +571,47 @@ def start_export(job_id: str, scene: dict, assets_root: Path) -> None:
         name=f'video-export-{job_id}',
     )
     thread.start()
+
+
+# ---------------------------------------------------------------------------
+# Video cleanup (delete expired exports)
+# ---------------------------------------------------------------------------
+
+_cleanup_stop = threading.Event()
+
+
+def start_video_cleanup(output_dir: Path, retention_hours: int, interval_seconds: int = 300) -> None:
+    """Start background thread that deletes video files older than retention_hours."""
+    def _cleanup_loop():
+        while not _cleanup_stop.wait(interval_seconds):
+            try:
+                cutoff = datetime.now(timezone.utc) - timedelta(hours=retention_hours)
+                with _jobs_lock:
+                    to_remove = []
+                    for job_id, job in _jobs.items():
+                        if job.get('status') != 'completed':
+                            continue
+                        completed = job.get('completedAt', '')
+                        if not completed:
+                            continue
+                        try:
+                            completed_dt = datetime.fromisoformat(completed.replace('Z', '+00:00'))
+                            if completed_dt < cutoff:
+                                to_remove.append(job_id)
+                        except (ValueError, TypeError):
+                            continue
+                    for job_id in to_remove:
+                        job = _jobs.pop(job_id)
+                        path = job.get('outputPath', '')
+                        if path:
+                            Path(path).unlink(missing_ok=True)
+                        logger.info('Cleaned up expired video: %s', job_id)
+            except Exception as exc:
+                logger.error('Video cleanup error: %s', exc)
+
+    thread = threading.Thread(target=_cleanup_loop, daemon=True, name='video-cleanup')
+    thread.start()
+
+
+def stop_video_cleanup() -> None:
+    _cleanup_stop.set()

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 兼容版 JSON 修复工具。
 
@@ -7,6 +6,8 @@
 {
   "a": 1,
 }
+
+Migrated from backend/app/core100_compat/json_repair.py.
 """
 
 import json

@@ -53,11 +53,11 @@ from .settings import (
     AUTH_STORE_BACKEND,
     AUTH_WECHAT_LOGIN_MODE,
     CORE100_MODEL,
-    CORE100_ROOT,
     CORE100_TTS_URL,
     CORS_ALLOWED_ORIGINS,
     DEFAULT_MOCK_USER_ID,
     ENABLE_INLINE_SCENE_WORKER,
+    FREE_SCENE_IDS,
     GENERATED_DIR,
     GENERATED_SCENES_FILE,
     HOTSPOT_EDITOR_ADMIN_USER_IDS,
@@ -68,6 +68,7 @@ from .settings import (
     PAYMENT_MODE,
     PUBLIC_BASE_URL,
     PUBLIC_SCENES_FILE,
+    VIDEO_RETENTION_HOURS,
     TASKS_FILE,
     UPLOADS_DIR,
     UPLOADS_FILE,
@@ -95,10 +96,14 @@ from .video_generator import (
     create_export_job,
     get_export_job,
     get_user_export_jobs,
+    has_active_export,
     init_video_export,
     start_export,
+    start_video_cleanup,
+    stop_video_cleanup,
 )
 from .worker_runner import InlineSceneWorker
+from . import access_control
 
 
 auth_store = create_auth_store()
@@ -126,7 +131,6 @@ scene_worker = InlineSceneWorker(
     upload_store=upload_store,
     generated_scene_store=generated_store,
     generated_root=GENERATED_DIR,
-    core100_root=CORE100_ROOT,
     tts_url=CORE100_TTS_URL,
     model=CORE100_MODEL,
     public_scene_store=public_store,
@@ -154,7 +158,9 @@ async def lifespan(application: FastAPI):
     if ENABLE_INLINE_SCENE_WORKER:
         scene_worker.start()
     init_video_export(ASSETS_DIR / 'video_exports')
+    start_video_cleanup(ASSETS_DIR / 'video_exports', VIDEO_RETENTION_HOURS)
     yield
+    stop_video_cleanup()
     scene_worker.stop()
     logger.info('English Scene API stopped')
 
@@ -412,6 +418,7 @@ def serialize_me(_: Request, user: dict) -> dict:
         'mobileVerified': bool(user.get('mobileVerified')),
         'memberSummary': membership_summary,
         'creditSummary': credit_summary,
+        'freeSceneIds': list(FREE_SCENE_IDS),
     }
 
 
@@ -1677,6 +1684,16 @@ def list_scenes(
             category_id=categoryId,
             collection_id=collectionId,
         )
+
+    # Filter scenes for free (non-member) users
+    try:
+        user = get_request_user(request, allow_debug=True, fallback_default=True)
+        user_id = user.get('id', '') if user else ''
+        if user_id and commerce_store and not access_control.is_member_active(commerce_store, user_id):
+            scenes = access_control.filter_scenes_for_free_user(scenes)
+    except Exception:
+        pass
+
     total = len(scenes)
     start = (page - 1) * pageSize
     end = start + pageSize
@@ -1720,6 +1737,17 @@ def get_scene(scene_id: str, request: Request):
                 'message': 'scene not found'
             }
         )
+
+    # Access control: check membership for public scenes
+    if scene.get('sceneType') == 'public':
+        try:
+            user = get_request_user(request, allow_debug=True, fallback_default=True)
+            user_id = user.get('id', '') if user else ''
+            access_control.check_scene_access(scene_id, user_id, commerce_store)
+        except HTTPException:
+            raise
+        except Exception:
+            pass
 
     return success(serialize_scene_detail(request, scene))
 
@@ -1895,6 +1923,16 @@ async def admin_upload_image(request: Request, file: UploadFile = File(...)):
 @app.post('/api/my/tasks/scene-generate')
 def create_scene_generate_task(request: Request, payload: SceneGenerateRequest):
     owner_id = get_current_user_id(request)
+
+    # Check membership + credit balance, then deduct
+    if commerce_store:
+        try:
+            access_control.check_scene_generate_permission(owner_id, commerce_store)
+        except HTTPException:
+            raise
+        except Exception:
+            pass
+
     upload = upload_store.get_upload(payload.uploadId)
     if not upload:
         raise HTTPException(
@@ -1918,6 +1956,14 @@ def create_scene_generate_task(request: Request, payload: SceneGenerateRequest):
         owner_id=owner_id,
         payload=payload.model_dump(),
     )
+
+    # Deduct credit after task is created
+    if commerce_store:
+        try:
+            access_control.deduct_scene_credit(owner_id, commerce_store, task['taskId'])
+        except (HTTPException, ValueError):
+            pass  # Task created; credit deduction best-effort
+
     return success({
         'taskId': task['taskId'],
         'status': task['status']
@@ -2006,10 +2052,15 @@ VIDEO_EXPORTS_DIR = ASSETS_DIR / 'video_exports'
 
 
 @app.post('/api/scenes/{scene_id}/export-video')
+@limiter.limit('3/minute')
 def export_scene_video(scene_id: str, request: Request):
     user = get_request_user(request, allow_debug=True, fallback_default=True)
     if not user:
         raise HTTPException(status_code=401, detail={'code': 4001, 'message': 'login required'})
+
+    # Check video export permission (creator card or master card)
+    if commerce_store:
+        access_control.check_video_export_permission(user.get('id', ''), commerce_store)
 
     scene = public_store.get_scene(scene_id)
     if not scene:
@@ -2024,6 +2075,15 @@ def export_scene_video(scene_id: str, request: Request):
             status_code=400,
             detail={'code': 4100, 'message': 'scene has no items with audio to export'}
         )
+
+    # Deduplicate: if same user already exporting this scene, return existing job
+    existing_job_id = has_active_export(scene_id, user.get('id', ''))
+    if existing_job_id:
+        return success({
+            'jobId': existing_job_id,
+            'status': 'processing',
+            'message': '该场景正在导出中，请等待完成'
+        })
 
     job = create_export_job(scene_id, user.get('id', ''))
 
@@ -2070,8 +2130,17 @@ def list_my_video_exports(request: Request):
     jobs = get_user_export_jobs(user_id)
     result = []
     for job in jobs:
+        is_expired = False
         video_url = ''
-        if job.get('outputPath'):
+        completed_at = job.get('completedAt', '')
+        if completed_at:
+            try:
+                from datetime import datetime as _dt, timezone as _tz, timedelta as _td
+                elapsed = _dt.now(_tz.utc) - _dt.fromisoformat(completed_at.replace('Z', '+00:00'))
+                is_expired = elapsed > _td(hours=VIDEO_RETENTION_HOURS)
+            except Exception:
+                pass
+        if job.get('outputPath') and not is_expired:
             filename = Path(job['outputPath']).name
             video_url = f'/assets/video_exports/{filename}'
         scene = public_store.get_scene(job['sceneId'])
@@ -2088,8 +2157,9 @@ def list_my_video_exports(request: Request):
             'jobId': job['jobId'],
             'sceneId': job['sceneId'],
             'videoUrl': video_url,
+            'isExpired': is_expired,
             'coverUrl': cover_url,
             'sceneTitle': (scene or {}).get('title', ''),
-            'completedAt': job.get('completedAt', ''),
+            'completedAt': completed_at,
         })
     return success({'list': result, 'total': len(result)})

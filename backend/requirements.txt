@@ -5,3 +5,7 @@ psycopg[binary]>=3.2,<4
 requests>=2.31,<3
 cryptography>=42,<46
 slowapi>=0.1.9
+zhipuai>=2.0.0
+pillow>=9.0.0
+pydub>=0.25.0
+audioop-lts>=0.2.1;python_version>="3.13"

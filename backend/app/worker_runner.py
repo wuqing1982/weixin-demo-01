@@ -1,8 +1,6 @@
-import importlib
 import json
 import re
 import shutil
-import sys
 import tempfile
 from pathlib import Path
 from threading import Event, Thread
@@ -10,6 +8,9 @@ from threading import Event, Thread
 from .generated_scene_store import GeneratedSceneStore
 from .scene_publication import publish_generated_scene_to_public
 from .scene_adapter import build_generated_scene_from_core_result
+from .scene_worker.analyze_scene import analyze_scene_with_glm4v
+from .scene_worker.generate_audio import generate_scene_audio
+from .scene_worker.scene_assets import build_audio_filename
 from .store_utils import build_object_id
 from .task_store import TaskStore
 from .upload_store import UploadStore
@@ -69,7 +70,6 @@ class InlineSceneWorker:
         upload_store: UploadStore,
         generated_scene_store: GeneratedSceneStore,
         generated_root: Path,
-        core100_root: Path,
         tts_url: str,
         model: str,
         public_scene_store=None,
@@ -81,7 +81,6 @@ class InlineSceneWorker:
         self.upload_store = upload_store
         self.generated_scene_store = generated_scene_store
         self.generated_root = generated_root
-        self.core100_root = core100_root
         self.tts_url = tts_url
         self.model = model
         self.public_scene_store = public_scene_store
@@ -90,7 +89,6 @@ class InlineSceneWorker:
         self.poll_interval = poll_interval
         self.stop_event = Event()
         self.thread: Thread | None = None
-        self.module_cache: dict[str, object] = {}
         self.generated_root.mkdir(parents=True, exist_ok=True)
 
     def start(self) -> None:
@@ -196,7 +194,6 @@ class InlineSceneWorker:
             )
 
     def _analyze_scene(self, *, scene_id: str, preferred_title: str, task: dict, upload: dict) -> dict:
-        analyze_scene_with_glm4v = self._get_core100_symbol('analyze_scene', 'analyze_scene_with_glm4v')
         source_path = self.upload_store.resolve_disk_path(upload['filePath'])
         if not source_path.exists():
             raise RuntimeError('uploaded source file missing')
@@ -209,9 +206,9 @@ class InlineSceneWorker:
             include_verbs=bool(task.get('includeVerbs', True)),
         )
         if not isinstance(raw_result, dict):
-            raise RuntimeError('core100 analyze_scene returned invalid payload')
+            raise RuntimeError('scene analysis returned invalid payload')
         if not raw_result.get('hotspots'):
-            raise RuntimeError('core100 analyze_scene returned empty hotspots')
+            raise RuntimeError('scene analysis returned empty hotspots')
 
         core_scene = dict(raw_result)
         core_scene['scene_id'] = scene_id
@@ -232,7 +229,6 @@ class InlineSceneWorker:
         }:
             raise RuntimeError(f'unsupported voice config: {accent}/{gender}')
 
-        generate_scene_audio = self._get_core100_symbol('generate_audio', 'generate_scene_audio')
         with tempfile.TemporaryDirectory(prefix='scene-worker-') as temp_dir:
             json_path = Path(temp_dir) / 'scene.json'
             json_path.write_text(
@@ -250,7 +246,6 @@ class InlineSceneWorker:
             raise RuntimeError(f'audio generation incomplete: {success_count}/{total_files}')
 
     def _attach_audio_paths(self, core_scene: dict, task: dict) -> None:
-        build_audio_filename = self._get_core100_symbol('scene_assets', 'build_audio_filename')
         scene_id = core_scene['scene_id']
         accent = task.get('accent', 'en-US')
         gender = task.get('voiceGender', 'female')
@@ -263,29 +258,6 @@ class InlineSceneWorker:
             for entry in entries:
                 filename = build_audio_filename(scene_id, accent, gender, entry)
                 entry['audioPath'] = f'{audio_root}/{filename}'
-
-    def _get_core100_symbol(self, module_name: str, symbol_name: str):
-        module = self._load_core100_module(module_name)
-        return getattr(module, symbol_name)
-
-    def _load_core100_module(self, module_name: str):
-        if module_name in self.module_cache:
-            return self.module_cache[module_name]
-
-        if not self.core100_root.exists():
-            raise RuntimeError(f'core100 root not found: {self.core100_root}')
-
-        compat_root = str(Path(__file__).resolve().parent / 'core100_compat')
-        if compat_root not in sys.path:
-            sys.path.insert(0, compat_root)
-
-        root = str(self.core100_root)
-        if root not in sys.path:
-            sys.path.insert(1, root)
-
-        module = importlib.import_module(module_name)
-        self.module_cache[module_name] = module
-        return module
 
     def _derive_title_from_upload(self, upload: dict) -> str:
         return derive_scene_title(

@@ -12,10 +12,12 @@
   display: flex;
   gap: 18rpx;
   margin-top: 24rpx;
+  flex-wrap: wrap;
 }
 
 .summary-pill {
   flex: 1;
+  min-width: 140rpx;
   padding: 22rpx;
   border-radius: 24rpx;
   background: rgba(255, 255, 255, 0.06);
@@ -31,8 +33,7 @@
 }
 
 .summary-label,
-.product-subtitle,
-.sku-desc {
+.product-subtitle {
   display: block;
   font-size: 24rpx;
   color: rgba(255, 255, 255, 0.72);
@@ -43,6 +44,20 @@
   margin-top: 10rpx;
   font-size: 34rpx;
   font-weight: 700;
+}
+
+.summary-value.active {
+  color: #4ade80;
+}
+
+.summary-value.inactive {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.summary-value.expires {
+  font-size: 24rpx;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .guest-tip-title,
@@ -66,68 +81,111 @@
   margin-top: 24rpx;
 }
 
-.product-list {
+/* --- Tier Cards --- */
+
+.tier-list {
   display: flex;
   flex-direction: column;
   gap: 20rpx;
 }
 
-.product-card {
-  padding: 28rpx;
-}
-
-.product-head,
-.sku-meta {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16rpx;
-}
-
-.product-name,
-.sku-name {
-  font-size: 32rpx;
-  font-weight: 700;
-}
-
-.product-type,
-.sku-price {
-  font-size: 24rpx;
-  color: #ffe7a8;
-}
-
-.product-subtitle {
-  margin-top: 12rpx;
-}
-
-.sku-card {
-  margin-top: 22rpx;
-  padding: 24rpx;
-  border-radius: 22rpx;
-  background: rgba(255, 255, 255, 0.05);
+.tier-card {
+  position: relative;
+  padding: 32rpx;
   border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-.sku-desc {
-  margin-top: 8rpx;
+.tier-recommended {
+  border-color: rgba(250, 204, 21, 0.4);
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.06), transparent 60%);
 }
 
-.benefit-list {
+.tier-current {
+  border-color: rgba(74, 222, 128, 0.4);
+}
+
+.tier-badge {
+  position: absolute;
+  top: 0;
+  right: 24rpx;
+  padding: 6rpx 20rpx;
+  border-radius: 0 0 16rpx 16rpx;
+  background: #facc15;
+  color: #1a1a1a;
+  font-size: 22rpx;
+  font-weight: 700;
+}
+
+.badge-current {
+  background: #4ade80;
+}
+
+.tier-name {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.tier-price-row {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10rpx;
+  align-items: baseline;
+  gap: 14rpx;
   margin-top: 16rpx;
 }
 
-.benefit-chip {
-  padding: 10rpx 16rpx;
-  border-radius: 999rpx;
-  background: rgba(255, 235, 186, 0.12);
-  color: #ffe6a3;
-  font-size: 22rpx;
+.tier-price {
+  font-size: 48rpx;
+  font-weight: 800;
+  color: #ffe7a8;
+}
+
+.tier-original {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.35);
+  text-decoration: line-through;
+}
+
+.tier-features {
+  margin-top: 24rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.tier-feature {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.feature-icon {
+  font-size: 24rpx;
+  width: 36rpx;
+  text-align: center;
+}
+
+.credits-icon {
+  color: #60a5fa;
+}
+
+.check-icon {
+  color: #4ade80;
+}
+
+.cross-icon {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.feature-text {
+  font-size: 26rpx;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .buy-btn {
   width: 100%;
-  margin-top: 20rpx;
+  margin-top: 28rpx;
+}
+
+.btn-disabled {
+  opacity: 0.5;
 }

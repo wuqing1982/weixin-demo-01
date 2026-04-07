@@ -667,17 +667,26 @@ class CommerceStore:
             'accounts': accounts,
         }
 
-    def list_user_entitlements(self, user_id: str) -> list[dict[str, Any]]:
+    def list_user_entitlements(self, user_id: str, entitlement_type: str = '', entitlement_code: str = '') -> list[dict[str, Any]]:
         with self._connect() as connection:
             with connection.cursor() as cursor:
+                conditions = ['user_id = %s']
+                params: list[Any] = [user_id]
+                if entitlement_type:
+                    conditions.append('entitlement_type = %s')
+                    params.append(entitlement_type)
+                if entitlement_code:
+                    conditions.append('entitlement_code = %s')
+                    params.append(entitlement_code)
+                where_clause = ' and '.join(conditions)
                 cursor.execute(
-                    '''
+                    f'''
                     select *
                     from user_entitlements
-                    where user_id = %s
+                    where {where_clause}
                     order by created_at desc
                     ''',
-                    (user_id,),
+                    tuple(params),
                 )
                 return [{
                     'entitlementId': row.get('id', ''),
@@ -693,6 +702,70 @@ class CommerceStore:
                     'createdAt': _to_iso(row.get('created_at')),
                     'updatedAt': _to_iso(row.get('updated_at')),
                 } for row in cursor.fetchall()]
+
+    def get_credit_balance(self, user_id: str, credit_type: str) -> int:
+        """Return the current balance for a specific credit type."""
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    '''
+                    select balance from user_credit_accounts
+                    where user_id = %s and credit_type = %s
+                    limit 1
+                    ''',
+                    (user_id, credit_type),
+                )
+                row = cursor.fetchone()
+                return int(row.get('balance') or 0) if row else 0
+
+    def deduct_credit(self, *, user_id: str, credit_type: str, amount: int, reason_type: str, reason_id: str = '', remark: str = '') -> dict[str, Any]:
+        """Deduct credits atomically. Raises ValueError if insufficient balance."""
+        amount = max(1, int(amount))
+        with self._connect() as connection:
+            with connection.transaction():
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        '''
+                        select id, balance from user_credit_accounts
+                        where user_id = %s and credit_type = %s
+                        limit 1
+                        for update
+                        ''',
+                        (user_id, credit_type),
+                    )
+                    account = cursor.fetchone()
+                    if not account:
+                        raise ValueError(f'积分不足：余额为 0')
+                    current_balance = int(account.get('balance') or 0)
+                    if current_balance < amount:
+                        raise ValueError(f'积分不足：余额 {current_balance}，需要 {amount}')
+                    new_balance = current_balance - amount
+                    cursor.execute(
+                        '''
+                        update user_credit_accounts
+                        set balance = %s, updated_at = now()
+                        where id = %s
+                        ''',
+                        (new_balance, account.get('id', '')),
+                    )
+                    cursor.execute(
+                        '''
+                        insert into credit_ledger (
+                          id, user_id, credit_type, change_amount, balance_after, reason_type, reason_id, remark, created_at
+                        ) values (%s, %s, %s, %s, %s, %s, %s, %s, now())
+                        ''',
+                        (
+                            build_object_id('ledger'),
+                            user_id,
+                            credit_type,
+                            -amount,
+                            new_balance,
+                            reason_type,
+                            reason_id,
+                            remark or f'{reason_type} deduction',
+                        ),
+                    )
+                    return {'balance': new_balance, 'accountId': account.get('id', '')}
 
     def upsert_product(self, product: dict[str, Any]) -> None:
         now = utcnow_iso()
@@ -1008,6 +1081,40 @@ class CommerceStore:
                             f'payment grant via order {order_row.get("order_no", "")}',
                         ),
                     )
+                    continue
+
+                if benefit_type == 'feature':
+                    # Find the matching membership benefit to get duration
+                    membership_days = 365
+                    for other_benefit in (item.get('benefit_snapshot') or []):
+                        if other_benefit.get('benefitType') == 'membership':
+                            membership_days = int((other_benefit.get('benefitJson') or {}).get('durationDays') or 365)
+                            break
+                    starts_at = datetime.now(timezone.utc)
+                    expires_at = starts_at + timedelta(days=membership_days * quantity)
+                    cursor.execute(
+                        '''
+                        insert into user_entitlements (
+                          id, user_id, source_type, source_id, entitlement_type, entitlement_code, status, starts_at, expires_at, payload_json, created_at, updated_at
+                        ) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, now(), now())
+                        ''',
+                        (
+                            build_object_id('entitlement'),
+                            order_row.get('user_id', ''),
+                            'order',
+                            order_row.get('id', ''),
+                            'feature',
+                            benefit_value or 'feature',
+                            'active',
+                            starts_at,
+                            expires_at,
+                            json.dumps({
+                                'orderId': order_row.get('id', ''),
+                                'benefit': benefit_json,
+                            }, ensure_ascii=False),
+                        ),
+                    )
+                    continue
 
     def create_order(self, *, user_id: str, sku_id: str, quantity: int = 1) -> dict[str, Any]:
         quantity = max(1, int(quantity or 1))

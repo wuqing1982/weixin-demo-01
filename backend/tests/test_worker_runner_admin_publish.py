@@ -32,7 +32,6 @@ class WorkerAdminPublishTests(unittest.TestCase):
             upload_store=self.upload_store,
             generated_scene_store=self.generated_store,
             generated_root=self.generated_root,
-            core100_root=root,
             tts_url='http://127.0.0.1:5003',
             model='glm-4v-flash',
             public_scene_store=self.public_store,

@@ -1,6 +1,6 @@
 import unittest
 
-from backend.app.core100_compat.json_repair import repair_truncated_json
+from backend.app.scene_worker.json_repair import repair_truncated_json
 
 
 class Core100JsonRepairTests(unittest.TestCase):

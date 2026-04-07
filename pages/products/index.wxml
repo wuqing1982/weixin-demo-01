@@ -1,15 +1,19 @@
 <view class="container product-page">
   <view class="summary-card card">
-    <text class="section-title">会员与点数商品</text>
-    <text class="section-subtitle">移动端先打通会员包年、点数包和订单闭环。未登录也可以先浏览套餐。</text>
+    <text class="section-title">会员套餐</text>
+    <text class="section-subtitle">购买套餐解锁全部场景和生成功能，积分可叠加。</text>
     <view class="summary-grid" wx:if="{{me}}">
       <view class="summary-pill">
         <text class="summary-label">会员状态</text>
-        <text class="summary-value">{{me.memberSummary.isActive ? '已开通' : '未开通'}}</text>
+        <text class="summary-value {{me.memberSummary.isActive ? 'active' : 'inactive'}}">{{me.memberSummary.isActive ? '已开通' : '未开通'}}</text>
       </view>
       <view class="summary-pill">
-        <text class="summary-label">生成点数</text>
+        <text class="summary-label">剩余积分</text>
         <text class="summary-value">{{me.creditSummary.sceneGenerateBalance || 0}}</text>
+      </view>
+      <view class="summary-pill" wx:if="{{me.memberSummary.isActive && me.memberSummary.expiresAt}}">
+        <text class="summary-label">到期时间</text>
+        <text class="summary-value expires">{{me.memberSummary.expiresAt}}</text>
       </view>
     </view>
     <view wx:elif="{{guestMode}}" class="guest-tip">
@@ -22,33 +26,42 @@
   <view wx:if="{{loading}}" class="state-card">商品加载中...</view>
   <view wx:elif="{{errorMessage}}" class="state-card">{{errorMessage}}</view>
 
-  <view wx:else class="product-list">
-    <view wx:for="{{products}}" wx:key="productId" class="product-card card">
-      <view class="product-head">
-        <text class="product-name">{{item.name}}</text>
-        <text class="product-type">{{item.productType}}</text>
+  <view wx:else class="tier-list">
+    <view wx:for="{{tierCards}}" wx:key="skuId" class="tier-card card {{item.recommended ? 'tier-recommended' : ''}} {{item.isCurrent ? 'tier-current' : ''}}">
+      <view wx:if="{{item.recommended}}" class="tier-badge">推荐</view>
+      <view wx:if="{{item.isCurrent}}" class="tier-badge badge-current">当前</view>
+      <text class="tier-name">{{item.name}}</text>
+      <view class="tier-price-row">
+        <text class="tier-price">¥{{item.salePrice}}</text>
+        <text class="tier-original">¥{{item.listPrice}}</text>
       </view>
-      <text class="product-subtitle">{{item.subtitle || item.description}}</text>
-
-      <view wx:for="{{item.skus}}" wx:key="skuId" wx:for-item="sku" class="sku-card">
-        <view class="sku-meta">
-          <text class="sku-name">{{sku.name}}</text>
-          <text class="sku-price">¥{{sku.salePrice}}</text>
+      <view class="tier-features">
+        <view class="tier-feature">
+          <text class="feature-icon credits-icon">◆</text>
+          <text class="feature-text">{{item.credits}} 次场景生成积分</text>
         </view>
-        <text class="sku-desc">{{sku.billingType}}{{sku.durationDays ? ' · ' + sku.durationDays + '天' : ''}}</text>
-        <view wx:if="{{sku.benefits.length}}" class="benefit-list">
-          <text wx:for="{{sku.benefits}}" wx:key="benefitId" wx:for-item="benefit" class="benefit-chip">{{benefit.benefitType}} · {{benefit.benefitValue}}</text>
+        <view class="tier-feature">
+          <text class="feature-icon {{item.videoExport ? 'check-icon' : 'cross-icon'}}">{{item.videoExport ? '✓' : '✕'}}</text>
+          <text class="feature-text">视频导出{{item.videoExport ? '（保留3小时）' : ''}}</text>
         </view>
-        <button
-          class="btn-primary buy-btn"
-          loading="{{payingSkuId === sku.skuId}}"
-          disabled="{{payingSkuId && payingSkuId !== sku.skuId}}"
-          bindtap="onBuySku"
-          data-sku-id="{{sku.skuId}}"
-        >
-          {{guestMode ? '登录后购买' : '立即模拟支付'}}
-        </button>
+        <view class="tier-feature">
+          <text class="feature-icon check-icon">✓</text>
+          <text class="feature-text">全部公开场景</text>
+        </view>
+        <view class="tier-feature" wx:if="{{item.priorityQueue}}">
+          <text class="feature-icon check-icon">✓</text>
+          <text class="feature-text">优先生成队列</text>
+        </view>
       </view>
+      <button
+        class="btn-primary buy-btn {{item.isCurrent ? 'btn-disabled' : ''}}"
+        loading="{{payingSkuId === item.skuId}}"
+        disabled="{{payingSkuId && payingSkuId !== item.skuId}}"
+        bindtap="onBuySku"
+        data-sku-id="{{item.skuId}}"
+      >
+        {{item.isCurrent ? '当前套餐' : (guestMode ? '登录后购买' : '立即购买')}}
+      </button>
     </view>
   </view>
 </view>
