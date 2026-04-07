@@ -2222,6 +2222,144 @@
         "hotspotUpdatedAt": "2026-04-07T05:37:01Z",
         "hotspotUpdatedBy": "user_20260405145017_f25208"
       }
+    },
+    {
+      "sceneId": "scene_user_20260407063633_b4e0ae",
+      "title": "公交车站",
+      "category": "transportation",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260407063633_b4e0ae/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260407063633_b4e0ae/background.jpg",
+      "items": [
+        {
+          "id": "bus",
+          "word": "bus",
+          "ipa": "/bʌs/",
+          "meaning": "公交车",
+          "sentence": "The bus is waiting at the bus stop.",
+          "sentenceTranslation": "公交车正在公交车站等候。",
+          "audioPath": "/assets/generated/scene_user_20260407063633_b4e0ae/scene_user_20260407063633_b4e0ae_en-US-JennyNeural_US_female_bus_the_bus_is_waiting_at_the.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 50.0,
+            "w": 20.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "bus_shelter",
+          "word": "shelter",
+          "ipa": "/ˈʃeltər/",
+          "meaning": "候车亭",
+          "sentence": "Children are sitting in the bus shelter.",
+          "sentenceTranslation": "孩子们坐在候车亭里。",
+          "audioPath": "/assets/generated/scene_user_20260407063633_b4e0ae/scene_user_20260407063633_b4e0ae_en-US-JennyNeural_US_female_bus_shelter_children_are_sitting_in_the_bus.mp3",
+          "rect": {
+            "l": 35.0,
+            "t": 55.0,
+            "w": 25.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "motorcycle",
+          "word": "motorcycle",
+          "ipa": "/ˌmɒtəˈraɪkəl/",
+          "meaning": "摩托车",
+          "sentence": "A motorcycle is parked near the bus stop.",
+          "sentenceTranslation": "一辆摩托车停在公交车站附近。",
+          "audioPath": "/assets/generated/scene_user_20260407063633_b4e0ae/scene_user_20260407063633_b4e0ae_en-US-JennyNeural_US_female_motorcycle_a_motorcycle_is_parked_near_the.mp3",
+          "rect": {
+            "l": 65.0,
+            "t": 60.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "car",
+          "word": "car",
+          "ipa": "/kɑːr/",
+          "meaning": "汽车",
+          "sentence": "There is a car driving on the road.",
+          "sentenceTranslation": "有一辆汽车在路上行驶。",
+          "audioPath": "/assets/generated/scene_user_20260407063633_b4e0ae/scene_user_20260407063633_b4e0ae_en-US-JennyNeural_US_female_car_there_is_a_car_driving_on.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 70.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "grass",
+          "word": "grass",
+          "ipa": "/grɑːs/",
+          "meaning": "草地",
+          "sentence": "The grass is green and lush.",
+          "sentenceTranslation": "草地上绿油油的，非常茂盛。",
+          "audioPath": "/assets/generated/scene_user_20260407063633_b4e0ae/scene_user_20260407063633_b4e0ae_en-US-JennyNeural_US_female_grass_the_grass_is_green_and_lush.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 80.0,
+            "w": 30.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "wait",
+          "word": "wait",
+          "ipa": "/weɪt/",
+          "meaning": "等待",
+          "sentence": "We wait for the bus to arrive.",
+          "sentenceTranslation": "我们等待着公交车到来。",
+          "audioPath": "/assets/generated/scene_user_20260407063633_b4e0ae/scene_user_20260407063633_b4e0ae_en-US-JennyNeural_US_female_wait_we_wait_for_the_bus_to.mp3",
+          "relatedItem": "bus"
+        },
+        {
+          "id": "park",
+          "word": "park",
+          "ipa": "/pɑːrk/",
+          "meaning": "停放",
+          "sentence": "He parks his motorcycle by the bus stop.",
+          "sentenceTranslation": "他把摩托车停在了公交车站旁边。",
+          "audioPath": "/assets/generated/scene_user_20260407063633_b4e0ae/scene_user_20260407063633_b4e0ae_en-US-JennyNeural_US_female_park_he_parks_his_motorcycle_by_the.mp3",
+          "relatedItem": "motorcycle"
+        },
+        {
+          "id": "drive",
+          "word": "drive",
+          "ipa": "/draɪv/",
+          "meaning": "驾驶",
+          "sentence": "She drives her car down the street.",
+          "sentenceTranslation": "她开着她的车沿着街道开过去。",
+          "audioPath": "/assets/generated/scene_user_20260407063633_b4e0ae/scene_user_20260407063633_b4e0ae_en-US-JennyNeural_US_female_drive_she_drives_her_car_down_the.mp3",
+          "relatedItem": "car"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260405145017_f25208",
+        "uploadId": "upload_20260407063631_686dd4",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260407063633_b4e0ae",
+        "core100SceneTitle": "公交车站",
+        "recommendedCategory": "transportation",
+        "tags": [
+          "交通",
+          "户外",
+          "公共设施"
+        ],
+        "version": 1
+      }
     }
   ]
 }

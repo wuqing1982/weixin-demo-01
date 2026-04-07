@@ -1694,6 +1694,18 @@ def list_scenes(
     except Exception:
         pass
 
+    # Sort by creation time descending (newest first)
+    def _scene_sort_key(scene):
+        meta = scene.get('meta', {}) or {}
+        # Prefer publishedAt for published public scenes
+        published = meta.get('publishedAt', '')
+        if published:
+            return published
+        # Fallback to timestamp embedded in sceneId
+        return scene.get('sceneId', '')
+
+    scenes.sort(key=_scene_sort_key, reverse=True)
+
     total = len(scenes)
     start = (page - 1) * pageSize
     end = start + pageSize
@@ -1829,6 +1841,8 @@ def get_my_scenes(
 ):
     owner_id = get_current_user_id(request)
     scenes = generated_store.list_scenes(owner_id)
+    # Sort by creation time descending (newest first)
+    scenes.sort(key=lambda s: s.get('sceneId', ''), reverse=True)
     total = len(scenes)
     start = (page - 1) * pageSize
     end = start + pageSize
