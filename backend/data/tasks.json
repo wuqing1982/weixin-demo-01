@@ -353,6 +353,30 @@
       "errorMessage": "",
       "createdAt": "2026-04-07T06:36:31Z",
       "updatedAt": "2026-04-07T06:37:04Z"
+    },
+    {
+      "taskId": "task_20260407105443_10095e",
+      "ownerId": "user_20260405145017_f25208",
+      "uploadId": "upload_20260407105443_6ffceb",
+      "title": "",
+      "includeVerbs": true,
+      "sourceLang": "zh-CN",
+      "accent": "en-US",
+      "voiceGender": "female",
+      "voiceName": "JennyNeural",
+      "requestSource": "miniapp",
+      "autoPublish": false,
+      "categoryId": "",
+      "collectionIds": [],
+      "publishVisibility": "public",
+      "status": "failed",
+      "step": "failed",
+      "progress": 100,
+      "sceneId": "scene_user_20260407105445_816bd1",
+      "publishedSceneId": "",
+      "errorMessage": "请设置 ZHIPUAI_API_KEY 环境变量或传入 api_key 参数",
+      "createdAt": "2026-04-07T10:54:43Z",
+      "updatedAt": "2026-04-07T10:54:45Z"
     }
   ]
 }

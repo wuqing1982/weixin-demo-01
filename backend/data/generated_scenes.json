@@ -2360,6 +2360,144 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260407111147_c4868e",
+      "title": "储藏室",
+      "category": "existing",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260407111147_c4868e/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260407111147_c4868e/background.jpg",
+      "items": [
+        {
+          "id": "box_1",
+          "word": "box",
+          "ipa": "/bɑːks/",
+          "meaning": "箱子",
+          "sentence": "Look at the box on top of the other boxes.",
+          "sentenceTranslation": "看那些堆叠在一起的箱子。",
+          "audioPath": "/assets/generated/scene_user_20260407111147_c4868e/scene_user_20260407111147_c4868e_en-US-JennyNeural_US_female_box_1_look_at_the_box_on_top.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 30.0,
+            "w": 35.0,
+            "h": 40.0
+          }
+        },
+        {
+          "id": "plastic杯",
+          "word": "cup",
+          "ipa": "/kʌp/",
+          "meaning": "杯子",
+          "sentence": "The cup is on the box.",
+          "sentenceTranslation": "杯子放在箱子上。",
+          "audioPath": "/assets/generated/scene_user_20260407111147_c4868e/scene_user_20260407111147_c4868e_en-US-JennyNeural_US_female_plastic杯_the_cup_is_on_the_box.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 45.0,
+            "w": 15.0,
+            "h": 15.0
+          }
+        },
+        {
+          "id": "LittleSwan盒",
+          "word": "package",
+          "ipa": "/ˈpeɪsɪdʒ/",
+          "meaning": "包装盒",
+          "sentence": "The Little Swan package is under the plastic cup.",
+          "sentenceTranslation": "小天鹅包装盒在塑料杯下面。",
+          "audioPath": "/assets/generated/scene_user_20260407111147_c4868e/scene_user_20260407111147_c4868e_en-US-JennyNeural_US_female_LittleSwan盒_the_little_swan_package_is_under.mp3",
+          "rect": {
+            "l": 60.0,
+            "t": 55.0,
+            "w": 25.0,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "衣物",
+          "word": "clothes",
+          "ipa": "/kləʊðz/",
+          "meaning": "衣服",
+          "sentence": "There are clothes next to the packages.",
+          "sentenceTranslation": "包装旁边有一些衣服。",
+          "audioPath": "/assets/generated/scene_user_20260407111147_c4868e/scene_user_20260407111147_c4868e_en-US-JennyNeural_US_female_衣物_there_are_clothes_next_to_the.mp3",
+          "rect": {
+            "l": 75.0,
+            "t": 65.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "晾衣架",
+          "word": "hanger",
+          "ipa": "/ˈhæŋər/",
+          "meaning": "晾衣架",
+          "sentence": "A hanger is hanging on the wall.",
+          "sentenceTranslation": "墙上挂着一个晾衣架。",
+          "audioPath": "/assets/generated/scene_user_20260407111147_c4868e/scene_user_20260407111147_c4868e_en-US-JennyNeural_US_female_晾衣架_a_hanger_is_hanging_on_the.mp3",
+          "rect": {
+            "l": 85.0,
+            "t": 75.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "store",
+          "word": "store",
+          "ipa": "/stɔːr/",
+          "meaning": "存放",
+          "sentence": "We store things in boxes.",
+          "sentenceTranslation": "我们把东西存放在箱子里。",
+          "audioPath": "/assets/generated/scene_user_20260407111147_c4868e/scene_user_20260407111147_c4868e_en-US-JennyNeural_US_female_store_we_store_things_in_boxes.mp3",
+          "relatedItem": "box_1"
+        },
+        {
+          "id": "put",
+          "word": "put",
+          "ipa": "/pʊt/",
+          "meaning": "放",
+          "sentence": "Put the cup on the box.",
+          "sentenceTranslation": "把杯子放在箱子上。",
+          "audioPath": "/assets/generated/scene_user_20260407111147_c4868e/scene_user_20260407111147_c4868e_en-US-JennyNeural_US_female_put_put_the_cup_on_the_box.mp3",
+          "relatedItem": "plastic杯"
+        },
+        {
+          "id": "pack",
+          "word": "pack",
+          "ipa": "/pæk/",
+          "meaning": "打包",
+          "sentence": "Pack your belongings into a package.",
+          "sentenceTranslation": "把你的东西打包进包装盒里。",
+          "audioPath": "/assets/generated/scene_user_20260407111147_c4868e/scene_user_20260407111147_c4868e_en-US-JennyNeural_US_female_pack_pack_your_belongings_into_a_package.mp3",
+          "relatedItem": "LittleSwan盒"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260405145017_f25208",
+        "uploadId": "upload_20260407111145_ee6a11",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260407111147_c4868e",
+        "core100SceneTitle": "储藏室",
+        "recommendedCategory": "existing",
+        "tags": [
+          "储存",
+          "纸箱",
+          "物品"
+        ],
+        "version": 1
+      }
     }
   ]
 }
