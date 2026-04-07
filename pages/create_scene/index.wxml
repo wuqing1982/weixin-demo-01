@@ -1,3 +1,4 @@
+<view class="page-root {{theme}}">
 <view class="container create-page">
   <view class="card hero-card">
     <text class="section-title">拍照生成我的场景</text>
@@ -64,4 +65,5 @@
     class="hidden-canvas"
     style="width: {{canvasWidth}}px; height: {{canvasHeight}}px;"
   />
+</view>
 </view>

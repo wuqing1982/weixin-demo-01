@@ -1,14 +1,19 @@
+const { updateNavBar } = require('../../shared/theme-helper');
 const { getMyVideoExports } = require('../../services/scene');
 const { getConfig } = require('../../services/config');
 
 Page({
   data: {
+    theme: 'dark',
     loading: true,
     videos: [],
     errorMessage: ''
   },
 
   onShow() {
+    const theme = getApp().globalData.theme;
+    this.setData({ theme });
+    updateNavBar(theme);
     this.loadVideos();
   },
 

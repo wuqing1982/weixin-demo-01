@@ -1,7 +1,9 @@
+const { updateNavBar } = require('../../shared/theme-helper');
 const { getSceneList, getSceneCategories, getSceneCollections } = require('../../services/scene');
 
 Page({
   data: {
+    theme: 'dark',
     loading: true,
     scenes: [],
     categories: [],
@@ -16,6 +18,9 @@ Page({
   },
 
   onShow() {
+    const theme = getApp().globalData.theme;
+    this.setData({ theme });
+    updateNavBar(theme);
     this.loadScenes();
   },
 

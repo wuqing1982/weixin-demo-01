@@ -28,7 +28,7 @@
   transform: translate(-50%, -50%);
   width: 80rpx;
   height: 80rpx;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--color-overlay);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -58,5 +58,5 @@
   display: block;
   margin-top: 10rpx;
   font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--color-text-secondary);
 }

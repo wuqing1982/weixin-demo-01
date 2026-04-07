@@ -1,3 +1,4 @@
+const { updateNavBar } = require('../../shared/theme-helper');
 const { createOrder } = require('../../services/order');
 const { payOrder } = require('../../services/payment');
 const { getProducts, getProductSkus } = require('../../services/product');
@@ -51,6 +52,7 @@ function buildTierCards(products, allSkus, currentEntitlementCode) {
 
 Page({
   data: {
+    theme: 'dark',
     loading: true,
     tierCards: [],
     me: null,
@@ -60,6 +62,9 @@ Page({
   },
 
   onShow() {
+    const theme = getApp().globalData.theme;
+    this.setData({ theme });
+    updateNavBar(theme);
     this.loadPage();
   },
 

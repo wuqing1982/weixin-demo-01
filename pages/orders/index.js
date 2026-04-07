@@ -1,3 +1,4 @@
+const { updateNavBar } = require('../../shared/theme-helper');
 const { getOrders } = require('../../services/order');
 const { payOrder } = require('../../services/payment');
 const { readSession } = require('../../services/session');
@@ -9,10 +10,14 @@ Page({
     orders: [],
     me: null,
     errorMessage: '',
-    payingOrderId: ''
+    payingOrderId: '',
+    theme: 'dark'
   },
 
   onShow() {
+    const theme = getApp().globalData.theme;
+    this.setData({ theme });
+    updateNavBar(theme);
     if (!readSession().accessToken) {
       wx.reLaunch({
         url: '/pages/login/index'

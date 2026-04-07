@@ -1,9 +1,76 @@
+/* ================================================================
+   Design Tokens — theme-independent (spacing, radius, font)
+   ================================================================ */
 page {
+  --space-xs:  8rpx;
+  --space-sm:  16rpx;
+  --space-md:  20rpx;
+  --space-lg:  24rpx;
+  --space-xl:  32rpx;
+
+  --radius-sm:  12rpx;
+  --radius-md:  16rpx;
+  --radius-lg:  24rpx;
+  --radius-pill: 999rpx;
+
+  --font-title:   40rpx;
+  --font-heading: 32rpx;
+  --font-body:    28rpx;
+  --font-caption: 24rpx;
+  --font-badge:   22rpx;
+
   min-height: 100%;
-  background: linear-gradient(180deg, #0b0b0c 0%, #121318 100%);
-  color: #ffffff;
+  background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-end) 100%);
+  color: var(--color-text);
 }
 
+/* ================================================================
+   Theme: Dark (default)
+   ================================================================ */
+.theme-dark {
+  --color-bg:             #0d1117;
+  --color-bg-end:         #141b24;
+  --color-surface:        rgba(255,255,255,0.06);
+  --color-surface-border: rgba(255,255,255,0.10);
+  --color-primary:        #667eea;
+  --color-primary-end:    #7c5cd6;
+  --color-success:        #4ade80;
+  --color-success-end:    #22c55e;
+  --color-warning:        #fbbf24;
+  --color-danger:         #f87171;
+  --color-text:           rgba(255,255,255,0.92);
+  --color-text-secondary: rgba(255,255,255,0.60);
+  --color-text-weak:      rgba(255,255,255,0.35);
+  --color-text-placeholder: rgba(255,255,255,0.30);
+  --color-shadow:         rgba(0,0,0,0.20);
+  --color-overlay:        rgba(0,0,0,0.50);
+}
+
+/* ================================================================
+   Theme: Light (WeChat green)
+   ================================================================ */
+.theme-light {
+  --color-bg:             #f5f6f8;
+  --color-bg-end:         #ebedf0;
+  --color-surface:        #ffffff;
+  --color-surface-border: #e5e5e5;
+  --color-primary:        #07c160;
+  --color-primary-end:    #06ad56;
+  --color-success:        #07c160;
+  --color-success-end:    #06ad56;
+  --color-warning:        #ed6a0c;
+  --color-danger:         #fa5151;
+  --color-text:           #191919;
+  --color-text-secondary: #666666;
+  --color-text-weak:      #999999;
+  --color-text-placeholder: #cccccc;
+  --color-shadow:         rgba(0,0,0,0.08);
+  --color-overlay:        rgba(0,0,0,0.40);
+}
+
+/* ================================================================
+   Global reset
+   ================================================================ */
 view,
 text,
 button,
@@ -14,70 +81,210 @@ textarea {
   box-sizing: border-box;
 }
 
+/* ================================================================
+   Layout
+   ================================================================ */
+.page-root {
+  min-height: 100vh;
+}
+
 .container {
   min-height: 100vh;
   padding: 28rpx 24rpx 40rpx;
 }
 
+/* ================================================================
+   Card
+   ================================================================ */
 .card,
 .state-card {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 28rpx;
-  box-shadow: 0 16rpx 48rpx rgba(0, 0, 0, 0.18);
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8rpx 32rpx var(--color-shadow);
 }
 
 .state-card {
   margin: 28rpx 20rpx 0;
   padding: 32rpx 28rpx;
-  font-size: 28rpx;
-  color: rgba(255, 255, 255, 0.82);
+  font-size: var(--font-body);
+  color: var(--color-text-secondary);
   text-align: center;
 }
 
+/* ================================================================
+   Typography
+   ================================================================ */
 .section-title {
   display: block;
-  font-size: 40rpx;
+  font-size: var(--font-title);
   font-weight: 700;
+  color: var(--color-text);
 }
 
 .section-subtitle {
   display: block;
   margin-top: 10rpx;
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.7);
+  font-size: var(--font-caption);
+  color: var(--color-text-secondary);
 }
 
+/* ================================================================
+   Buttons
+   ================================================================ */
 .btn-primary,
-.btn-secondary {
+.btn-secondary,
+.btn-success,
+.btn-danger {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   height: 84rpx;
-  padding: 0 32rpx;
-  border-radius: 999rpx;
-  font-size: 28rpx;
+  padding: 0 var(--space-xl);
+  border-radius: var(--radius-pill);
+  font-size: var(--font-body);
+  transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
+.btn-primary::after,
+.btn-secondary::after,
+.btn-success::after,
+.btn-danger::after {
+  border: 0;
+}
+
+/* Pressed state */
+.btn-primary:active,
+.btn-secondary:active,
+.btn-success:active,
+.btn-danger:active {
+  transform: scale(0.98);
+}
+
+/* Disabled state */
+.btn-primary[disabled],
+.btn-secondary[disabled],
+.btn-success[disabled],
+.btn-danger[disabled] {
+  opacity: 0.45;
+}
+
+/* Primary */
 .btn-primary {
   border: 0;
-  background: linear-gradient(135deg, #667eea, #7c5cd6);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-end));
   color: #ffffff;
   font-weight: 600;
 }
 
+/* Secondary */
 .btn-secondary {
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--color-surface-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* Success */
+.btn-success {
+  border: 0;
+  background: linear-gradient(135deg, var(--color-success), var(--color-success-end));
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Danger */
+.btn-danger {
+  border: 0;
+  background: linear-gradient(135deg, var(--color-danger), #ef4444);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Small variant */
+.btn-sm {
+  height: 56rpx;
+  font-size: var(--font-caption);
+  padding: 0 var(--space-lg);
+}
+
+/* ================================================================
+   Tags
+   ================================================================ */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  height: 40rpx;
+  padding: 0 16rpx;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-badge);
+}
+
+.tag-primary {
+  background: rgba(102,126,234,0.15);
+  color: var(--color-primary);
+}
+
+.tag-success {
+  background: rgba(74,222,128,0.15);
+  color: var(--color-success);
+}
+
+.tag-warning {
+  background: rgba(251,191,36,0.15);
+  color: var(--color-warning);
+}
+
+.tag-danger {
+  background: rgba(248,113,113,0.15);
+  color: var(--color-danger);
+}
+
+/* ================================================================
+   Badges
+   ================================================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 36rpx;
+  padding: 0 14rpx;
+  border-radius: var(--radius-pill);
+  font-size: var(--font-badge);
+  font-weight: 600;
+}
+
+.badge-success {
+  background: var(--color-success);
   color: #ffffff;
 }
 
-.btn-primary::after,
-.btn-secondary::after {
-  border: 0;
+.badge-primary {
+  background: var(--color-primary);
+  color: #ffffff;
 }
 
-/* Loading spinner */
+.badge-pending {
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-surface-border);
+}
+
+/* ================================================================
+   Input
+   ================================================================ */
+.input-field {
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius-md);
+  height: 80rpx;
+  padding: 0 var(--space-lg);
+  font-size: var(--font-body);
+  color: var(--color-text);
+}
+
+/* ================================================================
+   Loading spinner
+   ================================================================ */
 .loading-spinner {
   display: flex;
   flex-direction: column;
@@ -89,8 +296,8 @@ textarea {
 .loading-spinner .spinner {
   width: 48rpx;
   height: 48rpx;
-  border: 4rpx solid rgba(255, 255, 255, 0.2);
-  border-top-color: #667eea;
+  border: 4rpx solid var(--color-surface-border);
+  border-top-color: var(--color-primary);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -101,11 +308,13 @@ textarea {
 
 .loading-spinner .loading-text {
   margin-top: 20rpx;
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.5);
+  font-size: var(--font-caption);
+  color: var(--color-text-weak);
 }
 
-/* Empty state */
+/* ================================================================
+   Empty state
+   ================================================================ */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -122,26 +331,30 @@ textarea {
 }
 
 .empty-state .empty-text {
-  font-size: 28rpx;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: var(--font-body);
+  color: var(--color-text-weak);
   text-align: center;
 }
 
 .empty-state .empty-hint {
   margin-top: 12rpx;
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.25);
+  font-size: var(--font-caption);
+  color: var(--color-text-placeholder);
 }
 
-/* List footer */
+/* ================================================================
+   List footer
+   ================================================================ */
 .list-footer {
   text-align: center;
   padding: 24rpx 0 40rpx;
-  font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.35);
+  font-size: var(--font-caption);
+  color: var(--color-text-weak);
 }
 
-/* Safe area bottom padding */
+/* ================================================================
+   Safe area bottom padding
+   ================================================================ */
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom);
 }

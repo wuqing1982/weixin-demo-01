@@ -12,10 +12,14 @@ App({
     refreshToken: '',
     deviceId: '',
     debugUserId: '',
-    useDebugAuth: false
+    useDebugAuth: false,
+    theme: 'dark'
   },
 
   onLaunch() {
+    const savedTheme = wx.getStorageSync('theme') || 'dark';
+    this.globalData.theme = savedTheme;
+
     const session = readSession();
     applySessionToApp(session, this);
     this.globalData.isAuthReady = false;
@@ -34,5 +38,10 @@ App({
       .finally(() => {
         this.globalData.isAuthReady = true;
       });
+  },
+
+  setTheme(theme) {
+    this.globalData.theme = theme;
+    wx.setStorageSync('theme', theme);
   }
 });

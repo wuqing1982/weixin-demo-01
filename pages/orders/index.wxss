@@ -18,8 +18,8 @@
 .summary-chip {
   padding: 10rpx 16rpx;
   border-radius: 999rpx;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: var(--color-surface);
+  border: 1px solid var(--color-surface-border);
   font-size: 24rpx;
 }
 
@@ -57,26 +57,26 @@
 }
 
 .order-status-pending {
-  background: rgba(255, 197, 84, 0.14);
-  color: #ffd479;
+  background: var(--color-surface);
+  color: var(--color-warning);
 }
 
 .order-status-paid {
-  background: rgba(54, 204, 113, 0.14);
-  color: #98f0a5;
+  background: var(--color-surface);
+  color: var(--color-success);
 }
 
 .order-item {
   margin-top: 18rpx;
   padding-top: 18rpx;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid var(--color-surface);
 }
 
 .order-item-desc,
 .paid-tip,
 .order-item-price {
   font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--color-text-secondary);
 }
 
 .order-foot {
@@ -88,5 +88,5 @@
 }
 
 .paid-tip {
-  color: #9af3a6;
+  color: var(--color-success);
 }

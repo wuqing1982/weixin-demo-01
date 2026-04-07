@@ -1,3 +1,4 @@
+<view class="page-root {{theme}}">
 <view class="container home-page">
   <view class="profile-strip card" wx:if="{{me}}">
     <view>
@@ -6,6 +7,21 @@
       <text class="profile-meta">身份：{{me.isAdmin ? 'Admin' : '普通用户'}} · 会员：{{me.memberSummary.isActive ? '已开通' : '未开通'}} · 点数：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
     </view>
     <button class="btn-secondary logout-btn" bindtap="onLogout">退出</button>
+  </view>
+
+  <!-- Theme switcher -->
+  <view class="theme-section">
+    <text class="theme-label">外观主题</text>
+    <view class="theme-options">
+      <view class="theme-opt {{theme === 'dark' ? 'active' : ''}}" bindtap="switchTheme" data-theme="dark">
+        <view class="theme-preview dark-preview"></view>
+        <text>暗色</text>
+      </view>
+      <view class="theme-opt {{theme === 'light' ? 'active' : ''}}" bindtap="switchTheme" data-theme="light">
+        <view class="theme-preview light-preview"></view>
+        <text>浅色</text>
+      </view>
+    </view>
   </view>
 
   <view class="hero card">
@@ -25,4 +41,5 @@
       <text class="action-desc">{{item.desc}}</text>
     </view>
   </view>
+</view>
 </view>

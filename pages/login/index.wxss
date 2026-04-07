@@ -5,7 +5,7 @@
   padding: 40rpx 28rpx 56rpx;
   background:
     radial-gradient(circle at top left, rgba(255, 222, 180, 0.22), transparent 34%),
-    linear-gradient(180deg, #111817 0%, #162220 46%, #101516 100%);
+    linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-end) 100%);
 }
 
 .ambient {
@@ -68,15 +68,15 @@
   margin-top: 18rpx;
   font-size: 26rpx;
   line-height: 1.7;
-  color: rgba(244, 239, 229, 0.74);
+  color: var(--color-text-secondary);
 }
 
 .hero-card {
   padding: 34rpx;
   border-radius: 34rpx;
-  background: linear-gradient(180deg, rgba(250, 247, 239, 0.96), rgba(236, 241, 233, 0.92));
-  color: #16302b;
-  box-shadow: 0 28rpx 80rpx rgba(0, 0, 0, 0.24);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 28rpx 80rpx var(--color-shadow);
 }
 
 .hero-badge {
@@ -111,7 +111,7 @@
 
 .hero-desc {
   margin-top: 14rpx;
-  color: rgba(22, 48, 43, 0.72);
+  color: var(--color-text-secondary);
 }
 
 .current-user-card {
@@ -157,7 +157,7 @@
 }
 
 .current-user-label {
-  color: rgba(248, 241, 230, 0.7);
+  color: var(--color-text-secondary);
 }
 
 .current-user-name {
@@ -169,7 +169,7 @@
 
 .current-user-meta {
   margin-top: 8rpx;
-  color: rgba(248, 241, 230, 0.72);
+  color: var(--color-text-secondary);
 }
 
 .current-user-actions {
@@ -230,7 +230,7 @@
   margin-top: 14rpx;
   font-size: 22rpx;
   line-height: 1.4;
-  color: rgba(248, 241, 230, 0.86);
+  color: var(--color-text-secondary);
 }
 
 .profile-sync-fields {
@@ -246,7 +246,7 @@
 
 .profile-sync-label {
   font-size: 22rpx;
-  color: rgba(248, 241, 230, 0.72);
+  color: var(--color-text-secondary);
 }
 
 .profile-nickname-input {
@@ -263,7 +263,7 @@
 .profile-editor-tip {
   margin-top: 12rpx;
   font-size: 22rpx;
-  color: rgba(248, 241, 230, 0.7);
+  color: var(--color-text-secondary);
 }
 
 .benefit-list {
@@ -291,7 +291,7 @@
 }
 
 .offer-label {
-  color: rgba(248, 241, 230, 0.7);
+  color: var(--color-text-secondary);
 }
 
 .offer-name {
@@ -311,7 +311,7 @@
 
 .offer-desc {
   margin-top: 8rpx;
-  color: rgba(248, 241, 230, 0.74);
+  color: var(--color-text-secondary);
 }
 
 .cta-login,
@@ -352,7 +352,7 @@
 
 .error-text {
   margin-top: 18rpx;
-  color: #b6413f;
+  color: var(--color-danger);
 }
 
 .success-text {
@@ -362,7 +362,7 @@
 
 .agreement-copy {
   margin-top: 18rpx;
-  color: rgba(22, 48, 43, 0.66);
+  color: var(--color-text-weak);
 }
 
 @media (max-width: 420px) {

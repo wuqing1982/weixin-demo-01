@@ -1,3 +1,4 @@
+<view class="page-root {{theme}}">
 <view class="container">
   <text class="section-title">我的导出视频</text>
   <text class="section-subtitle">已完成的视频导出，点击即可播放。</text>
@@ -28,4 +29,5 @@
       </view>
     </view>
   </view>
+</view>
 </view>

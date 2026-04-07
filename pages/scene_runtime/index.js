@@ -1,3 +1,4 @@
+const { updateNavBar } = require('../../shared/theme-helper');
 const { createScenePage } = require('../../shared/scene/scene-page');
 const { getMyScenes, getSceneDetail, getSceneList } = require('../../services/scene');
 
@@ -32,7 +33,14 @@ function buildSceneTabs(publicList, myList, currentScene) {
 }
 
 Page(Object.assign({}, createScenePage(), {
+  data: {
+    theme: 'dark'
+  },
+
   async onLoad(options) {
+    const theme = getApp().globalData.theme;
+    this.setData({ theme });
+    updateNavBar(theme);
     this.initializeScenePage();
 
     const sceneId = options.sceneId || 'scene_breakfast';

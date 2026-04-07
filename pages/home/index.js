@@ -1,9 +1,11 @@
+const { updateNavBar } = require('../../shared/theme-helper');
 const { logout } = require('../../services/auth');
 const { readSession } = require('../../services/session');
 const { getMe } = require('../../services/user');
 
 Page({
   data: {
+    theme: 'dark',
     me: null,
     errorMessage: '',
     actions: [
@@ -53,6 +55,9 @@ Page({
   },
 
   onShow() {
+    const theme = getApp().globalData.theme;
+    this.setData({ theme });
+    updateNavBar(theme);
     this.loadMe();
   },
 
@@ -90,6 +95,14 @@ Page({
     wx.navigateTo({
       url: event.currentTarget.dataset.url
     });
+  },
+
+  switchTheme(e) {
+    const theme = e.currentTarget.dataset.theme;
+    const app = getApp();
+    app.setTheme(theme);
+    this.setData({ theme });
+    updateNavBar(theme);
   },
 
   async onLogout() {

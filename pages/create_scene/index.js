@@ -1,3 +1,4 @@
+const { updateNavBar } = require('../../shared/theme-helper');
 const { uploadImage } = require('../../services/upload');
 const { createSceneTask, getSceneTask } = require('../../services/task');
 
@@ -88,6 +89,7 @@ function calculateTargetSize(width, height) {
 
 Page({
   data: {
+    theme: 'dark',
     imagePath: '',
     uploadImagePath: '',
     sceneTitle: '',
@@ -109,6 +111,12 @@ Page({
     compressRatioText: '',
     canvasWidth: 1,
     canvasHeight: 1
+  },
+
+  onLoad() {
+    const theme = getApp().globalData.theme;
+    this.setData({ theme });
+    updateNavBar(theme);
   },
 
   onUnload() {

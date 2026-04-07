@@ -1,3 +1,4 @@
+const { updateNavBar } = require('../../shared/theme-helper');
 const { loginSilently } = require('../../services/auth');
 const { getProducts, getProductSkus } = require('../../services/product');
 const { readSession } = require('../../services/session');
@@ -19,6 +20,7 @@ function pickFeaturedSku(products) {
 
 Page({
   data: {
+    theme: 'dark',
     loggingIn: false,
     loadingOffers: true,
     loadingMe: false,
@@ -37,6 +39,9 @@ Page({
 
   async onShow() {
     const app = getApp();
+    const theme = getApp().globalData.theme;
+    this.setData({ theme });
+    updateNavBar(theme);
     if (app && app.globalData && app.globalData.authReadyPromise) {
       try {
         await app.globalData.authReadyPromise;
