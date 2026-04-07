@@ -74,6 +74,7 @@ AUTH_JWT_SECRET = (os.getenv('AUTH_JWT_SECRET', 'dev-jwt-secret-change-me') or '
 AUTH_ACCESS_TOKEN_TTL_SECONDS = int(os.getenv('AUTH_ACCESS_TOKEN_TTL_SECONDS', '7200'))
 AUTH_REFRESH_TOKEN_TTL_SECONDS = int(os.getenv('AUTH_REFRESH_TOKEN_TTL_SECONDS', '2592000'))
 COMMERCE_STORE_BACKEND = (os.getenv('COMMERCE_STORE_BACKEND', 'disabled') or 'disabled').strip().lower()
+SCENE_STORE_BACKEND = (os.getenv('SCENE_STORE_BACKEND', 'json') or 'json').strip().lower()
 PAYMENT_MODE = (os.getenv('PAYMENT_MODE', 'mock') or 'mock').strip().lower()
 WECHAT_PAY_MCH_ID = (os.getenv('WECHAT_PAY_MCH_ID', '') or '').strip()
 WECHAT_PAY_API_V3_KEY = (os.getenv('WECHAT_PAY_API_V3_KEY', '') or '').strip()

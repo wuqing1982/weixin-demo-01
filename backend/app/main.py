@@ -17,6 +17,7 @@ logger = logging.getLogger('english_scene_api')
 from .auth_store_factory import create_auth_store
 from .commerce_store_factory import create_commerce_store
 from .generated_scene_store import GeneratedSceneStore
+from .scene_store_factory import create_generated_scene_store, create_public_scene_store
 from .hotspot_permissions import can_edit_scene_hotspots
 from .schemas import (
     AdminBatchSceneGenerateRequest,
@@ -122,8 +123,8 @@ wechat_pay_client = WechatPayClient(build_wechat_pay_config(
     currency=WECHAT_PAY_CURRENCY,
     timeout_seconds=WECHAT_PAY_TIMEOUT_SECONDS,
 ))
-public_store = SceneStore(PUBLIC_SCENES_FILE)
-generated_store = GeneratedSceneStore(GENERATED_SCENES_FILE)
+public_store = create_public_scene_store()
+generated_store = create_generated_scene_store()
 upload_store = UploadStore(UPLOADS_FILE, UPLOADS_DIR)
 task_store = TaskStore(TASKS_FILE)
 scene_worker = InlineSceneWorker(
