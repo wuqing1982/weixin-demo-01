@@ -1193,6 +1193,18 @@ class CommerceStore:
                 rows = cursor.fetchall()
                 return [self._serialize_order_detail(cursor, row) for row in rows]
 
+    def delete_orders_admin(self, order_ids: list[str]) -> int:
+        if not order_ids:
+            return 0
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                placeholders = ', '.join(['%s'] * len(order_ids))
+                cursor.execute(f'delete from order_items where order_id in ({placeholders})', tuple(order_ids))
+                cursor.execute(f'delete from payments where order_id in ({placeholders})', tuple(order_ids))
+                cursor.execute(f'delete from orders where id in ({placeholders})', tuple(order_ids))
+                deleted = cursor.rowcount
+                return deleted
+
     def get_admin_overview(self) -> dict[str, Any]:
         with self._connect() as connection:
             with connection.cursor() as cursor:

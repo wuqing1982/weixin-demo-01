@@ -131,6 +131,18 @@ class PostgresAuthStore:
                 )
                 return _serialize_user(cursor.fetchone())
 
+    def delete_users(self, user_ids: list[str]) -> int:
+        if not user_ids:
+            return 0
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                placeholders = ', '.join(['%s'] * len(user_ids))
+                cursor.execute(f'delete from user_mobile_bind_logs where user_id in ({placeholders})', tuple(user_ids))
+                cursor.execute(f'delete from auth_refresh_tokens where user_id in ({placeholders})', tuple(user_ids))
+                cursor.execute(f'delete from user_identities where user_id in ({placeholders})', tuple(user_ids))
+                cursor.execute(f'delete from users where id in ({placeholders})', tuple(user_ids))
+                return cursor.rowcount
+
     def update_user_profile(self, user_id: str, *, display_name: str = '', avatar_url: str = '') -> dict[str, Any] | None:
         if not display_name and not avatar_url:
             return self.get_user(user_id)

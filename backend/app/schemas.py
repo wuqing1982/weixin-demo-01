@@ -139,6 +139,18 @@ class MockPaymentCompleteRequest(BaseModel):
     paymentId: str | None = None
 
 
+class AdminBatchDeleteOrdersRequest(BaseModel):
+    orderIds: list[str] = Field(min_length=1, max_length=200)
+
+
+class AdminBatchDeleteTasksRequest(BaseModel):
+    taskIds: list[str] = Field(min_length=1, max_length=200)
+
+
+class AdminBatchDeleteUsersRequest(BaseModel):
+    userIds: list[str] = Field(min_length=1, max_length=200)
+
+
 class HotspotRectPayload(BaseModel):
     l: float = Field(ge=0, le=100)
     t: float = Field(ge=0, le=100)

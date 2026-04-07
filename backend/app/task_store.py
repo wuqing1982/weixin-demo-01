@@ -123,6 +123,18 @@ class TaskStore:
 
         return None
 
+    def delete_tasks(self, task_ids: list[str]) -> int:
+        if not task_ids:
+            return 0
+        id_set = set(task_ids)
+        with self.lock:
+            data = read_json_file(self.data_file)
+            tasks = data.setdefault('tasks', [])
+            before = len(tasks)
+            data['tasks'] = [t for t in tasks if t.get('taskId') not in id_set]
+            write_json_file(self.data_file, data)
+            return before - len(data['tasks'])
+
     def requeue_unfinished_tasks(self) -> None:
         with self.lock:
             data = read_json_file(self.data_file)

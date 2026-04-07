@@ -20,6 +20,9 @@ from .generated_scene_store import GeneratedSceneStore
 from .scene_store_factory import create_generated_scene_store, create_public_scene_store
 from .hotspot_permissions import can_edit_scene_hotspots
 from .schemas import (
+    AdminBatchDeleteOrdersRequest,
+    AdminBatchDeleteTasksRequest,
+    AdminBatchDeleteUsersRequest,
     AdminBatchSceneGenerateRequest,
     AdminLoginRequest,
     AdminPublishGeneratedSceneRequest,
@@ -806,6 +809,13 @@ def admin_revoke_user_admin(user_id: str, request: Request):
     return success(serialize_admin_user(user))
 
 
+@app.post('/api/admin/users/batch-delete')
+def admin_batch_delete_users(request: Request, body: AdminBatchDeleteUsersRequest):
+    get_current_admin(request)
+    deleted = auth_store.delete_users(body.userIds) if hasattr(auth_store, 'delete_users') else 0
+    return success({'deleted': deleted})
+
+
 @app.get('/api/admin/products')
 def admin_list_products(request: Request):
     get_current_admin(request)
@@ -942,6 +952,14 @@ def admin_get_order(order_id: str, request: Request):
     return success(serialize_order(request, order))
 
 
+@app.post('/api/admin/orders/batch-delete')
+def admin_batch_delete_orders(request: Request, body: AdminBatchDeleteOrdersRequest):
+    get_current_admin(request)
+    store = require_commerce_store()
+    deleted = store.delete_orders_admin(body.orderIds)
+    return success({'deleted': deleted})
+
+
 @app.get('/api/admin/tasks')
 def admin_list_tasks(request: Request, limit: int = Query(default=50, ge=1, le=200)):
     get_current_admin(request)
@@ -967,6 +985,13 @@ def admin_retry_task(task_id: str, request: Request):
     if not task:
         raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'task not found'})
     return success(serialize_admin_task(task))
+
+
+@app.post('/api/admin/tasks/batch-delete')
+def admin_batch_delete_tasks(request: Request, body: AdminBatchDeleteTasksRequest):
+    get_current_admin(request)
+    deleted = task_store.delete_tasks(body.taskIds)
+    return success({'deleted': deleted})
 
 
 @app.get('/api/admin/scene-categories')

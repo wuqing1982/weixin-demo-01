@@ -1,6 +1,6 @@
 const state = {
   token: window.localStorage.getItem('admin_access_token') || '',
-  currentView: 'users',
+  currentView: 'overview',
   currentAdmin: null,
   overview: null,
   users: [],
@@ -25,14 +25,16 @@ const state = {
 
 const loginForm = document.getElementById('login-form');
 const loginError = document.getElementById('login-error');
-const consoleRoot = document.getElementById('console');
+const loginOverlay = document.getElementById('login-overlay');
+const adminPage = document.getElementById('admin-page');
 const adminName = document.getElementById('admin-name');
 const overviewCards = document.getElementById('overview-cards');
 const panelHead = document.getElementById('panel-head');
 const panelBody = document.getElementById('panel-body');
+const pageTitle = document.getElementById('page-title');
 const logoutBtn = document.getElementById('logout-btn');
 const refreshBtn = document.getElementById('refresh-btn');
-const tabButtons = Array.from(document.querySelectorAll('.tab-btn'));
+const navItems = Array.from(document.querySelectorAll('.nav-item'));
 
 function escapeHtml(value) {
   return String(value == null ? '' : value)
@@ -51,8 +53,8 @@ function setLoggedIn(token, admin) {
   } else {
     window.localStorage.removeItem('admin_access_token');
   }
-  consoleRoot.hidden = !state.token;
-  loginForm.hidden = !!state.token;
+  loginOverlay.hidden = !!state.token;
+  adminPage.hidden = !state.token;
   adminName.textContent = admin ? `${admin.username} · ${admin.role}` : '';
 }
 
@@ -178,6 +180,42 @@ function renderOverview() {
   ].join('');
 }
 
+function getSelectedUserIds() {
+  return Array.from(panelBody.querySelectorAll('.user-checkbox:checked')).map((cb) => cb.value);
+}
+
+function updateUserBatchState() {
+  const checkboxes = panelBody.querySelectorAll('.user-checkbox');
+  const checked = panelBody.querySelectorAll('.user-checkbox:checked');
+  const selectAll = panelBody.querySelector('#select-all-users');
+  const deleteBtn = document.getElementById('batch-delete-users-btn');
+  const countSpan = document.getElementById('users-selected-count');
+  if (selectAll) {
+    selectAll.checked = checkboxes.length > 0 && checked.length === checkboxes.length;
+    selectAll.indeterminate = checked.length > 0 && checked.length < checkboxes.length;
+  }
+  if (deleteBtn) {
+    deleteBtn.disabled = checked.length === 0;
+  }
+  if (countSpan) {
+    countSpan.textContent = checked.length > 0 ? `已选 ${checked.length} 项` : '';
+  }
+}
+
+async function batchDeleteUsers() {
+  const ids = getSelectedUserIds();
+  if (ids.length === 0) return;
+  if (!window.confirm(`确定要删除选中的 ${ids.length} 个用户吗？此操作不可恢复。`)) return;
+  try {
+    await api('/api/admin/users/batch-delete', { method: 'POST', body: { userIds: ids } });
+    toast(`成功删除 ${ids.length} 个用户`);
+    state.selectedUser = null;
+    await loadConsole();
+  } catch (error) {
+    toast(error.message || '批量删除失败');
+  }
+}
+
 function renderUsers() {
   const detail = state.selectedUser ? `
     <article class="detail-card">
@@ -211,13 +249,18 @@ function renderUsers() {
       <h3 class="panel-title">用户管理</h3>
       <p class="panel-subtitle">支持查看详情、封禁与解封。</p>
     </div>
-    <span class="meta-chip">${state.users.length} 位用户</span>
+    <div class="panel-actions">
+      <span id="users-selected-count" class="selected-count"></span>
+      <button id="batch-delete-users-btn" class="mini-btn danger-btn" disabled data-action="batch-delete-users">批量删除</button>
+      <span class="meta-chip">${state.users.length} 位用户</span>
+    </div>
   `;
 
   panelBody.innerHTML = `
     ${detail}
     <div class="table">
       <div class="table-head">
+        <label class="checkbox-cell"><input type="checkbox" id="select-all-users"></label>
         <strong>用户</strong>
         <span>角色</span>
         <span>会员</span>
@@ -227,6 +270,7 @@ function renderUsers() {
       </div>
       ${state.users.map((user) => `
         <div class="table-row">
+          <label class="checkbox-cell"><input type="checkbox" class="user-checkbox" value="${escapeHtml(user.id)}"></label>
           <strong>${escapeHtml(user.displayName || user.id)}<br><small>${escapeHtml(user.id)}</small></strong>
           <span>${escapeHtml(user.role || 'user')}</span>
           <span>${user.memberSummary && user.memberSummary.isActive ? '已开通' : '未开通'}</span>
@@ -343,6 +387,42 @@ function renderProducts() {
   `;
 }
 
+function getSelectedOrderIds() {
+  return Array.from(panelBody.querySelectorAll('.order-checkbox:checked')).map((cb) => cb.value);
+}
+
+function updateBatchDeleteState() {
+  const checkboxes = panelBody.querySelectorAll('.order-checkbox');
+  const checked = panelBody.querySelectorAll('.order-checkbox:checked');
+  const selectAll = panelBody.querySelector('#select-all-orders');
+  const deleteBtn = document.getElementById('batch-delete-btn');
+  const countSpan = document.getElementById('selected-count');
+  if (selectAll) {
+    selectAll.checked = checkboxes.length > 0 && checked.length === checkboxes.length;
+    selectAll.indeterminate = checked.length > 0 && checked.length < checkboxes.length;
+  }
+  if (deleteBtn) {
+    deleteBtn.disabled = checked.length === 0;
+  }
+  if (countSpan) {
+    countSpan.textContent = checked.length > 0 ? `已选 ${checked.length} 项` : '';
+  }
+}
+
+async function batchDeleteOrders() {
+  const ids = getSelectedOrderIds();
+  if (ids.length === 0) return;
+  if (!window.confirm(`确定要删除选中的 ${ids.length} 笔订单吗？此操作不可恢复。`)) return;
+  try {
+    await api('/api/admin/orders/batch-delete', { method: 'POST', body: { orderIds: ids } });
+    toast(`成功删除 ${ids.length} 笔订单`);
+    state.selectedOrder = null;
+    await loadConsole();
+  } catch (error) {
+    toast(error.message || '批量删除失败');
+  }
+}
+
 function renderOrders() {
   const detail = state.selectedOrder ? `
     <article class="detail-card">
@@ -371,13 +451,18 @@ function renderOrders() {
       <h3 class="panel-title">订单管理</h3>
       <p class="panel-subtitle">支持查看订单详情和支付状态。</p>
     </div>
-    <span class="meta-chip">${state.orders.length} 笔订单</span>
+    <div class="panel-actions">
+      <span id="selected-count" class="selected-count"></span>
+      <button id="batch-delete-btn" class="mini-btn danger-btn" disabled data-action="batch-delete-orders">批量删除</button>
+      <span class="meta-chip">${state.orders.length} 笔订单</span>
+    </div>
   `;
 
   panelBody.innerHTML = `
     ${detail}
     <div class="table">
       <div class="table-head">
+        <label class="checkbox-cell"><input type="checkbox" id="select-all-orders"></label>
         <strong>订单号</strong>
         <span>用户</span>
         <span>金额</span>
@@ -386,6 +471,7 @@ function renderOrders() {
       </div>
       ${state.orders.map((order) => `
         <div class="table-row">
+          <label class="checkbox-cell"><input type="checkbox" class="order-checkbox" value="${escapeHtml(order.orderId)}"></label>
           <strong>${escapeHtml(order.orderNo)}<br><small>${escapeHtml((order.items || []).map((item) => item.skuName).join(' / '))}</small></strong>
           <span>${escapeHtml(order.userId)}</span>
           <span>¥${escapeHtml(order.payableAmount)}</span>
@@ -395,6 +481,42 @@ function renderOrders() {
       `).join('')}
     </div>
   `;
+}
+
+function getSelectedTaskIds() {
+  return Array.from(panelBody.querySelectorAll('.task-checkbox:checked')).map((cb) => cb.value);
+}
+
+function updateTaskBatchState() {
+  const checkboxes = panelBody.querySelectorAll('.task-checkbox');
+  const checked = panelBody.querySelectorAll('.task-checkbox:checked');
+  const selectAll = panelBody.querySelector('#select-all-tasks');
+  const deleteBtn = document.getElementById('batch-delete-tasks-btn');
+  const countSpan = document.getElementById('tasks-selected-count');
+  if (selectAll) {
+    selectAll.checked = checkboxes.length > 0 && checked.length === checkboxes.length;
+    selectAll.indeterminate = checked.length > 0 && checked.length < checkboxes.length;
+  }
+  if (deleteBtn) {
+    deleteBtn.disabled = checked.length === 0;
+  }
+  if (countSpan) {
+    countSpan.textContent = checked.length > 0 ? `已选 ${checked.length} 项` : '';
+  }
+}
+
+async function batchDeleteTasks() {
+  const ids = getSelectedTaskIds();
+  if (ids.length === 0) return;
+  if (!window.confirm(`确定要删除选中的 ${ids.length} 条任务吗？此操作不可恢复。`)) return;
+  try {
+    await api('/api/admin/tasks/batch-delete', { method: 'POST', body: { taskIds: ids } });
+    toast(`成功删除 ${ids.length} 条任务`);
+    state.selectedTask = null;
+    await loadConsole();
+  } catch (error) {
+    toast(error.message || '批量删除失败');
+  }
 }
 
 function renderTasks() {
@@ -425,13 +547,18 @@ function renderTasks() {
       <h3 class="panel-title">任务管理</h3>
       <p class="panel-subtitle">支持查看详情和失败任务重试。</p>
     </div>
-    <span class="meta-chip">${state.tasks.length} 条任务</span>
+    <div class="panel-actions">
+      <span id="tasks-selected-count" class="selected-count"></span>
+      <button id="batch-delete-tasks-btn" class="mini-btn danger-btn" disabled data-action="batch-delete-tasks">批量删除</button>
+      <span class="meta-chip">${state.tasks.length} 条任务</span>
+    </div>
   `;
 
   panelBody.innerHTML = `
     ${detail}
     <div class="table">
       <div class="table-head">
+        <label class="checkbox-cell"><input type="checkbox" id="select-all-tasks"></label>
         <strong>任务</strong>
         <span>归属用户</span>
         <span>进度</span>
@@ -440,6 +567,7 @@ function renderTasks() {
       </div>
       ${state.tasks.map((task) => `
         <div class="table-row">
+          <label class="checkbox-cell"><input type="checkbox" class="task-checkbox" value="${escapeHtml(task.taskId)}"></label>
           <strong>${escapeHtml(task.title || task.taskId)}<br><small>${escapeHtml(task.taskId)}</small></strong>
           <span>${escapeHtml(task.ownerId || '-')}</span>
           <span>${escapeHtml(task.progress || 0)}%</span>
@@ -747,10 +875,33 @@ function renderDrafts() {
   `;
 }
 
+const VIEW_TITLES = {
+  overview: '数据概览',
+  scenes: '场景管理',
+  generator: '场景生成',
+  drafts: '草稿发布',
+  taxonomy: '分类/合集',
+  users: '用户管理',
+  products: '商品管理',
+  orders: '订单管理',
+  tasks: '任务管理'
+};
+
 function renderCurrentView() {
-  tabButtons.forEach((button) => {
+  navItems.forEach((button) => {
     button.classList.toggle('active', button.dataset.view === state.currentView);
   });
+
+  pageTitle.textContent = VIEW_TITLES[state.currentView] || state.currentView;
+
+  if (state.currentView === 'overview') {
+    overviewCards.hidden = false;
+    panelHead.innerHTML = '';
+    panelBody.innerHTML = '';
+    return;
+  }
+
+  overviewCards.hidden = true;
 
   if (state.currentView === 'products') {
     renderProducts();
@@ -1088,6 +1239,10 @@ async function handleAction(action, id) {
     renderCurrentView();
     return;
   }
+  if (action === 'batch-delete-orders') {
+    await batchDeleteOrders();
+    return;
+  }
   if (action === 'task-detail') {
     state.selectedTask = await api(`/api/admin/tasks/${id}`);
     renderCurrentView();
@@ -1164,6 +1319,65 @@ panelBody.addEventListener('click', async (event) => {
   }
 });
 
+panelBody.addEventListener('change', (event) => {
+  if (event.target.classList.contains('order-checkbox')) {
+    updateBatchDeleteState();
+    return;
+  }
+  if (event.target.id === 'select-all-orders') {
+    const checked = event.target.checked;
+    panelBody.querySelectorAll('.order-checkbox').forEach((cb) => { cb.checked = checked; });
+    updateBatchDeleteState();
+    return;
+  }
+  if (event.target.classList.contains('task-checkbox')) {
+    updateTaskBatchState();
+    return;
+  }
+  if (event.target.id === 'select-all-tasks') {
+    const checked = event.target.checked;
+    panelBody.querySelectorAll('.task-checkbox').forEach((cb) => { cb.checked = checked; });
+    updateTaskBatchState();
+    return;
+  }
+  if (event.target.classList.contains('user-checkbox')) {
+    updateUserBatchState();
+    return;
+  }
+  if (event.target.id === 'select-all-users') {
+    const checked = event.target.checked;
+    panelBody.querySelectorAll('.user-checkbox').forEach((cb) => { cb.checked = checked; });
+    updateUserBatchState();
+  }
+});
+
+panelHead.addEventListener('click', async (event) => {
+  const action = event.target.dataset.action;
+  if (action === 'batch-delete-orders') {
+    try {
+      await batchDeleteOrders();
+    } catch (error) {
+      toast(error.message || '批量删除失败');
+    }
+    return;
+  }
+  if (action === 'batch-delete-tasks') {
+    try {
+      await batchDeleteTasks();
+    } catch (error) {
+      toast(error.message || '批量删除失败');
+    }
+    return;
+  }
+  if (action === 'batch-delete-users') {
+    try {
+      await batchDeleteUsers();
+    } catch (error) {
+      toast(error.message || '批量删除失败');
+    }
+  }
+});
+
 loginForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   loginError.textContent = '';
@@ -1214,7 +1428,7 @@ refreshBtn.addEventListener('click', async () => {
   }
 });
 
-tabButtons.forEach((button) => {
+navItems.forEach((button) => {
   button.addEventListener('click', () => {
     state.currentView = button.dataset.view;
     renderCurrentView();

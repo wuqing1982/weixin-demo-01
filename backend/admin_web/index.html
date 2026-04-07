@@ -7,15 +7,13 @@
     <link rel="stylesheet" href="/admin/static/admin.css">
   </head>
   <body>
-    <div class="admin-page">
-      <aside class="admin-aside">
-        <div class="brand-block">
-          <span class="brand-mark">ADMIN</span>
-          <h1>英语场景平台后台</h1>
-          <p>面向运营与管理员的最小控制台，聚焦用户、商品、订单、任务与场景运营。</p>
-        </div>
-
-        <form id="login-form" class="login-panel">
+    <!-- Login overlay (shown when not logged in) -->
+    <div id="login-overlay" class="login-overlay">
+      <div class="login-card">
+        <span class="brand-mark">ADMIN</span>
+        <h1>英语场景平台后台</h1>
+        <p>面向运营与管理员的最小控制台</p>
+        <form id="login-form" class="login-form-inner">
           <label class="field">
             <span>账号</span>
             <input id="username" name="username" type="text" autocomplete="username" value="admin">
@@ -27,33 +25,51 @@
           <button class="primary-btn" type="submit">登录后台</button>
           <p id="login-error" class="error-copy"></p>
         </form>
+      </div>
+    </div>
+
+    <!-- Main admin layout (shown after login) -->
+    <div id="admin-page" class="admin-page" hidden>
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <span class="brand-mark">ADMIN</span>
+          <h1>英语场景后台</h1>
+        </div>
+
+        <nav class="sidebar-nav">
+          <div class="nav-group">
+            <div class="nav-group-title">概览</div>
+            <button class="nav-item active" type="button" data-view="overview">数据概览</button>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-title">内容管理</div>
+            <button class="nav-item" type="button" data-view="scenes">场景管理</button>
+            <button class="nav-item" type="button" data-view="generator">场景生成</button>
+            <button class="nav-item" type="button" data-view="drafts">草稿发布</button>
+            <button class="nav-item" type="button" data-view="taxonomy">分类/合集</button>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group-title">运营管理</div>
+            <button class="nav-item" type="button" data-view="users">用户管理</button>
+            <button class="nav-item" type="button" data-view="products">商品管理</button>
+            <button class="nav-item" type="button" data-view="orders">订单管理</button>
+            <button class="nav-item" type="button" data-view="tasks">任务管理</button>
+          </div>
+        </nav>
+
+        <div class="sidebar-footer">
+          <span id="admin-name" class="admin-info"></span>
+          <button id="logout-btn" class="logout-btn" type="button">退出登录</button>
+        </div>
       </aside>
 
-      <main id="console" class="console" hidden>
-        <header class="console-header">
-          <div>
-            <span class="console-eyebrow">ADMIN DASHBOARD</span>
-            <h2>平台概览</h2>
-          </div>
-          <div class="console-actions">
-            <span id="admin-name" class="admin-chip"></span>
-            <button id="refresh-btn" class="ghost-btn" type="button">刷新</button>
-            <button id="logout-btn" class="ghost-btn" type="button">退出</button>
-          </div>
+      <main class="main-content">
+        <header class="main-header">
+          <h2 id="page-title">数据概览</h2>
+          <button id="refresh-btn" class="ghost-btn" type="button">刷新</button>
         </header>
 
         <section id="overview-cards" class="overview-grid"></section>
-
-        <nav class="tab-bar">
-          <button class="tab-btn active" type="button" data-view="users">用户</button>
-          <button class="tab-btn" type="button" data-view="products">商品</button>
-          <button class="tab-btn" type="button" data-view="orders">订单</button>
-          <button class="tab-btn" type="button" data-view="tasks">任务</button>
-          <button class="tab-btn" type="button" data-view="generator">场景生成器</button>
-          <button class="tab-btn" type="button" data-view="taxonomy">分类/合集</button>
-          <button class="tab-btn" type="button" data-view="drafts">草稿发布</button>
-          <button class="tab-btn" type="button" data-view="scenes">场景</button>
-        </nav>
 
         <section class="panel">
           <div id="panel-head" class="panel-head"></div>
@@ -64,4 +80,4 @@
 
     <script src="/admin/static/admin.js"></script>
   </body>
-  </html>
+</html>
