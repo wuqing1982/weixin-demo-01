@@ -2081,6 +2081,147 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260407053524_6c8ddb",
+      "title": "建筑庭院",
+      "category": "outdoor",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260407053524_6c8ddb/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260407053524_6c8ddb/background.jpg",
+      "items": [
+        {
+          "id": "grass",
+          "word": "grass",
+          "ipa": "/ɡrɑːs/",
+          "meaning": "草",
+          "sentence": "The grass is green and soft.",
+          "sentenceTranslation": "草是绿色柔软的。",
+          "audioPath": "/assets/generated/scene_user_20260407053524_6c8ddb/scene_user_20260407053524_6c8ddb_en-US-JennyNeural_US_female_grass_the_grass_is_green_and_soft.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 80.0,
+            "w": 50.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "building",
+          "word": "building",
+          "ipa": "/ˈbɪldɪŋ/",
+          "meaning": "建筑物",
+          "sentence": "Look at the tall building behind the grass.",
+          "sentenceTranslation": "看那座高高的建筑物，它就在草地的后面。",
+          "audioPath": "/assets/generated/scene_user_20260407053524_6c8ddb/scene_user_20260407053524_6c8ddb_en-US-JennyNeural_US_female_building_look_at_the_tall_building_behind.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 20.0,
+            "w": 30.0,
+            "h": 60.0
+          }
+        },
+        {
+          "id": "fence",
+          "word": "fence",
+          "ipa": "/fens/",
+          "meaning": "栅栏",
+          "sentence": "There's a fence around the grass area.",
+          "sentenceTranslation": "草地区域周围有一道栅栏。",
+          "audioPath": "/assets/generated/scene_user_20260407053524_6c8ddb/scene_user_20260407053524_6c8ddb_en-US-JennyNeural_US_female_fence_theres_a_fence_around_the_grass.mp3",
+          "rect": {
+            "l": 0.0,
+            "t": 70.0,
+            "w": 10.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "tree",
+          "word": "tree",
+          "ipa": "/triː/",
+          "meaning": "树",
+          "sentence": "A tree stands near the building.",
+          "sentenceTranslation": "一棵树矗立在建筑物附近。",
+          "audioPath": "/assets/generated/scene_user_20260407053524_6c8ddb/scene_user_20260407053524_6c8ddb_en-US-JennyNeural_US_female_tree_a_tree_stands_near_the_building.mp3",
+          "rect": {
+            "l": 5.78,
+            "t": 30.58,
+            "w": 10.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "window",
+          "word": "window",
+          "ipa": "/ˈwɪndəʊ/",
+          "meaning": "窗户",
+          "sentence": "The window on the building has curtains.",
+          "sentenceTranslation": "建筑物上的窗户挂着窗帘。",
+          "audioPath": "/assets/generated/scene_user_20260407053524_6c8ddb/scene_user_20260407053524_6c8ddb_en-US-JennyNeural_US_female_window_the_window_on_the_building_has.mp3",
+          "rect": {
+            "l": 45.0,
+            "t": 35.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "play",
+          "word": "play",
+          "ipa": "/pleɪ/",
+          "meaning": "玩耍",
+          "sentence": "Let's go out to play in the grass.",
+          "sentenceTranslation": "我们去草地上玩吧。",
+          "audioPath": "/assets/generated/scene_user_20260407053524_6c8ddb/scene_user_20260407053524_6c8ddb_en-US-JennyNeural_US_female_play_lets_go_out_to_play_in.mp3",
+          "relatedItem": "grass"
+        },
+        {
+          "id": "look",
+          "word": "look",
+          "ipa": "/lʊk/",
+          "meaning": "看",
+          "sentence": "Look at how tall the building is!",
+          "sentenceTranslation": "看看这栋楼有多高！",
+          "audioPath": "/assets/generated/scene_user_20260407053524_6c8ddb/scene_user_20260407053524_6c8ddb_en-US-JennyNeural_US_female_look_look_at_how_tall_the_building.mp3",
+          "relatedItem": "building"
+        },
+        {
+          "id": "walk",
+          "word": "walk",
+          "ipa": "/wɔːk/",
+          "meaning": "散步",
+          "sentence": "We can walk along the fence.",
+          "sentenceTranslation": "我们可以沿着栅栏走一走。",
+          "audioPath": "/assets/generated/scene_user_20260407053524_6c8ddb/scene_user_20260407053524_6c8ddb_en-US-JennyNeural_US_female_walk_we_can_walk_along_the_fence.mp3",
+          "relatedItem": "fence"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260405145017_f25208",
+        "uploadId": "upload_20260407053521_7022a9",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260407053524_6c8ddb",
+        "core100SceneTitle": "建筑庭院",
+        "recommendedCategory": "outdoor",
+        "tags": [
+          "户外",
+          "建筑",
+          "草地"
+        ],
+        "version": 2,
+        "hotspotEditable": true,
+        "hotspotUpdatedAt": "2026-04-07T05:37:01Z",
+        "hotspotUpdatedBy": "user_20260405145017_f25208"
+      }
     }
   ]
 }
