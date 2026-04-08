@@ -161,11 +161,13 @@ def _write_text_file(text: str, filepath: str) -> str:
     return filepath
 
 
-def _build_panel_filter(tmp_dir: Path, img_w: int, img_h: int, item: dict) -> tuple[str, int]:
+def _build_panel_filter(tmp_dir: Path, img_w: int, img_h: int, item: dict,
+                        item_type: str = 'noun') -> tuple[str, int]:
     """
     Build the info panel filter chain. Returns (filter_string, panel_height).
     Uses textfile for Chinese text to avoid shell encoding issues.
     Font sizes are proportional to img_w (720 at standard).
+    item_type: 'noun' for hotspot items, 'verb' for action verbs.
     """
     pad = int(img_w * 0.035)
     usable_w = img_w - pad * 2
@@ -177,9 +179,11 @@ def _build_panel_filter(tmp_dir: Path, img_w: int, img_h: int, item: dict) -> tu
     font_meaning = int(42 * scale)
     font_sentence = int(38 * scale)
     font_translation = int(36 * scale)
+    font_tag = int(24 * scale)
 
     line_spacing_word = int(font_word * 1.05)
     line_spacing = int(font_sentence * 1.25)
+    tag_height = int(font_tag * 1.6)
 
     word = item.get('word', '')
     ipa = item.get('ipa', '')
@@ -193,6 +197,7 @@ def _build_panel_filter(tmp_dir: Path, img_w: int, img_h: int, item: dict) -> tu
 
     # Calculate total panel height
     total_height = pad
+    total_height += tag_height  # type tag line (名词/动词)
     total_height += line_spacing_word  # word line
     if ipa:
         total_height += int(font_ipa * 1.2)  # ipa line
@@ -206,13 +211,36 @@ def _build_panel_filter(tmp_dir: Path, img_w: int, img_h: int, item: dict) -> tu
     panel_y = img_h - panel_height
 
     # Background boxes (layered transparency)
-    bg = (
-        f'drawbox=x={pad}:y={panel_y}:w={usable_w}:h={panel_height}:color=black@0.55:t=fill,'
-        f'drawbox=x={pad}:y={panel_y}:w={usable_w}:h={panel_height}:color=white@0.10:t=1'
-    )
+    if item_type == 'verb':
+        bg = (
+            f'drawbox=x={pad}:y={panel_y}:w={usable_w}:h={panel_height}:color=black@0.55:t=fill,'
+            f'drawbox=x={pad}:y={panel_y}:w={usable_w}:h={panel_height}:color=#4fc3f7@0.15:t=2'
+        )
+    else:
+        bg = (
+            f'drawbox=x={pad}:y={panel_y}:w={usable_w}:h={panel_height}:color=black@0.55:t=fill,'
+            f'drawbox=x={pad}:y={panel_y}:w={usable_w}:h={panel_height}:color=white@0.10:t=1'
+        )
 
     text_parts = []
     ty = panel_y + pad
+
+    # Type tag (名词 / 动词)
+    tag_text = '动词 VERB' if item_type == 'verb' else '名词 NOUN'
+    tag_color = '#4fc3f7' if item_type == 'verb' else '#ffd93d'
+    tag_bg_color = '#4fc3f7@0.25' if item_type == 'verb' else '#ffd93d@0.25'
+    tag_pad = int(font_tag * 0.4)
+    tf_path = str(tmp_dir / 'panel_tag.txt')
+    _write_text_file(tag_text, tf_path)
+    tag_w = _measure_text_width(tag_text, CHINESE_FONT, font_tag) + tag_pad * 2
+    tag_h = tag_height - int(pad * 0.3)
+    tag_x = (img_w - tag_w) // 2
+    text_parts.append(
+        f'drawbox=x={tag_x}:y={ty}:w={tag_w}:h={tag_h}:color={tag_bg_color}:t=fill,'
+        f"drawtext=textfile='{tf_path}':fontfile='{CHINESE_FONT}'"
+        f':fontcolor={tag_color}:fontsize={font_tag}:x=(w-tw)/2:y={ty + (tag_h - font_tag) // 2}'
+    )
+    ty += tag_height
 
     # Word (English)
     tf_path = str(tmp_dir / 'panel_word.txt')
@@ -300,7 +328,8 @@ def _generate_move_segment(image_path: str, output_path: str,
 
 
 def _generate_display_segment(tmp_dir: Path, image_path: str, audio_path: str,
-                              output_path: str, item: dict) -> None:
+                              output_path: str, item: dict,
+                              item_type: str = 'noun') -> None:
     sw, sh = _ensure_even(VIDEO_W, VIDEO_H)
     rect = item.get('rect')
     if rect:
@@ -309,7 +338,7 @@ def _generate_display_segment(tmp_dir: Path, image_path: str, audio_path: str,
     else:
         highlight = ''
 
-    panel, _ = _build_panel_filter(tmp_dir, VIDEO_W, VIDEO_H, item)
+    panel, _ = _build_panel_filter(tmp_dir, VIDEO_W, VIDEO_H, item, item_type=item_type)
 
     scale_filter = f'scale={sw}:{sh}:force_original_aspect_ratio=decrease,pad={sw}:{sh}:(ow-iw)/2:(oh-ih)/2:color=black'
 
@@ -388,12 +417,11 @@ def generate_scene_video(
 
     _progress(10, f'输出尺寸: {VIDEO_W}x{VIDEO_H}')
 
-    # 2. Collect items with audio
+    # 2. Collect items (nouns) with audio
     items = scene.get('items', [])
-    if not items:
-        raise ValueError('Scene has no items to export')
+    verbs = scene.get('verbs', [])
 
-    prepared = []
+    prepared_items = []
     for item in items:
         audio_rel = item.get('audioPath', '')
         if not audio_rel:
@@ -406,12 +434,28 @@ def generate_scene_video(
                            item.get('id'), audio_path)
             continue
         duration = _get_audio_duration(str(audio_path))
-        prepared.append((item, audio_path, duration))
+        prepared_items.append((item, audio_path, duration))
 
-    if not prepared:
+    if not prepared_items:
         raise ValueError('No items with audio found')
 
-    _progress(15, f'已准备 {len(prepared)} 个音频')
+    # 2b. Collect verbs with audio
+    prepared_verbs = []
+    for verb in verbs:
+        audio_rel = verb.get('audioPath', '')
+        if not audio_rel:
+            continue
+        if audio_rel.startswith('/assets/'):
+            audio_rel = audio_rel[len('/assets/'):]
+        audio_path = assets_root / audio_rel.lstrip('/')
+        if not audio_path.exists():
+            logger.warning('Audio not found, skipping verb %s: %s',
+                           verb.get('word'), audio_path)
+            continue
+        duration = _get_audio_duration(str(audio_path))
+        prepared_verbs.append((verb, audio_path, duration))
+
+    _progress(15, f'已准备 {len(prepared_items)} 个名词 + {len(prepared_verbs)} 个动词')
 
     # 3. Generate segments
     tmp_dir = output_path.parent / f'.tmp_{output_path.stem}'
@@ -419,30 +463,53 @@ def generate_scene_video(
 
     try:
         segments: list[str] = []
-        total = len(prepared)
+        total = len(prepared_items) + len(prepared_verbs)
+        seg_idx = 0
 
-        for idx, (item, audio_path, audio_dur) in enumerate(prepared):
-            base_pct = 15 + int(idx / total * 65)
-            word = item.get('word', f'item-{idx}')
+        # --- Noun segments (with highlight + panel + audio) ---
+        for i, (item, audio_path, audio_dur) in enumerate(prepared_items):
+            base_pct = 15 + int(seg_idx / total * 65)
+            word = item.get('word', f'item-{i}')
 
-            # Per-item temp dir for text files
-            item_tmp = tmp_dir / f'item_{idx:03d}'
+            item_tmp = tmp_dir / f'seg_{seg_idx:03d}'
             item_tmp.mkdir(exist_ok=True)
 
-            # Move segment (short pause between items)
-            if idx > 0:
-                _progress(base_pct, f'移动片段 {idx+1}/{total}')
-                move_out = str(tmp_dir / f'move_{idx:03d}.mp4')
+            if seg_idx > 0:
+                _progress(base_pct, f'过渡片段 {seg_idx+1}/{total}')
+                move_out = str(tmp_dir / f'move_{seg_idx:03d}.mp4')
                 _generate_move_segment(str(bg_path), move_out, 0.3)
                 segments.append(move_out)
 
-            # Display segment (highlight + panel + audio)
-            _progress(base_pct + 3, f'展示 {idx+1}/{total}: {word}')
-            display_out = str(tmp_dir / f'display_{idx:03d}.mp4')
+            _progress(base_pct + 3, f'名词 {i+1}/{len(prepared_items)}: {word}')
+            display_out = str(tmp_dir / f'display_{seg_idx:03d}.mp4')
             _generate_display_segment(
                 item_tmp, str(bg_path), str(audio_path), display_out, item
             )
             segments.append(display_out)
+            seg_idx += 1
+
+        # --- Verb segments (panel + audio, no highlight) ---
+        for i, (verb, audio_path, audio_dur) in enumerate(prepared_verbs):
+            base_pct = 15 + int(seg_idx / total * 65)
+            word = verb.get('word', f'verb-{i}')
+
+            item_tmp = tmp_dir / f'seg_{seg_idx:03d}'
+            item_tmp.mkdir(exist_ok=True)
+
+            # Transition before verb segment
+            _progress(base_pct, f'过渡片段 {seg_idx+1}/{total}')
+            move_out = str(tmp_dir / f'move_{seg_idx:03d}.mp4')
+            _generate_move_segment(str(bg_path), move_out, 0.3)
+            segments.append(move_out)
+
+            _progress(base_pct + 3, f'动词 {i+1}/{len(prepared_verbs)}: {word}')
+            display_out = str(tmp_dir / f'display_{seg_idx:03d}.mp4')
+            _generate_display_segment(
+                item_tmp, str(bg_path), str(audio_path), display_out, verb,
+                item_type='verb'
+            )
+            segments.append(display_out)
+            seg_idx += 1
 
         _progress(85, '合并视频片段...')
         _concat_segments(segments, str(output_path))

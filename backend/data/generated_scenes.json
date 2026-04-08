@@ -2774,6 +2774,144 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260408100155_a05381",
+      "title": "公交车站",
+      "category": "transportation",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260408100155_a05381/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260408100155_a05381/background.jpg",
+      "items": [
+        {
+          "id": "bus_shelter",
+          "word": "bus shelter",
+          "ipa": "/bʌsˌʃeltr/",
+          "meaning": "公交车站棚",
+          "sentence": "The bus shelter is where people wait for the bus.",
+          "sentenceTranslation": "公交车站棚是人们等公交车的地方。",
+          "audioPath": "/assets/generated/scene_user_20260408100155_a05381/scene_user_20260408100155_a05381_en-US-JennyNeural_US_female_bus_shelter_the_bus_shelter_is_where_people.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 50.0,
+            "w": 30.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "motorcycle",
+          "word": "motorcycle",
+          "ipa": "/mɔːtəˈkaɪsl/",
+          "meaning": "摩托车",
+          "sentence": "A man is riding a motorcycle near the bus stop.",
+          "sentenceTranslation": "一个男人正在公交车站附近骑摩托车。",
+          "audioPath": "/assets/generated/scene_user_20260408100155_a05381/scene_user_20260408100155_a05381_en-US-JennyNeural_US_female_motorcycle_a_man_is_riding_a_motorcycle.mp3",
+          "rect": {
+            "l": 45.0,
+            "t": 55.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "pedestrian",
+          "word": "pedestrian",
+          "ipa": "/pəˈdiːstriən/",
+          "meaning": "行人",
+          "sentence": "Pedestrians are walking on the sidewalk near the bus stop.",
+          "sentenceTranslation": "行人在公交车站附近的马路边走。",
+          "audioPath": "/assets/generated/scene_user_20260408100155_a05381/scene_user_20260408100155_a05381_en-US-JennyNeural_US_female_pedestrian_pedestrians_are_walking_on_the_sidewalk.mp3",
+          "rect": {
+            "l": 35.0,
+            "t": 60.0,
+            "w": 15.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "grass",
+          "word": "grass",
+          "ipa": "/grɑːs/",
+          "meaning": "草地",
+          "sentence": "The grass is green and lush in front of the bus stop.",
+          "sentenceTranslation": "公交车站前的草又绿又茂盛。",
+          "audioPath": "/assets/generated/scene_user_20260408100155_a05381/scene_user_20260408100155_a05381_en-US-JennyNeural_US_female_grass_the_grass_is_green_and_lush.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 70.0,
+            "w": 40.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "building",
+          "word": "building",
+          "ipa": "/ˈbɪldɪŋ/",
+          "meaning": "建筑物",
+          "sentence": "Tall buildings can be seen in the background.",
+          "sentenceTranslation": "背景中可以看到高楼大厦。",
+          "audioPath": "/assets/generated/scene_user_20260408100155_a05381/scene_user_20260408100155_a05381_en-US-JennyNeural_US_female_building_tall_buildings_can_be_seen_in.mp3",
+          "rect": {
+            "l": 80.0,
+            "t": 20.0,
+            "w": 20.0,
+            "h": 30.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "wait",
+          "word": "wait",
+          "ipa": "/weɪt/",
+          "meaning": "等待",
+          "sentence": "People wait at the bus shelter for the bus to arrive.",
+          "sentenceTranslation": "人们在公交车站棚里等公交车到来。",
+          "audioPath": "/assets/generated/scene_user_20260408100155_a05381/scene_user_20260408100155_a05381_en-US-JennyNeural_US_female_wait_people_wait_at_the_bus_shelter.mp3",
+          "relatedItem": "bus_shelter"
+        },
+        {
+          "id": "ride",
+          "word": "ride",
+          "ipa": "/raɪd/",
+          "meaning": "骑行",
+          "sentence": "The man rides his motorcycle down the street.",
+          "sentenceTranslation": "那个男人骑着摩托车沿着马路行驶。",
+          "audioPath": "/assets/generated/scene_user_20260408100155_a05381/scene_user_20260408100155_a05381_en-US-JennyNeural_US_female_ride_the_man_rides_his_motorcycle_down.mp3",
+          "relatedItem": "motorcycle"
+        },
+        {
+          "id": "walk",
+          "word": "walk",
+          "ipa": "/wɔːk/",
+          "meaning": "步行",
+          "sentence": "Pedestrians walk along the sidewalk near the bus stop.",
+          "sentenceTranslation": "行人在公交车站附近的马路上行走。",
+          "audioPath": "/assets/generated/scene_user_20260408100155_a05381/scene_user_20260408100155_a05381_en-US-JennyNeural_US_female_walk_pedestrians_walk_along_the_sidewalk_near.mp3",
+          "relatedItem": "pedestrian"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260408024505_7358e9",
+        "uploadId": "upload_20260408100154_8ed7ef",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260408100155_a05381",
+        "core100SceneTitle": "公交车站",
+        "recommendedCategory": "transportation",
+        "tags": [
+          "交通",
+          "户外",
+          "公共设施"
+        ],
+        "version": 1
+      }
     }
   ]
 }
