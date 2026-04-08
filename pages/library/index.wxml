@@ -2,8 +2,6 @@
 <view class="container">
   <text class="section-title theme-{{theme}}">公开场景库</text>
   <text class="section-subtitle theme-{{theme}}">浏览所有公开的英语学习全景场景。</text>
-  <button class="btn-secondary theme-{{theme}} create-btn" bindtap="onOpenCreate">拍照生成新场景</button>
-
   <view wx:if="{{loading}}" class="state-card theme-{{theme}}">加载场景列表中...</view>
 
   <view wx:elif="{{errorMessage}}" class="state-card theme-{{theme}}">{{errorMessage}}</view>

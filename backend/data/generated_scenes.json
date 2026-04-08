@@ -2793,10 +2793,10 @@
           "sentenceTranslation": "公交车站棚是人们等公交车的地方。",
           "audioPath": "/assets/generated/scene_user_20260408100155_a05381/scene_user_20260408100155_a05381_en-US-JennyNeural_US_female_bus_shelter_the_bus_shelter_is_where_people.mp3",
           "rect": {
-            "l": 40.0,
-            "t": 50.0,
-            "w": 30.0,
-            "h": 20.0
+            "l": 18.03,
+            "t": 49.9,
+            "w": 19.65,
+            "h": 7.41
           }
         },
         {
@@ -2808,10 +2808,10 @@
           "sentenceTranslation": "一个男人正在公交车站附近骑摩托车。",
           "audioPath": "/assets/generated/scene_user_20260408100155_a05381/scene_user_20260408100155_a05381_en-US-JennyNeural_US_female_motorcycle_a_man_is_riding_a_motorcycle.mp3",
           "rect": {
-            "l": 45.0,
-            "t": 55.0,
-            "w": 10.0,
-            "h": 10.0
+            "l": 36.8,
+            "t": 56.87,
+            "w": 14.97,
+            "h": 6.66
           }
         },
         {
@@ -2823,10 +2823,10 @@
           "sentenceTranslation": "行人在公交车站附近的马路边走。",
           "audioPath": "/assets/generated/scene_user_20260408100155_a05381/scene_user_20260408100155_a05381_en-US-JennyNeural_US_female_pedestrian_pedestrians_are_walking_on_the_sidewalk.mp3",
           "rect": {
-            "l": 35.0,
-            "t": 60.0,
-            "w": 15.0,
-            "h": 10.0
+            "l": 3.41,
+            "t": 55.79,
+            "w": 10.1,
+            "h": 6.37
           }
         },
         {
@@ -2838,10 +2838,10 @@
           "sentenceTranslation": "公交车站前的草又绿又茂盛。",
           "audioPath": "/assets/generated/scene_user_20260408100155_a05381/scene_user_20260408100155_a05381_en-US-JennyNeural_US_female_grass_the_grass_is_green_and_lush.mp3",
           "rect": {
-            "l": 10.0,
-            "t": 70.0,
-            "w": 40.0,
-            "h": 20.0
+            "l": 5.98,
+            "t": 64.1,
+            "w": 28.17,
+            "h": 10.86
           }
         },
         {
@@ -2910,7 +2910,10 @@
           "户外",
           "公共设施"
         ],
-        "version": 1
+        "version": 4,
+        "hotspotEditable": true,
+        "hotspotUpdatedAt": "2026-04-08T14:31:13Z",
+        "hotspotUpdatedBy": "user_20260408024505_7358e9"
       }
     }
   ]
