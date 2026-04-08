@@ -77,7 +77,7 @@
         placeholder-class="cdk-placeholder theme-{{theme}}"
         value="{{cdkInput}}"
         bindinput="onCdkInput"
-        maxlength="24"
+        maxlength="27"
       />
       <view class="cdk-modal-actions">
         <button class="btn-secondary theme-{{theme}} cdk-cancel-btn" bindtap="onCloseCdkModal">取消</button>
