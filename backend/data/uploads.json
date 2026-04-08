@@ -275,6 +275,30 @@
       "height": 1600,
       "createdAt": "2026-04-08T01:05:29Z",
       "updatedAt": "2026-04-08T01:05:29Z"
+    },
+    {
+      "uploadId": "upload_20260408022615_477c8f",
+      "ownerId": "user_20260405145017_f25208",
+      "originalFilename": "tmp_08cfebd0b4bc50f03f11e4f8cef1773bfdc5528d1a0667c8.jpg",
+      "contentType": "image/jpeg",
+      "filePath": "/assets/uploads/upload_20260408022615_477c8f/source.jpg",
+      "sizeBytes": 77221,
+      "width": 715,
+      "height": 1600,
+      "createdAt": "2026-04-08T02:26:15Z",
+      "updatedAt": "2026-04-08T02:26:15Z"
+    },
+    {
+      "uploadId": "upload_20260408024517_28c469",
+      "ownerId": "user_20260408024505_7358e9",
+      "originalFilename": "tmp_8598913f6907a90159319539608da9ae49ea0340b7fc1c815538d641f6721ea3.jpeg",
+      "contentType": "image/jpeg",
+      "filePath": "/assets/uploads/upload_20260408024517_28c469/source.jpg",
+      "sizeBytes": 3309,
+      "width": 132,
+      "height": 132,
+      "createdAt": "2026-04-08T02:45:17Z",
+      "updatedAt": "2026-04-08T02:45:17Z"
     }
   ]
 }

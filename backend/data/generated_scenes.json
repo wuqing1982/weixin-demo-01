@@ -2636,6 +2636,144 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260408022616_b82970",
+      "title": "厨房柜台",
+      "category": "existing",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260408022616_b82970/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260408022616_b82970/background.jpg",
+      "items": [
+        {
+          "id": "pink_mug",
+          "word": "mug",
+          "ipa": "/muːɡ/",
+          "meaning": "杯子",
+          "sentence": "Look at the pink mug on the counter.",
+          "sentenceTranslation": "看那个粉色的杯子在柜台上。",
+          "audioPath": "/assets/generated/scene_user_20260408022616_b82970/scene_user_20260408022616_b82970_en-US-JennyNeural_US_female_pink_mug_look_at_the_pink_mug_on.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 60.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "white_kettle",
+          "word": "kettle",
+          "ipa": "/ˈkeɪtl/",
+          "meaning": "水壶",
+          "sentence": "The white kettle is on the counter.",
+          "sentenceTranslation": "白色的水壶在柜台上。",
+          "audioPath": "/assets/generated/scene_user_20260408022616_b82970/scene_user_20260408022616_b82970_en-US-JennyNeural_US_female_white_kettle_the_white_kettle_is_on_the.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 55.0,
+            "w": 30.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "pills",
+          "word": "pill",
+          "ipa": "/pɪl/",
+          "meaning": "药片",
+          "sentence": "There are pills on the counter.",
+          "sentenceTranslation": "柜台上有一些药片。",
+          "audioPath": "/assets/generated/scene_user_20260408022616_b82970/scene_user_20260408022616_b82970_en-US-JennyNeural_US_female_pills_there_are_pills_on_the_counter.mp3",
+          "rect": {
+            "l": 25.0,
+            "t": 45.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "painting",
+          "word": "painting",
+          "ipa": "/ˈpeɪntɪŋ/",
+          "meaning": "画",
+          "sentence": "The painting is leaning against the wall.",
+          "sentenceTranslation": "这幅画靠在墙上。",
+          "audioPath": "/assets/generated/scene_user_20260408022616_b82970/scene_user_20260408022616_b82970_en-US-JennyNeural_US_female_painting_the_painting_is_leaning_against_the.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 35.0,
+            "w": 30.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "window",
+          "word": "window",
+          "ipa": "/ˈwɪndəʊ/",
+          "meaning": "窗户",
+          "sentence": "The window lets in light.",
+          "sentenceTranslation": "窗户透进光来。",
+          "audioPath": "/assets/generated/scene_user_20260408022616_b82970/scene_user_20260408022616_b82970_en-US-JennyNeural_US_female_window_the_window_lets_in_light.mp3",
+          "rect": {
+            "l": 80.0,
+            "t": 20.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "put",
+          "word": "put",
+          "ipa": "/pʊt/",
+          "meaning": "放",
+          "sentence": "Put the mug on the counter.",
+          "sentenceTranslation": "把杯子放在柜台上。",
+          "audioPath": "/assets/generated/scene_user_20260408022616_b82970/scene_user_20260408022616_b82970_en-US-JennyNeural_US_female_put_put_the_mug_on_the_counter.mp3",
+          "relatedItem": "pink_mug"
+        },
+        {
+          "id": "boil",
+          "word": "boil",
+          "ipa": "/bɒɪl/",
+          "meaning": "煮沸",
+          "sentence": "Boil water in the kettle.",
+          "sentenceTranslation": "在水壶里烧开水。",
+          "audioPath": "/assets/generated/scene_user_20260408022616_b82970/scene_user_20260408022616_b82970_en-US-JennyNeural_US_female_boil_boil_water_in_the_kettle.mp3",
+          "relatedItem": "white_kettle"
+        },
+        {
+          "id": "take",
+          "word": "take",
+          "ipa": "/teɪk/",
+          "meaning": "拿走",
+          "sentence": "Take a pill with water.",
+          "sentenceTranslation": "用水送服一片药。",
+          "audioPath": "/assets/generated/scene_user_20260408022616_b82970/scene_user_20260408022616_b82970_en-US-JennyNeural_US_female_take_take_a_pill_with_water.mp3",
+          "relatedItem": "pills"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260405145017_f25208",
+        "uploadId": "upload_20260408022615_477c8f",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260408022616_b82970",
+        "core100SceneTitle": "厨房柜台",
+        "recommendedCategory": "existing",
+        "tags": [
+          "家庭",
+          "日常",
+          "烹饪"
+        ],
+        "version": 1
+      }
     }
   ]
 }

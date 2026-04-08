@@ -187,6 +187,24 @@ create index if not exists idx_scene_publications_public_scene_id on scene_publi
 create index if not exists idx_scene_publications_category_id on scene_publications(category_id);
 create index if not exists idx_scene_publication_collections_public_scene_id on scene_publication_collections(public_scene_id);
 create index if not exists idx_scene_publication_collections_collection_id on scene_publication_collections(collection_id);
+
+create table if not exists cdk_codes (
+  id varchar(128) primary key,
+  code varchar(64) not null unique,
+  sku_id varchar(128) not null references product_skus(id),
+  status varchar(32) not null default 'unused',
+  batch_id varchar(128),
+  redeemed_by varchar(128),
+  redeemed_at timestamptz,
+  note text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists idx_cdk_codes_status on cdk_codes(status);
+create index if not exists idx_cdk_codes_sku_id on cdk_codes(sku_id);
+create index if not exists idx_cdk_codes_batch_id on cdk_codes(batch_id);
+create index if not exists idx_cdk_codes_redeemed_by on cdk_codes(redeemed_by);
 """.strip()
 
 

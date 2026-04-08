@@ -624,6 +624,43 @@ input {
   color: var(--danger);
 }
 
+.status-unused {
+  color: var(--muted);
+}
+
+/* CDK inline form */
+.inline-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.form-select {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+  min-width: 180px;
+}
+
+.form-input {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.cdk-code {
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
 /* ========== Responsive ========== */
 
 @media (max-width: 980px) {

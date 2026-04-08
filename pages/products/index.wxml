@@ -22,6 +22,7 @@
       <text class="guest-tip-desc theme-{{theme}}">可以先看会员套餐，真正下单前再用微信一键登录。</text>
     </view>
     <button class="btn-secondary theme-{{theme}} orders-btn" bindtap="onOpenOrders">查看我的订单</button>
+    <button class="btn-cdk theme-{{theme}}" bindtap="onOpenCdkModal">卡密兑换</button>
   </view>
 
   <view wx:if="{{loading}}" class="state-card theme-{{theme}}">商品加载中...</view>
@@ -63,6 +64,25 @@
       >
         {{item.isCurrent ? '当前套餐' : (guestMode ? '登录后购买' : '立即购买')}}
       </button>
+    </view>
+  </view>
+
+  <!-- CDK redeem modal -->
+  <view class="cdk-modal-mask" wx:if="{{showCdkModal}}" bindtap="onCloseCdkModal">
+    <view class="cdk-modal theme-{{theme}}" catchtap="">
+      <text class="cdk-modal-title theme-{{theme}}">卡密兑换</text>
+      <input
+        class="cdk-input theme-{{theme}}"
+        placeholder="请输入卡密码，如 PLUS-A1B2-C3D4-E5F6-G7H8"
+        placeholder-class="cdk-placeholder theme-{{theme}}"
+        value="{{cdkInput}}"
+        bindinput="onCdkInput"
+        maxlength="24"
+      />
+      <view class="cdk-modal-actions">
+        <button class="btn-secondary theme-{{theme}} cdk-cancel-btn" bindtap="onCloseCdkModal">取消</button>
+        <button class="btn-primary theme-{{theme}} cdk-confirm-btn" loading="{{cdkRedeeming}}" disabled="{{cdkRedeeming || !cdkInput}}" bindtap="onRedeemCdk">确认兑换</button>
+      </view>
     </view>
   </view>
 </view>

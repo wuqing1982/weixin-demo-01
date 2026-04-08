@@ -71,3 +71,15 @@ class SceneStore:
             scenes.append(next_scene)
             write_json_file(self.data_file, payload)
         return copy.deepcopy(next_scene)
+
+    def delete_scenes(self, scene_ids: list[str]) -> int:
+        with self.lock:
+            payload = read_json_file(self.data_file)
+            scenes = payload.get('scenes', [])
+            before = len(scenes)
+            remaining = [s for s in scenes if s.get('sceneId') not in scene_ids]
+            deleted = before - len(remaining)
+            if deleted > 0:
+                payload['scenes'] = remaining
+                write_json_file(self.data_file, payload)
+        return deleted

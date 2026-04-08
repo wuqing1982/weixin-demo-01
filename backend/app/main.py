@@ -20,10 +20,13 @@ from .generated_scene_store import GeneratedSceneStore
 from .scene_store_factory import create_generated_scene_store, create_public_scene_store
 from .hotspot_permissions import can_edit_scene_hotspots
 from .schemas import (
+    AdminBatchDeleteCdkRequest,
     AdminBatchDeleteOrdersRequest,
+    AdminBatchDeleteScenesRequest,
     AdminBatchDeleteTasksRequest,
     AdminBatchDeleteUsersRequest,
     AdminBatchSceneGenerateRequest,
+    AdminGenerateCdkRequest,
     AdminLoginRequest,
     AdminPublishGeneratedSceneRequest,
     AdminProductRequest,
@@ -31,6 +34,7 @@ from .schemas import (
     AdminSceneCategoryRequest,
     AdminSceneCollectionRequest,
     AdminSkuRequest,
+    CdkRedeemRequest,
     MeProfileUpdateRequest,
     MockPaymentCompleteRequest,
     LogoutRequest,
@@ -960,6 +964,46 @@ def admin_batch_delete_orders(request: Request, body: AdminBatchDeleteOrdersRequ
     return success({'deleted': deleted})
 
 
+# --- CDK management ---
+
+@app.get('/api/admin/cdk-codes')
+def admin_list_cdk_codes(request: Request, status: str = Query(default=''), skuId: str = Query(default=''), limit: int = Query(default=200, ge=1, le=500), offset: int = Query(default=0, ge=0)):
+    get_current_admin(request)
+    store = require_commerce_store()
+    codes = store.list_cdk_codes(status=status, sku_id=skuId, limit=limit, offset=offset)
+    return success({'list': codes})
+
+
+@app.post('/api/admin/cdk-codes/generate')
+def admin_generate_cdk(request: Request, body: AdminGenerateCdkRequest):
+    get_current_admin(request)
+    store = require_commerce_store()
+    try:
+        codes = store.generate_cdk_batch(sku_id=body.skuId, quantity=body.quantity, note=body.note)
+        return success({'list': codes})
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail={'code': 4000, 'message': str(exc)})
+
+
+@app.post('/api/admin/cdk-codes/batch-delete')
+def admin_batch_delete_cdk(request: Request, body: AdminBatchDeleteCdkRequest):
+    get_current_admin(request)
+    store = require_commerce_store()
+    deleted = store.delete_cdk_batch(body.cdkIds)
+    return success({'deleted': deleted})
+
+
+@app.post('/api/cdk/redeem')
+def cdk_redeem(request: Request, body: CdkRedeemRequest):
+    user_id = get_current_user_id(request)
+    store = require_commerce_store()
+    try:
+        result = store.redeem_cdk(code=body.code.strip().upper(), user_id=user_id)
+        return success(result)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail={'code': 4000, 'message': str(exc)})
+
+
 @app.get('/api/admin/tasks')
 def admin_list_tasks(request: Request, limit: int = Query(default=50, ge=1, le=200)):
     get_current_admin(request)
@@ -1140,6 +1184,13 @@ def admin_list_public_scenes(request: Request):
             payload['publication'] = publication
         enriched.append(payload)
     return success({'list': enriched})
+
+
+@app.post('/api/admin/public-scenes/batch-delete')
+def admin_batch_delete_public_scenes(request: Request, body: AdminBatchDeleteScenesRequest):
+    get_current_admin(request)
+    deleted = public_store.delete_scenes(body.sceneIds)
+    return success({'deleted': deleted})
 
 
 @app.post('/api/admin/public-scenes')

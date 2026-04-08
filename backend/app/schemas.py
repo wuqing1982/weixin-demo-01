@@ -151,6 +151,10 @@ class AdminBatchDeleteUsersRequest(BaseModel):
     userIds: list[str] = Field(min_length=1, max_length=200)
 
 
+class AdminBatchDeleteScenesRequest(BaseModel):
+    sceneIds: list[str] = Field(min_length=1, max_length=200)
+
+
 class HotspotRectPayload(BaseModel):
     l: float = Field(ge=0, le=100)
     t: float = Field(ge=0, le=100)
@@ -165,3 +169,17 @@ class HotspotItemUpdateRequest(BaseModel):
 
 class SceneHotspotUpdateRequest(BaseModel):
     items: list[HotspotItemUpdateRequest] = Field(min_length=1)
+
+
+class AdminGenerateCdkRequest(BaseModel):
+    skuId: str = Field(min_length=1, max_length=128)
+    quantity: int = Field(ge=1, le=500)
+    note: str = Field(default='', max_length=500)
+
+
+class AdminBatchDeleteCdkRequest(BaseModel):
+    cdkIds: list[str] = Field(min_length=1, max_length=500)
+
+
+class CdkRedeemRequest(BaseModel):
+    code: str = Field(min_length=1, max_length=64)

@@ -1,5 +1,7 @@
 import json
+import random
 import secrets
+import string
 import time
 from datetime import datetime, timedelta, timezone
 from decimal import Decimal
@@ -169,6 +171,22 @@ def _serialize_order(row: dict[str, Any], items: list[dict[str, Any]], payments:
 def _build_business_no(prefix: str) -> str:
     timestamp = datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')
     return f'{prefix}{timestamp}{secrets.token_hex(3)}'
+
+
+def _serialize_cdk(row: dict[str, Any]) -> dict[str, Any]:
+    return {
+        'cdkId': row.get('id', ''),
+        'code': row.get('code', ''),
+        'skuId': row.get('sku_id', ''),
+        'skuName': row.get('sku_name') or row.get('sku_id', ''),
+        'status': row.get('status', 'unused'),
+        'batchId': row.get('batch_id') or '',
+        'redeemedBy': row.get('redeemed_by') or '',
+        'redeemedAt': _to_iso(row.get('redeemed_at')),
+        'note': row.get('note') or '',
+        'createdAt': _to_iso(row.get('created_at')),
+        'updatedAt': _to_iso(row.get('updated_at')),
+    }
 
 
 class CommerceStore:
@@ -1000,121 +1018,131 @@ class CommerceStore:
         for item in items:
             quantity = int(item.get('quantity') or 1)
             benefits = item.get('benefit_snapshot') or []
-            for benefit in benefits:
-                benefit_type = benefit.get('benefitType', '')
-                benefit_value = benefit.get('benefitValue', '')
-                benefit_json = benefit.get('benefitJson') or {}
+            self._grant_sku_benefits(
+                cursor,
+                user_id=order_row.get('user_id', ''),
+                benefits=benefits,
+                quantity=quantity,
+                source_type='order',
+                source_id=order_row.get('id', ''),
+                extra_payload={'orderId': order_row.get('id', ''), 'orderNo': order_row.get('order_no', '')},
+                sku_name=item.get('sku_name', ''),
+                reason_remark=f'payment grant via order {order_row.get("order_no", "")}',
+            )
 
-                if benefit_type == 'membership':
-                    duration_days = int(benefit_json.get('durationDays') or 0)
-                    starts_at = datetime.now(timezone.utc)
-                    expires_at = starts_at if duration_days <= 0 else starts_at + timedelta(days=duration_days * quantity)
+    def _grant_sku_benefits(self, cursor, *, user_id: str, benefits: list[dict[str, Any]], quantity: int, source_type: str, source_id: str, extra_payload: dict | None = None, sku_name: str = '', reason_remark: str = '') -> None:
+        for benefit in benefits:
+            benefit_type = benefit.get('benefitType', '')
+            benefit_value = benefit.get('benefitValue', '')
+            benefit_json = benefit.get('benefitJson') or {}
+
+            if benefit_type == 'membership':
+                duration_days = int(benefit_json.get('durationDays') or 0)
+                starts_at = datetime.now(timezone.utc)
+                expires_at = starts_at if duration_days <= 0 else starts_at + timedelta(days=duration_days * quantity)
+                payload = dict(extra_payload or {})
+                payload['skuName'] = sku_name
+                payload['benefit'] = benefit_json
+                cursor.execute(
+                    '''
+                    insert into user_entitlements (
+                      id, user_id, source_type, source_id, entitlement_type, entitlement_code, status, starts_at, expires_at, payload_json, created_at, updated_at
+                    ) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, now(), now())
+                    ''',
+                    (
+                        build_object_id('entitlement'),
+                        user_id,
+                        source_type,
+                        source_id,
+                        'membership',
+                        benefit_value or 'membership',
+                        'active',
+                        starts_at,
+                        expires_at,
+                        json.dumps(payload, ensure_ascii=False),
+                    ),
+                )
+                continue
+
+            if benefit_type == 'credits':
+                credit_type = benefit_json.get('creditType') or benefit_value or 'scene_generation_credits'
+                amount = int(benefit_json.get('amount') or 0) * quantity
+                cursor.execute(
+                    'select * from user_credit_accounts where user_id = %s and credit_type = %s limit 1',
+                    (user_id, credit_type),
+                )
+                account = cursor.fetchone()
+                balance_after = int(account.get('balance') or 0) + amount if account else amount
+                if account:
                     cursor.execute(
                         '''
-                        insert into user_entitlements (
-                          id, user_id, source_type, source_id, entitlement_type, entitlement_code, status, starts_at, expires_at, payload_json, created_at, updated_at
-                        ) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, now(), now())
+                        update user_credit_accounts
+                        set balance = %s, updated_at = now()
+                        where id = %s
                         ''',
-                        (
-                            build_object_id('entitlement'),
-                            order_row.get('user_id', ''),
-                            'order',
-                            order_row.get('id', ''),
-                            'membership',
-                            benefit_value or 'membership',
-                            'active',
-                            starts_at,
-                            expires_at,
-                            json.dumps({
-                                'orderId': order_row.get('id', ''),
-                                'skuName': item.get('sku_name', ''),
-                                'benefit': benefit_json,
-                            }, ensure_ascii=False),
-                        ),
+                        (balance_after, account.get('id', '')),
                     )
-                    continue
-
-                if benefit_type == 'credits':
-                    credit_type = benefit_json.get('creditType') or benefit_value or 'scene_generation_credits'
-                    amount = int(benefit_json.get('amount') or 0) * quantity
-                    cursor.execute(
-                        'select * from user_credit_accounts where user_id = %s and credit_type = %s limit 1',
-                        (order_row.get('user_id', ''), credit_type),
-                    )
-                    account = cursor.fetchone()
-                    balance_after = int(account.get('balance') or 0) + amount if account else amount
-                    if account:
-                        cursor.execute(
-                            '''
-                            update user_credit_accounts
-                            set balance = %s, updated_at = now()
-                            where id = %s
-                            ''',
-                            (balance_after, account.get('id', '')),
-                        )
-                        account_id = account.get('id', '')
-                    else:
-                        account_id = build_object_id('credit')
-                        cursor.execute(
-                            '''
-                            insert into user_credit_accounts (
-                              id, user_id, credit_type, balance, frozen_balance, created_at, updated_at
-                            ) values (%s, %s, %s, %s, %s, now(), now())
-                            ''',
-                            (account_id, order_row.get('user_id', ''), credit_type, balance_after, 0),
-                        )
-
+                    account_id = account.get('id', '')
+                else:
+                    account_id = build_object_id('credit')
                     cursor.execute(
                         '''
-                        insert into credit_ledger (
-                          id, user_id, credit_type, change_amount, balance_after, reason_type, reason_id, remark, created_at
-                        ) values (%s, %s, %s, %s, %s, %s, %s, %s, now())
+                        insert into user_credit_accounts (
+                          id, user_id, credit_type, balance, frozen_balance, created_at, updated_at
+                        ) values (%s, %s, %s, %s, %s, now(), now())
                         ''',
-                        (
-                            build_object_id('ledger'),
-                            order_row.get('user_id', ''),
-                            credit_type,
-                            amount,
-                            balance_after,
-                            'order_grant',
-                            order_row.get('id', ''),
-                            f'payment grant via order {order_row.get("order_no", "")}',
-                        ),
+                        (account_id, user_id, credit_type, balance_after, 0),
                     )
-                    continue
 
-                if benefit_type == 'feature':
-                    # Find the matching membership benefit to get duration
-                    membership_days = 365
-                    for other_benefit in (item.get('benefit_snapshot') or []):
-                        if other_benefit.get('benefitType') == 'membership':
-                            membership_days = int((other_benefit.get('benefitJson') or {}).get('durationDays') or 365)
-                            break
-                    starts_at = datetime.now(timezone.utc)
-                    expires_at = starts_at + timedelta(days=membership_days * quantity)
-                    cursor.execute(
-                        '''
-                        insert into user_entitlements (
-                          id, user_id, source_type, source_id, entitlement_type, entitlement_code, status, starts_at, expires_at, payload_json, created_at, updated_at
-                        ) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, now(), now())
-                        ''',
-                        (
-                            build_object_id('entitlement'),
-                            order_row.get('user_id', ''),
-                            'order',
-                            order_row.get('id', ''),
-                            'feature',
-                            benefit_value or 'feature',
-                            'active',
-                            starts_at,
-                            expires_at,
-                            json.dumps({
-                                'orderId': order_row.get('id', ''),
-                                'benefit': benefit_json,
-                            }, ensure_ascii=False),
-                        ),
-                    )
-                    continue
+                cursor.execute(
+                    '''
+                    insert into credit_ledger (
+                      id, user_id, credit_type, change_amount, balance_after, reason_type, reason_id, remark, created_at
+                    ) values (%s, %s, %s, %s, %s, %s, %s, %s, now())
+                    ''',
+                    (
+                        build_object_id('ledger'),
+                        user_id,
+                        credit_type,
+                        amount,
+                        balance_after,
+                        f'{source_type}_grant',
+                        source_id,
+                        reason_remark or f'{source_type} grant',
+                    ),
+                )
+                continue
+
+            if benefit_type == 'feature':
+                membership_days = 365
+                for other_benefit in benefits:
+                    if other_benefit.get('benefitType') == 'membership':
+                        membership_days = int((other_benefit.get('benefitJson') or {}).get('durationDays') or 365)
+                        break
+                starts_at = datetime.now(timezone.utc)
+                expires_at = starts_at + timedelta(days=membership_days * quantity)
+                payload = dict(extra_payload or {})
+                payload['benefit'] = benefit_json
+                cursor.execute(
+                    '''
+                    insert into user_entitlements (
+                      id, user_id, source_type, source_id, entitlement_type, entitlement_code, status, starts_at, expires_at, payload_json, created_at, updated_at
+                    ) values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, now(), now())
+                    ''',
+                    (
+                        build_object_id('entitlement'),
+                        user_id,
+                        source_type,
+                        source_id,
+                        'feature',
+                        benefit_value or 'feature',
+                        'active',
+                        starts_at,
+                        expires_at,
+                        json.dumps(payload, ensure_ascii=False),
+                    ),
+                )
+                continue
 
     def create_order(self, *, user_id: str, sku_id: str, quantity: int = 1) -> dict[str, Any]:
         quantity = max(1, int(quantity or 1))
@@ -1523,3 +1551,164 @@ class CommerceStore:
                     items = self._fetch_order_items(cursor, order_id)
                     self._grant_benefits_for_order(cursor, order_row, items)
                     return self._serialize_order_detail(cursor, order_row)
+
+    # ------------------------------------------------------------------
+    # CDK (Card Key) methods
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _generate_cdk_code(prefix: str) -> str:
+        charset = string.ascii_uppercase + string.digits
+        groups = [''.join(random.choices(charset, k=4)) for _ in range(4)]
+        return f'{prefix}-{groups[0]}-{groups[1]}-{groups[2]}-{groups[3]}'
+
+    @staticmethod
+    def _sku_code_to_prefix(sku_code: str) -> str:
+        mapping = {
+            'tier_pro': 'PRO',
+            'tier_plus': 'PLUS',
+            'tier_max': 'MAX',
+        }
+        for key, prefix in mapping.items():
+            if sku_code.startswith(key):
+                return prefix
+        return 'CDK'
+
+    def generate_cdk_batch(self, *, sku_id: str, quantity: int, note: str = '', batch_id: str | None = None) -> list[dict[str, Any]]:
+        batch_id = batch_id or build_object_id('batch')
+        results: list[dict[str, Any]] = []
+
+        with self._connect() as connection:
+            with connection.transaction():
+                with connection.cursor() as cursor:
+                    sku_bundle = self._fetch_sku_bundle(cursor, sku_id)
+                    if not sku_bundle:
+                        raise ValueError(f'SKU not found: {sku_id}')
+                    sku_row = sku_bundle['sku']
+                    sku_code = sku_row.get('sku_code', '')
+                    prefix = self._sku_code_to_prefix(sku_code)
+
+                    for _ in range(quantity):
+                        cdk_id = build_object_id('cdk')
+                        code = self._generate_cdk_code(prefix)
+                        cursor.execute(
+                            '''
+                            insert into cdk_codes (id, code, sku_id, status, batch_id, note, created_at, updated_at)
+                            values (%s, %s, %s, %s, %s, %s, now(), now())
+                            returning *
+                            ''',
+                            (cdk_id, code, sku_id, 'unused', batch_id, note),
+                        )
+                        row = cursor.fetchone()
+                        if row:
+                            row['sku_name'] = sku_row.get('name', '')
+                            results.append(_serialize_cdk(row))
+
+        return results
+
+    def list_cdk_codes(self, *, status: str = '', sku_id: str = '', limit: int = 200, offset: int = 0) -> list[dict[str, Any]]:
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                clauses = []
+                params: list[Any] = []
+                if status:
+                    clauses.append('c.status = %s')
+                    params.append(status)
+                if sku_id:
+                    clauses.append('c.sku_id = %s')
+                    params.append(sku_id)
+                where = f'where {" and ".join(clauses)}' if clauses else ''
+
+                cursor.execute(
+                    f'''
+                    select c.*, s.name as sku_name
+                    from cdk_codes c
+                    left join product_skus s on s.id = c.sku_id
+                    {where}
+                    order by c.created_at desc
+                    limit %s offset %s
+                    ''',
+                    params + [limit, offset],
+                )
+                return [_serialize_cdk(row) for row in cursor.fetchall()]
+
+    def get_cdk_by_code(self, code: str) -> dict[str, Any] | None:
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    '''
+                    select c.*, s.name as sku_name
+                    from cdk_codes c
+                    left join product_skus s on s.id = c.sku_id
+                    where c.code = %s
+                    limit 1
+                    ''',
+                    (code,),
+                )
+                row = cursor.fetchone()
+                return _serialize_cdk(row) if row else None
+
+    def redeem_cdk(self, *, code: str, user_id: str) -> dict[str, Any]:
+        with self._connect() as connection:
+            with connection.transaction():
+                with connection.cursor() as cursor:
+                    cursor.execute(
+                        'select c.*, s.name as sku_name from cdk_codes c left join product_skus s on s.id = c.sku_id where c.code = %s for update',
+                        (code,),
+                    )
+                    cdk_row = cursor.fetchone()
+                    if not cdk_row:
+                        raise ValueError('卡密不存在')
+                    if cdk_row.get('status') != 'unused':
+                        raise ValueError('卡密已被使用或已失效')
+
+                    now = datetime.now(timezone.utc)
+                    cursor.execute(
+                        '''
+                        update cdk_codes
+                        set status = %s, redeemed_by = %s, redeemed_at = %s, updated_at = %s
+                        where id = %s
+                        ''',
+                        ('redeemed', user_id, now, now, cdk_row.get('id', '')),
+                    )
+
+                    sku_bundle = self._fetch_sku_bundle(cursor, cdk_row.get('sku_id', ''))
+                    if not sku_bundle:
+                        raise ValueError('SKU not found for CDK')
+                    benefits = sku_bundle.get('benefits', [])
+                    sku_row = sku_bundle.get('sku', {})
+
+                    self._grant_sku_benefits(
+                        cursor,
+                        user_id=user_id,
+                        benefits=benefits,
+                        quantity=1,
+                        source_type='cdk',
+                        source_id=cdk_row.get('id', ''),
+                        extra_payload={'cdkId': cdk_row.get('id', ''), 'cdkCode': code},
+                        sku_name=sku_row.get('name', ''),
+                        reason_remark=f'CDK redemption: {code}',
+                    )
+
+                    cursor.execute(
+                        '''
+                        select c.*, s.name as sku_name
+                        from cdk_codes c
+                        left join product_skus s on s.id = c.sku_id
+                        where c.id = %s
+                        ''',
+                        (cdk_row.get('id', ''),),
+                    )
+                    updated = cursor.fetchone()
+                    return _serialize_cdk(updated) if updated else {}
+
+    def delete_cdk_batch(self, cdk_ids: list[str]) -> int:
+        if not cdk_ids:
+            return 0
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    'delete from cdk_codes where id = any(%s)',
+                    (cdk_ids,),
+                )
+                return cursor.rowcount

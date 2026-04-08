@@ -4,6 +4,7 @@ const { payOrder } = require('../../services/payment');
 const { getProducts, getProductSkus } = require('../../services/product');
 const { readSession } = require('../../services/session');
 const { getMe } = require('../../services/user');
+const { redeemCdk } = require('../../services/cdk');
 
 const TIER_META = {
   tier_pro: {
@@ -58,7 +59,10 @@ Page({
     me: null,
     guestMode: true,
     errorMessage: '',
-    payingSkuId: ''
+    payingSkuId: '',
+    showCdkModal: false,
+    cdkInput: '',
+    cdkRedeeming: false
   },
 
   onShow() {
@@ -127,6 +131,39 @@ Page({
       }
     } finally {
       this.setData({ payingSkuId: '' });
+    }
+  },
+
+  onOpenCdkModal() {
+    if (!readSession().accessToken) {
+      wx.navigateTo({ url: '/pages/login/index' });
+      return;
+    }
+    this.setData({ showCdkModal: true, cdkInput: '', cdkRedeeming: false });
+  },
+
+  onCloseCdkModal() {
+    this.setData({ showCdkModal: false, cdkInput: '', cdkRedeeming: false });
+  },
+
+  onCdkInput(e) {
+    this.setData({ cdkInput: e.detail.value.toUpperCase() });
+  },
+
+  async onRedeemCdk() {
+    const code = (this.data.cdkInput || '').trim();
+    if (!code) return;
+
+    this.setData({ cdkRedeeming: true });
+    try {
+      await redeemCdk(code);
+      wx.showToast({ title: '兑换成功', icon: 'success' });
+      this.setData({ showCdkModal: false, cdkInput: '' });
+      this.loadPage();
+    } catch (error) {
+      wx.showToast({ title: error.message || '兑换失败', icon: 'none' });
+    } finally {
+      this.setData({ cdkRedeeming: false });
     }
   },
 

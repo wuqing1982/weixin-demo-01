@@ -8,6 +8,7 @@ const state = {
   skus: [],
   orders: [],
   tasks: [],
+  cdkCodes: [],
   categories: [],
   collections: [],
   generatedScenes: [],
@@ -483,6 +484,129 @@ function renderOrders() {
   `;
 }
 
+function getSelectedCdkIds() {
+  return Array.from(panelBody.querySelectorAll('.cdk-checkbox:checked')).map((cb) => cb.value);
+}
+
+function updateCdkBatchState() {
+  const checkboxes = panelBody.querySelectorAll('.cdk-checkbox');
+  const checked = panelBody.querySelectorAll('.cdk-checkbox:checked');
+  const selectAll = panelBody.querySelector('#select-all-cdk');
+  const deleteBtn = document.getElementById('batch-delete-cdk-btn');
+  const countSpan = document.getElementById('cdk-selected-count');
+  if (selectAll) {
+    selectAll.checked = checkboxes.length > 0 && checked.length === checkboxes.length;
+    selectAll.indeterminate = checked.length > 0 && checked.length < checkboxes.length;
+  }
+  if (deleteBtn) {
+    deleteBtn.disabled = checked.length === 0;
+  }
+  if (countSpan) {
+    countSpan.textContent = checked.length > 0 ? `已选 ${checked.length} 项` : '';
+  }
+}
+
+async function batchDeleteCdk() {
+  const ids = getSelectedCdkIds();
+  if (ids.length === 0) return;
+  if (!window.confirm(`确定要删除选中的 ${ids.length} 条卡密吗？此操作不可恢复。`)) return;
+  try {
+    await api('/api/admin/cdk-codes/batch-delete', { method: 'POST', body: { cdkIds: ids } });
+    toast(`成功删除 ${ids.length} 条卡密`);
+    await loadConsole();
+  } catch (error) {
+    toast(error.message || '批量删除失败');
+  }
+}
+
+async function generateCdk() {
+  const skuId = document.getElementById('cdk-sku-select').value;
+  const quantity = parseInt(document.getElementById('cdk-quantity').value || '1', 10);
+  const note = (document.getElementById('cdk-note').value || '').trim();
+  if (!skuId) {
+    toast('请选择 SKU');
+    return;
+  }
+  try {
+    const result = await api('/api/admin/cdk-codes/generate', {
+      method: 'POST',
+      body: { skuId, quantity, note }
+    });
+    toast(`成功生成 ${(result.list || []).length} 条卡密`);
+    await loadConsole();
+  } catch (error) {
+    toast(error.message || '生成卡密失败');
+  }
+}
+
+function renderCdk() {
+  // Build SKU options grouped by product
+  const productSkuMap = {};
+  for (const sku of state.skus) {
+    const pid = sku.productId || '';
+    if (!productSkuMap[pid]) {
+      productSkuMap[pid] = { product: state.products.find((p) => p.productId === pid), skus: [] };
+    }
+    productSkuMap[pid].skus.push(sku);
+  }
+  const skuOptions = Object.values(productSkuMap).map(({ product, skus }) => {
+    const label = product ? product.name : '未知产品';
+    const items = skus.map((sku) =>
+      `<option value="${escapeHtml(sku.skuId)}">${escapeHtml(label)} - ${escapeHtml(sku.name)} (${escapeHtml(sku.salePrice)}元/年)</option>`
+    ).join('');
+    return items;
+  }).join('');
+
+  const statusBadge = (status) => {
+    if (status === 'unused') return '<span class="status-unused">未使用</span>';
+    if (status === 'redeemed') return '<span class="status-paid">已兑换</span>';
+    return `<span>${escapeHtml(status)}</span>`;
+  };
+
+  panelHead.innerHTML = `
+    <div>
+      <h3 class="panel-title">卡密管理</h3>
+      <p class="panel-subtitle">生成卡密分发给用户，用户在小程序内兑换获取会员权益。</p>
+    </div>
+    <div class="panel-actions">
+      <span id="cdk-selected-count" class="selected-count"></span>
+      <button id="batch-delete-cdk-btn" class="mini-btn danger-btn" disabled data-action="batch-delete-cdk">批量删除</button>
+      <span class="meta-chip">${state.cdkCodes.length} 条卡密</span>
+    </div>
+  `;
+
+  panelBody.innerHTML = `
+    <div class="inline-form">
+      <select id="cdk-sku-select" class="form-select"><option value="">选择 SKU...</option>${skuOptions}</select>
+      <input id="cdk-quantity" type="number" class="form-input" placeholder="数量" value="1" min="1" max="500" style="width:80px">
+      <input id="cdk-note" type="text" class="form-input" placeholder="备注（可选）" style="flex:1">
+      <button class="mini-btn primary-btn" data-action="generate-cdk">生成卡密</button>
+    </div>
+    <div class="table">
+      <div class="table-head">
+        <label class="checkbox-cell"><input type="checkbox" id="select-all-cdk"></label>
+        <strong>卡密码</strong>
+        <span>SKU</span>
+        <span>状态</span>
+        <span>兑换用户</span>
+        <span>生成时间</span>
+        <span>操作</span>
+      </div>
+      ${state.cdkCodes.map((item) => `
+        <div class="table-row">
+          <label class="checkbox-cell"><input type="checkbox" class="cdk-checkbox" value="${escapeHtml(item.cdkId)}"></label>
+          <strong class="cdk-code">${escapeHtml(item.code)}</strong>
+          <span>${escapeHtml(item.skuName)}</span>
+          ${statusBadge(item.status)}
+          <span>${item.redeemedBy ? escapeHtml(item.redeemedBy).substring(0, 12) + '...' : '-'}</span>
+          <span class="meta-copy">${escapeHtml(item.createdAt || '-')}</span>
+          <span class="action-group"><button class="mini-btn" data-action="cdk-copy" data-code="${escapeHtml(item.code)}">复制</button></span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
 function getSelectedTaskIds() {
   return Array.from(panelBody.querySelectorAll('.task-checkbox:checked')).map((cb) => cb.value);
 }
@@ -582,6 +706,42 @@ function renderTasks() {
   `;
 }
 
+function getSelectedSceneIds() {
+  return Array.from(panelBody.querySelectorAll('.scene-checkbox:checked')).map((cb) => cb.value);
+}
+
+function updateSceneBatchState() {
+  const checkboxes = panelBody.querySelectorAll('.scene-checkbox');
+  const checked = panelBody.querySelectorAll('.scene-checkbox:checked');
+  const selectAll = panelBody.querySelector('#select-all-scenes');
+  const deleteBtn = document.getElementById('batch-delete-scenes-btn');
+  const countSpan = document.getElementById('scenes-selected-count');
+  if (selectAll) {
+    selectAll.checked = checkboxes.length > 0 && checked.length === checkboxes.length;
+    selectAll.indeterminate = checked.length > 0 && checked.length < checkboxes.length;
+  }
+  if (deleteBtn) {
+    deleteBtn.disabled = checked.length === 0;
+  }
+  if (countSpan) {
+    countSpan.textContent = checked.length > 0 ? `已选 ${checked.length} 项` : '';
+  }
+}
+
+async function batchDeleteScenes() {
+  const ids = getSelectedSceneIds();
+  if (ids.length === 0) return;
+  if (!window.confirm(`确定要删除选中的 ${ids.length} 个场景吗？此操作不可恢复。`)) return;
+  try {
+    await api('/api/admin/public-scenes/batch-delete', { method: 'POST', body: { sceneIds: ids } });
+    toast(`成功删除 ${ids.length} 个场景`);
+    state.editingScene = null;
+    await loadConsole();
+  } catch (error) {
+    toast(error.message || '批量删除失败');
+  }
+}
+
 function renderScenes() {
   const scene = state.editingScene || {};
   panelHead.innerHTML = `
@@ -589,7 +749,11 @@ function renderScenes() {
       <h3 class="panel-title">公共场景管理</h3>
       <p class="panel-subtitle">支持新增和编辑公共场景元数据；对有源草稿映射的公开场景，可直接覆盖发布最新生成结果。</p>
     </div>
-    <span class="meta-chip">${state.scenes.length} 个场景</span>
+    <div class="panel-actions">
+      <span id="scenes-selected-count" class="selected-count"></span>
+      <button id="batch-delete-scenes-btn" class="mini-btn danger-btn" disabled data-action="batch-delete-scenes">批量删除</button>
+      <span class="meta-chip">${state.scenes.length} 个场景</span>
+    </div>
   `;
 
   panelBody.innerHTML = `
@@ -613,6 +777,7 @@ function renderScenes() {
 
     <div class="table">
       <div class="table-head">
+        <label class="checkbox-cell"><input type="checkbox" id="select-all-scenes"></label>
         <strong>场景</strong>
         <span>分类</span>
         <span>热点数</span>
@@ -621,6 +786,7 @@ function renderScenes() {
       </div>
       ${state.scenes.map((item) => `
         <div class="table-row">
+          <label class="checkbox-cell"><input type="checkbox" class="scene-checkbox" value="${escapeHtml(item.sceneId)}"></label>
           <strong>${escapeHtml(item.title)}<br><small>${escapeHtml(item.sceneId)}</small></strong>
           <span>${escapeHtml((item.publication && (item.publication.categoryName || item.publication.categoryId)) || item.category || '-')}</span>
           <span>${escapeHtml(item.itemCount || 0)} / ${escapeHtml(item.verbCount || 0)}</span>
@@ -884,7 +1050,8 @@ const VIEW_TITLES = {
   users: '用户管理',
   products: '商品管理',
   orders: '订单管理',
-  tasks: '任务管理'
+  tasks: '任务管理',
+  cdk: '卡密管理'
 };
 
 function renderCurrentView() {
@@ -911,6 +1078,10 @@ function renderCurrentView() {
     renderOrders();
     return;
   }
+  if (state.currentView === 'cdk') {
+    renderCdk();
+    return;
+  }
   if (state.currentView === 'tasks') {
     renderTasks();
     return;
@@ -935,7 +1106,7 @@ function renderCurrentView() {
 }
 
 async function loadConsole() {
-  const [admin, overview, users, products, skus, orders, tasks, categories, collections, drafts, scenes] = await Promise.all([
+  const [admin, overview, users, products, skus, orders, tasks, categories, collections, drafts, scenes, cdkResult] = await Promise.all([
     api('/api/admin/auth/me'),
     api('/api/admin/overview'),
     api('/api/admin/users'),
@@ -946,7 +1117,8 @@ async function loadConsole() {
     api('/api/admin/scene-categories'),
     api('/api/admin/scene-collections'),
     api('/api/admin/generated-scenes'),
-    api('/api/admin/public-scenes')
+    api('/api/admin/public-scenes'),
+    api('/api/admin/cdk-codes').catch(() => ({ list: [] }))
   ]);
 
   setLoggedIn(state.token, admin);
@@ -960,6 +1132,7 @@ async function loadConsole() {
   state.collections = collections.list || [];
   state.generatedScenes = drafts.list || [];
   state.scenes = scenes.list || [];
+  state.cdkCodes = cdkResult.list || [];
   state.publishingDraft = state.generatedScenes.find((item) => item.sceneId === (state.publishingDraft && state.publishingDraft.sceneId)) || null;
   renderOverview();
   renderCurrentView();
@@ -1265,6 +1438,26 @@ async function handleAction(action, id) {
     toast('公开场景已按源草稿重新覆盖发布');
     return;
   }
+  if (action === 'generate-cdk') {
+    try {
+      await generateCdk();
+    } catch (error) {
+      toast(error.message || '生成卡密失败');
+    }
+    return;
+  }
+  if (action === 'cdk-copy') {
+    const code = event.target.dataset.code || '';
+    if (code) {
+      try {
+        await navigator.clipboard.writeText(code);
+        toast('卡密已复制到剪贴板');
+      } catch (_) {
+        toast('复制失败，请手动复制');
+      }
+    }
+    return;
+  }
   if (action === 'scene-cancel-edit') {
     state.editingScene = null;
     renderCurrentView();
@@ -1348,6 +1541,26 @@ panelBody.addEventListener('change', (event) => {
     const checked = event.target.checked;
     panelBody.querySelectorAll('.user-checkbox').forEach((cb) => { cb.checked = checked; });
     updateUserBatchState();
+    return;
+  }
+  if (event.target.classList.contains('scene-checkbox')) {
+    updateSceneBatchState();
+    return;
+  }
+  if (event.target.id === 'select-all-scenes') {
+    const checked = event.target.checked;
+    panelBody.querySelectorAll('.scene-checkbox').forEach((cb) => { cb.checked = checked; });
+    updateSceneBatchState();
+    return;
+  }
+  if (event.target.classList.contains('cdk-checkbox')) {
+    updateCdkBatchState();
+    return;
+  }
+  if (event.target.id === 'select-all-cdk') {
+    const checked = event.target.checked;
+    panelBody.querySelectorAll('.cdk-checkbox').forEach((cb) => { cb.checked = checked; });
+    updateCdkBatchState();
   }
 });
 
@@ -1372,6 +1585,22 @@ panelHead.addEventListener('click', async (event) => {
   if (action === 'batch-delete-users') {
     try {
       await batchDeleteUsers();
+    } catch (error) {
+      toast(error.message || '批量删除失败');
+    }
+    return;
+  }
+  if (action === 'batch-delete-scenes') {
+    try {
+      await batchDeleteScenes();
+    } catch (error) {
+      toast(error.message || '批量删除失败');
+    }
+    return;
+  }
+  if (action === 'batch-delete-cdk') {
+    try {
+      await batchDeleteCdk();
     } catch (error) {
       toast(error.message || '批量删除失败');
     }
@@ -1404,6 +1633,7 @@ logoutBtn.addEventListener('click', () => {
   state.skus = [];
   state.orders = [];
   state.tasks = [];
+  state.cdkCodes = [];
   state.categories = [];
   state.collections = [];
   state.generatedScenes = [];
