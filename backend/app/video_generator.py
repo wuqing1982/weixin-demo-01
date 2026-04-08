@@ -314,14 +314,14 @@ def _generate_move_segment(image_path: str, output_path: str,
     sw, sh = _ensure_even(VIDEO_W, VIDEO_H)
     cmd = [
         FFMPEG_PATH, '-y',
-        '-loop', '1', '-framerate', '25', '-i', str(image_path),
+        '-loop', '1', '-i', str(image_path),
         '-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=stereo',
-        '-t', str(duration),
+        '-vf', f'scale={sw}:{sh}:force_original_aspect_ratio=decrease,pad={sw}:{sh}:(ow-iw)/2:(oh-ih)/2:color=black',
         '-c:v', 'libx264', '-tune', 'stillimage',
-        '-c:a', 'aac', '-b:a', '192k',
+        '-r', '25',
+        '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-ac', '2',
         '-pix_fmt', 'yuv420p',
-        '-vf', f'scale={sw}:{sh}:force_original_aspect_ratio=decrease,pad={sw}:{sh}:(ow-iw)/2:(oh-ih)/2:color=black,fps=25',
-        '-shortest',
+        '-t', f'{duration:.3f}',
         str(output_path),
     ]
     _run_ffmpeg(cmd)
@@ -341,7 +341,7 @@ def _generate_display_segment(tmp_dir: Path, image_path: str, audio_path: str,
 
     panel, _ = _build_panel_filter(tmp_dir, VIDEO_W, VIDEO_H, item, item_type=item_type)
 
-    scale_filter = f'scale={sw}:{sh}:force_original_aspect_ratio=decrease,pad={sw}:{sh}:(ow-iw)/2:(oh-ih)/2:color=black,fps=25'
+    scale_filter = f'scale={sw}:{sh}:force_original_aspect_ratio=decrease,pad={sw}:{sh}:(ow-iw)/2:(oh-ih)/2:color=black'
 
     if highlight:
         vf = f'{scale_filter},{highlight},{panel}'
@@ -350,14 +350,14 @@ def _generate_display_segment(tmp_dir: Path, image_path: str, audio_path: str,
 
     cmd = [
         FFMPEG_PATH, '-y',
-        '-loop', '1', '-framerate', '25', '-i', str(image_path),
+        '-loop', '1', '-i', str(image_path),
         '-i', str(audio_path),
         '-vf', vf,
         '-c:v', 'libx264', '-tune', 'stillimage',
-        '-c:a', 'aac', '-b:a', '192k',
+        '-r', '25',
+        '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-ac', '2',
         '-pix_fmt', 'yuv420p',
     ]
-    # Use explicit duration from audio to avoid -shortest frame-boundary truncation
     if audio_duration > 0:
         cmd += ['-t', f'{audio_duration:.3f}']
     else:
@@ -376,7 +376,7 @@ def _concat_segments(segment_paths: list[str], output_path: str) -> None:
         '-f', 'concat', '-safe', '0',
         '-i', concat_file,
         '-c', 'copy',
-        '-fflags', '+genpts',
+        '-movflags', '+faststart',
         str(output_path),
     ]
     try:
