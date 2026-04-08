@@ -18,9 +18,18 @@
 .summary-chip {
   padding: 10rpx 16rpx;
   border-radius: 999rpx;
-  background: var(--color-surface);
-  border: 1px solid var(--color-surface-border);
+  /* dark */
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
   font-size: 24rpx;
+}
+.theme-light .summary-chip {
+  background: #f0f0f2;
+  border-color: #e0e0e0;
+}
+.theme-ocean .summary-chip {
+  background: rgba(100,180,255,0.08);
+  border-color: rgba(100,180,255,0.18);
 }
 
 .order-list {

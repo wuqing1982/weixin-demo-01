@@ -1,5 +1,5 @@
 /* ================================================================
-   Design Tokens — theme-independent (spacing, radius, font)
+   Design Tokens — spacing, radius, font (theme-independent)
    ================================================================ */
 page {
   --space-xs:  8rpx;
@@ -19,88 +19,15 @@ page {
   --font-caption: 24rpx;
   --font-badge:   22rpx;
 
+  /* page background: dark default */
+  background: linear-gradient(180deg, #0b0b0c 0%, #121318 100%);
+  color: #ffffff;
   min-height: 100%;
-  background: linear-gradient(180deg, var(--color-bg) 0%, var(--color-bg-end) 100%);
-  color: var(--color-text);
 }
 
-/* ================================================================
-   Theme: Dark (default)
-   ================================================================ */
-.theme-dark {
-  --color-bg:             #0b0b0c;
-  --color-bg-end:         #121318;
-  --color-surface:        rgba(255,255,255,0.08);
-  --color-surface-border: rgba(255,255,255,0.14);
-  --color-surface-hover:  rgba(255,255,255,0.12);
-  --color-surface-raised: rgba(255,255,255,0.18);
-  --color-primary:        #667eea;
-  --color-primary-end:    #7c5cd6;
-  --color-success:        #4ade80;
-  --color-success-end:    #22c55e;
-  --color-warning:        #fbbf24;
-  --color-danger:         #f87171;
-  --color-text:           #ffffff;
-  --color-text-secondary: rgba(255,255,255,0.72);
-  --color-text-weak:      rgba(255,255,255,0.50);
-  --color-text-placeholder: rgba(255,255,255,0.36);
-  --color-shadow:         rgba(0,0,0,0.18);
-  --color-overlay:        rgba(0,0,0,0.50);
-  --color-accent-gold:    #ffd93d;
-  --color-accent-warm:    #f2b066;
-}
-
-/* ================================================================
-   Theme: Light (WeChat green)
-   ================================================================ */
-.theme-light {
-  --color-bg:             #f5f6f8;
-  --color-bg-end:         #ebedf0;
-  --color-surface:        #ffffff;
-  --color-surface-border: #e0e0e0;
-  --color-surface-hover:  #f0f0f2;
-  --color-surface-raised: #ffffff;
-  --color-primary:        #07c160;
-  --color-primary-end:    #06ad56;
-  --color-success:        #07c160;
-  --color-success-end:    #06ad56;
-  --color-warning:        #ed6a0c;
-  --color-danger:         #fa5151;
-  --color-text:           #191919;
-  --color-text-secondary: #666666;
-  --color-text-weak:      #999999;
-  --color-text-placeholder: #bbbbbb;
-  --color-shadow:         rgba(0,0,0,0.10);
-  --color-overlay:        rgba(0,0,0,0.40);
-  --color-accent-gold:    #d48806;
-  --color-accent-warm:    #ed6a0c;
-}
-
-/* ================================================================
-   Theme: Ocean (蓝色海洋)
-   ================================================================ */
-.theme-ocean {
-  --color-bg:             #0a192f;
-  --color-bg-end:         #0d2137;
-  --color-surface:        rgba(100,180,255,0.08);
-  --color-surface-border: rgba(100,180,255,0.18);
-  --color-surface-hover:  rgba(100,180,255,0.14);
-  --color-surface-raised: rgba(100,180,255,0.22);
-  --color-primary:        #64b5f6;
-  --color-primary-end:    #42a5f5;
-  --color-success:        #4dd0e1;
-  --color-success-end:    #26c6da;
-  --color-warning:        #ffb74d;
-  --color-danger:         #ef5350;
-  --color-text:           #e3f2fd;
-  --color-text-secondary: rgba(227,242,253,0.70);
-  --color-text-weak:      rgba(227,242,253,0.45);
-  --color-text-placeholder: rgba(227,242,253,0.30);
-  --color-shadow:         rgba(0,0,0,0.30);
-  --color-overlay:        rgba(0,0,0,0.55);
-  --color-accent-gold:    #ffd54f;
-  --color-accent-warm:    #ffb74d;
-}
+/* NOTE: page element cannot receive dynamic theme classes.
+   The <view class="page-root {{theme}}>"> inside page handles theming.
+   page {} keeps dark as the permanent default. */
 
 /* ================================================================
    Global reset
@@ -116,10 +43,25 @@ textarea {
 }
 
 /* ================================================================
-   Layout
+   Layout — .page-root has BOTH page-root and theme-xxx classes
    ================================================================ */
 .page-root {
   min-height: 100vh;
+  background: linear-gradient(180deg, #0b0b0c 0%, #121318 100%);
+  color: #ffffff;
+}
+
+/* .theme-light and .theme-ocean are on the SAME element as .page-root,
+   so they can override .page-root's background directly. */
+
+.theme-light {
+  background: linear-gradient(180deg, #f5f6f8 0%, #ebedf0 100%) !important;
+  color: #191919 !important;
+}
+
+.theme-ocean {
+  background: linear-gradient(180deg, #0a192f 0%, #0d2137 100%) !important;
+  color: #e3f2fd !important;
 }
 
 .container {
@@ -128,22 +70,46 @@ textarea {
 }
 
 /* ================================================================
-   Card
+   Card — dark default + light/ocean overrides
    ================================================================ */
 .card,
 .state-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-surface-border);
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
   border-radius: 28rpx;
-  box-shadow: 0 16rpx 48rpx var(--color-shadow);
+  box-shadow: 0 16rpx 48rpx rgba(0,0,0,0.18);
+}
+
+.theme-light .card,
+.theme-light .state-card {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 16rpx 48rpx rgba(0,0,0,0.10);
+}
+
+.theme-ocean .card,
+.theme-ocean .state-card {
+  background: rgba(100,180,255,0.08);
+  border: 1px solid rgba(100,180,255,0.18);
+  box-shadow: 0 16rpx 48rpx rgba(0,0,0,0.30);
 }
 
 .state-card {
   margin: 28rpx 20rpx 0;
   padding: 32rpx 28rpx;
   font-size: var(--font-body);
-  color: var(--color-text-secondary);
   text-align: center;
+}
+
+/* dark */
+.state-card {
+  color: rgba(255,255,255,0.72);
+}
+.theme-light .state-card {
+  color: #666666;
+}
+.theme-ocean .state-card {
+  color: rgba(227,242,253,0.70);
 }
 
 /* ================================================================
@@ -153,18 +119,23 @@ textarea {
   display: block;
   font-size: var(--font-title);
   font-weight: 700;
-  color: var(--color-text);
+  color: #ffffff;
 }
+.theme-light .section-title { color: #191919; }
+.theme-ocean .section-title { color: #e3f2fd; }
 
 .section-subtitle {
   display: block;
   margin-top: 10rpx;
   font-size: var(--font-caption);
-  color: var(--color-text-secondary);
 }
+/* dark */
+.section-subtitle { color: rgba(255,255,255,0.72); }
+.theme-light .section-subtitle { color: #666666; }
+.theme-ocean .section-subtitle { color: rgba(227,242,253,0.70); }
 
 /* ================================================================
-   Buttons
+   Buttons — base shared styles
    ================================================================ */
 .btn-primary,
 .btn-secondary,
@@ -187,7 +158,6 @@ textarea {
   border: 0;
 }
 
-/* Pressed state */
 .btn-primary:active,
 .btn-secondary:active,
 .btn-success:active,
@@ -195,7 +165,6 @@ textarea {
   transform: scale(0.98);
 }
 
-/* Disabled state */
 .btn-primary[disabled],
 .btn-secondary[disabled],
 .btn-success[disabled],
@@ -203,35 +172,69 @@ textarea {
   opacity: 0.45;
 }
 
-/* Primary */
+/* Primary button — dark */
 .btn-primary {
   border: 0;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-end));
+  background: linear-gradient(135deg, #667eea, #7c5cd6);
   color: #ffffff;
   font-weight: 600;
 }
-
-/* Secondary */
-.btn-secondary {
-  border: 1px solid var(--color-surface-raised);
-  background: var(--color-surface-hover);
-  color: var(--color-text);
+.theme-light .btn-primary {
+  background: linear-gradient(135deg, #07c160, #06ad56);
+  color: #ffffff;
+}
+.theme-ocean .btn-primary {
+  background: linear-gradient(135deg, #64b5f6, #42a5f5);
+  color: #ffffff;
 }
 
-/* Success */
+/* Secondary button — dark */
+.btn-secondary {
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.08);
+  color: #ffffff;
+}
+.theme-light .btn-secondary {
+  border: 1px solid #d0d0d0;
+  background: #f0f0f2;
+  color: #191919;
+}
+.theme-ocean .btn-secondary {
+  border: 1px solid rgba(100,180,255,0.22);
+  background: rgba(100,180,255,0.10);
+  color: #e3f2fd;
+}
+
+/* Success button — dark */
 .btn-success {
   border: 0;
-  background: linear-gradient(135deg, var(--color-success), var(--color-success-end));
+  background: linear-gradient(135deg, #4ade80, #22c55e);
   color: #ffffff;
   font-weight: 600;
 }
+.theme-light .btn-success {
+  background: linear-gradient(135deg, #07c160, #06ad56);
+  color: #ffffff;
+}
+.theme-ocean .btn-success {
+  background: linear-gradient(135deg, #4dd0e1, #26c6da);
+  color: #ffffff;
+}
 
-/* Danger */
+/* Danger button — dark */
 .btn-danger {
   border: 0;
-  background: linear-gradient(135deg, var(--color-danger), #ef4444);
+  background: linear-gradient(135deg, #f87171, #ef4444);
   color: #ffffff;
   font-weight: 600;
+}
+.theme-light .btn-danger {
+  background: linear-gradient(135deg, #fa5151, #e6363a);
+  color: #ffffff;
+}
+.theme-ocean .btn-danger {
+  background: linear-gradient(135deg, #ef5350, #e53935);
+  color: #ffffff;
 }
 
 /* Small variant */
@@ -255,22 +258,54 @@ textarea {
 
 .tag-primary {
   background: rgba(102,126,234,0.15);
-  color: var(--color-primary);
+  color: #667eea;
+}
+.theme-light .tag-primary {
+  background: rgba(7,193,96,0.12);
+  color: #07c160;
+}
+.theme-ocean .tag-primary {
+  background: rgba(100,181,246,0.15);
+  color: #64b5f6;
 }
 
 .tag-success {
   background: rgba(74,222,128,0.15);
-  color: var(--color-success);
+  color: #4ade80;
+}
+.theme-light .tag-success {
+  background: rgba(7,193,96,0.12);
+  color: #07c160;
+}
+.theme-ocean .tag-success {
+  background: rgba(77,208,225,0.15);
+  color: #4dd0e1;
 }
 
 .tag-warning {
   background: rgba(251,191,36,0.15);
-  color: var(--color-warning);
+  color: #fbbf24;
+}
+.theme-light .tag-warning {
+  background: rgba(237,106,12,0.12);
+  color: #ed6a0c;
+}
+.theme-ocean .tag-warning {
+  background: rgba(255,183,77,0.15);
+  color: #ffb74d;
 }
 
 .tag-danger {
   background: rgba(248,113,113,0.15);
-  color: var(--color-danger);
+  color: #f87171;
+}
+.theme-light .tag-danger {
+  background: rgba(250,81,81,0.12);
+  color: #fa5151;
+}
+.theme-ocean .tag-danger {
+  background: rgba(239,83,80,0.15);
+  color: #ef5350;
 }
 
 /* ================================================================
@@ -288,32 +323,57 @@ textarea {
 }
 
 .badge-success {
-  background: var(--color-success);
+  background: #4ade80;
   color: #ffffff;
 }
+.theme-light .badge-success { background: #07c160; }
+.theme-ocean .badge-success { background: #4dd0e1; }
 
 .badge-primary {
-  background: var(--color-primary);
+  background: #667eea;
   color: #ffffff;
 }
+.theme-light .badge-primary { background: #07c160; }
+.theme-ocean .badge-primary { background: #64b5f6; }
 
 .badge-pending {
-  background: var(--color-surface-hover);
-  color: var(--color-text-secondary);
-  border: 1px solid var(--color-surface-border);
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.72);
+  border: 1px solid rgba(255,255,255,0.14);
+}
+.theme-light .badge-pending {
+  background: #f0f0f2;
+  color: #666666;
+  border: 1px solid #e0e0e0;
+}
+.theme-ocean .badge-pending {
+  background: rgba(100,180,255,0.10);
+  color: rgba(227,242,253,0.70);
+  border: 1px solid rgba(100,180,255,0.18);
 }
 
 /* ================================================================
    Input
    ================================================================ */
 .input-field {
-  background: var(--color-surface-hover);
-  border: 1px solid var(--color-surface-raised);
   border-radius: var(--radius-md);
   height: 80rpx;
   padding: 0 var(--space-lg);
   font-size: var(--font-body);
-  color: var(--color-text);
+  /* dark */
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #ffffff;
+}
+.theme-light .input-field {
+  background: #f0f0f2;
+  border: 1px solid #d0d0d0;
+  color: #191919;
+}
+.theme-ocean .input-field {
+  background: rgba(100,180,255,0.10);
+  border: 1px solid rgba(100,180,255,0.22);
+  color: #e3f2fd;
 }
 
 /* ================================================================
@@ -330,10 +390,18 @@ textarea {
 .loading-spinner .spinner {
   width: 48rpx;
   height: 48rpx;
-  border: 4rpx solid var(--color-surface-border);
-  border-top-color: var(--color-primary);
+  border: 4rpx solid rgba(255,255,255,0.14);
+  border-top-color: #667eea;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
+}
+.theme-light .loading-spinner .spinner {
+  border: 4rpx solid #e0e0e0;
+  border-top-color: #07c160;
+}
+.theme-ocean .loading-spinner .spinner {
+  border: 4rpx solid rgba(100,180,255,0.18);
+  border-top-color: #64b5f6;
 }
 
 @keyframes spin {
@@ -343,8 +411,11 @@ textarea {
 .loading-spinner .loading-text {
   margin-top: 20rpx;
   font-size: var(--font-caption);
-  color: var(--color-text-weak);
 }
+/* dark */
+.loading-spinner .loading-text { color: rgba(255,255,255,0.50); }
+.theme-light .loading-spinner .loading-text { color: #999999; }
+.theme-ocean .loading-spinner .loading-text { color: rgba(227,242,253,0.45); }
 
 /* ================================================================
    Empty state
@@ -366,15 +437,21 @@ textarea {
 
 .empty-state .empty-text {
   font-size: var(--font-body);
-  color: var(--color-text-weak);
   text-align: center;
 }
+/* dark */
+.empty-state .empty-text { color: rgba(255,255,255,0.50); }
+.theme-light .empty-state .empty-text { color: #999999; }
+.theme-ocean .empty-state .empty-text { color: rgba(227,242,253,0.45); }
 
 .empty-state .empty-hint {
   margin-top: 12rpx;
   font-size: var(--font-caption);
-  color: var(--color-text-placeholder);
 }
+/* dark */
+.empty-state .empty-hint { color: rgba(255,255,255,0.36); }
+.theme-light .empty-state .empty-hint { color: #bbbbbb; }
+.theme-ocean .empty-state .empty-hint { color: rgba(227,242,253,0.30); }
 
 /* ================================================================
    List footer
@@ -383,8 +460,11 @@ textarea {
   text-align: center;
   padding: 24rpx 0 40rpx;
   font-size: var(--font-caption);
-  color: var(--color-text-weak);
 }
+/* dark */
+.list-footer { color: rgba(255,255,255,0.50); }
+.theme-light .list-footer { color: #999999; }
+.theme-ocean .list-footer { color: rgba(227,242,253,0.45); }
 
 /* ================================================================
    Safe area bottom padding

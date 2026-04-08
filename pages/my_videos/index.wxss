@@ -28,12 +28,15 @@
   transform: translate(-50%, -50%);
   width: 80rpx;
   height: 80rpx;
-  background: var(--color-overlay);
+  /* dark */
+  background: rgba(0,0,0,0.50);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+.theme-light .play-icon { background: rgba(0,0,0,0.40); }
+.theme-ocean .play-icon { background: rgba(0,0,0,0.55); }
 
 .play-triangle {
   width: 0;
@@ -58,5 +61,8 @@
   display: block;
   margin-top: 10rpx;
   font-size: 24rpx;
-  color: var(--color-text-secondary);
+  /* dark */
+  color: rgba(255,255,255,0.72);
 }
+.theme-light .video-date { color: #666666; }
+.theme-ocean .video-date { color: rgba(227,242,253,0.70); }

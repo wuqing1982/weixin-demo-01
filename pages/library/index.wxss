@@ -19,8 +19,10 @@
   display: block;
   font-size: 28rpx;
   font-weight: 700;
-  color: var(--color-text);
+  color: #ffffff;
 }
+.theme-light .section-heading { color: #191919; }
+.theme-ocean .section-heading { color: #e3f2fd; }
 
 .filter-scroll {
   width: 100%;
@@ -38,11 +40,22 @@
   flex-shrink: 0;
   padding: 14rpx 24rpx;
   border-radius: 999rpx;
-  background: var(--color-surface);
-  border: 2rpx solid var(--color-surface);
-  color: var(--color-text-secondary);
+  background: rgba(255,255,255,0.08);
+  border: 2rpx solid rgba(255,255,255,0.08);
   font-size: 24rpx;
   line-height: 1;
+}
+/* dark */
+.filter-chip { color: rgba(255,255,255,0.72); }
+.theme-light .filter-chip {
+  background: #f0f0f2;
+  border-color: #e0e0e0;
+  color: #666666;
+}
+.theme-ocean .filter-chip {
+  background: rgba(100,180,255,0.08);
+  border-color: rgba(100,180,255,0.08);
+  color: rgba(227,242,253,0.70);
 }
 
 .filter-chip-active {
@@ -87,5 +100,8 @@
   display: block;
   margin-top: 10rpx;
   font-size: 24rpx;
-  color: var(--color-text-secondary);
 }
+/* dark */
+.scene-desc { color: rgba(255,255,255,0.72); }
+.theme-light .scene-desc { color: #666666; }
+.theme-ocean .scene-desc { color: rgba(227,242,253,0.70); }
