@@ -71,6 +71,105 @@
   margin-top: 8rpx;
 }
 
+/* ---- Membership Badge ---- */
+.profile-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 14rpx;
+  margin-top: 8rpx;
+  flex-wrap: wrap;
+}
+
+.profile-badge {
+  display: inline-block;
+  padding: 4rpx 18rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+  letter-spacing: 1rpx;
+}
+
+.badge-inactive {
+  background: rgba(255, 255, 255, 0.10) !important;
+  color: rgba(255, 255, 255, 0.45) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+.badge-tier {
+  border: 1px solid transparent;
+}
+
+.badge-pro {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(102, 126, 234, 0.12)) !important;
+  color: #8b9cf7 !important;
+  border-color: rgba(102, 126, 234, 0.35) !important;
+}
+
+.badge-plus {
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.25), rgba(250, 204, 21, 0.10)) !important;
+  color: #fde047 !important;
+  border-color: rgba(250, 204, 21, 0.35) !important;
+}
+
+.badge-max {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.25), rgba(244, 63, 94, 0.10)) !important;
+  color: #fb7185 !important;
+  border-color: rgba(244, 63, 94, 0.35) !important;
+}
+
+/* Light theme badges */
+.badge-pro.theme-light,
+.badge-plus.theme-light,
+.badge-max.theme-light {
+  border-color: transparent !important;
+}
+
+.badge-pro.theme-light {
+  background: rgba(102, 126, 234, 0.12) !important;
+  color: #4f5bd5 !important;
+}
+
+.badge-plus.theme-light {
+  background: rgba(234, 179, 8, 0.12) !important;
+  color: #b45309 !important;
+}
+
+.badge-max.theme-light {
+  background: rgba(244, 63, 94, 0.12) !important;
+  color: #be123c !important;
+}
+
+.badge-inactive.theme-light {
+  background: #f0f0f0 !important;
+  color: #999999 !important;
+  border-color: #e0e0e0 !important;
+}
+
+/* Ocean theme badges */
+.badge-pro.theme-ocean {
+  background: rgba(100, 160, 255, 0.20) !important;
+  color: #93bbfd !important;
+  border-color: rgba(100, 160, 255, 0.30) !important;
+}
+
+.badge-plus.theme-ocean {
+  background: rgba(250, 204, 21, 0.18) !important;
+  color: #fde047 !important;
+  border-color: rgba(250, 204, 21, 0.30) !important;
+}
+
+.badge-max.theme-ocean {
+  background: rgba(244, 63, 94, 0.20) !important;
+  color: #fda4af !important;
+  border-color: rgba(244, 63, 94, 0.30) !important;
+}
+
+.badge-inactive.theme-ocean {
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: rgba(180, 220, 255, 0.40) !important;
+  border-color: rgba(255, 255, 255, 0.10) !important;
+}
+
 /* ---- Hero ---- */
 .hero {
   padding: 36rpx;

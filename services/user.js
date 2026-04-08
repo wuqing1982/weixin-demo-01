@@ -32,10 +32,15 @@ function updateMyProfile(payload) {
   });
 }
 
+function getUpgradePreview(skuId) {
+  return request({ url: '/me/upgrade-preview', data: { skuId } });
+}
+
 module.exports = {
   getCredits,
   getEntitlements,
   getMe,
   getMembership,
+  getUpgradePreview,
   updateMyProfile
 };

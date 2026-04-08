@@ -1468,6 +1468,18 @@ def get_my_entitlements(request: Request):
     })
 
 
+@app.get('/api/me/upgrade-preview')
+def get_upgrade_preview(request: Request, skuId: str = Query(default='')):
+    user = get_request_user(request, required=True, allow_debug=True)
+    if not skuId:
+        raise HTTPException(status_code=400, detail={'code': 4000, 'message': 'skuId is required'})
+    try:
+        preview = require_commerce_store().preview_tier_purchase(user.get('id', ''), skuId)
+        return success(preview)
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail={'code': 4000, 'message': str(error)})
+
+
 @app.get('/api/products')
 def list_products(request: Request, productType: str = Query(default='')):
     products = require_commerce_store().list_products(productType)

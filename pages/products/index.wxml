@@ -4,9 +4,9 @@
     <text class="section-title theme-{{theme}}">会员套餐</text>
     <text class="section-subtitle theme-{{theme}}">购买套餐解锁全部场景和生成功能，积分可叠加。</text>
     <view class="summary-grid" wx:if="{{me}}">
-      <view class="summary-pill theme-{{theme}}">
-        <text class="summary-label theme-{{theme}}">会员状态</text>
-        <text class="summary-value theme-{{theme}} {{me.memberSummary.isActive ? 'active' : 'inactive'}}">{{me.memberSummary.isActive ? '已开通' : '未开通'}}</text>
+      <view class="summary-pill theme-{{theme}} {{me.memberSummary.isActive ? 'pill-active' : ''}}">
+        <text class="summary-label theme-{{theme}}">当前订阅</text>
+        <text class="summary-value theme-{{theme}} {{me.memberSummary.isActive ? 'active' : 'inactive'}}">{{memberTierLabel}}</text>
       </view>
       <view class="summary-pill theme-{{theme}}">
         <text class="summary-label theme-{{theme}}">剩余积分</text>
@@ -42,6 +42,10 @@
       </view>
       <view class="tier-features">
         <view class="tier-feature">
+          <text class="feature-icon check-icon theme-{{theme}}">✓</text>
+          <text class="feature-text theme-{{theme}}">年度会员（365天）</text>
+        </view>
+        <view class="tier-feature">
           <text class="feature-icon credits-icon theme-{{theme}}">◆</text>
           <text class="feature-text theme-{{theme}}">{{item.credits}} 次场景生成积分</text>
         </view>
@@ -58,14 +62,17 @@
           <text class="feature-text theme-{{theme}}">优先生成队列</text>
         </view>
       </view>
+      <view wx:if="{{item.upgradeHint}}" class="upgrade-hint theme-{{theme}}">
+        <text class="upgrade-hint-text theme-{{theme}}">{{item.upgradeHint}}</text>
+      </view>
       <button
-        class="btn-primary theme-{{theme}} buy-btn {{item.isCurrent ? 'btn-disabled' : ''}}"
+        class="btn-primary theme-{{theme}} buy-btn {{!item.canPurchase || (item.isCurrent && item.purchaseAction !== 'renew') ? 'btn-disabled' : ''}}"
         loading="{{payingSkuId === item.skuId}}"
-        disabled="{{payingSkuId && payingSkuId !== item.skuId}}"
+        disabled="{{!item.canPurchase || (payingSkuId && payingSkuId !== item.skuId)}}"
         bindtap="onBuySku"
         data-sku-id="{{item.skuId}}"
       >
-        {{item.isCurrent ? '当前套餐' : (guestMode ? '登录后购买' : '立即购买')}}
+        {{guestMode ? '登录后购买' : (item.purchaseAction === 'renew' ? '续费' : (item.purchaseAction === 'upgrade' ? '升级至' + item.name : (item.purchaseAction === 'blocked' ? '当前等级更高' : '立即购买')))}}
       </button>
     </view>
   </view>

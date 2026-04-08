@@ -12,6 +12,11 @@ from .postgres import connect_postgres
 from .store_utils import build_object_id, utcnow_iso
 
 
+TIER_RANK = {'pro': 1, 'plus': 2, 'max': 3}
+TIER_PRICE = {'pro': Decimal('39.90'), 'plus': Decimal('99.00'), 'max': Decimal('199.00')}
+TIER_DAYS = 365
+
+
 def _parse_iso(value: str | None) -> datetime | None:
     if not value:
         return None
@@ -652,6 +657,112 @@ class CommerceStore:
                     'expiresAt': _to_iso(entitlement.get('expires_at')),
                 }
 
+    def _get_active_membership_row(self, cursor, user_id: str, for_update: bool = False) -> dict[str, Any] | None:
+        sql = '''
+            select *
+            from user_entitlements
+            where user_id = %s
+              and entitlement_type = 'membership'
+              and status = 'active'
+              and starts_at <= now()
+              and (expires_at is null or expires_at > now())
+            order by expires_at desc nulls last, created_at desc
+            limit 1
+        '''
+        if for_update:
+            sql = sql.rstrip() + ' for update'
+        cursor.execute(sql, (user_id,))
+        return cursor.fetchone()
+
+    def _validate_tier_purchase(self, cursor, user_id: str, target_tier: str) -> dict[str, Any]:
+        current = self._get_active_membership_row(cursor, user_id, for_update=True)
+        if not current:
+            return {'action': 'fresh', 'current_membership': None}
+
+        current_tier = current.get('entitlement_code', '').lower()
+        target_tier_lower = target_tier.lower()
+        current_rank = TIER_RANK.get(current_tier, 0)
+        target_rank = TIER_RANK.get(target_tier_lower, 0)
+
+        if current_rank == target_rank:
+            return {'action': 'renewal', 'current_membership': current}
+        if current_rank < target_rank:
+            return {'action': 'upgrade', 'current_membership': current}
+        raise ValueError('当前会员等级更高，无法降级购买')
+
+    def preview_tier_purchase(self, user_id: str, sku_id: str) -> dict[str, Any]:
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                bundle = self._fetch_sku_bundle(cursor, sku_id)
+                if not bundle:
+                    raise ValueError('sku not found')
+
+                target_tier = ''
+                for benefit in bundle.get('benefits', []):
+                    if benefit.get('benefitType') == 'membership':
+                        target_tier = (benefit.get('benefitValue') or '').lower()
+                        break
+                if not target_tier or target_tier not in TIER_RANK:
+                    raise ValueError('sku does not contain a valid membership benefit')
+
+                try:
+                    validation = self._validate_tier_purchase(cursor, user_id, target_tier)
+                except ValueError:
+                    return {
+                        'action': 'blocked',
+                        'currentTier': '',
+                        'targetTier': target_tier,
+                        'remainingDays': 0,
+                        'convertedDays': 0,
+                        'newDurationDays': 0,
+                        'newExpiresAt': None,
+                    }
+
+                action = validation['action']
+                now = datetime.now(timezone.utc)
+
+                if action == 'fresh':
+                    return {
+                        'action': 'fresh',
+                        'currentTier': '',
+                        'targetTier': target_tier,
+                        'remainingDays': 0,
+                        'convertedDays': 0,
+                        'newDurationDays': TIER_DAYS,
+                        'newExpiresAt': _to_iso(now + timedelta(days=TIER_DAYS)),
+                    }
+
+                membership = validation['current_membership']
+                current_tier = membership.get('entitlement_code', '').lower()
+                expires_at = _parse_iso(membership.get('expires_at'))
+                remaining_days = max(0, (expires_at - now).days) if expires_at else 0
+
+                if action == 'renewal':
+                    new_start = max(expires_at, now) if expires_at else now
+                    new_expires = new_start + timedelta(days=TIER_DAYS)
+                    return {
+                        'action': 'renewal',
+                        'currentTier': current_tier,
+                        'targetTier': target_tier,
+                        'remainingDays': remaining_days,
+                        'convertedDays': 0,
+                        'newDurationDays': TIER_DAYS,
+                        'newExpiresAt': _to_iso(new_expires),
+                    }
+
+                # upgrade
+                converted = int(remaining_days * TIER_PRICE.get(current_tier, Decimal('0')) / TIER_PRICE.get(target_tier, Decimal('1')))
+                new_expires = now + timedelta(days=converted + TIER_DAYS)
+                return {
+                    'action': 'upgrade',
+                    'currentTier': current_tier,
+                    'targetTier': target_tier,
+                    'remainingDays': remaining_days,
+                    'convertedDays': converted,
+                    'newDurationDays': converted + TIER_DAYS,
+                    'newExpiresAt': _to_iso(new_expires),
+                }
+
     def get_credit_summary(self, user_id: str) -> dict[str, Any]:
         with self._connect() as connection:
             with connection.cursor() as cursor:
@@ -1031,15 +1142,66 @@ class CommerceStore:
             )
 
     def _grant_sku_benefits(self, cursor, *, user_id: str, benefits: list[dict[str, Any]], quantity: int, source_type: str, source_id: str, extra_payload: dict | None = None, sku_name: str = '', reason_remark: str = '') -> None:
+        # Resolve membership action (fresh / renewal / upgrade / downgrade-blocked)
+        membership_benefit = None
+        for b in benefits:
+            if b.get('benefitType') == 'membership':
+                membership_benefit = b
+                break
+
+        membership_action = 'fresh'
+        current_membership_row = None
+        if membership_benefit:
+            target_tier = (membership_benefit.get('benefitValue') or '').lower()
+            validation = self._validate_tier_purchase(cursor, user_id, target_tier)
+            membership_action = validation['action']
+            current_membership_row = validation.get('current_membership')
+
+        # Track the final membership expires_at so feature benefits can inherit it
+        final_membership_expires_at = None
+        final_membership_starts_at = None
+
         for benefit in benefits:
             benefit_type = benefit.get('benefitType', '')
             benefit_value = benefit.get('benefitValue', '')
             benefit_json = benefit.get('benefitJson') or {}
 
             if benefit_type == 'membership':
-                duration_days = int(benefit_json.get('durationDays') or 0)
-                starts_at = datetime.now(timezone.utc)
-                expires_at = starts_at if duration_days <= 0 else starts_at + timedelta(days=duration_days * quantity)
+                duration_days = int(benefit_json.get('durationDays') or TIER_DAYS)
+                now = datetime.now(timezone.utc)
+
+                if membership_action == 'fresh':
+                    starts_at = now
+                    expires_at = now + timedelta(days=duration_days * quantity)
+                elif membership_action == 'renewal':
+                    old_expires = _parse_iso(current_membership_row.get('expires_at')) if current_membership_row else None
+                    starts_at = max(old_expires, now) if old_expires else now
+                    expires_at = starts_at + timedelta(days=duration_days * quantity)
+                elif membership_action == 'upgrade':
+                    old_tier = (current_membership_row.get('entitlement_code') or '').lower()
+                    old_expires = _parse_iso(current_membership_row.get('expires_at'))
+                    remaining_days = max(0, (old_expires - now).days) if old_expires else 0
+                    converted = int(remaining_days * TIER_PRICE.get(old_tier, Decimal('0')) / TIER_PRICE.get(target_tier, Decimal('1')))
+                    starts_at = now
+                    expires_at = now + timedelta(days=converted + duration_days * quantity)
+
+                    # Mark old membership and its feature entitlements as superseded
+                    cursor.execute(
+                        "update user_entitlements set status = 'superseded', updated_at = now() where id = %s",
+                        (current_membership_row.get('id', ''),),
+                    )
+                    cursor.execute(
+                        """
+                        update user_entitlements
+                        set status = 'superseded', updated_at = now()
+                        where user_id = %s
+                          and entitlement_type = 'feature'
+                          and status = 'active'
+                          and source_id = %s
+                        """,
+                        (user_id, current_membership_row.get('source_id', '')),
+                    )
+
                 payload = dict(extra_payload or {})
                 payload['skuName'] = sku_name
                 payload['benefit'] = benefit_json
@@ -1062,6 +1224,8 @@ class CommerceStore:
                         json.dumps(payload, ensure_ascii=False),
                     ),
                 )
+                final_membership_starts_at = starts_at
+                final_membership_expires_at = expires_at
                 continue
 
             if benefit_type == 'credits':
@@ -1114,13 +1278,17 @@ class CommerceStore:
                 continue
 
             if benefit_type == 'feature':
-                membership_days = 365
-                for other_benefit in benefits:
-                    if other_benefit.get('benefitType') == 'membership':
-                        membership_days = int((other_benefit.get('benefitJson') or {}).get('durationDays') or 365)
-                        break
-                starts_at = datetime.now(timezone.utc)
-                expires_at = starts_at + timedelta(days=membership_days * quantity)
+                if final_membership_expires_at and final_membership_starts_at:
+                    starts_at = final_membership_starts_at
+                    expires_at = final_membership_expires_at
+                else:
+                    membership_days = TIER_DAYS
+                    for other_benefit in benefits:
+                        if other_benefit.get('benefitType') == 'membership':
+                            membership_days = int((other_benefit.get('benefitJson') or {}).get('durationDays') or TIER_DAYS)
+                            break
+                    starts_at = datetime.now(timezone.utc)
+                    expires_at = starts_at + timedelta(days=membership_days * quantity)
                 payload = dict(extra_payload or {})
                 payload['benefit'] = benefit_json
                 cursor.execute(
@@ -1156,6 +1324,14 @@ class CommerceStore:
                     sku_row = bundle['sku']
                     if sku_row.get('status') != 'active' or sku_row.get('product_status') != 'active':
                         raise ValueError('sku unavailable')
+
+                    # Validate tier purchase constraints (downgrade blocked)
+                    for b in bundle.get('benefits', []):
+                        if b.get('benefitType') == 'membership':
+                            target_tier = (b.get('benefitValue') or '').lower()
+                            if target_tier in TIER_RANK:
+                                self._validate_tier_purchase(cursor, user_id, target_tier)
+                            break
 
                     order_id = build_object_id('order')
                     order_no = _build_business_no('ORD')

@@ -39,6 +39,20 @@
   border: 1px solid rgba(80,160,255,0.22) !important;
 }
 
+/* Active subscription pill highlight */
+.pill-active {
+  border-color: rgba(74, 222, 128, 0.40) !important;
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.10), rgba(74, 222, 128, 0.04)) !important;
+}
+.pill-active.theme-light {
+  border-color: #07c160 !important;
+  background: rgba(7, 193, 96, 0.06) !important;
+}
+.pill-active.theme-ocean {
+  border-color: rgba(0, 200, 160, 0.40) !important;
+  background: rgba(0, 200, 160, 0.08) !important;
+}
+
 .guest-tip {
   margin-top: 24rpx;
   padding: 22rpx;
@@ -273,7 +287,39 @@
 }
 
 .btn-disabled {
-  opacity: 0.5;
+  opacity: 0.35;
+}
+
+/* --- Upgrade Hint --- */
+.upgrade-hint {
+  margin-top: 16rpx;
+  padding: 14rpx 20rpx;
+  border-radius: 12rpx;
+  background: rgba(250, 204, 21, 0.08) !important;
+  border: 1px solid rgba(250, 204, 21, 0.18) !important;
+}
+
+.upgrade-hint.theme-light {
+  background: rgba(250, 204, 21, 0.06) !important;
+  border-color: rgba(250, 204, 21, 0.22) !important;
+}
+
+.upgrade-hint.theme-ocean {
+  background: rgba(255, 200, 80, 0.08) !important;
+  border-color: rgba(255, 200, 80, 0.18) !important;
+}
+
+.upgrade-hint-text {
+  font-size: 22rpx;
+  color: #facc15 !important;
+}
+
+.upgrade-hint-text.theme-light {
+  color: #d48806 !important;
+}
+
+.upgrade-hint-text.theme-ocean {
+  color: #ffd54f !important;
 }
 
 /* --- CDK Buttons Row --- */

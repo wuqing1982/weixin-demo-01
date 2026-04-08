@@ -3,8 +3,21 @@ const { createOrder } = require('../../services/order');
 const { payOrder } = require('../../services/payment');
 const { getProducts, getProductSkus } = require('../../services/product');
 const { readSession } = require('../../services/session');
-const { getMe } = require('../../services/user');
+const { getMe, getUpgradePreview } = require('../../services/user');
 const { redeemCdk } = require('../../services/cdk');
+
+const TIER_RANK = { pro: 1, plus: 2, max: 3 };
+
+const TIER_LABELS = {
+  pro: 'Pro会员',
+  plus: 'Plus会员',
+  max: 'Max会员',
+};
+
+function getMemberTierLabel(me) {
+  if (!me || !me.memberSummary || !me.memberSummary.isActive) return '未开通';
+  return TIER_LABELS[me.memberSummary.entitlementCode] || '已开通';
+}
 
 const TIER_META = {
   tier_pro: {
@@ -29,13 +42,34 @@ const TIER_META = {
 
 function buildTierCards(products, allSkus, currentEntitlementCode) {
   const cards = [];
+  const currentRank = TIER_RANK[currentEntitlementCode] || 0;
+
   for (const product of products) {
     const skus = allSkus[product.productId] || [];
     const sku = skus[0];
     if (!sku) continue;
+
     const meta = TIER_META[product.productCode] || {};
+    const tierCode = (product.productCode || '').replace('tier_', '');
+    const cardRank = TIER_RANK[tierCode] || 0;
+
+    let purchaseAction = 'buy';
+    let canPurchase = true;
+
+    if (currentEntitlementCode) {
+      if (tierCode === currentEntitlementCode) {
+        purchaseAction = 'renew';
+      } else if (cardRank > currentRank) {
+        purchaseAction = 'upgrade';
+      } else {
+        purchaseAction = 'blocked';
+        canPurchase = false;
+      }
+    }
+
     cards.push({
       skuId: sku.skuId,
+      tierCode: tierCode,
       name: product.name,
       salePrice: sku.salePrice,
       listPrice: sku.listPrice,
@@ -43,9 +77,10 @@ function buildTierCards(products, allSkus, currentEntitlementCode) {
       videoExport: meta.videoExport || false,
       priorityQueue: meta.priorityQueue || false,
       recommended: meta.recommended || false,
-      isCurrent: currentEntitlementCode && sku.benefits && sku.benefits.some(
-        (b) => b.benefitType === 'membership' && b.benefitValue === currentEntitlementCode
-      ),
+      isCurrent: tierCode === currentEntitlementCode,
+      purchaseAction: purchaseAction,
+      canPurchase: canPurchase,
+      upgradeHint: '',
     });
   }
   return cards;
@@ -57,6 +92,7 @@ Page({
     loading: true,
     tierCards: [],
     me: null,
+    memberTierLabel: '未开通',
     guestMode: true,
     errorMessage: '',
     payingSkuId: '',
@@ -96,10 +132,27 @@ Page({
         : '';
 
       const tierCards = buildTierCards(products, allSkus, currentCode);
+
+      // Load upgrade previews for upgrade-able cards
+      if (me && currentCode) {
+        const upgradeCards = tierCards.filter((c) => c.purchaseAction === 'upgrade');
+        const previews = await Promise.all(
+          upgradeCards.map((card) =>
+            getUpgradePreview(card.skuId).catch(() => null)
+          )
+        );
+        previews.forEach((preview, i) => {
+          if (preview && preview.convertedDays > 0) {
+            upgradeCards[i].upgradeHint = '剩余 ' + preview.remainingDays + ' 天折算 ' + preview.convertedDays + ' 天，合计 ' + preview.newDurationDays + ' 天';
+          }
+        });
+      }
+
       this.setData({
         loading: false,
         tierCards,
         me,
+        memberTierLabel: getMemberTierLabel(me),
         guestMode: !me,
       });
     } catch (error) {
@@ -112,7 +165,9 @@ Page({
 
   async onBuySku(event) {
     const { skuId } = event.currentTarget.dataset;
+    const card = this.data.tierCards.find((c) => c.skuId === skuId);
     if (!skuId || this.data.payingSkuId) return;
+    if (card && !card.canPurchase) return;
     if (!readSession().accessToken) {
       wx.navigateTo({ url: '/pages/login/index' });
       return;

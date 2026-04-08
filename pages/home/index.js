@@ -3,10 +3,22 @@ const { logout } = require('../../services/auth');
 const { readSession } = require('../../services/session');
 const { getMe } = require('../../services/user');
 
+const TIER_LABELS = {
+  pro: 'Pro会员',
+  plus: 'Plus会员',
+  max: 'Max会员',
+};
+
+function getMemberTierLabel(me) {
+  if (!me || !me.memberSummary || !me.memberSummary.isActive) return '未开通';
+  return TIER_LABELS[me.memberSummary.entitlementCode] || '已开通';
+}
+
 Page({
   data: {
     theme: 'dark',
     me: null,
+    memberTierLabel: '未开通',
     errorMessage: '',
     actions: [
       {
@@ -69,6 +81,7 @@ Page({
       getApp().globalData.currentUser = me;
       this.setData({
         me,
+        memberTierLabel: getMemberTierLabel(me),
         errorMessage: ''
       });
     } catch (error) {
