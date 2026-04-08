@@ -226,7 +226,7 @@ def _build_panel_filter(tmp_dir: Path, img_w: int, img_h: int, item: dict,
     ty = panel_y + pad
 
     # Type tag (名词 / 动词)
-    tag_text = '✦ 动词' if item_type == 'verb' else '✦ 名词'
+    tag_text = '动词' if item_type == 'verb' else '名词'
     tag_color = '#4fc3f7' if item_type == 'verb' else '#ffd93d'
     tag_bg_color = '#4fc3f7@0.25' if item_type == 'verb' else '#ffd93d@0.25'
     tag_pad = int(font_tag * 0.4)
