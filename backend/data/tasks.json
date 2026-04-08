@@ -377,6 +377,30 @@
       "errorMessage": "请设置 ZHIPUAI_API_KEY 环境变量或传入 api_key 参数",
       "createdAt": "2026-04-07T10:54:43Z",
       "updatedAt": "2026-04-07T10:54:45Z"
+    },
+    {
+      "taskId": "task_20260408010529_f7ae71",
+      "ownerId": "user_20260405145017_f25208",
+      "uploadId": "upload_20260408010529_c9722c",
+      "title": "",
+      "includeVerbs": true,
+      "sourceLang": "zh-CN",
+      "accent": "en-US",
+      "voiceGender": "female",
+      "voiceName": "JennyNeural",
+      "requestSource": "miniapp",
+      "autoPublish": false,
+      "categoryId": "",
+      "collectionIds": [],
+      "publishVisibility": "public",
+      "status": "done",
+      "step": "finished",
+      "progress": 100,
+      "sceneId": "scene_user_20260408010529_297296",
+      "publishedSceneId": "",
+      "errorMessage": "",
+      "createdAt": "2026-04-08T01:05:29Z",
+      "updatedAt": "2026-04-08T01:06:03Z"
     }
   ]
 }

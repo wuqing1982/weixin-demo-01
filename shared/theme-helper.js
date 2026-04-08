@@ -11,7 +11,7 @@ function updateNavBar(theme) {
   var config = {
     dark:  { frontColor: '#ffffff', backgroundColor: '#0b0b0c' },
     light: { frontColor: '#000000', backgroundColor: '#f5f6f8' },
-    ocean: { frontColor: '#ffffff', backgroundColor: '#0a192f' }
+    ocean: { frontColor: '#ffffff', backgroundColor: '#041526' }
   };
   var c = config[theme] || config.dark;
   wx.setNavigationBarColor({

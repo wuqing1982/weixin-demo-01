@@ -2498,6 +2498,144 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260408010529_297296",
+      "title": "客厅",
+      "category": "existing",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260408010529_297296/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260408010529_297296/background.jpg",
+      "items": [
+        {
+          "id": "coffee_table",
+          "word": "coffee table",
+          "ipa": "/kɒfiˈteɪbəl/",
+          "meaning": "咖啡桌",
+          "sentence": "Look at the coffee table.",
+          "sentenceTranslation": "看那个咖啡桌。",
+          "audioPath": "/assets/generated/scene_user_20260408010529_297296/scene_user_20260408010529_297296_en-US-JennyNeural_US_female_coffee_table_look_at_the_coffee_table.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 70.0,
+            "w": 40.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "sofa",
+          "word": "sofa",
+          "ipa": "/ˈsəʊfə/",
+          "meaning": "沙发",
+          "sentence": "The sofa is behind the coffee table.",
+          "sentenceTranslation": "沙发在咖啡桌后面。",
+          "audioPath": "/assets/generated/scene_user_20260408010529_297296/scene_user_20260408010529_297296_en-US-JennyNeural_US_female_sofa_the_sofa_is_behind_the_coffee.mp3",
+          "rect": {
+            "l": 30.0,
+            "t": 60.0,
+            "w": 20.0,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "book",
+          "word": "book",
+          "ipa": "/bʊk/",
+          "meaning": "书",
+          "sentence": "There are books on the coffee table.",
+          "sentenceTranslation": "咖啡桌上有一本书。",
+          "audioPath": "/assets/generated/scene_user_20260408010529_297296/scene_user_20260408010529_297296_en-US-JennyNeural_US_female_book_there_are_books_on_the_coffee.mp3",
+          "rect": {
+            "l": 55.0,
+            "t": 75.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "drone",
+          "word": "drone",
+          "ipa": "/droʊn/",
+          "meaning": "无人机",
+          "sentence": "Look at the drone on the coffee table.",
+          "sentenceTranslation": "看看咖啡桌上的无人机。",
+          "audioPath": "/assets/generated/scene_user_20260408010529_297296/scene_user_20260408010529_297296_en-US-JennyNeural_US_female_drone_look_at_the_drone_on_the.mp3",
+          "rect": {
+            "l": 45.0,
+            "t": 80.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "toy",
+          "word": "toy",
+          "ipa": "/toʊɪ/",
+          "meaning": "玩具",
+          "sentence": "There's a toy on the coffee table.",
+          "sentenceTranslation": "咖啡桌上有一个玩具。",
+          "audioPath": "/assets/generated/scene_user_20260408010529_297296/scene_user_20260408010529_297296_en-US-JennyNeural_US_female_toy_theres_a_toy_on_the_coffee.mp3",
+          "rect": {
+            "l": 65.0,
+            "t": 85.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "read",
+          "word": "read",
+          "ipa": "/riːd/",
+          "meaning": "阅读",
+          "sentence": "Let's read a book together.",
+          "sentenceTranslation": "我们一起读一本书吧。",
+          "audioPath": "/assets/generated/scene_user_20260408010529_297296/scene_user_20260408010529_297296_en-US-JennyNeural_US_female_read_lets_read_a_book_together.mp3",
+          "relatedItem": "book"
+        },
+        {
+          "id": "play",
+          "word": "play",
+          "ipa": "/pleɪ/",
+          "meaning": "玩耍",
+          "sentence": "Let's play with the toy.",
+          "sentenceTranslation": "让我们玩这个玩具。",
+          "audioPath": "/assets/generated/scene_user_20260408010529_297296/scene_user_20260408010529_297296_en-US-JennyNeural_US_female_play_lets_play_with_the_toy.mp3",
+          "relatedItem": "toy"
+        },
+        {
+          "id": "fly",
+          "word": "fly",
+          "ipa": "/flaɪ/",
+          "meaning": "飞行",
+          "sentence": "Let's fly the drone outside.",
+          "sentenceTranslation": "我们出去飞一下无人机吧。",
+          "audioPath": "/assets/generated/scene_user_20260408010529_297296/scene_user_20260408010529_297296_en-US-JennyNeural_US_female_fly_lets_fly_the_drone_outside.mp3",
+          "relatedItem": "drone"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260405145017_f25208",
+        "uploadId": "upload_20260408010529_c9722c",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260408010529_297296",
+        "core100SceneTitle": "客厅",
+        "recommendedCategory": "existing",
+        "tags": [
+          "家庭",
+          "休闲",
+          "居住空间"
+        ],
+        "version": 1
+      }
     }
   ]
 }

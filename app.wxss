@@ -25,10 +25,6 @@ page {
   min-height: 100%;
 }
 
-/* NOTE: page element cannot receive dynamic theme classes.
-   The <view class="page-root {{theme}}>"> inside page handles theming.
-   page {} keeps dark as the permanent default. */
-
 /* ================================================================
    Global reset
    ================================================================ */
@@ -43,7 +39,8 @@ textarea {
 }
 
 /* ================================================================
-   Layout — .page-root has BOTH page-root and theme-xxx classes
+   Theme: Dark — 黑色沉浸 + 紫色霓虹
+   深黑背景，玻璃拟态卡片，紫色主色调，暖金色点缀
    ================================================================ */
 .page-root {
   min-height: 100vh;
@@ -51,16 +48,21 @@ textarea {
   color: #ffffff;
 }
 
-/* .theme-light and .theme-ocean are on the SAME element as .page-root,
-   so they can override .page-root's background directly. */
-
+/* ================================================================
+   Theme: Light — 微信绿 + 白底
+   明亮干净，白卡片浮在浅灰底上，绿色主色，清晰阴影
+   ================================================================ */
 .theme-light {
   background: linear-gradient(180deg, #f5f6f8 0%, #ebedf0 100%) !important;
   color: #191919 !important;
 }
 
+/* ================================================================
+   Theme: Ocean — 深海蓝 + 青色荧光
+   深蓝背景，蓝色冰晶卡片，青色光晕，水下沉浸感
+   ================================================================ */
 .theme-ocean {
-  background: linear-gradient(180deg, #0a192f 0%, #0d2137 100%) !important;
+  background: linear-gradient(180deg, #041526 0%, #0a2540 40%, #072038 100%) !important;
   color: #e3f2fd !important;
 }
 
@@ -70,28 +72,34 @@ textarea {
 }
 
 /* ================================================================
-   Card — dark default + light/ocean overrides
+   Card — each theme has a DISTINCT surface treatment
    ================================================================ */
+
+/* Dark: glass morphism, subtle purple glow */
 .card,
 .state-card {
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
   border-radius: 28rpx;
-  box-shadow: 0 16rpx 48rpx rgba(0,0,0,0.18);
+  box-shadow: 0 16rpx 48rpx rgba(0,0,0,0.25);
 }
 
+/* Light: solid white card with visible shadow on gray bg */
 .theme-light .card,
 .theme-light .state-card {
   background: #ffffff;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 16rpx 48rpx rgba(0,0,0,0.10);
+  border: 1px solid #e8e8e8;
+  border-radius: 20rpx;
+  box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.08), 0 1rpx 4rpx rgba(0,0,0,0.04);
 }
 
+/* Ocean: frosted blue ice, cyan glow border */
 .theme-ocean .card,
 .theme-ocean .state-card {
-  background: rgba(100,180,255,0.08);
-  border: 1px solid rgba(100,180,255,0.18);
-  box-shadow: 0 16rpx 48rpx rgba(0,0,0,0.30);
+  background: linear-gradient(180deg, rgba(30,80,160,0.28), rgba(20,60,120,0.18));
+  border: 1px solid rgba(80,160,255,0.25);
+  border-radius: 24rpx;
+  box-shadow: 0 16rpx 48rpx rgba(0,0,0,0.35), inset 0 1rpx 0 rgba(100,200,255,0.10);
 }
 
 .state-card {
@@ -101,16 +109,9 @@ textarea {
   text-align: center;
 }
 
-/* dark */
-.state-card {
-  color: rgba(255,255,255,0.72);
-}
-.theme-light .state-card {
-  color: #666666;
-}
-.theme-ocean .state-card {
-  color: rgba(227,242,253,0.70);
-}
+.state-card { color: rgba(255,255,255,0.72); }
+.theme-light .state-card { color: #888888; }
+.theme-ocean .state-card { color: rgba(180,220,255,0.75); }
 
 /* ================================================================
    Typography
@@ -121,21 +122,20 @@ textarea {
   font-weight: 700;
   color: #ffffff;
 }
-.theme-light .section-title { color: #191919; }
-.theme-ocean .section-title { color: #e3f2fd; }
+.theme-light .section-title { color: #1a1a1a; }
+.theme-ocean .section-title { color: #e8f4ff; }
 
 .section-subtitle {
   display: block;
   margin-top: 10rpx;
   font-size: var(--font-caption);
 }
-/* dark */
-.section-subtitle { color: rgba(255,255,255,0.72); }
-.theme-light .section-subtitle { color: #666666; }
-.theme-ocean .section-subtitle { color: rgba(227,242,253,0.70); }
+.section-subtitle { color: rgba(255,255,255,0.65); }
+.theme-light .section-subtitle { color: #888888; }
+.theme-ocean .section-subtitle { color: rgba(180,220,255,0.65); }
 
 /* ================================================================
-   Buttons — base shared styles
+   Buttons — each theme has DISTINCT button styling
    ================================================================ */
 .btn-primary,
 .btn-secondary,
@@ -172,40 +172,58 @@ textarea {
   opacity: 0.45;
 }
 
-/* Primary button — dark */
+/* ---- Primary ---- */
+
+/* Dark: purple gradient */
 .btn-primary {
   border: 0;
   background: linear-gradient(135deg, #667eea, #7c5cd6);
   color: #ffffff;
   font-weight: 600;
 }
+
+/* Light: WeChat green, rounded */
 .theme-light .btn-primary {
-  background: linear-gradient(135deg, #07c160, #06ad56);
+  background: #07c160;
   color: #ffffff;
-}
-.theme-ocean .btn-primary {
-  background: linear-gradient(135deg, #64b5f6, #42a5f5);
-  color: #ffffff;
+  font-weight: 600;
+  border-radius: 12rpx;
 }
 
-/* Secondary button — dark */
+/* Ocean: cyan glow */
+.theme-ocean .btn-primary {
+  background: linear-gradient(135deg, #00d4ff, #0099cc);
+  color: #ffffff;
+  font-weight: 600;
+  box-shadow: 0 8rpx 28rpx rgba(0,180,255,0.35);
+}
+
+/* ---- Secondary ---- */
+
+/* Dark: glass outline */
 .btn-secondary {
-  border: 1px solid rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.20);
   background: rgba(255,255,255,0.08);
   color: #ffffff;
 }
+
+/* Light: light gray filled */
 .theme-light .btn-secondary {
-  border: 1px solid #d0d0d0;
-  background: #f0f0f2;
-  color: #191919;
-}
-.theme-ocean .btn-secondary {
-  border: 1px solid rgba(100,180,255,0.22);
-  background: rgba(100,180,255,0.10);
-  color: #e3f2fd;
+  border: 1px solid #dcdcdc;
+  background: #f5f5f5;
+  color: #333333;
+  border-radius: 12rpx;
 }
 
-/* Success button — dark */
+/* Ocean: blue glass */
+.theme-ocean .btn-secondary {
+  border: 1px solid rgba(80,180,255,0.30);
+  background: rgba(40,100,200,0.15);
+  color: #b0d8ff;
+}
+
+/* ---- Success ---- */
+
 .btn-success {
   border: 0;
   background: linear-gradient(135deg, #4ade80, #22c55e);
@@ -213,15 +231,18 @@ textarea {
   font-weight: 600;
 }
 .theme-light .btn-success {
-  background: linear-gradient(135deg, #07c160, #06ad56);
+  background: #07c160;
   color: #ffffff;
+  border-radius: 12rpx;
 }
 .theme-ocean .btn-success {
-  background: linear-gradient(135deg, #4dd0e1, #26c6da);
+  background: linear-gradient(135deg, #00e5a0, #00c48c);
   color: #ffffff;
+  box-shadow: 0 8rpx 28rpx rgba(0,200,160,0.30);
 }
 
-/* Danger button — dark */
+/* ---- Danger ---- */
+
 .btn-danger {
   border: 0;
   background: linear-gradient(135deg, #f87171, #ef4444);
@@ -229,12 +250,14 @@ textarea {
   font-weight: 600;
 }
 .theme-light .btn-danger {
-  background: linear-gradient(135deg, #fa5151, #e6363a);
+  background: #fa5151;
   color: #ffffff;
+  border-radius: 12rpx;
 }
 .theme-ocean .btn-danger {
-  background: linear-gradient(135deg, #ef5350, #e53935);
+  background: linear-gradient(135deg, #ff6b6b, #ee4444);
   color: #ffffff;
+  box-shadow: 0 8rpx 28rpx rgba(255,80,80,0.30);
 }
 
 /* Small variant */
@@ -245,7 +268,7 @@ textarea {
 }
 
 /* ================================================================
-   Tags
+   Tags — theme-distinct accent colors
    ================================================================ */
 .tag {
   display: inline-flex;
@@ -256,56 +279,58 @@ textarea {
   font-size: var(--font-badge);
 }
 
+/* Dark: purple tones */
 .tag-primary {
-  background: rgba(102,126,234,0.15);
-  color: #667eea;
+  background: rgba(102,126,234,0.18);
+  color: #8b9ef7;
 }
-.theme-light .tag-primary {
-  background: rgba(7,193,96,0.12);
-  color: #07c160;
+.tag-success {
+  background: rgba(74,222,128,0.18);
+  color: #6ee7a0;
 }
-.theme-ocean .tag-primary {
-  background: rgba(100,181,246,0.15);
-  color: #64b5f6;
+.tag-warning {
+  background: rgba(251,191,36,0.18);
+  color: #fcd34d;
+}
+.tag-danger {
+  background: rgba(248,113,113,0.18);
+  color: #fca5a5;
 }
 
-.tag-success {
-  background: rgba(74,222,128,0.15);
-  color: #4ade80;
+/* Light: green tones, sharper */
+.theme-light .tag-primary {
+  background: rgba(7,193,96,0.10);
+  color: #06ad56;
 }
 .theme-light .tag-success {
-  background: rgba(7,193,96,0.12);
-  color: #07c160;
-}
-.theme-ocean .tag-success {
-  background: rgba(77,208,225,0.15);
-  color: #4dd0e1;
-}
-
-.tag-warning {
-  background: rgba(251,191,36,0.15);
-  color: #fbbf24;
+  background: rgba(7,193,96,0.10);
+  color: #06ad56;
 }
 .theme-light .tag-warning {
-  background: rgba(237,106,12,0.12);
-  color: #ed6a0c;
+  background: rgba(237,106,12,0.10);
+  color: #d46b08;
+}
+.theme-light .tag-danger {
+  background: rgba(250,81,81,0.10);
+  color: #cf1322;
+}
+
+/* Ocean: cyan tones, glowing */
+.theme-ocean .tag-primary {
+  background: rgba(0,200,255,0.15);
+  color: #66d9ff;
+}
+.theme-ocean .tag-success {
+  background: rgba(0,224,180,0.15);
+  color: #5cf5c8;
 }
 .theme-ocean .tag-warning {
   background: rgba(255,183,77,0.15);
   color: #ffb74d;
 }
-
-.tag-danger {
-  background: rgba(248,113,113,0.15);
-  color: #f87171;
-}
-.theme-light .tag-danger {
-  background: rgba(250,81,81,0.12);
-  color: #fa5151;
-}
 .theme-ocean .tag-danger {
-  background: rgba(239,83,80,0.15);
-  color: #ef5350;
+  background: rgba(255,100,100,0.15);
+  color: #ff8a8a;
 }
 
 /* ================================================================
@@ -322,34 +347,31 @@ textarea {
   font-weight: 600;
 }
 
-.badge-success {
-  background: #4ade80;
-  color: #ffffff;
-}
-.theme-light .badge-success { background: #07c160; }
-.theme-ocean .badge-success { background: #4dd0e1; }
-
-.badge-primary {
-  background: #667eea;
-  color: #ffffff;
-}
-.theme-light .badge-primary { background: #07c160; }
-.theme-ocean .badge-primary { background: #64b5f6; }
-
+/* Dark */
+.badge-success { background: #4ade80; color: #0a0a0a; }
+.badge-primary { background: #667eea; color: #ffffff; }
 .badge-pending {
-  background: rgba(255,255,255,0.12);
-  color: rgba(255,255,255,0.72);
-  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.60);
+  border: 1px solid rgba(255,255,255,0.15);
 }
+
+/* Light */
+.theme-light .badge-success { background: #07c160; color: #ffffff; }
+.theme-light .badge-primary { background: #07c160; color: #ffffff; }
 .theme-light .badge-pending {
   background: #f0f0f2;
-  color: #666666;
+  color: #888888;
   border: 1px solid #e0e0e0;
 }
+
+/* Ocean */
+.theme-ocean .badge-success { background: #00d4aa; color: #041526; }
+.theme-ocean .badge-primary { background: #00b8ff; color: #041526; }
 .theme-ocean .badge-pending {
-  background: rgba(100,180,255,0.10);
-  color: rgba(227,242,253,0.70);
-  border: 1px solid rgba(100,180,255,0.18);
+  background: rgba(40,100,200,0.20);
+  color: rgba(180,220,255,0.65);
+  border: 1px solid rgba(80,160,255,0.20);
 }
 
 /* ================================================================
@@ -361,18 +383,19 @@ textarea {
   padding: 0 var(--space-lg);
   font-size: var(--font-body);
   /* dark */
-  background: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.10);
   border: 1px solid rgba(255,255,255,0.18);
   color: #ffffff;
 }
 .theme-light .input-field {
-  background: #f0f0f2;
-  border: 1px solid #d0d0d0;
-  color: #191919;
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  color: #333333;
+  border-radius: 12rpx;
 }
 .theme-ocean .input-field {
-  background: rgba(100,180,255,0.10);
-  border: 1px solid rgba(100,180,255,0.22);
+  background: rgba(20,60,120,0.30);
+  border: 1px solid rgba(80,160,255,0.25);
   color: #e3f2fd;
 }
 
@@ -390,18 +413,18 @@ textarea {
 .loading-spinner .spinner {
   width: 48rpx;
   height: 48rpx;
-  border: 4rpx solid rgba(255,255,255,0.14);
+  border: 4rpx solid rgba(255,255,255,0.12);
   border-top-color: #667eea;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
 .theme-light .loading-spinner .spinner {
-  border: 4rpx solid #e0e0e0;
+  border: 4rpx solid #e8e8e8;
   border-top-color: #07c160;
 }
 .theme-ocean .loading-spinner .spinner {
-  border: 4rpx solid rgba(100,180,255,0.18);
-  border-top-color: #64b5f6;
+  border: 4rpx solid rgba(80,160,255,0.20);
+  border-top-color: #00b8ff;
 }
 
 @keyframes spin {
@@ -412,10 +435,9 @@ textarea {
   margin-top: 20rpx;
   font-size: var(--font-caption);
 }
-/* dark */
-.loading-spinner .loading-text { color: rgba(255,255,255,0.50); }
+.loading-spinner .loading-text { color: rgba(255,255,255,0.45); }
 .theme-light .loading-spinner .loading-text { color: #999999; }
-.theme-ocean .loading-spinner .loading-text { color: rgba(227,242,253,0.45); }
+.theme-ocean .loading-spinner .loading-text { color: rgba(180,220,255,0.50); }
 
 /* ================================================================
    Empty state
@@ -439,19 +461,17 @@ textarea {
   font-size: var(--font-body);
   text-align: center;
 }
-/* dark */
-.empty-state .empty-text { color: rgba(255,255,255,0.50); }
+.empty-state .empty-text { color: rgba(255,255,255,0.45); }
 .theme-light .empty-state .empty-text { color: #999999; }
-.theme-ocean .empty-state .empty-text { color: rgba(227,242,253,0.45); }
+.theme-ocean .empty-state .empty-text { color: rgba(180,220,255,0.50); }
 
 .empty-state .empty-hint {
   margin-top: 12rpx;
   font-size: var(--font-caption);
 }
-/* dark */
-.empty-state .empty-hint { color: rgba(255,255,255,0.36); }
+.empty-state .empty-hint { color: rgba(255,255,255,0.30); }
 .theme-light .empty-state .empty-hint { color: #bbbbbb; }
-.theme-ocean .empty-state .empty-hint { color: rgba(227,242,253,0.30); }
+.theme-ocean .empty-state .empty-hint { color: rgba(180,220,255,0.35); }
 
 /* ================================================================
    List footer
@@ -461,10 +481,9 @@ textarea {
   padding: 24rpx 0 40rpx;
   font-size: var(--font-caption);
 }
-/* dark */
-.list-footer { color: rgba(255,255,255,0.50); }
+.list-footer { color: rgba(255,255,255,0.40); }
 .theme-light .list-footer { color: #999999; }
-.theme-ocean .list-footer { color: rgba(227,242,253,0.45); }
+.theme-ocean .list-footer { color: rgba(180,220,255,0.40); }
 
 /* ================================================================
    Safe area bottom padding

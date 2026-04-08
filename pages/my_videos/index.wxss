@@ -35,8 +35,15 @@
   align-items: center;
   justify-content: center;
 }
-.theme-light .play-icon { background: rgba(0,0,0,0.40); }
-.theme-ocean .play-icon { background: rgba(0,0,0,0.55); }
+
+/* Light: darker overlay */
+.theme-light .play-icon { background: rgba(0,0,0,0.45); }
+
+/* Ocean: blue-tinted overlay */
+.theme-ocean .play-icon {
+  background: rgba(0,40,100,0.60);
+  border: 1px solid rgba(80,160,255,0.25);
+}
 
 .play-triangle {
   width: 0;
@@ -62,7 +69,7 @@
   margin-top: 10rpx;
   font-size: 24rpx;
   /* dark */
-  color: rgba(255,255,255,0.72);
+  color: rgba(255,255,255,0.60);
 }
-.theme-light .video-date { color: #666666; }
-.theme-ocean .video-date { color: rgba(227,242,253,0.70); }
+.theme-light .video-date { color: #888888; }
+.theme-ocean .video-date { color: rgba(180,220,255,0.60); }
