@@ -1653,7 +1653,7 @@ class CommerceStore:
             with connection.transaction():
                 with connection.cursor() as cursor:
                     cursor.execute(
-                        'select c.*, s.name as sku_name from cdk_codes c left join product_skus s on s.id = c.sku_id where c.code = %s for update',
+                        'select * from cdk_codes where code = %s for update',
                         (code,),
                     )
                     cdk_row = cursor.fetchone()
