@@ -28,8 +28,8 @@
   margin-top: 24rpx;
   padding: 22rpx;
   border-radius: 24rpx;
-  background: var(--color-surface);
-  border: 1px solid var(--color-surface-border);
+  background: rgba(255, 244, 219, 0.08);
+  border: 1px solid rgba(255, 227, 173, 0.16);
 }
 
 .summary-label,
@@ -68,7 +68,15 @@
 .guest-tip-title {
   font-size: 28rpx;
   font-weight: 700;
-  color: var(--color-warning);
+  color: #ffe7a8;
+}
+
+.theme-light .guest-tip-title {
+  color: #d48806;
+}
+
+.theme-ocean .guest-tip-title {
+  color: #ffd54f;
 }
 
 .guest-tip-desc {
@@ -96,12 +104,12 @@
 }
 
 .tier-recommended {
-  border-color: var(--color-warning);
-  background: linear-gradient(135deg, var(--color-surface), transparent 60%);
+  border-color: rgba(250, 204, 21, 0.4);
+  background: linear-gradient(135deg, rgba(250, 204, 21, 0.06), transparent 60%);
 }
 
 .tier-current {
-  border-color: var(--color-success);
+  border-color: rgba(74, 222, 128, 0.4);
 }
 
 .tier-badge {
@@ -110,14 +118,15 @@
   right: 24rpx;
   padding: 6rpx 20rpx;
   border-radius: 0 0 16rpx 16rpx;
-  background: var(--color-warning);
-  color: var(--color-text);
+  background: #facc15;
+  color: #1a1a1a;
   font-size: 22rpx;
   font-weight: 700;
 }
 
 .badge-current {
-  background: var(--color-success);
+  background: #4ade80;
+  color: #1a1a1a;
 }
 
 .tier-name {
@@ -136,7 +145,15 @@
 .tier-price {
   font-size: 48rpx;
   font-weight: 800;
-  color: var(--color-warning);
+  color: #ffe7a8;
+}
+
+.theme-light .tier-price {
+  color: #d48806;
+}
+
+.theme-ocean .tier-price {
+  color: #ffd54f;
 }
 
 .tier-original {
@@ -173,12 +190,28 @@
 }
 
 .cross-icon {
-  color: var(--color-text-weak);
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.theme-light .cross-icon {
+  color: #cccccc;
+}
+
+.theme-ocean .cross-icon {
+  color: rgba(227, 242, 253, 0.30);
 }
 
 .feature-text {
   font-size: 26rpx;
-  color: var(--color-text);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.theme-light .feature-text {
+  color: #333333;
+}
+
+.theme-ocean .feature-text {
+  color: #e3f2fd;
 }
 
 .buy-btn {

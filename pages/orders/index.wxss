@@ -57,26 +57,63 @@
 }
 
 .order-status-pending {
-  background: var(--color-surface);
-  color: var(--color-warning);
+  background: rgba(255, 197, 84, 0.14);
+  color: #ffd479;
 }
 
 .order-status-paid {
-  background: var(--color-surface);
-  color: var(--color-success);
+  background: rgba(54, 204, 113, 0.14);
+  color: #98f0a5;
 }
 
 .order-item {
   margin-top: 18rpx;
   padding-top: 18rpx;
-  border-top: 1px solid var(--color-surface);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.theme-light .order-status-pending {
+  background: rgba(237, 106, 12, 0.10);
+  color: #d46b08;
+}
+
+.theme-light .order-status-paid {
+  background: rgba(7, 193, 96, 0.10);
+  color: #07c160;
+}
+
+.theme-light .order-item {
+  border-top-color: #e8e8e8;
+}
+
+.theme-ocean .order-status-pending {
+  background: rgba(255, 183, 77, 0.14);
+  color: #ffb74d;
+}
+
+.theme-ocean .order-status-paid {
+  background: rgba(77, 208, 225, 0.14);
+  color: #80deea;
+}
+
+.theme-ocean .order-item {
+  border-top-color: rgba(100, 180, 255, 0.10);
 }
 
 .order-item-desc,
-.paid-tip,
 .order-item-price {
   font-size: 24rpx;
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.theme-light .order-item-desc,
+.theme-light .order-item-price {
+  color: #666666;
+}
+
+.theme-ocean .order-item-desc,
+.theme-ocean .order-item-price {
+  color: rgba(227, 242, 253, 0.70);
 }
 
 .order-foot {
@@ -88,5 +125,13 @@
 }
 
 .paid-tip {
-  color: var(--color-success);
+  color: #9af3a6;
+}
+
+.theme-light .paid-tip {
+  color: #07c160;
+}
+
+.theme-ocean .paid-tip {
+  color: #4dd0e1;
 }

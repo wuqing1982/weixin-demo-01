@@ -28,22 +28,26 @@ page {
    Theme: Dark (default)
    ================================================================ */
 .theme-dark {
-  --color-bg:             #0d1117;
-  --color-bg-end:         #141b24;
-  --color-surface:        rgba(255,255,255,0.06);
-  --color-surface-border: rgba(255,255,255,0.10);
+  --color-bg:             #0b0b0c;
+  --color-bg-end:         #121318;
+  --color-surface:        rgba(255,255,255,0.08);
+  --color-surface-border: rgba(255,255,255,0.14);
+  --color-surface-hover:  rgba(255,255,255,0.12);
+  --color-surface-raised: rgba(255,255,255,0.18);
   --color-primary:        #667eea;
   --color-primary-end:    #7c5cd6;
   --color-success:        #4ade80;
   --color-success-end:    #22c55e;
   --color-warning:        #fbbf24;
   --color-danger:         #f87171;
-  --color-text:           rgba(255,255,255,0.92);
-  --color-text-secondary: rgba(255,255,255,0.60);
-  --color-text-weak:      rgba(255,255,255,0.35);
-  --color-text-placeholder: rgba(255,255,255,0.30);
-  --color-shadow:         rgba(0,0,0,0.20);
+  --color-text:           #ffffff;
+  --color-text-secondary: rgba(255,255,255,0.72);
+  --color-text-weak:      rgba(255,255,255,0.50);
+  --color-text-placeholder: rgba(255,255,255,0.36);
+  --color-shadow:         rgba(0,0,0,0.18);
   --color-overlay:        rgba(0,0,0,0.50);
+  --color-accent-gold:    #ffd93d;
+  --color-accent-warm:    #f2b066;
 }
 
 /* ================================================================
@@ -53,7 +57,9 @@ page {
   --color-bg:             #f5f6f8;
   --color-bg-end:         #ebedf0;
   --color-surface:        #ffffff;
-  --color-surface-border: #e5e5e5;
+  --color-surface-border: #e0e0e0;
+  --color-surface-hover:  #f0f0f2;
+  --color-surface-raised: #ffffff;
   --color-primary:        #07c160;
   --color-primary-end:    #06ad56;
   --color-success:        #07c160;
@@ -63,9 +69,37 @@ page {
   --color-text:           #191919;
   --color-text-secondary: #666666;
   --color-text-weak:      #999999;
-  --color-text-placeholder: #cccccc;
-  --color-shadow:         rgba(0,0,0,0.08);
+  --color-text-placeholder: #bbbbbb;
+  --color-shadow:         rgba(0,0,0,0.10);
   --color-overlay:        rgba(0,0,0,0.40);
+  --color-accent-gold:    #d48806;
+  --color-accent-warm:    #ed6a0c;
+}
+
+/* ================================================================
+   Theme: Ocean (蓝色海洋)
+   ================================================================ */
+.theme-ocean {
+  --color-bg:             #0a192f;
+  --color-bg-end:         #0d2137;
+  --color-surface:        rgba(100,180,255,0.08);
+  --color-surface-border: rgba(100,180,255,0.18);
+  --color-surface-hover:  rgba(100,180,255,0.14);
+  --color-surface-raised: rgba(100,180,255,0.22);
+  --color-primary:        #64b5f6;
+  --color-primary-end:    #42a5f5;
+  --color-success:        #4dd0e1;
+  --color-success-end:    #26c6da;
+  --color-warning:        #ffb74d;
+  --color-danger:         #ef5350;
+  --color-text:           #e3f2fd;
+  --color-text-secondary: rgba(227,242,253,0.70);
+  --color-text-weak:      rgba(227,242,253,0.45);
+  --color-text-placeholder: rgba(227,242,253,0.30);
+  --color-shadow:         rgba(0,0,0,0.30);
+  --color-overlay:        rgba(0,0,0,0.55);
+  --color-accent-gold:    #ffd54f;
+  --color-accent-warm:    #ffb74d;
 }
 
 /* ================================================================
@@ -100,8 +134,8 @@ textarea {
 .state-card {
   background: var(--color-surface);
   border: 1px solid var(--color-surface-border);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 8rpx 32rpx var(--color-shadow);
+  border-radius: 28rpx;
+  box-shadow: 0 16rpx 48rpx var(--color-shadow);
 }
 
 .state-card {
@@ -179,8 +213,8 @@ textarea {
 
 /* Secondary */
 .btn-secondary {
-  border: 1px solid var(--color-surface-border);
-  background: var(--color-surface);
+  border: 1px solid var(--color-surface-raised);
+  background: var(--color-surface-hover);
   color: var(--color-text);
 }
 
@@ -264,7 +298,7 @@ textarea {
 }
 
 .badge-pending {
-  background: var(--color-surface);
+  background: var(--color-surface-hover);
   color: var(--color-text-secondary);
   border: 1px solid var(--color-surface-border);
 }
@@ -273,8 +307,8 @@ textarea {
    Input
    ================================================================ */
 .input-field {
-  background: var(--color-surface);
-  border: 1px solid var(--color-surface-border);
+  background: var(--color-surface-hover);
+  border: 1px solid var(--color-surface-raised);
   border-radius: var(--radius-md);
   height: 80rpx;
   padding: 0 var(--space-lg);

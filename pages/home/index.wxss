@@ -10,14 +10,21 @@
   justify-content: space-between;
   gap: 24rpx;
   padding: 28rpx;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-end));
+  background: linear-gradient(135deg, rgba(14, 50, 43, 0.92), rgba(25, 88, 73, 0.78));
+  color: #f5eee0;
+}
+
+.profile-strip .btn-secondary {
+  color: #f5eee0;
+  border-color: rgba(245, 238, 224, 0.35);
+  background: rgba(245, 238, 224, 0.12);
 }
 
 .profile-eyebrow,
 .profile-meta {
   display: block;
   font-size: 22rpx;
-  color: var(--color-text-secondary);
+  color: rgba(245, 238, 224, 0.78);
 }
 
 .profile-name {
@@ -33,7 +40,7 @@
 
 .hero {
   padding: 36rpx;
-  background: var(--color-surface);
+  background: linear-gradient(180deg, rgba(255, 248, 236, 0.08), rgba(110, 140, 98, 0.12));
 }
 
 .hero-actions {
@@ -73,7 +80,7 @@
 .theme-section {
   margin: 24rpx 0 0;
   padding: 24rpx;
-  background: var(--color-surface);
+  background: var(--color-surface-hover);
   border: 1px solid var(--color-surface-border);
   border-radius: var(--radius-lg);
   display: flex;
@@ -105,7 +112,7 @@
 
 .theme-opt.active {
   border-color: var(--color-primary);
-  background: var(--color-surface);
+  background: var(--color-surface-hover);
 }
 
 .theme-opt text {
@@ -131,4 +138,8 @@
 
 .light-preview {
   background: linear-gradient(135deg, #f5f6f8, #ebedf0);
+}
+
+.ocean-preview {
+  background: linear-gradient(135deg, #0a192f, #0d2137);
 }

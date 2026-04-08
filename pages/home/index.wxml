@@ -21,6 +21,10 @@
         <view class="theme-preview light-preview"></view>
         <text>浅色</text>
       </view>
+      <view class="theme-opt {{theme === 'ocean' ? 'active' : ''}}" bindtap="switchTheme" data-theme="ocean">
+        <view class="theme-preview ocean-preview"></view>
+        <text>海洋</text>
+      </view>
     </view>
   </view>
 

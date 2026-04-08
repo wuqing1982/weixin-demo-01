@@ -14,7 +14,15 @@
   margin-bottom: 20rpx;
   font-size: 24rpx;
   line-height: 1.6;
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.theme-light .tip-text {
+  color: #666666;
+}
+
+.theme-ocean .tip-text {
+  color: rgba(227, 242, 253, 0.70);
 }
 
 .button-row {
@@ -42,10 +50,22 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-surface);
-  border: 1px dashed var(--color-surface-border);
-  color: var(--color-text-weak);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px dashed rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.54);
   font-size: 26rpx;
+}
+
+.theme-light .preview-placeholder {
+  background: #f5f5f5;
+  border-color: #d0d0d0;
+  color: #999999;
+}
+
+.theme-ocean .preview-placeholder {
+  background: rgba(100, 180, 255, 0.05);
+  border-color: rgba(100, 180, 255, 0.20);
+  color: rgba(227, 242, 253, 0.50);
 }
 
 .form-block,
@@ -59,7 +79,17 @@
   display: block;
   font-size: 26rpx;
   font-weight: 700;
-  color: var(--color-text);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.theme-light .field-label,
+.theme-light .task-title {
+  color: #333333;
+}
+
+.theme-ocean .field-label,
+.theme-ocean .task-title {
+  color: #e3f2fd;
 }
 
 .title-input {
@@ -68,13 +98,32 @@
   margin-top: 14rpx;
   padding: 0 24rpx;
   border-radius: 20rpx;
-  background: var(--color-surface);
-  color: var(--color-text);
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
   font-size: 28rpx;
 }
 
+.theme-light .title-input {
+  background: #ffffff;
+  color: #191919;
+  border: 1px solid #e0e0e0;
+}
+
+.theme-ocean .title-input {
+  background: rgba(100, 180, 255, 0.08);
+  color: #e3f2fd;
+}
+
 .placeholder {
-  color: var(--color-text-placeholder);
+  color: rgba(255, 255, 255, 0.36);
+}
+
+.theme-light .placeholder {
+  color: #bbbbbb;
+}
+
+.theme-ocean .placeholder {
+  color: rgba(227, 242, 253, 0.30);
 }
 
 .form-row {
@@ -99,19 +148,45 @@
   margin-top: 24rpx;
   padding: 24rpx;
   border-radius: 24rpx;
-  background: var(--color-surface);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .compress-meta {
   display: block;
   font-size: 24rpx;
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.theme-light .compress-meta {
+  color: #666666;
+}
+
+.theme-ocean .compress-meta {
+  color: rgba(227, 242, 253, 0.70);
 }
 
 .task-panel {
   padding: 24rpx;
   border-radius: 24rpx;
-  background: var(--color-surface);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.theme-light .compress-panel {
+  background: #f5f5f5;
+  border: 1px solid #e8e8e8;
+}
+
+.theme-light .task-panel {
+  background: #f5f5f5;
+  border: 1px solid #e8e8e8;
+}
+
+.theme-ocean .compress-panel {
+  background: rgba(100, 180, 255, 0.06);
+}
+
+.theme-ocean .task-panel {
+  background: rgba(100, 180, 255, 0.08);
 }
 
 .task-status {
@@ -122,14 +197,32 @@
 .task-step,
 .task-meta {
   font-size: 24rpx;
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.theme-light .task-step,
+.theme-light .task-meta {
+  color: #666666;
+}
+
+.theme-ocean .task-step,
+.theme-ocean .task-meta {
+  color: rgba(227, 242, 253, 0.70);
 }
 
 .error-text {
   display: block;
   margin-top: 20rpx;
-  color: var(--color-danger);
+  color: #ffb4b4;
   font-size: 24rpx;
+}
+
+.theme-light .error-text {
+  color: #fa5151;
+}
+
+.theme-ocean .error-text {
+  color: #ef5350;
 }
 
 .result-row {

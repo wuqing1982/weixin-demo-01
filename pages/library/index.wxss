@@ -46,9 +46,21 @@
 }
 
 .filter-chip-active {
-  background: var(--color-surface);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
+  background: rgba(126, 240, 191, 0.16);
+  border-color: rgba(126, 240, 191, 0.4);
+  color: #d8fff0;
+}
+
+.theme-light .filter-chip-active {
+  background: rgba(7, 193, 96, 0.12);
+  border-color: rgba(7, 193, 96, 0.4);
+  color: #07c160;
+}
+
+.theme-ocean .filter-chip-active {
+  background: rgba(77, 208, 225, 0.16);
+  border-color: rgba(77, 208, 225, 0.4);
+  color: #80deea;
 }
 
 .scene-card {
