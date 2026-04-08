@@ -1,0 +1,36 @@
+<view class="page-root theme-{{theme}}">
+<view class="container record-page">
+  <view class="summary-card card theme-{{theme}}">
+    <text class="section-title theme-{{theme}}">卡密兑换记录</text>
+    <text class="section-subtitle theme-{{theme}}">通过卡密兑换获得的会员权益记录。</text>
+    <view class="summary-inline" wx:if="{{me}}">
+      <text class="summary-chip theme-{{theme}}">会员：{{me.memberSummary.isActive ? '已开通' : '未开通'}}</text>
+      <text class="summary-chip theme-{{theme}}">点数：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
+    </view>
+    <button class="btn-secondary theme-{{theme}}" bindtap="onGoBack">返回产品页</button>
+  </view>
+
+  <view wx:if="{{loading}}" class="state-card theme-{{theme}}">加载中...</view>
+  <view wx:elif="{{errorMessage}}" class="state-card theme-{{theme}}">{{errorMessage}}</view>
+  <view wx:elif="{{!records.length}}" class="state-card theme-{{theme}}">还没有卡密兑换记录。</view>
+
+  <view wx:else class="record-list">
+    <view wx:for="{{records}}" wx:key="id" class="record-card card theme-{{theme}}">
+      <view class="record-head">
+        <text class="record-code">{{item.code}}</text>
+        <text class="record-badge record-badge-redeemed theme-{{theme}}">已兑换</text>
+      </view>
+      <view class="record-body">
+        <view class="record-row">
+          <text class="record-label theme-{{theme}}">产品</text>
+          <text class="record-value theme-{{theme}}">{{item.skuName || '-'}}</text>
+        </view>
+        <view class="record-row">
+          <text class="record-label theme-{{theme}}">兑换时间</text>
+          <text class="record-value theme-{{theme}}">{{item.redeemedAt || '-'}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+</view>

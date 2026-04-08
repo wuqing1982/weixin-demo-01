@@ -1648,6 +1648,21 @@ class CommerceStore:
                 row = cursor.fetchone()
                 return _serialize_cdk(row) if row else None
 
+    def list_user_cdk_redemptions(self, user_id: str) -> list[dict[str, Any]]:
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    '''
+                    select c.*, s.name as sku_name
+                    from cdk_codes c
+                    left join product_skus s on s.id = c.sku_id
+                    where c.redeemed_by = %s and c.status = 'redeemed'
+                    order by c.redeemed_at desc
+                    ''',
+                    (user_id,),
+                )
+                return [_serialize_cdk(row) for row in cursor.fetchall()]
+
     def redeem_cdk(self, *, code: str, user_id: str) -> dict[str, Any]:
         with self._connect() as connection:
             with connection.transaction():

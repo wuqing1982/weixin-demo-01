@@ -8,6 +8,14 @@ function redeemCdk(code) {
   });
 }
 
+function getMyRedemptions() {
+  return request({
+    url: '/cdk/my-redemptions',
+    method: 'GET'
+  });
+}
+
 module.exports = {
-  redeemCdk
+  redeemCdk,
+  getMyRedemptions
 };

@@ -1004,7 +1004,12 @@ def cdk_redeem(request: Request, body: CdkRedeemRequest):
         raise HTTPException(status_code=400, detail={'code': 4000, 'message': str(exc)})
 
 
-@app.get('/api/admin/tasks')
+@app.get('/api/cdk/my-redemptions')
+def cdk_my_redemptions(request: Request):
+    user_id = get_current_user_id(request)
+    store = require_commerce_store()
+    records = store.list_user_cdk_redemptions(user_id)
+    return success({'list': records})
 def admin_list_tasks(request: Request, limit: int = Query(default=50, ge=1, le=200)):
     get_current_admin(request)
     tasks = task_store.list_tasks(limit) if hasattr(task_store, 'list_tasks') else []

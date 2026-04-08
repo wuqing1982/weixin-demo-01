@@ -276,10 +276,15 @@
   opacity: 0.5;
 }
 
-/* --- CDK Button --- */
-.btn-cdk {
+/* --- CDK Buttons Row --- */
+.cdk-actions-row {
+  display: flex;
+  gap: 16rpx;
   margin-top: 16rpx;
-  width: 100%;
+}
+
+.btn-cdk {
+  flex: 1;
   padding: 16rpx 0;
   font-size: 26rpx;
   border-radius: 16rpx;
@@ -298,6 +303,28 @@
   background: rgba(0, 180, 255, 0.10) !important;
   color: #66d9ff !important;
   border: 1px solid rgba(0, 180, 255, 0.25) !important;
+}
+
+.btn-cdk-record {
+  flex: 1;
+  padding: 16rpx 0;
+  font-size: 26rpx;
+  border-radius: 16rpx;
+  background: rgba(74, 222, 128, 0.10) !important;
+  color: #4ade80 !important;
+  border: 1px solid rgba(74, 222, 128, 0.22) !important;
+}
+
+.btn-cdk-record.theme-light {
+  background: rgba(7, 193, 96, 0.08) !important;
+  color: #07c160 !important;
+  border: 1px solid rgba(7, 193, 96, 0.18) !important;
+}
+
+.btn-cdk-record.theme-ocean {
+  background: rgba(0, 200, 160, 0.10) !important;
+  color: #5cf5c8 !important;
+  border: 1px solid rgba(0, 200, 160, 0.22) !important;
 }
 
 /* --- CDK Modal --- */

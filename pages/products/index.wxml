@@ -22,7 +22,10 @@
       <text class="guest-tip-desc theme-{{theme}}">可以先看会员套餐，真正下单前再用微信一键登录。</text>
     </view>
     <button class="btn-secondary theme-{{theme}} orders-btn" bindtap="onOpenOrders">查看我的订单</button>
-    <button class="btn-cdk theme-{{theme}}" bindtap="onOpenCdkModal">卡密兑换</button>
+    <view class="cdk-actions-row">
+      <button class="btn-cdk theme-{{theme}}" bindtap="onOpenCdkModal">卡密兑换</button>
+      <button class="btn-cdk-record theme-{{theme}}" bindtap="onOpenCdkRecords">兑换记录</button>
+    </view>
   </view>
 
   <view wx:if="{{loading}}" class="state-card theme-{{theme}}">商品加载中...</view>

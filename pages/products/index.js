@@ -174,4 +174,12 @@ Page({
     }
     wx.navigateTo({ url: '/pages/orders/index' });
   },
+
+  onOpenCdkRecords() {
+    if (!readSession().accessToken) {
+      wx.navigateTo({ url: '/pages/login/index' });
+      return;
+    }
+    wx.navigateTo({ url: '/pages/cdk_records/index' });
+  },
 });
