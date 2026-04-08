@@ -314,13 +314,13 @@ def _generate_move_segment(image_path: str, output_path: str,
     sw, sh = _ensure_even(VIDEO_W, VIDEO_H)
     cmd = [
         FFMPEG_PATH, '-y',
-        '-loop', '1', '-i', str(image_path),
+        '-loop', '1', '-framerate', '25', '-i', str(image_path),
         '-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=stereo',
         '-t', str(duration),
         '-c:v', 'libx264', '-tune', 'stillimage',
         '-c:a', 'aac', '-b:a', '192k',
         '-pix_fmt', 'yuv420p',
-        '-vf', f'scale={sw}:{sh}:force_original_aspect_ratio=decrease,pad={sw}:{sh}:(ow-iw)/2:(oh-ih)/2:color=black',
+        '-vf', f'scale={sw}:{sh}:force_original_aspect_ratio=decrease,pad={sw}:{sh}:(ow-iw)/2:(oh-ih)/2:color=black,fps=25',
         '-shortest',
         str(output_path),
     ]
@@ -329,7 +329,8 @@ def _generate_move_segment(image_path: str, output_path: str,
 
 def _generate_display_segment(tmp_dir: Path, image_path: str, audio_path: str,
                               output_path: str, item: dict,
-                              item_type: str = 'noun') -> None:
+                              item_type: str = 'noun',
+                              audio_duration: float = 0.0) -> None:
     sw, sh = _ensure_even(VIDEO_W, VIDEO_H)
     rect = item.get('rect')
     if rect:
@@ -340,7 +341,7 @@ def _generate_display_segment(tmp_dir: Path, image_path: str, audio_path: str,
 
     panel, _ = _build_panel_filter(tmp_dir, VIDEO_W, VIDEO_H, item, item_type=item_type)
 
-    scale_filter = f'scale={sw}:{sh}:force_original_aspect_ratio=decrease,pad={sw}:{sh}:(ow-iw)/2:(oh-ih)/2:color=black'
+    scale_filter = f'scale={sw}:{sh}:force_original_aspect_ratio=decrease,pad={sw}:{sh}:(ow-iw)/2:(oh-ih)/2:color=black,fps=25'
 
     if highlight:
         vf = f'{scale_filter},{highlight},{panel}'
@@ -349,15 +350,19 @@ def _generate_display_segment(tmp_dir: Path, image_path: str, audio_path: str,
 
     cmd = [
         FFMPEG_PATH, '-y',
-        '-loop', '1', '-i', str(image_path),
+        '-loop', '1', '-framerate', '25', '-i', str(image_path),
         '-i', str(audio_path),
         '-vf', vf,
         '-c:v', 'libx264', '-tune', 'stillimage',
         '-c:a', 'aac', '-b:a', '192k',
         '-pix_fmt', 'yuv420p',
-        '-shortest',
-        str(output_path),
     ]
+    # Use explicit duration from audio to avoid -shortest frame-boundary truncation
+    if audio_duration > 0:
+        cmd += ['-t', f'{audio_duration:.3f}']
+    else:
+        cmd += ['-shortest']
+    cmd.append(str(output_path))
     _run_ffmpeg(cmd)
 
 
@@ -371,6 +376,7 @@ def _concat_segments(segment_paths: list[str], output_path: str) -> None:
         '-f', 'concat', '-safe', '0',
         '-i', concat_file,
         '-c', 'copy',
+        '-fflags', '+genpts',
         str(output_path),
     ]
     try:
@@ -483,7 +489,8 @@ def generate_scene_video(
             _progress(base_pct + 3, f'名词 {i+1}/{len(prepared_items)}: {word}')
             display_out = str(tmp_dir / f'display_{seg_idx:03d}.mp4')
             _generate_display_segment(
-                item_tmp, str(bg_path), str(audio_path), display_out, item
+                item_tmp, str(bg_path), str(audio_path), display_out, item,
+                audio_duration=audio_dur
             )
             segments.append(display_out)
             seg_idx += 1
@@ -506,7 +513,7 @@ def generate_scene_video(
             display_out = str(tmp_dir / f'display_{seg_idx:03d}.mp4')
             _generate_display_segment(
                 item_tmp, str(bg_path), str(audio_path), display_out, verb,
-                item_type='verb'
+                item_type='verb', audio_duration=audio_dur
             )
             segments.append(display_out)
             seg_idx += 1
