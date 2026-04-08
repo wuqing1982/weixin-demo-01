@@ -1,62 +1,62 @@
 <view class="page-root theme-{{theme}}">
 <view class="container create-page">
-  <view class="card hero-card">
-    <text class="section-title">拍照生成我的场景</text>
-    <text class="section-subtitle">上传一张图片，后端会分析场景、生成 JSON 和 Jenny 音色音频，再回到小程序里打开。</text>
+  <view class="card theme-{{theme}} hero-card">
+    <text class="section-title theme-{{theme}}">拍照生成我的场景</text>
+    <text class="section-subtitle theme-{{theme}}">上传一张图片，后端会分析场景、生成 JSON 和 Jenny 音色音频，再回到小程序里打开。</text>
   </view>
 
-  <view class="card upload-card">
-    <text class="tip-text">上传前会在手机端先压缩，并统一转成 JPG，减少上传流量和后端处理负担。</text>
+  <view class="card theme-{{theme}} upload-card">
+    <text class="tip-text theme-{{theme}}">上传前会在手机端先压缩，并统一转成 JPG，减少上传流量和后端处理负担。</text>
 
     <view class="button-row">
-      <button class="btn-primary flex-btn" bindtap="chooseFromCamera">拍照</button>
-      <button class="btn-secondary flex-btn" bindtap="chooseFromAlbum">从相册选择</button>
+      <button class="btn-primary theme-{{theme}} flex-btn" bindtap="chooseFromCamera">拍照</button>
+      <button class="btn-secondary theme-{{theme}} flex-btn" bindtap="chooseFromAlbum">从相册选择</button>
     </view>
 
     <image wx:if="{{imagePath}}" class="preview-image" src="{{imagePath}}" mode="aspectFill" />
-    <view wx:else class="preview-placeholder">选择一张图片开始生成</view>
+    <view wx:else class="preview-placeholder theme-{{theme}}">选择一张图片开始生成</view>
 
     <view class="form-block">
-      <text class="field-label">场景标题</text>
+      <text class="field-label theme-{{theme}}">场景标题</text>
       <input
-        class="title-input"
+        class="title-input theme-{{theme}}"
         value="{{sceneTitle}}"
         placeholder="可选，例如：我的厨房"
-        placeholder-class="placeholder"
+        placeholder-class="placeholder theme-{{theme}}"
         bindinput="onTitleInput"
       />
     </view>
 
     <view class="form-row">
-      <text class="field-label">生成动词</text>
+      <text class="field-label theme-{{theme}}">生成动词</text>
       <switch checked="{{includeVerbs}}" color="#667eea" bindchange="onToggleVerbs" />
     </view>
 
-    <button class="btn-primary submit-btn" loading="{{submitting}}" bindtap="onSubmit">上传并开始生成</button>
+    <button class="btn-primary theme-{{theme}} submit-btn" loading="{{submitting}}" bindtap="onSubmit">上传并开始生成</button>
 
-    <view wx:if="{{sourceSizeText || optimizedSizeText || compressNote}}" class="compress-panel">
-      <text wx:if="{{sourceDimensionsText}}" class="compress-meta">原图尺寸：{{sourceDimensionsText}}</text>
-      <text wx:if="{{optimizedDimensionsText}}" class="compress-meta">上传尺寸：{{optimizedDimensionsText}}</text>
-      <text wx:if="{{sourceSizeText}}" class="compress-meta">原图大小：{{sourceSizeText}}</text>
-      <text wx:if="{{optimizedSizeText}}" class="compress-meta">上传大小：{{optimizedSizeText}}</text>
-      <text wx:if="{{compressRatioText}}" class="compress-meta">体积变化：{{compressRatioText}}</text>
-      <text wx:if="{{compressNote}}" class="compress-meta">{{compressNote}}</text>
+    <view wx:if="{{sourceSizeText || optimizedSizeText || compressNote}}" class="compress-panel theme-{{theme}}">
+      <text wx:if="{{sourceDimensionsText}}" class="compress-meta theme-{{theme}}">原图尺寸：{{sourceDimensionsText}}</text>
+      <text wx:if="{{optimizedDimensionsText}}" class="compress-meta theme-{{theme}}">上传尺寸：{{optimizedDimensionsText}}</text>
+      <text wx:if="{{sourceSizeText}}" class="compress-meta theme-{{theme}}">原图大小：{{sourceSizeText}}</text>
+      <text wx:if="{{optimizedSizeText}}" class="compress-meta theme-{{theme}}">上传大小：{{optimizedSizeText}}</text>
+      <text wx:if="{{compressRatioText}}" class="compress-meta theme-{{theme}}">体积变化：{{compressRatioText}}</text>
+      <text wx:if="{{compressNote}}" class="compress-meta theme-{{theme}}">{{compressNote}}</text>
     </view>
 
-    <view wx:if="{{stage !== 'idle'}}" class="task-panel">
-      <text class="task-title">任务状态</text>
+    <view wx:if="{{stage !== 'idle'}}" class="task-panel theme-{{theme}}">
+      <text class="task-title theme-{{theme}}">任务状态</text>
       <text class="task-status">{{taskStatus || stage}}</text>
-      <text class="task-step">{{taskStep || '等待开始'}}</text>
+      <text class="task-step theme-{{theme}}">{{taskStep || '等待开始'}}</text>
       <progress percent="{{taskProgress}}" stroke-width="8" activeColor="#667eea" backgroundColor="rgba(255,255,255,0.12)" />
-      <text wx:if="{{taskId}}" class="task-meta">任务 ID：{{taskId}}</text>
-      <text wx:if="{{sceneId}}" class="task-meta">场景 ID：{{sceneId}}</text>
+      <text wx:if="{{taskId}}" class="task-meta theme-{{theme}}">任务 ID：{{taskId}}</text>
+      <text wx:if="{{sceneId}}" class="task-meta theme-{{theme}}">场景 ID：{{sceneId}}</text>
     </view>
 
-    <text wx:if="{{errorMessage}}" class="error-text">{{errorMessage}}</text>
+    <text wx:if="{{errorMessage}}" class="error-text theme-{{theme}}">{{errorMessage}}</text>
 
     <view wx:if="{{stage === 'done' && sceneId}}" class="button-row result-row">
-      <button class="btn-primary flex-btn" bindtap="onOpenScene">打开新场景</button>
-      <button class="btn-secondary flex-btn" bindtap="onOpenMyScenes">查看我的场景</button>
+      <button class="btn-primary theme-{{theme}} flex-btn" bindtap="onOpenScene">打开新场景</button>
+      <button class="btn-secondary theme-{{theme}} flex-btn" bindtap="onOpenMyScenes">查看我的场景</button>
     </view>
   </view>
 

@@ -1,31 +1,31 @@
 <view class="page-root theme-{{theme}}">
 <view class="container">
-  <text class="section-title">我的导出视频</text>
-  <text class="section-subtitle">已完成的视频导出，点击即可播放。</text>
+  <text class="section-title theme-{{theme}}">我的导出视频</text>
+  <text class="section-subtitle theme-{{theme}}">已完成的视频导出，点击即可播放。</text>
 
-  <view wx:if="{{loading}}" class="state-card">加载视频中...</view>
+  <view wx:if="{{loading}}" class="state-card theme-{{theme}}">加载视频中...</view>
 
-  <view wx:elif="{{errorMessage}}" class="state-card">{{errorMessage}}</view>
+  <view wx:elif="{{errorMessage}}" class="state-card theme-{{theme}}">{{errorMessage}}</view>
 
-  <view wx:elif="{{!videos.length}}" class="state-card">还没有导出过视频，去场景页面导出一个试试。</view>
+  <view wx:elif="{{!videos.length}}" class="state-card theme-{{theme}}">还没有导出过视频，去场景页面导出一个试试。</view>
 
   <view wx:else class="video-list">
     <view
       wx:for="{{videos}}"
       wx:key="jobId"
-      class="video-card card"
+      class="video-card card theme-{{theme}}"
       bindtap="onPlayVideo"
       data-index="{{index}}"
     >
       <view class="video-cover-wrap">
         <image class="video-cover" src="{{item.coverUrl}}" mode="aspectFill" />
-        <view class="play-icon">
+        <view class="play-icon theme-{{theme}}">
           <view class="play-triangle"></view>
         </view>
       </view>
       <view class="video-meta">
         <text class="video-title">{{item.sceneTitle || '未命名场景'}}</text>
-        <text class="video-date">{{item.completedAt}}</text>
+        <text class="video-date theme-{{theme}}">{{item.completedAt}}</text>
       </view>
     </view>
   </view>

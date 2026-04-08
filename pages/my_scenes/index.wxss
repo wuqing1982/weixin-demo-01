@@ -34,7 +34,7 @@
   margin-top: 10rpx;
   font-size: 24rpx;
   /* dark */
-  color: rgba(255,255,255,0.60);
+  color: rgba(255,255,255,0.60) !important;
 }
-.theme-light .scene-desc { color: #888888; }
-.theme-ocean .scene-desc { color: rgba(180,220,255,0.60); }
+.scene-desc.theme-light { color: #888888 !important; }
+.scene-desc.theme-ocean { color: rgba(180,220,255,0.60) !important; }

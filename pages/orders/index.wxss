@@ -19,22 +19,22 @@
   padding: 10rpx 16rpx;
   border-radius: 999rpx;
   /* dark */
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.07) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
   font-size: 24rpx;
 }
 
 /* Light: white pill */
-.theme-light .summary-chip {
-  background: #ffffff;
-  border: 1px solid #e8e8e8;
+.summary-chip.theme-light {
+  background: #ffffff !important;
+  border: 1px solid #e8e8e8 !important;
   border-radius: 999rpx;
 }
 
 /* Ocean: blue glass */
-.theme-ocean .summary-chip {
-  background: rgba(20,60,120,0.25);
-  border: 1px solid rgba(80,160,255,0.22);
+.summary-chip.theme-ocean {
+  background: rgba(20,60,120,0.25) !important;
+  border: 1px solid rgba(80,160,255,0.22) !important;
 }
 
 .order-list {
@@ -72,62 +72,62 @@
 
 /* Dark status */
 .order-status-pending {
-  background: rgba(251,191,36,0.16);
-  color: #fcd34d;
+  background: rgba(251,191,36,0.16) !important;
+  color: #fcd34d !important;
 }
 .order-status-paid {
-  background: rgba(74,222,128,0.16);
-  color: #6ee7a0;
+  background: rgba(74,222,128,0.16) !important;
+  color: #6ee7a0 !important;
 }
 
 /* Light status — sharper, more vivid */
-.theme-light .order-status-pending {
-  background: rgba(237, 106, 12, 0.10);
-  color: #d46b08;
+.order-status-pending.theme-light {
+  background: rgba(237, 106, 12, 0.10) !important;
+  color: #d46b08 !important;
 }
-.theme-light .order-status-paid {
-  background: rgba(7, 193, 96, 0.10);
-  color: #07c160;
+.order-status-paid.theme-light {
+  background: rgba(7, 193, 96, 0.10) !important;
+  color: #07c160 !important;
 }
 
 /* Ocean status — cyan/teal */
-.theme-ocean .order-status-pending {
-  background: rgba(255, 183, 77, 0.16);
-  color: #ffb74d;
+.order-status-pending.theme-ocean {
+  background: rgba(255, 183, 77, 0.16) !important;
+  color: #ffb74d !important;
 }
-.theme-ocean .order-status-paid {
-  background: rgba(0,200,160,0.16);
-  color: #5cf5c8;
+.order-status-paid.theme-ocean {
+  background: rgba(0,200,160,0.16) !important;
+  color: #5cf5c8 !important;
 }
 
 .order-item {
   margin-top: 18rpx;
   padding-top: 18rpx;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
-.theme-light .order-item {
-  border-top-color: #f0f0f0;
+.order-item.theme-light {
+  border-top-color: #f0f0f0 !important;
 }
 
-.theme-ocean .order-item {
-  border-top-color: rgba(80, 160, 255, 0.12);
+.order-item.theme-ocean {
+  border-top-color: rgba(80, 160, 255, 0.12) !important;
 }
 
 .order-item-desc,
 .order-item-price {
   font-size: 24rpx;
-  color: rgba(255, 255, 255, 0.60);
+  color: rgba(255, 255, 255, 0.60) !important;
 }
 
-.theme-light .order-item-desc,
-.theme-light .order-item-price {
-  color: #888888;
+.order-item-desc.theme-light,
+.order-item-price.theme-light {
+  color: #888888 !important;
 }
 
-.theme-ocean .order-item-desc,
-.theme-ocean .order-item-price {
-  color: rgba(180, 220, 255, 0.60);
+.order-item-desc.theme-ocean,
+.order-item-price.theme-ocean {
+  color: rgba(180, 220, 255, 0.60) !important;
 }
 
 .order-foot {
@@ -139,13 +139,13 @@
 }
 
 .paid-tip {
-  color: #6ee7a0;
+  color: #6ee7a0 !important;
 }
 
-.theme-light .paid-tip {
-  color: #07c160;
+.paid-tip.theme-light {
+  color: #07c160 !important;
 }
 
-.theme-ocean .paid-tip {
-  color: #5cf5c8;
+.paid-tip.theme-ocean {
+  color: #5cf5c8 !important;
 }

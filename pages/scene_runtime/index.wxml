@@ -4,9 +4,9 @@
   bindtouchstart="onTouchStart"
   bindtouchend="onTouchEnd"
 >
-  <view wx:if="{{loading}}" class="state-card">场景加载中...</view>
+  <view wx:if="{{loading}}" class="state-card theme-{{theme}}">场景加载中...</view>
 
-  <view wx:elif="{{errorMessage}}" class="state-card">{{errorMessage}}</view>
+  <view wx:elif="{{errorMessage}}" class="state-card theme-{{theme}}">{{errorMessage}}</view>
 
   <view wx:else class="scene-stage">
     <view class="scene-toolbar">

@@ -1,27 +1,27 @@
 <view class="page-root theme-{{theme}}">
 <view class="container">
-  <text class="section-title">公开场景库</text>
-  <text class="section-subtitle">浏览所有公开的英语学习全景场景。</text>
-  <button class="btn-secondary create-btn" bindtap="onOpenCreate">拍照生成新场景</button>
+  <text class="section-title theme-{{theme}}">公开场景库</text>
+  <text class="section-subtitle theme-{{theme}}">浏览所有公开的英语学习全景场景。</text>
+  <button class="btn-secondary theme-{{theme}} create-btn" bindtap="onOpenCreate">拍照生成新场景</button>
 
-  <view wx:if="{{loading}}" class="state-card">加载场景列表中...</view>
+  <view wx:if="{{loading}}" class="state-card theme-{{theme}}">加载场景列表中...</view>
 
-  <view wx:elif="{{errorMessage}}" class="state-card">{{errorMessage}}</view>
+  <view wx:elif="{{errorMessage}}" class="state-card theme-{{theme}}">{{errorMessage}}</view>
 
   <view wx:else class="scene-list">
     <view class="section-block">
-      <text class="section-heading">场景分类</text>
+      <text class="section-heading theme-{{theme}}">场景分类</text>
       <scroll-view class="filter-scroll" scroll-x="true" enable-flex="true">
         <view class="filter-row">
           <view
-            class="filter-chip {{selectedCategoryId ? '' : 'filter-chip-active'}}"
+            class="filter-chip theme-{{theme}} {{selectedCategoryId ? '' : 'filter-chip-active'}}"
             bindtap="onSelectCategory"
             data-category-id=""
           >全部分类</view>
           <view
             wx:for="{{categories}}"
             wx:key="categoryId"
-            class="filter-chip {{selectedCategoryId === item.categoryId ? 'filter-chip-active' : ''}}"
+            class="filter-chip theme-{{theme}} {{selectedCategoryId === item.categoryId ? 'filter-chip-active' : ''}}"
             bindtap="onSelectCategory"
             data-category-id="{{item.categoryId}}"
           >{{item.name}}</view>
@@ -30,18 +30,18 @@
     </view>
 
     <view class="section-block">
-      <text class="section-heading">场景合集</text>
+      <text class="section-heading theme-{{theme}}">场景合集</text>
       <scroll-view class="filter-scroll" scroll-x="true" enable-flex="true">
         <view class="filter-row">
           <view
-            class="filter-chip {{selectedCollectionId ? '' : 'filter-chip-active'}}"
+            class="filter-chip theme-{{theme}} {{selectedCollectionId ? '' : 'filter-chip-active'}}"
             bindtap="onSelectCollection"
             data-collection-id=""
           >全部合集</view>
           <view
             wx:for="{{collections}}"
             wx:key="collectionId"
-            class="filter-chip {{selectedCollectionId === item.collectionId ? 'filter-chip-active' : ''}}"
+            class="filter-chip theme-{{theme}} {{selectedCollectionId === item.collectionId ? 'filter-chip-active' : ''}}"
             bindtap="onSelectCollection"
             data-collection-id="{{item.collectionId}}"
           >{{item.name}}</view>
@@ -50,19 +50,19 @@
     </view>
 
     <view class="section-block">
-      <text class="section-heading">公开场景</text>
-      <view wx:if="{{!scenes.length}}" class="state-card">当前筛选条件下还没有公开场景。</view>
+      <text class="section-heading theme-{{theme}}">公开场景</text>
+      <view wx:if="{{!scenes.length}}" class="state-card theme-{{theme}}">当前筛选条件下还没有公开场景。</view>
       <view
         wx:for="{{scenes}}"
         wx:key="sceneId"
-        class="scene-card card"
+        class="scene-card card theme-{{theme}}"
         bindtap="onOpenScene"
         data-scene-id="{{item.sceneId}}"
       >
         <image class="scene-cover" src="{{item.coverUrl}}" mode="aspectFill" />
         <view class="scene-meta">
           <text class="scene-title">{{item.title}}</text>
-          <text class="scene-desc">{{item.categoryName || item.category || '未分类'}} · {{item.visibility}}</text>
+          <text class="scene-desc theme-{{theme}}">{{item.categoryName || item.category || '未分类'}} · {{item.visibility}}</text>
         </view>
       </view>
     </view>

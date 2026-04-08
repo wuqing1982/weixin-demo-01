@@ -1,5 +1,5 @@
 /* ================================================================
-   Design Tokens — spacing, radius, font (theme-independent)
+   Design Tokens — spacing, radius, font
    ================================================================ */
 page {
   --space-xs:  8rpx;
@@ -7,40 +7,26 @@ page {
   --space-md:  20rpx;
   --space-lg:  24rpx;
   --space-xl:  32rpx;
-
   --radius-sm:  12rpx;
   --radius-md:  16rpx;
   --radius-lg:  24rpx;
   --radius-pill: 999rpx;
-
   --font-title:   40rpx;
   --font-heading: 32rpx;
   --font-body:    28rpx;
   --font-caption: 24rpx;
   --font-badge:   22rpx;
-
-  /* page background: dark default */
   background: linear-gradient(180deg, #0b0b0c 0%, #121318 100%);
   color: #ffffff;
   min-height: 100%;
 }
 
-/* ================================================================
-   Global reset
-   ================================================================ */
-view,
-text,
-button,
-image,
-input,
-scroll-view,
-textarea {
+view, text, button, image, input, scroll-view, textarea {
   box-sizing: border-box;
 }
 
 /* ================================================================
-   Theme: Dark — 黑色沉浸 + 紫色霓虹
-   深黑背景，玻璃拟态卡片，紫色主色调，暖金色点缀
+   Dark theme (default) — 黑色 + 紫色
    ================================================================ */
 .page-root {
   min-height: 100vh;
@@ -48,58 +34,11 @@ textarea {
   color: #ffffff;
 }
 
-/* ================================================================
-   Theme: Light — 微信绿 + 白底
-   明亮干净，白卡片浮在浅灰底上，绿色主色，清晰阴影
-   ================================================================ */
-.theme-light {
-  background: linear-gradient(180deg, #f5f6f8 0%, #ebedf0 100%) !important;
-  color: #191919 !important;
-}
-
-/* ================================================================
-   Theme: Ocean — 深海蓝 + 青色荧光
-   深蓝背景，蓝色冰晶卡片，青色光晕，水下沉浸感
-   ================================================================ */
-.theme-ocean {
-  background: linear-gradient(180deg, #041526 0%, #0a2540 40%, #072038 100%) !important;
-  color: #e3f2fd !important;
-}
-
-.container {
-  min-height: 100vh;
-  padding: 28rpx 24rpx 40rpx;
-}
-
-/* ================================================================
-   Card — each theme has a DISTINCT surface treatment
-   ================================================================ */
-
-/* Dark: glass morphism, subtle purple glow */
-.card,
-.state-card {
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.12);
+.card, .state-card {
+  background: rgba(255,255,255,0.07) !important;
+  border: 1px solid rgba(255,255,255,0.12) !important;
   border-radius: 28rpx;
   box-shadow: 0 16rpx 48rpx rgba(0,0,0,0.25);
-}
-
-/* Light: solid white card with visible shadow on gray bg */
-.theme-light .card,
-.theme-light .state-card {
-  background: #ffffff;
-  border: 1px solid #e8e8e8;
-  border-radius: 20rpx;
-  box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.08), 0 1rpx 4rpx rgba(0,0,0,0.04);
-}
-
-/* Ocean: frosted blue ice, cyan glow border */
-.theme-ocean .card,
-.theme-ocean .state-card {
-  background: linear-gradient(180deg, rgba(30,80,160,0.28), rgba(20,60,120,0.18));
-  border: 1px solid rgba(80,160,255,0.25);
-  border-radius: 24rpx;
-  box-shadow: 0 16rpx 48rpx rgba(0,0,0,0.35), inset 0 1rpx 0 rgba(100,200,255,0.10);
 }
 
 .state-card {
@@ -107,40 +46,25 @@ textarea {
   padding: 32rpx 28rpx;
   font-size: var(--font-body);
   text-align: center;
+  color: rgba(255,255,255,0.72) !important;
 }
 
-.state-card { color: rgba(255,255,255,0.72); }
-.theme-light .state-card { color: #888888; }
-.theme-ocean .state-card { color: rgba(180,220,255,0.75); }
-
-/* ================================================================
-   Typography
-   ================================================================ */
 .section-title {
   display: block;
   font-size: var(--font-title);
   font-weight: 700;
-  color: #ffffff;
+  color: #ffffff !important;
 }
-.theme-light .section-title { color: #1a1a1a; }
-.theme-ocean .section-title { color: #e8f4ff; }
 
 .section-subtitle {
   display: block;
   margin-top: 10rpx;
   font-size: var(--font-caption);
+  color: rgba(255,255,255,0.65) !important;
 }
-.section-subtitle { color: rgba(255,255,255,0.65); }
-.theme-light .section-subtitle { color: #888888; }
-.theme-ocean .section-subtitle { color: rgba(180,220,255,0.65); }
 
-/* ================================================================
-   Buttons — each theme has DISTINCT button styling
-   ================================================================ */
-.btn-primary,
-.btn-secondary,
-.btn-success,
-.btn-danger {
+/* ---- Buttons ---- */
+.btn-primary, .btn-secondary, .btn-success, .btn-danger {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -150,344 +74,267 @@ textarea {
   font-size: var(--font-body);
   transition: transform 0.15s ease, opacity 0.15s ease;
 }
+.btn-primary::after, .btn-secondary::after, .btn-success::after, .btn-danger::after { border: 0; }
+.btn-primary:active, .btn-secondary:active, .btn-success:active, .btn-danger:active { transform: scale(0.98); }
+.btn-primary[disabled], .btn-secondary[disabled], .btn-success[disabled], .btn-danger[disabled] { opacity: 0.45; }
 
-.btn-primary::after,
-.btn-secondary::after,
-.btn-success::after,
-.btn-danger::after {
-  border: 0;
-}
-
-.btn-primary:active,
-.btn-secondary:active,
-.btn-success:active,
-.btn-danger:active {
-  transform: scale(0.98);
-}
-
-.btn-primary[disabled],
-.btn-secondary[disabled],
-.btn-success[disabled],
-.btn-danger[disabled] {
-  opacity: 0.45;
-}
-
-/* ---- Primary ---- */
-
-/* Dark: purple gradient */
 .btn-primary {
-  border: 0;
-  background: linear-gradient(135deg, #667eea, #7c5cd6);
-  color: #ffffff;
+  border: 0 !important;
+  background: linear-gradient(135deg, #667eea, #7c5cd6) !important;
+  color: #ffffff !important;
   font-weight: 600;
 }
 
-/* Light: WeChat green, rounded */
-.theme-light .btn-primary {
-  background: #07c160;
-  color: #ffffff;
-  font-weight: 600;
-  border-radius: 12rpx;
-}
-
-/* Ocean: cyan glow */
-.theme-ocean .btn-primary {
-  background: linear-gradient(135deg, #00d4ff, #0099cc);
-  color: #ffffff;
-  font-weight: 600;
-  box-shadow: 0 8rpx 28rpx rgba(0,180,255,0.35);
-}
-
-/* ---- Secondary ---- */
-
-/* Dark: glass outline */
 .btn-secondary {
-  border: 1px solid rgba(255,255,255,0.20);
-  background: rgba(255,255,255,0.08);
-  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.20) !important;
+  background: rgba(255,255,255,0.08) !important;
+  color: #ffffff !important;
 }
-
-/* Light: light gray filled */
-.theme-light .btn-secondary {
-  border: 1px solid #dcdcdc;
-  background: #f5f5f5;
-  color: #333333;
-  border-radius: 12rpx;
-}
-
-/* Ocean: blue glass */
-.theme-ocean .btn-secondary {
-  border: 1px solid rgba(80,180,255,0.30);
-  background: rgba(40,100,200,0.15);
-  color: #b0d8ff;
-}
-
-/* ---- Success ---- */
 
 .btn-success {
-  border: 0;
-  background: linear-gradient(135deg, #4ade80, #22c55e);
-  color: #ffffff;
+  border: 0 !important;
+  background: linear-gradient(135deg, #4ade80, #22c55e) !important;
+  color: #ffffff !important;
   font-weight: 600;
 }
-.theme-light .btn-success {
-  background: #07c160;
-  color: #ffffff;
-  border-radius: 12rpx;
-}
-.theme-ocean .btn-success {
-  background: linear-gradient(135deg, #00e5a0, #00c48c);
-  color: #ffffff;
-  box-shadow: 0 8rpx 28rpx rgba(0,200,160,0.30);
-}
-
-/* ---- Danger ---- */
 
 .btn-danger {
-  border: 0;
-  background: linear-gradient(135deg, #f87171, #ef4444);
-  color: #ffffff;
+  border: 0 !important;
+  background: linear-gradient(135deg, #f87171, #ef4444) !important;
+  color: #ffffff !important;
   font-weight: 600;
 }
-.theme-light .btn-danger {
-  background: #fa5151;
-  color: #ffffff;
-  border-radius: 12rpx;
-}
-.theme-ocean .btn-danger {
-  background: linear-gradient(135deg, #ff6b6b, #ee4444);
-  color: #ffffff;
-  box-shadow: 0 8rpx 28rpx rgba(255,80,80,0.30);
-}
 
-/* Small variant */
 .btn-sm {
   height: 56rpx;
   font-size: var(--font-caption);
   padding: 0 var(--space-lg);
 }
 
-/* ================================================================
-   Tags — theme-distinct accent colors
-   ================================================================ */
+/* ---- Tags ---- */
 .tag {
-  display: inline-flex;
-  align-items: center;
-  height: 40rpx;
-  padding: 0 16rpx;
-  border-radius: var(--radius-pill);
-  font-size: var(--font-badge);
+  display: inline-flex; align-items: center; height: 40rpx; padding: 0 16rpx;
+  border-radius: var(--radius-pill); font-size: var(--font-badge);
 }
+.tag-primary   { background: rgba(102,126,234,0.18); color: #8b9ef7 !important; }
+.tag-success   { background: rgba(74,222,128,0.18);  color: #6ee7a0 !important; }
+.tag-warning   { background: rgba(251,191,36,0.18);  color: #fcd34d !important; }
+.tag-danger    { background: rgba(248,113,113,0.18);  color: #fca5a5 !important; }
 
-/* Dark: purple tones */
-.tag-primary {
-  background: rgba(102,126,234,0.18);
-  color: #8b9ef7;
-}
-.tag-success {
-  background: rgba(74,222,128,0.18);
-  color: #6ee7a0;
-}
-.tag-warning {
-  background: rgba(251,191,36,0.18);
-  color: #fcd34d;
-}
-.tag-danger {
-  background: rgba(248,113,113,0.18);
-  color: #fca5a5;
-}
-
-/* Light: green tones, sharper */
-.theme-light .tag-primary {
-  background: rgba(7,193,96,0.10);
-  color: #06ad56;
-}
-.theme-light .tag-success {
-  background: rgba(7,193,96,0.10);
-  color: #06ad56;
-}
-.theme-light .tag-warning {
-  background: rgba(237,106,12,0.10);
-  color: #d46b08;
-}
-.theme-light .tag-danger {
-  background: rgba(250,81,81,0.10);
-  color: #cf1322;
-}
-
-/* Ocean: cyan tones, glowing */
-.theme-ocean .tag-primary {
-  background: rgba(0,200,255,0.15);
-  color: #66d9ff;
-}
-.theme-ocean .tag-success {
-  background: rgba(0,224,180,0.15);
-  color: #5cf5c8;
-}
-.theme-ocean .tag-warning {
-  background: rgba(255,183,77,0.15);
-  color: #ffb74d;
-}
-.theme-ocean .tag-danger {
-  background: rgba(255,100,100,0.15);
-  color: #ff8a8a;
-}
-
-/* ================================================================
-   Badges
-   ================================================================ */
+/* ---- Badges ---- */
 .badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 36rpx;
-  padding: 0 14rpx;
-  border-radius: var(--radius-pill);
-  font-size: var(--font-badge);
-  font-weight: 600;
+  display: inline-flex; align-items: center; justify-content: center;
+  height: 36rpx; padding: 0 14rpx; border-radius: var(--radius-pill);
+  font-size: var(--font-badge); font-weight: 600;
 }
-
-/* Dark */
-.badge-success { background: #4ade80; color: #0a0a0a; }
-.badge-primary { background: #667eea; color: #ffffff; }
+.badge-success { background: #4ade80; color: #0a0a0a !important; }
+.badge-primary { background: #667eea; color: #ffffff !important; }
 .badge-pending {
-  background: rgba(255,255,255,0.10);
-  color: rgba(255,255,255,0.60);
-  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.10) !important;
+  color: rgba(255,255,255,0.60) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
 }
 
-/* Light */
-.theme-light .badge-success { background: #07c160; color: #ffffff; }
-.theme-light .badge-primary { background: #07c160; color: #ffffff; }
-.theme-light .badge-pending {
-  background: #f0f0f2;
-  color: #888888;
-  border: 1px solid #e0e0e0;
-}
-
-/* Ocean */
-.theme-ocean .badge-success { background: #00d4aa; color: #041526; }
-.theme-ocean .badge-primary { background: #00b8ff; color: #041526; }
-.theme-ocean .badge-pending {
-  background: rgba(40,100,200,0.20);
-  color: rgba(180,220,255,0.65);
-  border: 1px solid rgba(80,160,255,0.20);
-}
-
-/* ================================================================
-   Input
-   ================================================================ */
+/* ---- Input ---- */
 .input-field {
-  border-radius: var(--radius-md);
-  height: 80rpx;
-  padding: 0 var(--space-lg);
+  border-radius: var(--radius-md); height: 80rpx; padding: 0 var(--space-lg);
   font-size: var(--font-body);
-  /* dark */
-  background: rgba(255,255,255,0.10);
-  border: 1px solid rgba(255,255,255,0.18);
-  color: #ffffff;
+  background: rgba(255,255,255,0.10) !important;
+  border: 1px solid rgba(255,255,255,0.18) !important;
+  color: #ffffff !important;
 }
-.theme-light .input-field {
-  background: #ffffff;
-  border: 1px solid #d9d9d9;
-  color: #333333;
-  border-radius: 12rpx;
+
+/* ---- Spinner ---- */
+.loading-spinner { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80rpx 0; }
+.spinner {
+  width: 48rpx; height: 48rpx;
+  border: 4rpx solid rgba(255,255,255,0.12); border-top-color: #667eea;
+  border-radius: 50%; animation: spin 0.8s linear infinite;
 }
-.theme-ocean .input-field {
-  background: rgba(20,60,120,0.30);
-  border: 1px solid rgba(80,160,255,0.25);
-  color: #e3f2fd;
-}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { margin-top: 20rpx; font-size: var(--font-caption); color: rgba(255,255,255,0.45); }
+
+/* ---- Empty state ---- */
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 120rpx 40rpx; }
+.empty-icon { width: 160rpx; height: 160rpx; margin-bottom: 24rpx; opacity: 0.3; }
+.empty-text { font-size: var(--font-body); text-align: center; color: rgba(255,255,255,0.45); }
+.empty-hint { margin-top: 12rpx; font-size: var(--font-caption); color: rgba(255,255,255,0.30); }
+
+.list-footer { text-align: center; padding: 24rpx 0 40rpx; font-size: var(--font-caption); color: rgba(255,255,255,0.40); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+.container { min-height: 100vh; padding: 28rpx 24rpx 40rpx; }
 
 /* ================================================================
-   Loading spinner
+   Theme: Light — 微信绿 + 白底
+   所有选择器使用 .xxx.theme-light 组合选择器（同元素）
    ================================================================ */
-.loading-spinner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 80rpx 0;
+
+/* Page background */
+.page-root.theme-light {
+  background: linear-gradient(180deg, #f5f6f8 0%, #ebedf0 100%) !important;
+  color: #191919 !important;
 }
 
-.loading-spinner .spinner {
-  width: 48rpx;
-  height: 48rpx;
-  border: 4rpx solid rgba(255,255,255,0.12);
-  border-top-color: #667eea;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+/* Cards */
+.card.theme-light,
+.state-card.theme-light {
+  background: #ffffff !important;
+  border: 1px solid #e8e8e8 !important;
+  border-radius: 20rpx !important;
+  box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.08), 0 1rpx 4rpx rgba(0,0,0,0.04) !important;
 }
-.theme-light .loading-spinner .spinner {
-  border: 4rpx solid #e8e8e8;
+
+.state-card.theme-light {
+  color: #888888 !important;
+}
+
+/* Typography */
+.section-title.theme-light {
+  color: #1a1a1a !important;
+}
+
+.section-subtitle.theme-light {
+  color: #888888 !important;
+}
+
+/* Buttons */
+.btn-primary.theme-light {
+  background: #07c160 !important;
+  border-radius: 12rpx !important;
+}
+
+.btn-secondary.theme-light {
+  background: #f5f5f5 !important;
+  border-color: #dcdcdc !important;
+  color: #333333 !important;
+}
+
+.btn-success.theme-light {
+  background: #07c160 !important;
+  border-radius: 12rpx !important;
+}
+
+.btn-danger.theme-light {
+  background: #fa5151 !important;
+  border-radius: 12rpx !important;
+}
+
+/* Tags */
+.tag-primary.theme-light   { background: rgba(7,193,96,0.10);  color: #06ad56 !important; }
+.tag-success.theme-light   { background: rgba(7,193,96,0.10);  color: #06ad56 !important; }
+.tag-warning.theme-light   { background: rgba(237,106,12,0.10); color: #d46b08 !important; }
+.tag-danger.theme-light    { background: rgba(250,81,81,0.10);  color: #cf1322 !important; }
+
+/* Badges */
+.badge-success.theme-light { background: #07c160 !important; color: #ffffff !important; }
+.badge-primary.theme-light { background: #07c160 !important; color: #ffffff !important; }
+.badge-pending.theme-light {
+  background: #f0f0f2 !important;
+  color: #888888 !important;
+  border-color: #e0e0e0 !important;
+}
+
+/* Input */
+.input-field.theme-light {
+  background: #ffffff !important;
+  border-color: #d9d9d9 !important;
+  color: #333333 !important;
+  border-radius: 12rpx !important;
+}
+
+/* Misc */
+.spinner.theme-light {
+  border-color: #e8e8e8;
   border-top-color: #07c160;
 }
-.theme-ocean .loading-spinner .spinner {
-  border: 4rpx solid rgba(80,160,255,0.20);
+.loading-text.theme-light { color: #999999; }
+.empty-text.theme-light { color: #999999; }
+.empty-hint.theme-light { color: #bbbbbb; }
+.list-footer.theme-light { color: #999999; }
+
+/* ================================================================
+   Theme: Ocean — 深海蓝 + 青色荧光
+   所有选择器使用 .xxx.theme-ocean 组合选择器（同元素）
+   ================================================================ */
+
+/* Page background */
+.page-root.theme-ocean {
+  background: linear-gradient(180deg, #041526 0%, #0a2540 40%, #072038 100%) !important;
+  color: #e3f2fd !important;
+}
+
+/* Cards */
+.card.theme-ocean,
+.state-card.theme-ocean {
+  background: linear-gradient(180deg, rgba(30,80,160,0.28), rgba(20,60,120,0.18)) !important;
+  border: 1px solid rgba(80,160,255,0.25) !important;
+  border-radius: 24rpx !important;
+  box-shadow: 0 16rpx 48rpx rgba(0,0,0,0.35), inset 0 1rpx 0 rgba(100,200,255,0.10) !important;
+}
+
+.state-card.theme-ocean {
+  color: rgba(180,220,255,0.75) !important;
+}
+
+/* Typography */
+.section-title.theme-ocean {
+  color: #e8f4ff !important;
+}
+
+.section-subtitle.theme-ocean {
+  color: rgba(180,220,255,0.65) !important;
+}
+
+/* Buttons */
+.btn-primary.theme-ocean {
+  background: linear-gradient(135deg, #00d4ff, #0099cc) !important;
+  box-shadow: 0 8rpx 28rpx rgba(0,180,255,0.35) !important;
+}
+
+.btn-secondary.theme-ocean {
+  background: rgba(40,100,200,0.15) !important;
+  border-color: rgba(80,180,255,0.30) !important;
+  color: #b0d8ff !important;
+}
+
+.btn-success.theme-ocean {
+  background: linear-gradient(135deg, #00e5a0, #00c48c) !important;
+  box-shadow: 0 8rpx 28rpx rgba(0,200,160,0.30) !important;
+}
+
+.btn-danger.theme-ocean {
+  background: linear-gradient(135deg, #ff6b6b, #ee4444) !important;
+  box-shadow: 0 8rpx 28rpx rgba(255,80,80,0.30) !important;
+}
+
+/* Tags */
+.tag-primary.theme-ocean   { background: rgba(0,200,255,0.15);  color: #66d9ff !important; }
+.tag-success.theme-ocean   { background: rgba(0,224,180,0.15);  color: #5cf5c8 !important; }
+.tag-warning.theme-ocean   { background: rgba(255,183,77,0.15); color: #ffb74d !important; }
+.tag-danger.theme-ocean    { background: rgba(255,100,100,0.15); color: #ff8a8a !important; }
+
+/* Badges */
+.badge-success.theme-ocean { background: #00d4aa !important; color: #041526 !important; }
+.badge-primary.theme-ocean { background: #00b8ff !important; color: #041526 !important; }
+.badge-pending.theme-ocean {
+  background: rgba(40,100,200,0.20) !important;
+  color: rgba(180,220,255,0.65) !important;
+  border-color: rgba(80,160,255,0.20) !important;
+}
+
+/* Input */
+.input-field.theme-ocean {
+  background: rgba(20,60,120,0.30) !important;
+  border-color: rgba(80,160,255,0.25) !important;
+  color: #e3f2fd !important;
+}
+
+/* Misc */
+.spinner.theme-ocean {
+  border-color: rgba(80,160,255,0.20);
   border-top-color: #00b8ff;
 }
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-.loading-spinner .loading-text {
-  margin-top: 20rpx;
-  font-size: var(--font-caption);
-}
-.loading-spinner .loading-text { color: rgba(255,255,255,0.45); }
-.theme-light .loading-spinner .loading-text { color: #999999; }
-.theme-ocean .loading-spinner .loading-text { color: rgba(180,220,255,0.50); }
-
-/* ================================================================
-   Empty state
-   ================================================================ */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 120rpx 40rpx;
-}
-
-.empty-state .empty-icon {
-  width: 160rpx;
-  height: 160rpx;
-  margin-bottom: 24rpx;
-  opacity: 0.3;
-}
-
-.empty-state .empty-text {
-  font-size: var(--font-body);
-  text-align: center;
-}
-.empty-state .empty-text { color: rgba(255,255,255,0.45); }
-.theme-light .empty-state .empty-text { color: #999999; }
-.theme-ocean .empty-state .empty-text { color: rgba(180,220,255,0.50); }
-
-.empty-state .empty-hint {
-  margin-top: 12rpx;
-  font-size: var(--font-caption);
-}
-.empty-state .empty-hint { color: rgba(255,255,255,0.30); }
-.theme-light .empty-state .empty-hint { color: #bbbbbb; }
-.theme-ocean .empty-state .empty-hint { color: rgba(180,220,255,0.35); }
-
-/* ================================================================
-   List footer
-   ================================================================ */
-.list-footer {
-  text-align: center;
-  padding: 24rpx 0 40rpx;
-  font-size: var(--font-caption);
-}
-.list-footer { color: rgba(255,255,255,0.40); }
-.theme-light .list-footer { color: #999999; }
-.theme-ocean .list-footer { color: rgba(180,220,255,0.40); }
-
-/* ================================================================
-   Safe area bottom padding
-   ================================================================ */
-.safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom);
-}
+.loading-text.theme-ocean { color: rgba(180,220,255,0.50); }
+.empty-text.theme-ocean { color: rgba(180,220,255,0.50); }
+.empty-hint.theme-ocean { color: rgba(180,220,255,0.35); }
+.list-footer.theme-ocean { color: rgba(180,220,255,0.40); }
