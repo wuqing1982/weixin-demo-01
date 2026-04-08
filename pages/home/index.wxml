@@ -1,4 +1,4 @@
-<view class="page-root {{theme}}">
+<view class="page-root theme-{{theme}}">
 <view class="container home-page">
   <view class="profile-strip card" wx:if="{{me}}">
     <view>

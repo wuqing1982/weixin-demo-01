@@ -1,4 +1,4 @@
-<view class="page-root {{theme}}">
+<view class="page-root theme-{{theme}}">
 <view class="container">
   <text class="section-title">公开场景库</text>
   <text class="section-subtitle">浏览所有公开的英语学习全景场景。</text>

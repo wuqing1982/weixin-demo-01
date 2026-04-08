@@ -1,4 +1,4 @@
-<view class="page-root {{theme}}">
+<view class="page-root theme-{{theme}}">
 <view class="container product-page">
   <view class="summary-card card">
     <text class="section-title">会员套餐</text>
