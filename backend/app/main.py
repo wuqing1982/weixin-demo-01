@@ -76,6 +76,7 @@ from .settings import (
     PAYMENT_MODE,
     PUBLIC_BASE_URL,
     PUBLIC_SCENES_FILE,
+    SCENE_PAGE_SIZE,
     VIDEO_RETENTION_HOURS,
     TASKS_FILE,
     UPLOADS_DIR,
@@ -1758,6 +1759,13 @@ def list_public_scene_collections(_: Request):
     if not commerce_store:
         return success({'list': []})
     return success({'list': require_commerce_store().list_scene_collections(status='active')})
+
+
+@app.get('/api/config')
+def get_client_config(request: Request):
+    return success({
+        'scenePageSize': SCENE_PAGE_SIZE,
+    })
 
 
 @app.get('/api/scenes')

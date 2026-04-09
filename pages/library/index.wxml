@@ -70,7 +70,22 @@
           </view>
         </view>
       </view>
-      <view wx:if="{{!hasMore && scenes.length > 0}}" class="list-end-tip theme-{{theme}}">已加载全部场景</view>
+      <view wx:if="{{!hasMore && scenes.length > 0 && totalPages <= 1}}" class="list-end-tip theme-{{theme}}">已加载全部场景</view>
+      <view wx:if="{{totalPages > 1}}" class="pagination theme-{{theme}}">
+        <view class="page-btn {{page <= 1 ? 'page-btn-disabled' : ''}}"
+              bindtap="onGoToPage" data-page="{{page - 1}}">
+          ‹
+        </view>
+        <view wx:for="{{pageNumbers}}" wx:key="*this"
+              class="page-num {{item === page ? 'page-num-active' : ''}} theme-{{theme}}"
+              bindtap="onGoToPage" data-page="{{item}}">
+          {{item}}
+        </view>
+        <view class="page-btn {{page >= totalPages ? 'page-btn-disabled' : ''}}"
+              bindtap="onGoToPage" data-page="{{page + 1}}">
+          ›
+        </view>
+      </view>
     </view>
   </view>
 </view>

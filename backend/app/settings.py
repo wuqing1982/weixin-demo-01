@@ -104,6 +104,7 @@ CORS_ALLOWED_ORIGINS = [o.strip() for o in os.getenv('CORS_ALLOWED_ORIGINS', 'ht
 MAX_UPLOAD_SIZE_BYTES = int(os.getenv('MAX_UPLOAD_SIZE_BYTES', str(10 * 1024 * 1024)))
 FREE_SCENE_IDS = _normalize_csv_set(os.getenv('FREE_SCENE_IDS', 'scene_breakfast,scene_zoo'))
 VIDEO_RETENTION_HOURS = int(os.getenv('VIDEO_RETENTION_HOURS', '3'))
+SCENE_PAGE_SIZE = int(os.getenv('SCENE_PAGE_SIZE', '20') or '20')
 
 
 def check_security_warnings() -> list[str]:

@@ -1,5 +1,6 @@
 const { updateNavBar } = require('../../shared/theme-helper');
 const { getSceneList, getSceneCategories, getSceneCollections } = require('../../services/scene');
+const { request } = require('../../services/api');
 
 Page({
   data: {
@@ -13,17 +14,19 @@ Page({
     errorMessage: '',
     page: 1,
     pageSize: 20,
+    totalCount: 0,
+    totalPages: 1,
+    pageNumbers: [1],
     hasMore: true,
     loadingMore: false,
-    viewMode: 'grid',
-    maxPages: 5
+    viewMode: 'grid'
   },
 
   onShow() {
     const theme = getApp().globalData.theme;
     this.setData({ theme });
     updateNavBar(theme);
-    this.loadScenes();
+    this.loadConfig();
   },
 
   onPullDownRefresh() {
@@ -43,6 +46,17 @@ Page({
       return;
     }
     this.loadMoreScenes();
+  },
+
+  async loadConfig() {
+    try {
+      const res = await request({ url: '/config' });
+      const pageSize = res.scenePageSize || 20;
+      this.setData({ pageSize });
+    } catch (e) {
+      // use default pageSize
+    }
+    this.loadScenes();
   },
 
   async loadScenes() {
@@ -67,11 +81,16 @@ Page({
       ]);
 
       const list = publicData.list || [];
+      const totalCount = publicData.total || 0;
+      const totalPages = Math.ceil(totalCount / this.data.pageSize) || 1;
       this.setData({
         scenes: list,
         categories: categoriesData.list || [],
         collections: collectionsData.list || [],
-        hasMore: list.length >= this.data.pageSize,
+        totalCount,
+        totalPages,
+        pageNumbers: this.calcPageNumbers(1, totalPages),
+        hasMore: 1 < totalPages,
         loading: false
       });
     } catch (error) {
@@ -83,10 +102,6 @@ Page({
   },
 
   async loadMoreScenes() {
-    if (this.data.page >= this.data.maxPages) {
-      this.setData({ hasMore: false });
-      return;
-    }
     const nextPage = this.data.page + 1;
     this.setData({ loadingMore: true });
 
@@ -100,16 +115,76 @@ Page({
       });
 
       const newList = publicData.list || [];
+      const totalCount = publicData.total || 0;
+      const totalPages = Math.ceil(totalCount / this.data.pageSize) || 1;
       this.setData({
         scenes: this.data.scenes.concat(newList),
         page: nextPage,
-        hasMore: newList.length >= this.data.pageSize,
+        totalCount,
+        totalPages,
+        pageNumbers: this.calcPageNumbers(nextPage, totalPages),
+        hasMore: nextPage < totalPages,
         loadingMore: false
       });
     } catch (error) {
       this.setData({ loadingMore: false });
       wx.showToast({ title: '加载失败', icon: 'none' });
     }
+  },
+
+  onGoToPage(e) {
+    const { page } = e.currentTarget.dataset;
+    if (page < 1 || page > this.data.totalPages || page === this.data.page) return;
+    this.setData({
+      page,
+      scenes: [],
+      hasMore: true,
+      loading: true
+    });
+    this.loadPage(page);
+  },
+
+  async loadPage(page) {
+    this.setData({ loading: true, errorMessage: '' });
+    try {
+      const publicData = await getSceneList({
+        type: 'public',
+        categoryId: this.data.selectedCategoryId,
+        collectionId: this.data.selectedCollectionId,
+        page,
+        pageSize: this.data.pageSize
+      });
+      const list = publicData.list || [];
+      const totalCount = publicData.total || 0;
+      const totalPages = Math.ceil(totalCount / this.data.pageSize) || 1;
+      this.setData({
+        scenes: list,
+        page,
+        totalCount,
+        totalPages,
+        pageNumbers: this.calcPageNumbers(page, totalPages),
+        hasMore: page < totalPages,
+        loading: false
+      });
+    } catch (error) {
+      this.setData({
+        loading: false,
+        errorMessage: error.message || '场景列表加载失败'
+      });
+    }
+  },
+
+  calcPageNumbers(current, total) {
+    if (total <= 5) {
+      return Array.from({ length: total }, function (_, i) { return i + 1; });
+    }
+    var start = Math.max(1, current - 2);
+    var end = start + 4;
+    if (end > total) {
+      end = total;
+      start = Math.max(1, end - 4);
+    }
+    return Array.from({ length: end - start + 1 }, function (_, i) { return start + i; });
   },
 
   onOpenScene(event) {
