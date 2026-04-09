@@ -1011,6 +1011,9 @@ def cdk_my_redemptions(request: Request):
     store = require_commerce_store()
     records = store.list_user_cdk_redemptions(user_id)
     return success({'list': records})
+
+
+@app.get('/api/admin/tasks')
 def admin_list_tasks(request: Request, limit: int = Query(default=50, ge=1, le=200)):
     get_current_admin(request)
     tasks = task_store.list_tasks(limit) if hasattr(task_store, 'list_tasks') else []
