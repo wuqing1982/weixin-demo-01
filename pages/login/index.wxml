@@ -22,7 +22,7 @@
           <view class="current-user-copy">
             <text class="current-user-label">当前登录用户</text>
             <text class="current-user-name">{{me.displayName || '微信用户'}}</text>
-            <text class="current-user-meta">身份：{{me.isAdmin ? 'Admin' : '普通用户'}} · <text class="login-tier-badge {{me.memberSummary.isActive ? 'badge-tier badge-' + me.memberSummary.entitlementCode : 'badge-inactive'}}">{{memberTierLabel}}</text> · 点数：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
+            <text class="current-user-meta">{{me.isAdmin ? 'Admin · ' : ''}}<text class="login-tier-badge {{me.memberSummary.isActive ? 'badge-tier badge-' + me.memberSummary.entitlementCode : 'badge-inactive'}}">{{memberTierLabel}}</text> · 点数：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
           </view>
         </view>
         <view class="profile-sync-panel">
