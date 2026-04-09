@@ -26,6 +26,8 @@ from .schemas import (
     AdminBatchDeleteTasksRequest,
     AdminBatchDeleteUsersRequest,
     AdminBatchSceneGenerateRequest,
+    AdminBatchSceneVisibilityRequest,
+    AdminBatchSceneFreeRequest,
     AdminGenerateCdkRequest,
     AdminLoginRequest,
     AdminPublishGeneratedSceneRequest,
@@ -519,6 +521,7 @@ def serialize_scene_detail(request: Request, scene: dict) -> dict:
         'items': [serialize_entry(request, item) for item in scene.get('items', [])],
         'verbs': [serialize_entry(request, verb) for verb in scene.get('verbs', [])],
         'meta': scene.get('meta', {}),
+        'free': bool(scene.get('free', False)),
         'capabilities': {
             'canEditHotspots': can_edit_hotspots
         }
@@ -637,6 +640,7 @@ def serialize_admin_scene(scene: dict) -> dict:
         'sceneType': scene.get('sceneType', 'public'),
         'backgroundPath': scene.get('backgroundPath', ''),
         'coverPath': scene.get('coverPath', ''),
+        'free': bool(scene.get('free', False)),
         'itemCount': len(scene.get('items', []) or []),
         'verbCount': len(scene.get('verbs', []) or []),
         'items': scene.get('items', []),
@@ -1200,6 +1204,21 @@ def admin_batch_delete_public_scenes(request: Request, body: AdminBatchDeleteSce
     get_current_admin(request)
     deleted = public_store.delete_scenes(body.sceneIds)
     return success({'deleted': deleted})
+
+
+@app.post('/api/admin/public-scenes/batch-visibility')
+def admin_batch_scene_visibility(request: Request, body: AdminBatchSceneVisibilityRequest):
+    get_current_admin(request)
+    patched = public_store.patch_scenes_visibility(body.sceneIds, body.visibility)
+    return success({'patched': patched})
+
+
+@app.post('/api/admin/public-scenes/batch-free')
+def admin_batch_scene_free(request: Request, body: AdminBatchSceneFreeRequest):
+    get_current_admin(request)
+    patched = public_store.patch_scenes_free_flag(body.sceneIds, body.free)
+    label = '免费可见' if body.free else '取消免费'
+    return success({'patched': patched, 'label': label})
 
 
 @app.post('/api/admin/public-scenes')
@@ -1860,7 +1879,7 @@ def get_scene(scene_id: str, request: Request):
         try:
             user = get_request_user(request, allow_debug=True, fallback_default=True)
             user_id = user.get('id', '') if user else ''
-            access_control.check_scene_access(scene_id, user_id, commerce_store)
+            access_control.check_scene_access(scene_id, user_id, commerce_store, scene=scene)
         except HTTPException:
             raise
         except Exception:

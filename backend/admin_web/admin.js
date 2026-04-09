@@ -21,7 +21,8 @@ const state = {
   editingScene: null,
   editingCategory: null,
   editingCollection: null,
-  publishingDraft: null
+  publishingDraft: null,
+  sceneViewMode: 'card'
 };
 
 const loginForm = document.getElementById('login-form');
@@ -713,15 +714,15 @@ function getSelectedSceneIds() {
 function updateSceneBatchState() {
   const checkboxes = panelBody.querySelectorAll('.scene-checkbox');
   const checked = panelBody.querySelectorAll('.scene-checkbox:checked');
-  const selectAll = panelBody.querySelector('#select-all-scenes');
-  const deleteBtn = document.getElementById('batch-delete-scenes-btn');
+  const selectAll = panelHead.querySelector('#select-all-scenes');
+  const batchBtn = document.getElementById('scene-batch-action-btn');
   const countSpan = document.getElementById('scenes-selected-count');
   if (selectAll) {
     selectAll.checked = checkboxes.length > 0 && checked.length === checkboxes.length;
     selectAll.indeterminate = checked.length > 0 && checked.length < checkboxes.length;
   }
-  if (deleteBtn) {
-    deleteBtn.disabled = checked.length === 0;
+  if (batchBtn) {
+    batchBtn.disabled = checked.length === 0;
   }
   if (countSpan) {
     countSpan.textContent = checked.length > 0 ? `已选 ${checked.length} 项` : '';
@@ -742,8 +743,43 @@ async function batchDeleteScenes() {
   }
 }
 
+async function batchSceneVisibility(visibility) {
+  const ids = getSelectedSceneIds();
+  if (ids.length === 0) return;
+  const label = { public: '公开', private: '隐藏' }[visibility] || visibility;
+  if (!window.confirm(`确定将选中的 ${ids.length} 个场景设为「${label}」吗？`)) return;
+  try {
+    await api('/api/admin/public-scenes/batch-visibility', { method: 'POST', body: { sceneIds: ids, visibility } });
+    toast(`已将 ${ids.length} 个场景设为「${label}」`);
+    await loadConsole();
+  } catch (error) {
+    toast(error.message || '批量修改失败');
+  }
+}
+
+async function batchSceneFree(free) {
+  const ids = getSelectedSceneIds();
+  if (ids.length === 0) return;
+  const label = free ? '免费可见' : '取消免费可见';
+  if (!window.confirm(`确定将选中的 ${ids.length} 个场景${free ? '设为' : '取消'}「免费可见」吗？`)) return;
+  try {
+    await api('/api/admin/public-scenes/batch-free', { method: 'POST', body: { sceneIds: ids, free } });
+    toast(`已${free ? '设为' : '取消'} ${ids.length} 个场景的「免费可见」`);
+    await loadConsole();
+  } catch (error) {
+    toast(error.message || '批量修改失败');
+  }
+}
+
+function buildCoverUrl(path) {
+  if (!path) return '';
+  if (path.startsWith('http')) return path;
+  return window.location.origin + '/' + path.replace(/^\//, '');
+}
+
 function renderScenes() {
   const scene = state.editingScene || {};
+  const viewMode = state.sceneViewMode || 'card';
   panelHead.innerHTML = `
     <div>
       <h3 class="panel-title">公共场景管理</h3>
@@ -751,7 +787,22 @@ function renderScenes() {
     </div>
     <div class="panel-actions">
       <span id="scenes-selected-count" class="selected-count"></span>
-      <button id="batch-delete-scenes-btn" class="mini-btn danger-btn" disabled data-action="batch-delete-scenes">批量删除</button>
+      <label class="checkbox-cell"><input type="checkbox" id="select-all-scenes"></label>
+      <div class="batch-action-dropdown">
+        <button id="scene-batch-action-btn" class="mini-btn" disabled data-action="scene-batch-toggle">批量操作 &#9662;</button>
+        <div class="batch-action-menu" id="scene-batch-menu">
+          <button class="batch-menu-item" data-action="scene-batch-visibility" data-visibility="public">设为公开</button>
+          <button class="batch-menu-item" data-action="scene-batch-visibility" data-visibility="private">设为隐藏</button>
+          <div class="batch-menu-divider"></div>
+          <button class="batch-menu-item" data-action="scene-batch-free" data-free="true">设为免费可见</button>
+          <button class="batch-menu-item" data-action="scene-batch-free" data-free="false">取消免费可见</button>
+          <div class="batch-menu-divider"></div>
+          <button class="batch-menu-item danger" data-action="batch-delete-scenes">批量删除</button>
+        </div>
+      </div>
+      <button class="view-toggle-btn" data-action="toggle-scene-view">
+        ${viewMode === 'card' ? '&#9776;' : '&#9638;'}
+      </button>
       <span class="meta-chip">${state.scenes.length} 个场景</span>
     </div>
   `;
@@ -775,30 +826,62 @@ function renderScenes() {
       </div>
     </form>
 
-    <div class="table">
-      <div class="table-head">
-        <label class="checkbox-cell"><input type="checkbox" id="select-all-scenes"></label>
-        <strong>场景</strong>
-        <span>分类</span>
-        <span>热点数</span>
-        <span>可见性</span>
-        <span>操作</span>
-      </div>
-      ${state.scenes.map((item) => `
-        <div class="table-row">
-          <label class="checkbox-cell"><input type="checkbox" class="scene-checkbox" value="${escapeHtml(item.sceneId)}"></label>
-          <strong>${escapeHtml(item.title)}<br><small>${escapeHtml(item.sceneId)}</small></strong>
-          <span>${escapeHtml((item.publication && (item.publication.categoryName || item.publication.categoryId)) || item.category || '-')}</span>
-          <span>${escapeHtml(item.itemCount || 0)} / ${escapeHtml(item.verbCount || 0)}</span>
-          <span>${escapeHtml(item.visibility || 'public')}</span>
-          <span class="action-group">
-            <button class="mini-btn" data-action="scene-edit" data-id="${escapeHtml(item.sceneId)}">编辑</button>
-            ${item.publication && item.publication.sourceGeneratedSceneId
-              ? `<button class="mini-btn success-btn" data-action="scene-republish" data-id="${escapeHtml(item.sceneId)}">覆盖发布</button>`
-              : ''}
-          </span>
+    <div class="scene-views ${viewMode === 'card' ? 'show-cards' : 'show-table'}">
+      <div class="table view-table">
+        <div class="table-head">
+          <label class="checkbox-cell"><input type="checkbox" class="scene-select-all" data-scope="table"></label>
+          <strong>场景</strong>
+          <span>分类</span>
+          <span>热点数</span>
+          <span>可见性</span>
+          <span>操作</span>
         </div>
-      `).join('')}
+        ${state.scenes.map((item) => `
+          <div class="table-row">
+            <label class="checkbox-cell"><input type="checkbox" class="scene-checkbox" value="${escapeHtml(item.sceneId)}"></label>
+            <strong>${escapeHtml(item.title)}<br><small>${escapeHtml(item.sceneId)}</small></strong>
+            <span>${escapeHtml((item.publication && (item.publication.categoryName || item.publication.categoryId)) || item.category || '-')}</span>
+            <span>${escapeHtml(item.itemCount || 0)} / ${escapeHtml(item.verbCount || 0)}</span>
+            <span>${escapeHtml(item.visibility || 'public')}</span>
+            <span class="action-group">
+              <button class="mini-btn" data-action="scene-edit" data-id="${escapeHtml(item.sceneId)}">编辑</button>
+              ${item.publication && item.publication.sourceGeneratedSceneId
+                ? `<button class="mini-btn success-btn" data-action="scene-republish" data-id="${escapeHtml(item.sceneId)}">覆盖发布</button>`
+                : ''}
+            </span>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="card-grid view-cards">
+        ${state.scenes.map((item) => {
+          const cat = (item.publication && (item.publication.categoryName || item.publication.categoryId)) || item.category || '-';
+          const vis = item.visibility || 'public';
+          return `
+          <div class="scene-card ${vis !== 'public' ? 'scene-card--' + vis : ''}" data-id="${escapeHtml(item.sceneId)}">
+            <label class="scene-card-check">
+              <input type="checkbox" class="scene-checkbox" value="${escapeHtml(item.sceneId)}">
+              <span class="scene-card-checkmark"></span>
+            </label>
+            ${item.free ? '<span class="scene-card-badge scene-card-badge--free">免费</span>' : ''}
+            ${vis === 'private' ? '<span class="scene-card-badge scene-card-badge--hidden">隐藏</span>' : ''}
+            <div class="scene-card-cover">
+              <img src="${buildCoverUrl(item.coverPath || item.backgroundPath)}"
+                   onerror="this.src='';this.classList.add('broken')">
+            </div>
+            <div class="scene-card-body">
+              <strong class="scene-card-title">${escapeHtml(item.title)}</strong>
+              <span class="scene-card-meta">${escapeHtml(cat)} · ${item.itemCount || 0}/${item.verbCount || 0}</span>
+              <div class="scene-card-actions">
+                <button class="mini-btn" data-action="scene-edit" data-id="${escapeHtml(item.sceneId)}">编辑</button>
+                ${item.publication && item.publication.sourceGeneratedSceneId
+                  ? `<button class="mini-btn success-btn" data-action="scene-republish" data-id="${escapeHtml(item.sceneId)}">覆盖发布</button>`
+                  : ''}
+              </div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
     </div>
   `;
 }
@@ -1547,12 +1630,6 @@ panelBody.addEventListener('change', (event) => {
     updateSceneBatchState();
     return;
   }
-  if (event.target.id === 'select-all-scenes') {
-    const checked = event.target.checked;
-    panelBody.querySelectorAll('.scene-checkbox').forEach((cb) => { cb.checked = checked; });
-    updateSceneBatchState();
-    return;
-  }
   if (event.target.classList.contains('cdk-checkbox')) {
     updateCdkBatchState();
     return;
@@ -1598,6 +1675,38 @@ panelHead.addEventListener('click', async (event) => {
     }
     return;
   }
+  if (action === 'scene-batch-toggle') {
+    const menu = document.getElementById('scene-batch-menu');
+    if (menu) menu.classList.toggle('open');
+    return;
+  }
+  if (action === 'scene-batch-visibility') {
+    const visibility = event.target.dataset.visibility;
+    const menu = document.getElementById('scene-batch-menu');
+    if (menu) menu.classList.remove('open');
+    try {
+      await batchSceneVisibility(visibility);
+    } catch (error) {
+      toast(error.message || '批量修改失败');
+    }
+    return;
+  }
+  if (action === 'scene-batch-free') {
+    const free = event.target.dataset.free === 'true';
+    const menu = document.getElementById('scene-batch-menu');
+    if (menu) menu.classList.remove('open');
+    try {
+      await batchSceneFree(free);
+    } catch (error) {
+      toast(error.message || '批量修改失败');
+    }
+    return;
+  }
+  if (action === 'toggle-scene-view') {
+    state.sceneViewMode = state.sceneViewMode === 'card' ? 'table' : 'card';
+    renderScenes();
+    return;
+  }
   if (action === 'batch-delete-cdk') {
     try {
       await batchDeleteCdk();
@@ -1605,6 +1714,21 @@ panelHead.addEventListener('click', async (event) => {
       toast(error.message || '批量删除失败');
     }
   }
+});
+
+panelHead.addEventListener('change', (event) => {
+  if (event.target.id === 'select-all-scenes') {
+    const checked = event.target.checked;
+    panelBody.querySelectorAll('.scene-checkbox').forEach((cb) => { cb.checked = checked; });
+    updateSceneBatchState();
+  }
+});
+
+document.addEventListener('click', (event) => {
+  const menu = document.getElementById('scene-batch-menu');
+  if (!menu || !menu.classList.contains('open')) return;
+  if (event.target.closest('.batch-action-dropdown')) return;
+  menu.classList.remove('open');
 });
 
 loginForm.addEventListener('submit', async (event) => {

@@ -11,8 +11,15 @@ from .settings import FREE_SCENE_IDS
 logger = logging.getLogger(__name__)
 
 
-def is_free_scene(scene_id: str) -> bool:
-    """Check if a scene is in the free tier list."""
+def is_free_scene(scene_id: str, scene: dict | None = None) -> bool:
+    """Check if a scene is free-tier accessible.
+
+    A scene is free if:
+    1. Its data has ``free: true`` set directly, OR
+    2. Its sceneId is in the ``FREE_SCENE_IDS`` env-var whitelist.
+    """
+    if scene and scene.get('free'):
+        return True
     return scene_id in FREE_SCENE_IDS
 
 
@@ -35,12 +42,12 @@ def is_member_active(commerce_store, user_id: str) -> bool:
 
 def filter_scenes_for_free_user(scenes: list[dict]) -> list[dict]:
     """Filter scene list to only include free scenes for non-members."""
-    return [s for s in scenes if is_free_scene(s.get('sceneId', ''))]
+    return [s for s in scenes if is_free_scene(s.get('sceneId', ''), scene=s)]
 
 
-def check_scene_access(scene_id: str, user_id: str, commerce_store) -> None:
+def check_scene_access(scene_id: str, user_id: str, commerce_store, scene: dict | None = None) -> None:
     """Raise HTTPException(403) if user cannot access this scene."""
-    if is_free_scene(scene_id):
+    if is_free_scene(scene_id, scene=scene):
         return
 
     if not commerce_store:

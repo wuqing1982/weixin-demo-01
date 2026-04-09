@@ -83,3 +83,31 @@ class SceneStore:
                 payload['scenes'] = remaining
                 write_json_file(self.data_file, payload)
         return deleted
+
+    def patch_scenes_visibility(self, scene_ids: list[str], visibility: str) -> int:
+        with self.lock:
+            payload = read_json_file(self.data_file)
+            scenes = payload.get('scenes', [])
+            ids_set = set(scene_ids)
+            patched = 0
+            for scene in scenes:
+                if scene.get('sceneId') in ids_set:
+                    scene['visibility'] = visibility
+                    patched += 1
+            if patched > 0:
+                write_json_file(self.data_file, payload)
+        return patched
+
+    def patch_scenes_free_flag(self, scene_ids: list[str], free: bool) -> int:
+        with self.lock:
+            payload = read_json_file(self.data_file)
+            scenes = payload.get('scenes', [])
+            ids_set = set(scene_ids)
+            patched = 0
+            for scene in scenes:
+                if scene.get('sceneId') in ids_set:
+                    scene['free'] = free
+                    patched += 1
+            if patched > 0:
+                write_json_file(self.data_file, payload)
+        return patched

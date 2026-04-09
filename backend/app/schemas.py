@@ -155,6 +155,16 @@ class AdminBatchDeleteScenesRequest(BaseModel):
     sceneIds: list[str] = Field(min_length=1, max_length=200)
 
 
+class AdminBatchSceneVisibilityRequest(BaseModel):
+    sceneIds: list[str] = Field(min_length=1, max_length=200)
+    visibility: str = Field(pattern=r'^(public|private|member)$')
+
+
+class AdminBatchSceneFreeRequest(BaseModel):
+    sceneIds: list[str] = Field(min_length=1, max_length=200)
+    free: bool
+
+
 class HotspotRectPayload(BaseModel):
     l: float = Field(ge=0, le=100)
     t: float = Field(ge=0, le=100)
