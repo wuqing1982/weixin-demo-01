@@ -654,32 +654,52 @@ def start_export(job_id: str, scene: dict, assets_root: Path) -> None:
 _cleanup_stop = threading.Event()
 
 
+def _cleanup_disk_files(output_dir: Path, cutoff: datetime) -> set[str]:
+    """Scan output_dir for .mp4 files whose mtime is older than cutoff.
+
+    Deletes expired files and returns the set of deleted job_ids
+    (derived from filename: vid_xxx.mp4 -> vid_xxx).
+    """
+    deleted_ids: set[str] = set()
+    if not output_dir.is_dir():
+        return deleted_ids
+    for fpath in output_dir.iterdir():
+        if fpath.suffix != '.mp4':
+            continue
+        try:
+            mtime = datetime.fromtimestamp(fpath.stat().st_mtime, tz=timezone.utc)
+            if mtime < cutoff:
+                fpath.unlink(missing_ok=True)
+                deleted_ids.add(fpath.stem)
+                logger.info('Cleaned up expired video file: %s (mtime=%s)', fpath.name, mtime.isoformat())
+        except OSError:
+            continue
+    return deleted_ids
+
+
 def start_video_cleanup(output_dir: Path, retention_hours: int, interval_seconds: int = 300) -> None:
-    """Start background thread that deletes video files older than retention_hours."""
+    """Start background thread that deletes video files older than retention_hours.
+
+    Uses file mtime (modification time) as the source of truth, which survives
+    service restarts. Also cleans up matching in-memory job records.
+    """
     def _cleanup_loop():
         while not _cleanup_stop.wait(interval_seconds):
             try:
                 cutoff = datetime.now(timezone.utc) - timedelta(hours=retention_hours)
+
+                # 1. Scan disk — delete files whose mtime is older than cutoff
+                deleted_ids = _cleanup_disk_files(output_dir, cutoff)
+
+                # 2. Clean up in-memory jobs for deleted files
                 with _jobs_lock:
-                    to_remove = []
-                    for job_id, job in _jobs.items():
-                        if job.get('status') != 'completed':
-                            continue
-                        completed = job.get('completedAt', '')
-                        if not completed:
-                            continue
-                        try:
-                            completed_dt = datetime.fromisoformat(completed.replace('Z', '+00:00'))
-                            if completed_dt < cutoff:
-                                to_remove.append(job_id)
-                        except (ValueError, TypeError):
-                            continue
+                    to_remove = [
+                        job_id for job_id, job in _jobs.items()
+                        if job_id in deleted_ids
+                    ]
                     for job_id in to_remove:
-                        job = _jobs.pop(job_id)
-                        path = job.get('outputPath', '')
-                        if path:
-                            Path(path).unlink(missing_ok=True)
-                        logger.info('Cleaned up expired video: %s', job_id)
+                        _jobs.pop(job_id, None)
+                        logger.info('Cleaned up expired job record: %s', job_id)
             except Exception as exc:
                 logger.error('Video cleanup error: %s', exc)
 

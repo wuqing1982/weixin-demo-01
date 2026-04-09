@@ -2241,14 +2241,15 @@ def list_my_video_exports(request: Request):
         is_expired = False
         video_url = ''
         completed_at = job.get('completedAt', '')
-        if completed_at:
+        output_path = job.get('outputPath', '')
+        if output_path:
             try:
                 from datetime import datetime as _dt, timezone as _tz, timedelta as _td
-                elapsed = _dt.now(_tz.utc) - _dt.fromisoformat(completed_at.replace('Z', '+00:00'))
-                is_expired = elapsed > _td(hours=VIDEO_RETENTION_HOURS)
-            except Exception:
-                pass
-        if job.get('outputPath') and not is_expired:
+                mtime = _dt.fromtimestamp(Path(output_path).stat().st_mtime, tz=_tz.utc)
+                is_expired = (_dt.now(_tz.utc) - mtime) > _td(hours=VIDEO_RETENTION_HOURS)
+            except (OSError, ValueError):
+                is_expired = True
+        if output_path and not is_expired:
             filename = Path(job['outputPath']).name
             video_url = f'/assets/video_exports/{filename}'
         scene = public_store.get_scene(job['sceneId'])
