@@ -111,3 +111,52 @@
 }
 .scene-desc.theme-light { color: #888888 !important; }
 .scene-desc.theme-ocean { color: rgba(180,220,255,0.65) !important; }
+
+/* ---- Dual-column grid layout ---- */
+
+.scene-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+
+.scene-cover-grid {
+  height: 200rpx;
+}
+
+.scene-meta-grid {
+  padding: 16rpx;
+}
+
+.scene-title-grid {
+  font-size: 26rpx;
+}
+
+/* ---- Section header with toggle ---- */
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.view-toggle {
+  padding: 12rpx 16rpx;
+}
+
+.toggle-icon {
+  font-size: 36rpx;
+  opacity: 0.6;
+}
+
+/* ---- End-of-list tip ---- */
+
+.list-end-tip {
+  text-align: center;
+  padding: 24rpx;
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.40) !important;
+}
+.list-end-tip.theme-light { color: rgba(0,0,0,0.25) !important; }
+.list-end-tip.theme-ocean { color: rgba(180,220,255,0.35) !important; }

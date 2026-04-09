@@ -14,7 +14,9 @@ Page({
     page: 1,
     pageSize: 20,
     hasMore: true,
-    loadingMore: false
+    loadingMore: false,
+    viewMode: 'grid',
+    maxPages: 5
   },
 
   onShow() {
@@ -29,6 +31,11 @@ Page({
     this.loadScenes().finally(() => {
       wx.stopPullDownRefresh();
     });
+  },
+
+  onToggleViewMode() {
+    const next = this.data.viewMode === 'grid' ? 'list' : 'grid';
+    this.setData({ viewMode: next });
   },
 
   onReachBottom() {
@@ -76,6 +83,10 @@ Page({
   },
 
   async loadMoreScenes() {
+    if (this.data.page >= this.data.maxPages) {
+      this.setData({ hasMore: false });
+      return;
+    }
     const nextPage = this.data.page + 1;
     this.setData({ loadingMore: true });
 

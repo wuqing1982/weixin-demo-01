@@ -48,21 +48,29 @@
     </view>
 
     <view class="section-block">
-      <text class="section-heading theme-{{theme}}">公开场景</text>
-      <view wx:if="{{!scenes.length}}" class="state-card theme-{{theme}}">当前筛选条件下还没有公开场景。</view>
-      <view
-        wx:for="{{scenes}}"
-        wx:key="sceneId"
-        class="scene-card card theme-{{theme}}"
-        bindtap="onOpenScene"
-        data-scene-id="{{item.sceneId}}"
-      >
-        <image class="scene-cover" src="{{item.coverUrl}}" mode="aspectFill" />
-        <view class="scene-meta">
-          <text class="scene-title">{{item.title}}</text>
-          <text class="scene-desc theme-{{theme}}">{{item.categoryName || item.category || '未分类'}} · {{item.visibility}}</text>
+      <view class="section-header">
+        <text class="section-heading theme-{{theme}}">公开场景</text>
+        <view class="view-toggle" bindtap="onToggleViewMode">
+          <text class="toggle-icon">{{viewMode === 'grid' ? '☰' : '▦'}}</text>
         </view>
       </view>
+      <view wx:if="{{!scenes.length}}" class="state-card theme-{{theme}}">当前筛选条件下还没有公开场景。</view>
+      <view class="{{viewMode === 'grid' ? 'scene-grid' : 'scene-list'}}">
+        <view
+          wx:for="{{scenes}}"
+          wx:key="sceneId"
+          class="scene-card card theme-{{theme}} {{viewMode === 'grid' ? 'scene-card-grid' : ''}}"
+          bindtap="onOpenScene"
+          data-scene-id="{{item.sceneId}}"
+        >
+          <image class="scene-cover {{viewMode === 'grid' ? 'scene-cover-grid' : ''}}" src="{{item.coverUrl}}" mode="aspectFill" />
+          <view class="scene-meta {{viewMode === 'grid' ? 'scene-meta-grid' : ''}}">
+            <text class="scene-title {{viewMode === 'grid' ? 'scene-title-grid' : ''}}">{{item.title}}</text>
+            <text class="scene-desc theme-{{theme}}">{{item.categoryName || item.category || '未分类'}}</text>
+          </view>
+        </view>
+      </view>
+      <view wx:if="{{!hasMore && scenes.length > 0}}" class="list-end-tip theme-{{theme}}">已加载全部场景</view>
     </view>
   </view>
 </view>
