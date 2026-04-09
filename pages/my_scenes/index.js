@@ -1,5 +1,6 @@
 const { updateNavBar } = require('../../shared/theme-helper');
 const { getMyScenes } = require('../../services/scene');
+const { request } = require('../../services/api');
 
 Page({
   data: {
@@ -9,15 +10,19 @@ Page({
     errorMessage: '',
     page: 1,
     pageSize: 20,
+    totalCount: 0,
+    totalPages: 1,
+    pageNumbers: [1],
     hasMore: true,
-    loadingMore: false
+    loadingMore: false,
+    viewMode: 'grid'
   },
 
   onShow() {
     const theme = getApp().globalData.theme;
     this.setData({ theme });
     updateNavBar(theme);
-    this.loadScenes();
+    this.loadConfig();
   },
 
   onPullDownRefresh() {
@@ -27,11 +32,27 @@ Page({
     });
   },
 
+  onToggleViewMode() {
+    const next = this.data.viewMode === 'grid' ? 'list' : 'grid';
+    this.setData({ viewMode: next });
+  },
+
   onReachBottom() {
     if (!this.data.hasMore || this.data.loadingMore) {
       return;
     }
     this.loadMoreScenes();
+  },
+
+  async loadConfig() {
+    try {
+      const res = await request({ url: '/config' });
+      const pageSize = res.scenePageSize || 20;
+      this.setData({ pageSize });
+    } catch (e) {
+      // use default pageSize
+    }
+    this.loadScenes();
   },
 
   async loadScenes() {
@@ -49,10 +70,15 @@ Page({
       });
 
       const list = data.list || [];
+      const totalCount = data.total || 0;
+      const totalPages = Math.ceil(totalCount / this.data.pageSize) || 1;
       this.setData({
         loading: false,
         scenes: list,
-        hasMore: list.length >= this.data.pageSize
+        totalCount,
+        totalPages,
+        pageNumbers: this.calcPageNumbers(1, totalPages),
+        hasMore: 1 < totalPages
       });
     } catch (error) {
       this.setData({
@@ -73,16 +99,73 @@ Page({
       });
 
       const newList = data.list || [];
+      const totalCount = data.total || 0;
+      const totalPages = Math.ceil(totalCount / this.data.pageSize) || 1;
       this.setData({
         scenes: this.data.scenes.concat(newList),
         page: nextPage,
-        hasMore: newList.length >= this.data.pageSize,
+        totalCount,
+        totalPages,
+        pageNumbers: this.calcPageNumbers(nextPage, totalPages),
+        hasMore: nextPage < totalPages,
         loadingMore: false
       });
     } catch (error) {
       this.setData({ loadingMore: false });
       wx.showToast({ title: '加载失败', icon: 'none' });
     }
+  },
+
+  onGoToPage(e) {
+    const { page } = e.currentTarget.dataset;
+    if (page < 1 || page > this.data.totalPages || page === this.data.page) return;
+    this.setData({
+      page,
+      scenes: [],
+      hasMore: true,
+      loading: true
+    });
+    this.loadPage(page);
+  },
+
+  async loadPage(page) {
+    this.setData({ loading: true, errorMessage: '' });
+    try {
+      const data = await getMyScenes({
+        page,
+        pageSize: this.data.pageSize
+      });
+      const list = data.list || [];
+      const totalCount = data.total || 0;
+      const totalPages = Math.ceil(totalCount / this.data.pageSize) || 1;
+      this.setData({
+        scenes: list,
+        page,
+        totalCount,
+        totalPages,
+        pageNumbers: this.calcPageNumbers(page, totalPages),
+        hasMore: page < totalPages,
+        loading: false
+      });
+    } catch (error) {
+      this.setData({
+        loading: false,
+        errorMessage: error.message || '我的场景加载失败'
+      });
+    }
+  },
+
+  calcPageNumbers(current, total) {
+    if (total <= 5) {
+      return Array.from({ length: total }, function (_, i) { return i + 1; });
+    }
+    var start = Math.max(1, current - 2);
+    var end = start + 4;
+    if (end > total) {
+      end = total;
+      start = Math.max(1, end - 4);
+    }
+    return Array.from({ length: end - start + 1 }, function (_, i) { return start + i; });
   },
 
   onOpenScene(event) {
