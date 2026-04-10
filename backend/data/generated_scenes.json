@@ -3056,6 +3056,144 @@
         "hotspotUpdatedAt": "2026-04-10T04:22:45Z",
         "hotspotUpdatedBy": "user_20260408024505_7358e9"
       }
+    },
+    {
+      "sceneId": "scene_user_20260410090704_356cfd",
+      "title": "客厅",
+      "category": "existing",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260410090704_356cfd/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260410090704_356cfd/background.jpg",
+      "items": [
+        {
+          "id": "television",
+          "word": "television",
+          "ipa": "/ˈtelɪvɪʒən/",
+          "meaning": "电视",
+          "sentence": "Let's watch TV together.",
+          "sentenceTranslation": "让我们一起看电视吧。",
+          "audioPath": "/assets/generated/scene_user_20260410090704_356cfd/scene_user_20260410090704_356cfd_en-US-JennyNeural_US_female_television_lets_watch_tv_together.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 60.0,
+            "w": 30.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "clock",
+          "word": "clock",
+          "ipa": "/kloʊk/",
+          "meaning": "时钟",
+          "sentence": "Look at the clock on the wall.",
+          "sentenceTranslation": "看墙上的钟表。",
+          "audioPath": "/assets/generated/scene_user_20260410090704_356cfd/scene_user_20260410090704_356cfd_en-US-JennyNeural_US_female_clock_look_at_the_clock_on_the.mp3",
+          "rect": {
+            "l": 25.0,
+            "t": 10.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "flower",
+          "word": "flower",
+          "ipa": "/flaʊər/",
+          "meaning": "花",
+          "sentence": "The flower is beautiful.",
+          "sentenceTranslation": "这朵花很漂亮。",
+          "audioPath": "/assets/generated/scene_user_20260410090704_356cfd/scene_user_20260410090704_356cfd_en-US-JennyNeural_US_female_flower_the_flower_is_beautiful.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 35.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "plant",
+          "word": "plant",
+          "ipa": "/plænt/",
+          "meaning": "植物",
+          "sentence": "Water the plant every day.",
+          "sentenceTranslation": "每天给植物浇水。",
+          "audioPath": "/assets/generated/scene_user_20260410090704_356cfd/scene_user_20260410090704_356cfd_en-US-JennyNeural_US_female_plant_water_the_plant_every_day.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 45.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "basket",
+          "word": "basket",
+          "ipa": "/bæskɪt/",
+          "meaning": "篮子",
+          "sentence": "Put your toys in the basket.",
+          "sentenceTranslation": "把你的玩具放进篮子里。",
+          "audioPath": "/assets/generated/scene_user_20260410090704_356cfd/scene_user_20260410090704_356cfd_en-US-JennyNeural_US_female_basket_put_your_toys_in_the_basket.mp3",
+          "rect": {
+            "l": 55.0,
+            "t": 70.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "1",
+          "word": "watch",
+          "ipa": "/wɒtʃ/",
+          "meaning": "观看",
+          "sentence": "Let's watch TV together.",
+          "sentenceTranslation": "我们一起看电视吧。",
+          "audioPath": "/assets/generated/scene_user_20260410090704_356cfd/scene_user_20260410090704_356cfd_en-US-JennyNeural_US_female_1_lets_watch_tv_together.mp3",
+          "relatedItem": "television"
+        },
+        {
+          "id": "2",
+          "word": "water",
+          "ipa": "/wɔːtər/",
+          "meaning": "浇水",
+          "sentence": "Water the plant every day.",
+          "sentenceTranslation": "每天给植物浇水。",
+          "audioPath": "/assets/generated/scene_user_20260410090704_356cfd/scene_user_20260410090704_356cfd_en-US-JennyNeural_US_female_2_water_the_plant_every_day.mp3",
+          "relatedItem": "plant"
+        },
+        {
+          "id": "3",
+          "word": "put",
+          "ipa": "/pʊt/",
+          "meaning": "放",
+          "sentence": "Put your toys in the basket.",
+          "sentenceTranslation": "把你的玩具放进篮子里。",
+          "audioPath": "/assets/generated/scene_user_20260410090704_356cfd/scene_user_20260410090704_356cfd_en-US-JennyNeural_US_female_3_put_your_toys_in_the_basket.mp3",
+          "relatedItem": "basket"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260408024505_7358e9",
+        "uploadId": "upload_20260410090701_31f969",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260410090704_356cfd",
+        "core100SceneTitle": "客厅",
+        "recommendedCategory": "existing",
+        "tags": [
+          "家庭",
+          "舒适",
+          "休闲"
+        ],
+        "version": 1
+      }
     }
   ]
 }

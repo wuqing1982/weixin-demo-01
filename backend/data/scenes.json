@@ -172,10 +172,10 @@
           "sentence": "The building is behind the pandas.",
           "sentenceTranslation": "建筑在熊猫后面。",
           "rect": {
-            "l": 10.0,
-            "t": 10.0,
-            "w": 40.0,
-            "h": 40.0
+            "l": 34.57,
+            "t": 7.69,
+            "w": 26.37,
+            "h": 21.3
           },
           "audioPath": "/assets/audio/zoo/zoo_en-US-JennyNeural_US_female_building_the_building_is_behind_the_pandas.mp3"
         },
@@ -189,8 +189,8 @@
           "rect": {
             "l": 10.0,
             "t": 50.0,
-            "w": 30.0,
-            "h": 30.0
+            "w": 22.61,
+            "h": 20.72
           },
           "audioPath": "/assets/audio/zoo/zoo_en-US-JennyNeural_US_female_grass_the_grass_is_green_and_lush.mp3"
         },
@@ -242,12 +242,15 @@
       "meta": {
         "sceneType": "public",
         "visibility": "member",
-        "version": 1,
+        "version": 3,
         "category": "animals",
         "tags": [
           "zoo",
           "animals"
-        ]
+        ],
+        "hotspotEditable": true,
+        "hotspotUpdatedAt": "2026-04-10T06:19:16Z",
+        "hotspotUpdatedBy": "user_20260408024505_7358e9"
       }
     },
     {

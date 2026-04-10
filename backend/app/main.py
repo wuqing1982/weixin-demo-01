@@ -512,6 +512,7 @@ def serialize_scene_detail(request: Request, scene: dict) -> dict:
         scene,
         actor.get('id', '') if actor else '',
         hotspot_permission_config(),
+        user_role=actor.get('role') if actor else None,
     )
     return {
         'sceneId': scene['sceneId'],
@@ -1890,13 +1891,14 @@ def get_scene(scene_id: str, request: Request):
 
 @app.post('/api/scenes/{scene_id}/hotspots')
 def save_scene_hotspots(scene_id: str, payload: SceneHotspotUpdateRequest, request: Request):
-    operator_id = get_current_user_id(request)
+    operator = get_request_user(request, allow_debug=True, fallback_default=True)
+    operator_id = operator.get('id', '') if operator else ''
     hotspot_items = [item.model_dump() for item in payload.items]
     permission_config = hotspot_permission_config()
 
     scene = public_store.get_scene(scene_id)
     if scene:
-        if not can_edit_scene_hotspots(scene, operator_id, permission_config):
+        if not can_edit_scene_hotspots(scene, operator_id, permission_config, user_role=operator.get('role') if operator else None):
             raise HTTPException(
                 status_code=403,
                 detail={
@@ -1921,7 +1923,7 @@ def save_scene_hotspots(scene_id: str, payload: SceneHotspotUpdateRequest, reque
         return success(serialize_scene_detail(request, updated_scene))
 
     scene = generated_store.get_scene(scene_id)
-    if scene and not can_edit_scene_hotspots(scene, operator_id, permission_config):
+    if scene and not can_edit_scene_hotspots(scene, operator_id, permission_config, user_role=operator.get('role') if operator else None):
         raise HTTPException(
             status_code=403,
             detail={

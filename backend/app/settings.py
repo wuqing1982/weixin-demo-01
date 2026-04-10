@@ -93,8 +93,8 @@ CORE100_TTS_URL = _normalize_base_url(os.getenv('CORE100_TTS_URL', 'http://127.0
 ZHIPUAI_API_KEY = (os.getenv('ZHIPUAI_API_KEY', '') or '').strip() or None
 HOTSPOT_EDITOR_ENABLED = _normalize_bool(os.getenv('HOTSPOT_EDITOR_ENABLED'), default=True)
 HOTSPOT_EDITOR_ADMIN_USER_IDS = _normalize_csv_set(os.getenv('HOTSPOT_EDITOR_ADMIN_USER_IDS'))
-HOTSPOT_EDITOR_PUBLIC_EDITOR_IDS = _normalize_csv_set(os.getenv('HOTSPOT_EDITOR_PUBLIC_EDITOR_IDS', '*'))
-HOTSPOT_EDITOR_PRIVATE_EDITOR_IDS = _normalize_csv_set(os.getenv('HOTSPOT_EDITOR_PRIVATE_EDITOR_IDS', '*'))
+HOTSPOT_EDITOR_PUBLIC_EDITOR_IDS = _normalize_csv_set(os.getenv('HOTSPOT_EDITOR_PUBLIC_EDITOR_IDS', ''))
+HOTSPOT_EDITOR_PRIVATE_EDITOR_IDS = _normalize_csv_set(os.getenv('HOTSPOT_EDITOR_PRIVATE_EDITOR_IDS', ''))
 ADMIN_DASHBOARD_ENABLED = _normalize_bool(os.getenv('ADMIN_DASHBOARD_ENABLED'), default=True)
 ADMIN_DASHBOARD_USERNAME = (os.getenv('ADMIN_DASHBOARD_USERNAME', 'admin') or 'admin').strip()
 ADMIN_DASHBOARD_PASSWORD = (os.getenv('ADMIN_DASHBOARD_PASSWORD', 'admin123456') or 'admin123456').strip()

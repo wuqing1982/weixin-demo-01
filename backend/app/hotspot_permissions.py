@@ -14,10 +14,16 @@ def _is_allowed(user_id: str, allowed_ids: set[str]) -> bool:
     return '*' in allowed_ids or user_id in allowed_ids
 
 
+def _is_admin_role(role: str | None) -> bool:
+    return (role or '').strip() in {'admin', 'super_admin'}
+
+
 def can_edit_scene_hotspots(
     scene: dict[str, Any] | None,
     user_id: str,
     config: dict[str, Any],
+    *,
+    user_role: str | None = None,
 ) -> bool:
     if not scene or not str(user_id or '').strip():
         return False
@@ -26,6 +32,11 @@ def can_edit_scene_hotspots(
         return False
 
     user_id = str(user_id).strip()
+
+    # Database admin role always has access
+    if _is_admin_role(user_role):
+        return True
+
     meta = scene.get('meta', {}) or {}
     admin_user_ids = _normalize_id_set(config.get('admin_user_ids'))
 
@@ -42,10 +53,7 @@ def can_edit_scene_hotspots(
     scene_type = scene.get('sceneType') or meta.get('sceneType') or 'public'
     if scene_type == 'private':
         owner_id = str(meta.get('ownerId') or '').strip()
-        if not owner_id:
-            return True
-
-        if owner_id == user_id:
+        if owner_id and owner_id == user_id:
             return True
 
         private_editor_ids = _normalize_id_set(config.get('private_editor_ids'))
