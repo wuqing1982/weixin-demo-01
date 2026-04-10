@@ -289,7 +289,7 @@
   position: absolute;
   left: 12rpx;
   top: -52rpx;
-  max-width: 220rpx;
+  max-width: 360rpx;
   padding: 8rpx 14rpx;
   border-radius: 16rpx;
   font-size: 22rpx;
@@ -300,6 +300,10 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.zone-label-cn {
+  color: #ffd93d;
 }
 
 .zone-handle {

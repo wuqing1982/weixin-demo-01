@@ -121,7 +121,7 @@
             >
               <view class="zone-dot"></view>
               <block wx:if="{{editingItemId === item.id}}">
-                <view class="zone-label">{{item.word}}</view>
+                <view class="zone-label">{{item.word}}<text wx:if="{{item.meaning}}" class="zone-label-cn"> {{item.meaning}}</text></view>
                 <view class="zone-handle zone-handle-nw" data-id="{{item.id}}" data-handle="nw" catchtouchstart="onEditorHandleTouchStart" catchtouchmove="onEditorZoneTouchMove" catchtouchend="onEditorZoneTouchEnd"></view>
                 <view class="zone-handle zone-handle-n" data-id="{{item.id}}" data-handle="n" catchtouchstart="onEditorHandleTouchStart" catchtouchmove="onEditorZoneTouchMove" catchtouchend="onEditorZoneTouchEnd"></view>
                 <view class="zone-handle zone-handle-ne" data-id="{{item.id}}" data-handle="ne" catchtouchstart="onEditorHandleTouchStart" catchtouchmove="onEditorZoneTouchMove" catchtouchend="onEditorZoneTouchEnd"></view>
