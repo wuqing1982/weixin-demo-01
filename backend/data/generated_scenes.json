@@ -2915,6 +2915,147 @@
         "hotspotUpdatedAt": "2026-04-08T14:31:13Z",
         "hotspotUpdatedBy": "user_20260408024505_7358e9"
       }
+    },
+    {
+      "sceneId": "scene_user_20260410042027_469482",
+      "title": "浴室",
+      "category": "existing",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260410042027_469482/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260410042027_469482/background.jpg",
+      "items": [
+        {
+          "id": "sink",
+          "word": "sink",
+          "ipa": "/sɪŋk/",
+          "meaning": "水槽",
+          "sentence": "Wash your hands in the sink.",
+          "sentenceTranslation": "在水槽里洗手。",
+          "audioPath": "/assets/generated/scene_user_20260410042027_469482/scene_user_20260410042027_469482_en-US-JennyNeural_US_female_sink_wash_your_hands_in_the_sink.mp3",
+          "rect": {
+            "l": 44.72,
+            "t": 76.6,
+            "w": 30.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "toothpaste",
+          "word": "toothpaste",
+          "ipa": "/ˈtuːθpeɪst/",
+          "meaning": "牙膏",
+          "sentence": "Brush your teeth with toothpaste.",
+          "sentenceTranslation": "用牙膏刷牙。",
+          "audioPath": "/assets/generated/scene_user_20260410042027_469482/scene_user_20260410042027_469482_en-US-JennyNeural_US_female_toothpaste_brush_your_teeth_with_toothpaste.mp3",
+          "rect": {
+            "l": 35.0,
+            "t": 25.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "soap",
+          "word": "soap",
+          "ipa": "/soʊp/",
+          "meaning": "肥皂",
+          "sentence": "Use soap to wash your hands.",
+          "sentenceTranslation": "用肥皂洗手。",
+          "audioPath": "/assets/generated/scene_user_20260410042027_469482/scene_user_20260410042027_469482_en-US-JennyNeural_US_female_soap_use_soap_to_wash_your_hands.mp3",
+          "rect": {
+            "l": 16.13,
+            "t": 57.37,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "faucet",
+          "word": "faucet",
+          "ipa": "/ˈfɔːskɪt/",
+          "meaning": "水龙头",
+          "sentence": "Turn on the faucet to get water.",
+          "sentenceTranslation": "打开水龙头取水。",
+          "audioPath": "/assets/generated/scene_user_20260410042027_469482/scene_user_20260410042027_469482_en-US-JennyNeural_US_female_faucet_turn_on_the_faucet_to_get.mp3",
+          "rect": {
+            "l": 35.79,
+            "t": 55.19,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "mirror",
+          "word": "mirror",
+          "ipa": "/ˈmɪrər/",
+          "meaning": "镜子",
+          "sentence": "Look at yourself in the mirror.",
+          "sentenceTranslation": "照镜子看看自己。",
+          "audioPath": "/assets/generated/scene_user_20260410042027_469482/scene_user_20260410042027_469482_en-US-JennyNeural_US_female_mirror_look_at_yourself_in_the_mirror.mp3",
+          "rect": {
+            "l": 4.39,
+            "t": 19.46,
+            "w": 23.53,
+            "h": 17.85
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "v1",
+          "word": "wash",
+          "ipa": "/wɒʃ/",
+          "meaning": "洗手",
+          "sentence": "Wash your hands in the sink.",
+          "sentenceTranslation": "在洗手池里洗手。",
+          "audioPath": "/assets/generated/scene_user_20260410042027_469482/scene_user_20260410042027_469482_en-US-JennyNeural_US_female_v1_wash_your_hands_in_the_sink.mp3",
+          "relatedItem": "sink"
+        },
+        {
+          "id": "v2",
+          "word": "brush",
+          "ipa": "/brʌʃ/",
+          "meaning": "刷牙",
+          "sentence": "Brush your teeth with toothpaste.",
+          "sentenceTranslation": "用牙膏刷牙。",
+          "audioPath": "/assets/generated/scene_user_20260410042027_469482/scene_user_20260410042027_469482_en-US-JennyNeural_US_female_v2_brush_your_teeth_with_toothpaste.mp3",
+          "relatedItem": "toothpaste"
+        },
+        {
+          "id": "v3",
+          "word": "turn on",
+          "ipa": "/tɜːrn ɒn/",
+          "meaning": "打开（水龙头）",
+          "sentence": "Turn on the faucet to get water.",
+          "sentenceTranslation": "打开水龙头接水。",
+          "audioPath": "/assets/generated/scene_user_20260410042027_469482/scene_user_20260410042027_469482_en-US-JennyNeural_US_female_v3_turn_on_the_faucet_to_get.mp3",
+          "relatedItem": "faucet"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260408024505_7358e9",
+        "uploadId": "upload_20260410042025_f6b036",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260410042027_469482",
+        "core100SceneTitle": "浴室",
+        "recommendedCategory": "existing",
+        "tags": [
+          "清洁",
+          "洗漱",
+          "日常"
+        ],
+        "version": 2,
+        "hotspotEditable": true,
+        "hotspotUpdatedAt": "2026-04-10T04:22:45Z",
+        "hotspotUpdatedBy": "user_20260408024505_7358e9"
+      }
     }
   ]
 }

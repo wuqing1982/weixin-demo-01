@@ -449,6 +449,30 @@
       "errorMessage": "",
       "createdAt": "2026-04-08T10:01:54Z",
       "updatedAt": "2026-04-08T10:02:28Z"
+    },
+    {
+      "taskId": "task_20260410042026_ae84bc",
+      "ownerId": "user_20260408024505_7358e9",
+      "uploadId": "upload_20260410042025_f6b036",
+      "title": "",
+      "includeVerbs": true,
+      "sourceLang": "zh-CN",
+      "accent": "en-US",
+      "voiceGender": "female",
+      "voiceName": "JennyNeural",
+      "requestSource": "miniapp",
+      "autoPublish": false,
+      "categoryId": "",
+      "collectionIds": [],
+      "publishVisibility": "public",
+      "status": "done",
+      "step": "finished",
+      "progress": 100,
+      "sceneId": "scene_user_20260410042027_469482",
+      "publishedSceneId": "",
+      "errorMessage": "",
+      "createdAt": "2026-04-10T04:20:26Z",
+      "updatedAt": "2026-04-10T04:21:12Z"
     }
   ]
 }
