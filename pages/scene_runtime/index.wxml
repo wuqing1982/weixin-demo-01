@@ -11,7 +11,7 @@
   <view wx:else class="scene-stage">
     <view class="scene-toolbar">
       <view class="toolbar-slot toolbar-slot-left">
-        <view wx:if="{{canEditHotspots}}" class="toolbar-rail toolbar-rail-mode">
+        <view class="toolbar-rail toolbar-rail-mode">
           <view class="toolbar-group editor-mode-group">
             <view
               class="mode-dot mode-dot-edit {{editorMode ? 'mode-dot-active' : 'mode-dot-inactive'}}"

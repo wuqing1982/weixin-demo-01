@@ -663,7 +663,12 @@ function createScenePage(sceneData) {
     },
 
     async enterEditorMode() {
-      if (!this.data.canEditHotspots || this.data.loading || this.data.isSaving) {
+      if (this.data.loading || this.data.isSaving) {
+        return;
+      }
+
+      if (!this.data.canEditHotspots) {
+        wx.showToast({ title: '无权限编辑此场景热点', icon: 'none', duration: 2000 });
         return;
       }
 
