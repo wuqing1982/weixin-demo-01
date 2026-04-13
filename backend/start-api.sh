@@ -3,7 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-export PUBLIC_BASE_URL="${PUBLIC_BASE_URL:-https://e.cps.vin}"
+export PUBLIC_BASE_URL="${PUBLIC_BASE_URL:-http://localhost:8000}"
 HOST="${HOST:-127.0.0.1}"
 PORT="${PORT:-8000}"
 PYTHON_BIN="../.venv/bin/python"

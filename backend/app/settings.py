@@ -59,7 +59,7 @@ UPLOADS_FILE = DATA_DIR / 'uploads.json'
 UPLOADS_DIR = ASSETS_DIR / 'uploads'
 GENERATED_DIR = ASSETS_DIR / 'generated'
 
-PUBLIC_BASE_URL = _normalize_base_url(os.getenv('PUBLIC_BASE_URL', 'https://e.cps.vin'))
+PUBLIC_BASE_URL = _normalize_base_url(os.getenv('PUBLIC_BASE_URL', 'http://localhost:8000'))
 DATABASE_URL = (os.getenv('DATABASE_URL', '') or '').strip() or None
 DATABASE_SCHEMA = (os.getenv('DATABASE_SCHEMA', 'public') or 'public').strip()
 DEFAULT_MOCK_USER_ID = os.getenv('DEFAULT_MOCK_USER_ID', 'mock_user_001')
@@ -100,7 +100,7 @@ ADMIN_DASHBOARD_USERNAME = (os.getenv('ADMIN_DASHBOARD_USERNAME', 'admin') or 'a
 ADMIN_DASHBOARD_PASSWORD = (os.getenv('ADMIN_DASHBOARD_PASSWORD', 'admin123456') or 'admin123456').strip()
 
 # --- Security-hardened settings ---
-CORS_ALLOWED_ORIGINS = [o.strip() for o in os.getenv('CORS_ALLOWED_ORIGINS', 'https://e.cps.vin').split(',') if o.strip()]
+CORS_ALLOWED_ORIGINS = [o.strip() for o in os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:8000').split(',') if o.strip()]
 MAX_UPLOAD_SIZE_BYTES = int(os.getenv('MAX_UPLOAD_SIZE_BYTES', str(10 * 1024 * 1024)))
 FREE_SCENE_IDS = _normalize_csv_set(os.getenv('FREE_SCENE_IDS', 'scene_breakfast,scene_zoo'))
 VIDEO_RETENTION_HOURS = int(os.getenv('VIDEO_RETENTION_HOURS', '3'))
