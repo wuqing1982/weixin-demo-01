@@ -771,6 +771,19 @@ async function batchSceneFree(free) {
   }
 }
 
+async function batchSceneCategory(categoryId, categoryName) {
+  const ids = getSelectedSceneIds();
+  if (ids.length === 0) return;
+  if (!window.confirm(`确认将选中的 ${ids.length} 个场景移动到「${categoryName}」？`)) return;
+  try {
+    await api('/api/admin/public-scenes/batch-category', { method: 'POST', body: { sceneIds: ids, categoryId } });
+    toast(`已将 ${ids.length} 个场景移动到「${categoryName}」`);
+    await loadConsole();
+  } catch (error) {
+    toast(error.message || '批量移动失败');
+  }
+}
+
 function buildCoverUrl(path) {
   if (!path) return '';
   if (path.startsWith('http')) return path;
@@ -797,6 +810,13 @@ function renderScenes() {
           <button class="batch-menu-item" data-action="scene-batch-free" data-free="true">设为免费可见</button>
           <button class="batch-menu-item" data-action="scene-batch-free" data-free="false">取消免费可见</button>
           <div class="batch-menu-divider"></div>
+          <button class="batch-menu-item has-sub" data-action="scene-batch-category-toggle">移动到分类 &#9656;</button>
+          <div class="batch-sub-menu" id="scene-batch-category-submenu">
+            ${state.categories.map((cat) => `
+              <button class="batch-menu-item" data-action="scene-batch-category" data-category-id="${escapeHtml(cat.categoryId)}" data-category-name="${escapeHtml(cat.name)}">${escapeHtml(cat.name)}</button>
+            `).join('')}
+          </div>
+          <div class="batch-menu-divider"></div>
           <button class="batch-menu-item danger" data-action="batch-delete-scenes">批量删除</button>
         </div>
       </div>
@@ -815,9 +835,28 @@ function renderScenes() {
       </div>
       <div class="field-grid">
         <label><span>标题</span><input name="title" value="${escapeHtml(scene.title || '')}" required></label>
-        <label><span>分类</span><input name="category" value="${escapeHtml(scene.category || '')}"></label>
-        <label><span>可见性</span><input name="visibility" value="${escapeHtml(scene.visibility || 'public')}"></label>
-        <label><span>场景类型</span><input name="sceneType" value="${escapeHtml(scene.sceneType || 'public')}"></label>
+        <label><span>分类</span>
+          <select name="category">
+            <option value="">请选择分类</option>
+            ${state.categories.map((cat) => {
+              const match = cat.name === (scene.category || '') || cat.categoryId === (scene.category || '');
+              return `<option value="${escapeHtml(cat.name)}" ${match ? 'selected' : ''}>${escapeHtml(cat.name)}</option>`;
+            }).join('')}
+          </select>
+        </label>
+        <label><span>可见性</span>
+          <select name="visibility">
+            <option value="public" ${scene.visibility === 'public' || !scene.visibility ? 'selected' : ''}>公开</option>
+            <option value="private" ${scene.visibility === 'private' ? 'selected' : ''}>隐藏</option>
+            <option value="member" ${scene.visibility === 'member' ? 'selected' : ''}>会员</option>
+          </select>
+        </label>
+        <label><span>场景类型</span>
+          <select name="sceneType">
+            <option value="public" ${scene.sceneType === 'public' || !scene.sceneType ? 'selected' : ''}>公共</option>
+            <option value="private" ${scene.sceneType === 'private' ? 'selected' : ''}>私有</option>
+          </select>
+        </label>
         <label class="full"><span>背景图路径</span><input name="backgroundPath" value="${escapeHtml(scene.backgroundPath || '')}"></label>
         <label class="full"><span>封面图路径</span><input name="coverPath" value="${escapeHtml(scene.coverPath || '')}"></label>
       </div>
@@ -1281,9 +1320,9 @@ async function submitSkuForm(form) {
 async function submitSceneForm(form) {
   const payload = {
     title: form.title.value.trim(),
-    category: form.category.value.trim(),
-    visibility: form.visibility.value.trim() || 'public',
-    sceneType: form.sceneType.value.trim() || 'public',
+    category: form.category.value,
+    visibility: form.visibility.value || 'public',
+    sceneType: form.sceneType.value || 'public',
     backgroundPath: form.backgroundPath.value.trim(),
     coverPath: form.coverPath.value.trim(),
     items: state.editingScene && state.editingScene.items ? state.editingScene.items : [],
@@ -1699,6 +1738,23 @@ panelHead.addEventListener('click', async (event) => {
       await batchSceneFree(free);
     } catch (error) {
       toast(error.message || '批量修改失败');
+    }
+    return;
+  }
+  if (action === 'scene-batch-category-toggle') {
+    const sub = document.getElementById('scene-batch-category-submenu');
+    if (sub) sub.classList.toggle('open');
+    return;
+  }
+  if (action === 'scene-batch-category') {
+    const categoryId = event.target.dataset.categoryId;
+    const categoryName = event.target.dataset.categoryName;
+    const menu = document.getElementById('scene-batch-menu');
+    if (menu) menu.classList.remove('open');
+    try {
+      await batchSceneCategory(categoryId, categoryName);
+    } catch (error) {
+      toast(error.message || '批量移动失败');
     }
     return;
   }

@@ -3,7 +3,7 @@
     {
       "sceneId": "scene_breakfast",
       "title": "营养早餐",
-      "category": "food",
+      "category": "饮食",
       "visibility": "member",
       "sceneType": "public",
       "coverPath": "/assets/images/breakfast.jpg",
@@ -20,7 +20,7 @@
             "l": 13.5,
             "t": 24.5,
             "w": 50.2,
-            "h": 15.0
+            "h": 15
           },
           "audioPath": "/assets/audio/breakfast/breakfast_en-US-JennyNeural_US_female_porridge_i_eat_porridge_for_breakfast.mp3"
         },
@@ -35,7 +35,7 @@
             "l": 70.8,
             "t": 45.8,
             "w": 30.2,
-            "h": 25.0
+            "h": 25
           },
           "audioPath": "/assets/audio/breakfast/breakfast_en-US-JennyNeural_US_female_corn_there_is_a_corn_on_the.mp3"
         },
@@ -49,8 +49,8 @@
           "rect": {
             "l": 48.2,
             "t": 47.2,
-            "w": 25.0,
-            "h": 20.0
+            "w": 25,
+            "h": 20
           },
           "audioPath": "/assets/audio/breakfast/breakfast_en-US-JennyNeural_US_female_sweet_potato_the_sweet_potato_is_brown_and.mp3"
         },
@@ -63,9 +63,9 @@
           "sentenceTranslation": "我有两个煮鸡蛋。",
           "rect": {
             "l": 49.6,
-            "t": 62.0,
-            "w": 22.0,
-            "h": 15.0
+            "t": 62,
+            "w": 22,
+            "h": 15
           },
           "audioPath": "/assets/audio/breakfast/breakfast_en-US-JennyNeural_US_female_boiled_egg_i_have_two_boiled_eggs.mp3"
         },
@@ -77,10 +77,10 @@
           "sentence": "There are two dumplings on the plate.",
           "sentenceTranslation": "盘子里有两个饺子。",
           "rect": {
-            "l": 56.0,
+            "l": 56,
             "t": 71.2,
-            "w": 25.0,
-            "h": 15.0
+            "w": 25,
+            "h": 15
           },
           "audioPath": "/assets/audio/breakfast/breakfast_en-US-JennyNeural_US_female_dumpling_there_are_two_dumplings_on_the.mp3"
         }
@@ -128,7 +128,7 @@
     {
       "sceneId": "scene_zoo",
       "title": "动物园",
-      "category": "animals",
+      "category": "动物世界",
       "visibility": "member",
       "sceneType": "public",
       "coverPath": "/assets/images/zoo.jpg",
@@ -142,10 +142,10 @@
           "sentence": "The panda is sitting on the swing.",
           "sentenceTranslation": "熊猫正坐在秋千上。",
           "rect": {
-            "l": 60.0,
-            "t": 50.0,
-            "w": 20.0,
-            "h": 20.0
+            "l": 60,
+            "t": 50,
+            "w": 20,
+            "h": 20
           },
           "audioPath": "/assets/audio/zoo/zoo_en-US-JennyNeural_US_female_panda_1_the_panda_is_sitting_on_the.mp3"
         },
@@ -157,10 +157,10 @@
           "sentence": "The panda is playing on the swing.",
           "sentenceTranslation": "熊猫正在秋千上玩耍。",
           "rect": {
-            "l": 40.0,
-            "t": 70.0,
-            "w": 30.0,
-            "h": 30.0
+            "l": 40,
+            "t": 70,
+            "w": 30,
+            "h": 30
           },
           "audioPath": "/assets/audio/zoo/zoo_en-US-JennyNeural_US_female_panda_2_the_panda_is_playing_on_the.mp3"
         },
@@ -187,8 +187,8 @@
           "sentence": "The grass is green and lush.",
           "sentenceTranslation": "草地又绿又茂盛。",
           "rect": {
-            "l": 10.0,
-            "t": 50.0,
+            "l": 10,
+            "t": 50,
             "w": 22.61,
             "h": 20.72
           },
@@ -202,10 +202,10 @@
           "sentence": "There are two tires on the ground.",
           "sentenceTranslation": "地上有两个轮胎。",
           "rect": {
-            "l": 80.0,
-            "t": 90.0,
-            "w": 10.0,
-            "h": 10.0
+            "l": 80,
+            "t": 90,
+            "w": 10,
+            "h": 10
           },
           "audioPath": "/assets/audio/zoo/zoo_en-US-JennyNeural_US_female_tire_there_are_two_tires_on_the.mp3"
         }

@@ -383,6 +383,18 @@
       "height": 1600,
       "createdAt": "2026-04-10T09:07:01Z",
       "updatedAt": "2026-04-10T09:07:01Z"
+    },
+    {
+      "uploadId": "upload_20260410232613_7f8bef",
+      "ownerId": "user_20260408024505_7358e9",
+      "originalFilename": "tmp_3659a62cc1829a8c7c928fc0aa4278ef746dc3fd4e7417fa.jpg",
+      "contentType": "image/jpeg",
+      "filePath": "/assets/uploads/upload_20260410232613_7f8bef/source.jpg",
+      "sizeBytes": 153020,
+      "width": 715,
+      "height": 1600,
+      "createdAt": "2026-04-10T23:26:13Z",
+      "updatedAt": "2026-04-10T23:26:13Z"
     }
   ]
 }

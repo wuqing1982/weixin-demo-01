@@ -125,7 +125,7 @@ def build_generated_scene_from_core_result(
         for verb in core_result.get('verbs', [])
         if verb.get('id')
     ]
-    category = core_result.get('recommended_category') or 'generated'
+    category = core_result.get('recommended_category') or 'home'
     tags = core_result.get('recommended_tags') or []
 
     return {

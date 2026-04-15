@@ -111,3 +111,17 @@ class SceneStore:
             if patched > 0:
                 write_json_file(self.data_file, payload)
         return patched
+
+    def patch_scenes_category(self, scene_ids: list[str], category_name: str) -> int:
+        with self.lock:
+            payload = read_json_file(self.data_file)
+            scenes = payload.get('scenes', [])
+            ids_set = set(scene_ids)
+            patched = 0
+            for scene in scenes:
+                if scene.get('sceneId') in ids_set:
+                    scene['category'] = category_name
+                    patched += 1
+            if patched > 0:
+                write_json_file(self.data_file, payload)
+        return patched

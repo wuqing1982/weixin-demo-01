@@ -28,6 +28,7 @@ from .schemas import (
     AdminBatchSceneGenerateRequest,
     AdminBatchSceneVisibilityRequest,
     AdminBatchSceneFreeRequest,
+    AdminBatchSceneCategoryRequest,
     AdminGenerateCdkRequest,
     AdminLoginRequest,
     AdminPublishGeneratedSceneRequest,
@@ -1220,6 +1221,21 @@ def admin_batch_scene_free(request: Request, body: AdminBatchSceneFreeRequest):
     patched = public_store.patch_scenes_free_flag(body.sceneIds, body.free)
     label = '免费可见' if body.free else '取消免费'
     return success({'patched': patched, 'label': label})
+
+
+@app.post('/api/admin/public-scenes/batch-category')
+def admin_batch_scene_category(request: Request, body: AdminBatchSceneCategoryRequest):
+    get_current_admin(request)
+    commerce = require_commerce_store()
+    category = commerce.get_scene_category(body.categoryId)
+    if not category:
+        raise HTTPException(status_code=400, detail='分类不存在')
+    category_name = category.get('name', '')
+    # 更新 JSON store 中 public scene 的 category 字段
+    patched = public_store.patch_scenes_category(body.sceneIds, category_name)
+    # 更新 PostgreSQL scene_publications 表的 category_id
+    commerce.batch_update_publication_category(body.sceneIds, body.categoryId)
+    return success({'patched': patched})
 
 
 @app.post('/api/admin/public-scenes')

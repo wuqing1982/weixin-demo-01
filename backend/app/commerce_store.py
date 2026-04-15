@@ -627,6 +627,22 @@ class CommerceStore:
                         )
         return self.get_scene_publication_by_source(source_generated_scene_id)
 
+    def batch_update_publication_category(self, public_scene_ids: list[str], category_id: str) -> int:
+        if not public_scene_ids:
+            return 0
+        now = utcnow_iso()
+        with self._connect() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    '''
+                    update scene_publications
+                    set category_id = %s, updated_at = %s
+                    where public_scene_id = any(%s)
+                    ''',
+                    (category_id, _parse_iso(now), public_scene_ids),
+                )
+                return cursor.rowcount
+
     def get_membership_summary(self, user_id: str) -> dict[str, Any]:
         with self._connect() as connection:
             with connection.cursor() as cursor:

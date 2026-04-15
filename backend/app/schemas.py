@@ -165,6 +165,11 @@ class AdminBatchSceneFreeRequest(BaseModel):
     free: bool
 
 
+class AdminBatchSceneCategoryRequest(BaseModel):
+    sceneIds: list[str] = Field(min_length=1, max_length=200)
+    categoryId: str = Field(min_length=1, max_length=128)
+
+
 class HotspotRectPayload(BaseModel):
     l: float = Field(ge=0, le=100)
     t: float = Field(ge=0, le=100)
