@@ -682,7 +682,6 @@ class CommerceStore:
             where user_id = %s
               and entitlement_type = 'membership'
               and status = 'active'
-              and starts_at <= now()
               and (expires_at is null or expires_at > now())
             order by expires_at desc nulls last, created_at desc
             limit 1
