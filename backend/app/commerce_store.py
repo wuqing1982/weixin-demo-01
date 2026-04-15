@@ -17,9 +17,11 @@ TIER_PRICE = {'pro': Decimal('39.90'), 'plus': Decimal('99.00'), 'max': Decimal(
 TIER_DAYS = 365
 
 
-def _parse_iso(value: str | None) -> datetime | None:
+def _parse_iso(value: str | datetime | None) -> datetime | None:
     if not value:
         return None
+    if isinstance(value, datetime):
+        return value
     return datetime.fromisoformat(value.replace('Z', '+00:00'))
 
 

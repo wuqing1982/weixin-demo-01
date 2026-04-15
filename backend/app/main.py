@@ -1764,9 +1764,10 @@ def sync_order_payment(order_id: str, request: Request):
 @app.post('/api/payments/wechat/notify')
 async def handle_wechat_payment_notify(request: Request):
     body = await request.body()
+    callback_headers = {key: value for key, value in request.headers.items()}
     try:
         resource = require_wechat_pay_client(need_callback_verify=True).verify_and_decrypt_callback(
-            headers={key: value for key, value in request.headers.items()},
+            headers=callback_headers,
             body=body,
         )
         if str(resource.get('trade_state') or '').upper() == 'SUCCESS':
@@ -1782,7 +1783,14 @@ async def handle_wechat_payment_notify(request: Request):
     except HTTPException:
         raise
     except Exception as error:
-        raise HTTPException(status_code=400, detail={'code': 4000, 'message': str(error)})
+        error_msg = str(error) or repr(error) or type(error).__name__
+        logger.warning(
+            'wechat pay notify failed: %s | headers_serial=%s body_len=%d',
+            error_msg,
+            callback_headers.get('wechatpay-serial', callback_headers.get('Wechatpay-Serial', '')),
+            len(body),
+        )
+        raise HTTPException(status_code=400, detail={'code': 4000, 'message': error_msg})
     return {'code': 'SUCCESS', 'message': '成功'}
 
 
