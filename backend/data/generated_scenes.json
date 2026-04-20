@@ -3332,6 +3332,975 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260418021033_8582b6",
+      "title": "客厅",
+      "category": "home",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260418021033_8582b6/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260418021033_8582b6/background.jpg",
+      "items": [
+        {
+          "id": "sofa",
+          "word": "sofa",
+          "ipa": "/ˈsəʊfə/",
+          "meaning": "沙发",
+          "sentence": "Let's sit on the sofa and watch TV.",
+          "sentenceTranslation": "让我们坐在沙发上看电视。",
+          "audioPath": "/assets/generated/scene_user_20260418021033_8582b6/scene_user_20260418021033_8582b6_en-US-JennyNeural_US_female_sofa_lets_sit_on_the_sofa_and.mp3",
+          "rect": {
+            "l": 8.56,
+            "t": 62.07,
+            "w": 23.92,
+            "h": 18.46
+          }
+        },
+        {
+          "id": "globe",
+          "word": "globe",
+          "ipa": "/ɡləʊb/",
+          "meaning": "地球仪",
+          "sentence": "Look at the globe to learn about different countries.",
+          "sentenceTranslation": "看看地球仪，了解不同的国家。",
+          "audioPath": "/assets/generated/scene_user_20260418021033_8582b6/scene_user_20260418021033_8582b6_en-US-JennyNeural_US_female_globe_look_at_the_globe_to_learn.mp3",
+          "rect": {
+            "l": 71.5,
+            "t": 41.42,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "cabinet",
+          "word": "cabinet",
+          "ipa": "/ˈkæbnɪt/",
+          "meaning": "柜子",
+          "sentence": "Store your books in the cabinet.",
+          "sentenceTranslation": "把书存放在柜子里。",
+          "audioPath": "/assets/generated/scene_user_20260418021033_8582b6/scene_user_20260418021033_8582b6_en-US-JennyNeural_US_female_cabinet_store_your_books_in_the_cabinet.mp3",
+          "rect": {
+            "l": 73.82,
+            "t": 66.88,
+            "w": 15.0,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "tv",
+          "word": "TV",
+          "ipa": "/tiːv/",
+          "meaning": "电视",
+          "sentence": "Watch your favorite show on TV.",
+          "sentenceTranslation": "在电视上看你最喜欢的节目。",
+          "audioPath": "/assets/generated/scene_user_20260418021033_8582b6/scene_user_20260418021033_8582b6_en-US-JennyNeural_US_female_tv_watch_your_favorite_show_on_tv.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 45.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "door",
+          "word": "door",
+          "ipa": "/dɔːr/",
+          "meaning": "门",
+          "sentence": "Open the door to go outside.",
+          "sentenceTranslation": "打开门出去。",
+          "audioPath": "/assets/generated/scene_user_20260418021033_8582b6/scene_user_20260418021033_8582b6_en-US-JennyNeural_US_female_door_open_the_door_to_go_outside.mp3",
+          "rect": {
+            "l": 39.57,
+            "t": 39.24,
+            "w": 20.0,
+            "h": 20.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "v1",
+          "word": "sit",
+          "ipa": "/sɪt/",
+          "meaning": "坐",
+          "sentence": "Let's sit on the sofa and watch TV.",
+          "sentenceTranslation": "我们坐在沙发上，看电视。",
+          "audioPath": "/assets/generated/scene_user_20260418021033_8582b6/scene_user_20260418021033_8582b6_en-US-JennyNeural_US_female_v1_lets_sit_on_the_sofa_and.mp3",
+          "relatedItem": "sofa"
+        },
+        {
+          "id": "v2",
+          "word": "look",
+          "ipa": "/lʊk/",
+          "meaning": "看",
+          "sentence": "Look at the globe to learn about different countries.",
+          "sentenceTranslation": "看看地球仪，了解不同国家。",
+          "audioPath": "/assets/generated/scene_user_20260418021033_8582b6/scene_user_20260418021033_8582b6_en-US-JennyNeural_US_female_v2_look_at_the_globe_to_learn.mp3",
+          "relatedItem": "globe"
+        },
+        {
+          "id": "v3",
+          "word": "put",
+          "ipa": "/pʊt/",
+          "meaning": "放",
+          "sentence": "Put your books in the cabinet.",
+          "sentenceTranslation": "把书放在柜子里。",
+          "audioPath": "/assets/generated/scene_user_20260418021033_8582b6/scene_user_20260418021033_8582b6_en-US-JennyNeural_US_female_v3_put_your_books_in_the_cabinet.mp3",
+          "relatedItem": "cabinet"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260408024505_7358e9",
+        "uploadId": "upload_20260418021032_c6ab0c",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260418021033_8582b6",
+        "core100SceneTitle": "客厅",
+        "recommendedCategory": "home",
+        "tags": [
+          "家庭",
+          "居住空间",
+          "休闲"
+        ],
+        "version": 2,
+        "hotspotEditable": true,
+        "hotspotUpdatedAt": "2026-04-18T02:15:29Z",
+        "hotspotUpdatedBy": "user_20260408024505_7358e9"
+      }
+    },
+    {
+      "sceneId": "scene_user_20260418050010_da1ed1",
+      "title": "动物园",
+      "category": "animals",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260418050010_da1ed1/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260418050010_da1ed1/background.jpg",
+      "items": [
+        {
+          "id": "giraffe",
+          "word": "giraffe",
+          "ipa": "/ˈɡɪrəf/",
+          "meaning": "长颈鹿",
+          "sentence": "The giraffe is eating leaves from the tree.",
+          "sentenceTranslation": "长颈鹿正在从树上吃叶子。",
+          "audioPath": "/assets/generated/scene_user_20260418050010_da1ed1/scene_user_20260418050010_da1ed1_en-US-JennyNeural_US_female_giraffe_the_giraffe_is_eating_leaves_from.mp3",
+          "rect": {
+            "l": 30.0,
+            "t": 20.0,
+            "w": 25.0,
+            "h": 40.0
+          }
+        },
+        {
+          "id": "zebra",
+          "word": "zebra",
+          "ipa": "/ˈziːbrə/",
+          "meaning": "斑马",
+          "sentence": "The zebra is grazing on the grass.",
+          "sentenceTranslation": "斑马正在草地上觅食。",
+          "audioPath": "/assets/generated/scene_user_20260418050010_da1ed1/scene_user_20260418050010_da1ed1_en-US-JennyNeural_US_female_zebra_the_zebra_is_grazing_on_the.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 35.0,
+            "w": 20.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "deer",
+          "word": "deer",
+          "ipa": "/diːə(r)/",
+          "meaning": "鹿",
+          "sentence": "The deer is standing near the fence.",
+          "sentenceTranslation": "鹿正站在围栏附近。",
+          "audioPath": "/assets/generated/scene_user_20260418050010_da1ed1/scene_user_20260418050010_da1ed1_en-US-JennyNeural_US_female_deer_the_deer_is_standing_near_the.mp3",
+          "rect": {
+            "l": 70.0,
+            "t": 45.0,
+            "w": 15.0,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "fence",
+          "word": "fence",
+          "ipa": "/fens/",
+          "meaning": "栅栏",
+          "sentence": "The animals are behind the fence.",
+          "sentenceTranslation": "这些动物都在栅栏后面。",
+          "audioPath": "/assets/generated/scene_user_20260418050010_da1ed1/scene_user_20260418050010_da1ed1_en-US-JennyNeural_US_female_fence_the_animals_are_behind_the_fence.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 60.0,
+            "w": 80.0,
+            "h": 40.0
+          }
+        },
+        {
+          "id": "grass",
+          "word": "grass",
+          "ipa": "/grɑːs/",
+          "meaning": "草地",
+          "sentence": "The animals are walking on the grass.",
+          "sentenceTranslation": "这些动物正在草地上行走。",
+          "audioPath": "/assets/generated/scene_user_20260418050010_da1ed1/scene_user_20260418050010_da1ed1_en-US-JennyNeural_US_female_grass_the_animals_are_walking_on_the.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 75.0,
+            "w": 90.0,
+            "h": 25.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "eat",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "The giraffe eats leaves from the tree.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260418050010_da1ed1/scene_user_20260418050010_da1ed1_en-US-JennyNeural_US_female_eat_the_giraffe_eats_leaves_from_the.mp3",
+          "relatedItem": "giraffe"
+        },
+        {
+          "id": "graze",
+          "word": "graze",
+          "ipa": "/ɡreɪz/",
+          "meaning": "啃食",
+          "sentence": "The zebra grazes on the grass.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260418050010_da1ed1/scene_user_20260418050010_da1ed1_en-US-JennyNeural_US_female_graze_the_zebra_grazes_on_the_grass.mp3",
+          "relatedItem": "zebra"
+        },
+        {
+          "id": "stand",
+          "word": "stand",
+          "ipa": "/stænd/",
+          "meaning": "站立",
+          "sentence": "The deer stands near the fence.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260418050010_da1ed1/scene_user_20260418050010_da1ed1_en-US-JennyNeural_US_female_stand_the_deer_stands_near_the_fence.mp3",
+          "relatedItem": "deer"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260418050009_89b5cd",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260418050010_da1ed1",
+        "core100SceneTitle": "动物园",
+        "recommendedCategory": "animals",
+        "tags": [
+          "动物",
+          "自然",
+          "观赏"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260420113402_4b81e8",
+      "title": "农场",
+      "category": "animals",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260420113402_4b81e8/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260420113402_4b81e8/background.jpg",
+      "items": [
+        {
+          "id": "duck_1",
+          "word": "duck",
+          "ipa": "/ˈdʌk/",
+          "meaning": "鸭子",
+          "sentence": "The duck is walking on the grass.",
+          "sentenceTranslation": "这只鸭子正在草地上走。",
+          "audioPath": "/assets/generated/scene_user_20260420113402_4b81e8/scene_user_20260420113402_4b81e8_en-US-JennyNeural_US_female_duck_1_the_duck_is_walking_on_the.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 70.0,
+            "w": 12.0,
+            "h": 12.0
+          }
+        },
+        {
+          "id": "sheep_1",
+          "word": "sheep",
+          "ipa": "/ʃiːp/",
+          "meaning": "绵羊",
+          "sentence": "The sheep is grazing in the field.",
+          "sentenceTranslation": "这只绵羊正在田野里吃草。",
+          "audioPath": "/assets/generated/scene_user_20260420113402_4b81e8/scene_user_20260420113402_4b81e8_en-US-JennyNeural_US_female_sheep_1_the_sheep_is_grazing_in_the.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 40.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "sheep_2",
+          "word": "sheep",
+          "ipa": "/ʃiːp/",
+          "meaning": "绵羊",
+          "sentence": "The sheep is standing near the house.",
+          "sentenceTranslation": "这只绵羊正站在房子附近。",
+          "audioPath": "/assets/generated/scene_user_20260420113402_4b81e8/scene_user_20260420113402_4b81e8_en-US-JennyNeural_US_female_sheep_2_the_sheep_is_standing_near_the.mp3",
+          "rect": {
+            "l": 60.0,
+            "t": 30.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "sheep_3",
+          "word": "sheep",
+          "ipa": "/ʃiːp/",
+          "meaning": "绵羊",
+          "sentence": "The sheep is eating grass.",
+          "sentenceTranslation": "这只绵羊正在吃草。",
+          "audioPath": "/assets/generated/scene_user_20260420113402_4b81e8/scene_user_20260420113402_4b81e8_en-US-JennyNeural_US_female_sheep_3_the_sheep_is_eating_grass.mp3",
+          "rect": {
+            "l": 45.0,
+            "t": 35.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "sheep_4",
+          "word": "sheep",
+          "ipa": "/ʃiːp/",
+          "meaning": "绵羊",
+          "sentence": "The sheep is lying down.",
+          "sentenceTranslation": "这只绵羊正在躺着。",
+          "audioPath": "/assets/generated/scene_user_20260420113402_4b81e8/scene_user_20260420113402_4b81e8_en-US-JennyNeural_US_female_sheep_4_the_sheep_is_lying_down.mp3",
+          "rect": {
+            "l": 55.0,
+            "t": 25.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "graze",
+          "word": "graze",
+          "ipa": "/ɡreɪz/",
+          "meaning": "吃草",
+          "sentence": "The sheep is grazing in the field.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260420113402_4b81e8/scene_user_20260420113402_4b81e8_en-US-JennyNeural_US_female_graze_the_sheep_is_grazing_in_the.mp3",
+          "relatedItem": "sheep_1"
+        },
+        {
+          "id": "stand",
+          "word": "stand",
+          "ipa": "/stænd/",
+          "meaning": "站立",
+          "sentence": "The sheep is standing near the house.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260420113402_4b81e8/scene_user_20260420113402_4b81e8_en-US-JennyNeural_US_female_stand_the_sheep_is_standing_near_the.mp3",
+          "relatedItem": "sheep_2"
+        },
+        {
+          "id": "walk",
+          "word": "walk",
+          "ipa": "/wɔːk/",
+          "meaning": "走路",
+          "sentence": "The duck is walking on the grass.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260420113402_4b81e8/scene_user_20260420113402_4b81e8_en-US-JennyNeural_US_female_walk_the_duck_is_walking_on_the.mp3",
+          "relatedItem": "duck_1"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260418050010_0dae18",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260420113402_4b81e8",
+        "core100SceneTitle": "农场",
+        "recommendedCategory": "animals",
+        "tags": [
+          "动物",
+          "户外",
+          "草地"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260420113434_e82110",
+      "title": "农场",
+      "category": "animals",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260420113434_e82110/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260420113434_e82110/background.jpg",
+      "items": [
+        {
+          "id": "goose_1",
+          "word": "goose",
+          "ipa": "/ɡuːs/",
+          "meaning": "鹅",
+          "sentence": "The goose is walking on the grass.",
+          "sentenceTranslation": "这只鹅正在草地上走。",
+          "audioPath": "/assets/generated/scene_user_20260420113434_e82110/scene_user_20260420113434_e82110_en-US-JennyNeural_US_female_goose_1_the_goose_is_walking_on_the.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 50.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "goose_2",
+          "word": "goose",
+          "ipa": "/ɡuːs/",
+          "meaning": "鹅",
+          "sentence": "The goose is looking at you.",
+          "sentenceTranslation": "这只鹅正看着你。",
+          "audioPath": "/assets/generated/scene_user_20260420113434_e82110/scene_user_20260420113434_e82110_en-US-JennyNeural_US_female_goose_2_the_goose_is_looking_at_you.mp3",
+          "rect": {
+            "l": 30.0,
+            "t": 40.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "sheep_1",
+          "word": "sheep",
+          "ipa": "/ʃiːp/",
+          "meaning": "羊",
+          "sentence": "The sheep is eating grass.",
+          "sentenceTranslation": "这只羊正在吃草。",
+          "audioPath": "/assets/generated/scene_user_20260420113434_e82110/scene_user_20260420113434_e82110_en-US-JennyNeural_US_female_sheep_1_the_sheep_is_eating_grass.mp3",
+          "rect": {
+            "l": 60.0,
+            "t": 30.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "sheep_2",
+          "word": "sheep",
+          "ipa": "/ʃiːp/",
+          "meaning": "羊",
+          "sentence": "The sheep is grazing in the field.",
+          "sentenceTranslation": "这只羊正在田野里觅食。",
+          "audioPath": "/assets/generated/scene_user_20260420113434_e82110/scene_user_20260420113434_e82110_en-US-JennyNeural_US_female_sheep_2_the_sheep_is_grazing_in_the.mp3",
+          "rect": {
+            "l": 70.0,
+            "t": 40.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "sheep_3",
+          "word": "sheep",
+          "ipa": "/ʃiːp/",
+          "meaning": "羊",
+          "sentence": "The sheep is standing near the house.",
+          "sentenceTranslation": "这只羊正站在房子附近。",
+          "audioPath": "/assets/generated/scene_user_20260420113434_e82110/scene_user_20260420113434_e82110_en-US-JennyNeural_US_female_sheep_3_the_sheep_is_standing_near_the.mp3",
+          "rect": {
+            "l": 80.0,
+            "t": 50.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "graze",
+          "word": "graze",
+          "ipa": "/ɡreɪz/",
+          "meaning": "啃食",
+          "sentence": "The sheep is grazing in the field.",
+          "sentenceTranslation": "这只羊正在田野里觅食。",
+          "audioPath": "/assets/generated/scene_user_20260420113434_e82110/scene_user_20260420113434_e82110_en-US-JennyNeural_US_female_graze_the_sheep_is_grazing_in_the.mp3",
+          "relatedItem": "sheep_1"
+        },
+        {
+          "id": "walk",
+          "word": "walk",
+          "ipa": "/wɔːk/",
+          "meaning": "行走",
+          "sentence": "The goose is walking on the grass.",
+          "sentenceTranslation": "这只鹅正在草地上走。",
+          "audioPath": "/assets/generated/scene_user_20260420113434_e82110/scene_user_20260420113434_e82110_en-US-JennyNeural_US_female_walk_the_goose_is_walking_on_the.mp3",
+          "relatedItem": "goose_1"
+        },
+        {
+          "id": "look",
+          "word": "look",
+          "ipa": "/lʊk/",
+          "meaning": "看",
+          "sentence": "The goose is looking at you.",
+          "sentenceTranslation": "这只鹅正看着你。",
+          "audioPath": "/assets/generated/scene_user_20260420113434_e82110/scene_user_20260420113434_e82110_en-US-JennyNeural_US_female_look_the_goose_is_looking_at_you.mp3",
+          "relatedItem": "goose_2"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260418050010_0dae18",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260420113434_e82110",
+        "core100SceneTitle": "农场",
+        "recommendedCategory": "animals",
+        "tags": [
+          "动物",
+          "草地",
+          "白天"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260420113438_364b43",
+      "title": "餐桌",
+      "category": "home",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260420113438_364b43/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260420113438_364b43/background.jpg",
+      "items": [
+        {
+          "id": "soup_bowl",
+          "word": "soup",
+          "ipa": "/suːp/",
+          "meaning": "汤",
+          "sentence": "Let's have some soup.",
+          "sentenceTranslation": "让我们喝些汤吧。",
+          "audioPath": "/assets/generated/scene_user_20260420113438_364b43/scene_user_20260420113438_364b43_en-US-JennyNeural_US_female_soup_bowl_lets_have_some_soup.mp3",
+          "rect": {
+            "l": 60.0,
+            "t": 20.0,
+            "w": 30.0,
+            "h": 40.0
+          }
+        },
+        {
+          "id": "dim_sum_dumplings",
+          "word": "dumpling",
+          "ipa": "/ˈdʌmplɪŋ/",
+          "meaning": "饺子",
+          "sentence": "These are delicious dumplings!",
+          "sentenceTranslation": "这些饺子很好吃！",
+          "audioPath": "/assets/generated/scene_user_20260420113438_364b43/scene_user_20260420113438_364b43_en-US-JennyNeural_US_female_dim_sum_dumplings_these_are_delicious_dumplings.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 50.0,
+            "w": 35.0,
+            "h": 45.0
+          }
+        },
+        {
+          "id": "shrimp_boat",
+          "word": "shrimp",
+          "ipa": "/ʃrɪm/",
+          "meaning": "虾",
+          "sentence": "The shrimp is on the boat.",
+          "sentenceTranslation": "虾在船上。",
+          "audioPath": "/assets/generated/scene_user_20260420113438_364b43/scene_user_20260420113438_364b43_en-US-JennyNeural_US_female_shrimp_boat_the_shrimp_is_on_the_boat.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 10.0,
+            "w": 15.0,
+            "h": 15.0
+          }
+        },
+        {
+          "id": "siu_mai",
+          "word": "siu mai",
+          "ipa": "/ˈsiuˈmeɪ/",
+          "meaning": "烧麦",
+          "sentence": "Siu mai is a type of dim sum.",
+          "sentenceTranslation": "烧麦是一种点心。",
+          "audioPath": "/assets/generated/scene_user_20260420113438_364b43/scene_user_20260420113438_364b43_en-US-JennyNeural_US_female_siu_mai_siu_mai_is_a_type_of.mp3",
+          "rect": {
+            "l": 25.0,
+            "t": 55.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "har Gow",
+          "word": "har gow",
+          "ipa": "/ˈhaːrˈɡoʊ/",
+          "meaning": "虾饺",
+          "sentence": "Har gow is filled with shrimp.",
+          "sentenceTranslation": "虾饺里面装满了虾。",
+          "audioPath": "/assets/generated/scene_user_20260420113438_364b43/scene_user_20260420113438_364b43_en-US-JennyNeural_US_female_har Gow_har_gow_is_filled_with_shrimp.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 50.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "1",
+          "word": "drink",
+          "ipa": "/drɪŋk/",
+          "meaning": "喝",
+          "sentence": "Let's drink soup.",
+          "sentenceTranslation": "我们喝汤吧。",
+          "audioPath": "/assets/generated/scene_user_20260420113438_364b43/scene_user_20260420113438_364b43_en-US-JennyNeural_US_female_1_lets_drink_soup.mp3",
+          "relatedItem": "soup_bowl"
+        },
+        {
+          "id": "2",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "Eat the dumplings!",
+          "sentenceTranslation": "吃饺子！",
+          "audioPath": "/assets/generated/scene_user_20260420113438_364b43/scene_user_20260420113438_364b43_en-US-JennyNeural_US_female_2_eat_the_dumplings.mp3",
+          "relatedItem": "dim_sum_dumplings"
+        },
+        {
+          "id": "3",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "Eat the shrimp.",
+          "sentenceTranslation": "吃虾。",
+          "audioPath": "/assets/generated/scene_user_20260420113438_364b43/scene_user_20260420113438_364b43_en-US-JennyNeural_US_female_3_eat_the_shrimp.mp3",
+          "relatedItem": "shrimp_boat"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260420100825_2af719",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260420113438_364b43",
+        "core100SceneTitle": "餐桌",
+        "recommendedCategory": "home",
+        "tags": [
+          "家庭",
+          "饮食",
+          "晚餐时间"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260420113506_6a7705",
+      "title": "早餐桌",
+      "category": "home",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260420113506_6a7705/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260420113506_6a7705/background.jpg",
+      "items": [
+        {
+          "id": "coffee_cup",
+          "word": "coffee",
+          "ipa": "/kəˈfiː/",
+          "meaning": "咖啡",
+          "sentence": "Let's have some coffee with our croissants.",
+          "sentenceTranslation": "让我们用羊角面包来喝咖啡吧。",
+          "audioPath": "/assets/generated/scene_user_20260420113506_6a7705/scene_user_20260420113506_6a7705_en-US-JennyNeural_US_female_coffee_cup_lets_have_some_coffee_with_our.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 40.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "croissant",
+          "word": "croissant",
+          "ipa": "/krəˈsɒ̃/",
+          "meaning": "羊角面包",
+          "sentence": "I love the taste of fresh croissants!",
+          "sentenceTranslation": "我喜欢新鲜羊角面包的味道！",
+          "audioPath": "/assets/generated/scene_user_20260420113506_6a7705/scene_user_20260420113506_6a7705_en-US-JennyNeural_US_female_croissant_i_love_the_taste_of_fresh.mp3",
+          "rect": {
+            "l": 30.0,
+            "t": 60.0,
+            "w": 25.0,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "book",
+          "word": "book",
+          "ipa": "/bʊk/",
+          "meaning": "书",
+          "sentence": "Reading a book is a great way to start the day.",
+          "sentenceTranslation": "阅读书籍是开始新的一天的好方法。",
+          "audioPath": "/assets/generated/scene_user_20260420113506_6a7705/scene_user_20260420113506_6a7705_en-US-JennyNeural_US_female_book_reading_a_book_is_a_great.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 80.0,
+            "w": 15.0,
+            "h": 15.0
+          }
+        },
+        {
+          "id": "mango",
+          "word": "mango",
+          "ipa": "/ˈmæŋɡoʊ/",
+          "meaning": "芒果",
+          "sentence": "Mangoes are delicious and healthy!",
+          "sentenceTranslation": "芒果又美味又有营养！",
+          "audioPath": "/assets/generated/scene_user_20260420113506_6a7705/scene_user_20260420113506_6a7705_en-US-JennyNeural_US_female_mango_mangoes_are_delicious_and_healthy.mp3",
+          "rect": {
+            "l": 35.0,
+            "t": 65.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "almonds",
+          "word": "almond",
+          "ipa": "/ˈɔːlmənd/",
+          "meaning": "杏仁",
+          "sentence": "Almonds are a good source of protein.",
+          "sentenceTranslation": "杏仁是蛋白质的良好来源。",
+          "audioPath": "/assets/generated/scene_user_20260420113506_6a7705/scene_user_20260420113506_6a7705_en-US-JennyNeural_US_female_almonds_almonds_are_a_good_source_of.mp3",
+          "rect": {
+            "l": 70.0,
+            "t": 90.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "eat",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "Eat your croissant slowly and enjoy it!",
+          "sentenceTranslation": "慢慢享用你的羊角面包吧！",
+          "audioPath": "/assets/generated/scene_user_20260420113506_6a7705/scene_user_20260420113506_6a7705_en-US-JennyNeural_US_female_eat_eat_your_croissant_slowly_and_enjoy.mp3",
+          "relatedItem": "croissant"
+        },
+        {
+          "id": "drink",
+          "word": "drink",
+          "ipa": "/drɪŋk/",
+          "meaning": "喝",
+          "sentence": "Drink your coffee while you read the book.",
+          "sentenceTranslation": "看书的时候喝咖啡吧。",
+          "audioPath": "/assets/generated/scene_user_20260420113506_6a7705/scene_user_20260420113506_6a7705_en-US-JennyNeural_US_female_drink_drink_your_coffee_while_you_read.mp3",
+          "relatedItem": "coffee_cup"
+        },
+        {
+          "id": "read",
+          "word": "read",
+          "ipa": "/riːd/",
+          "meaning": "读",
+          "sentence": "Read a page from the book every morning.",
+          "sentenceTranslation": "每天早上读一页书。",
+          "audioPath": "/assets/generated/scene_user_20260420113506_6a7705/scene_user_20260420113506_6a7705_en-US-JennyNeural_US_female_read_read_a_page_from_the_book.mp3",
+          "relatedItem": "book"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260420100826_eb169b",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260420113506_6a7705",
+        "core100SceneTitle": "早餐桌",
+        "recommendedCategory": "home",
+        "tags": [
+          "家庭",
+          "早晨",
+          "温馨"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260420113529_662210",
+      "title": "早餐桌",
+      "category": "food",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260420113529_662210/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260420113529_662210/background.jpg",
+      "items": [
+        {
+          "id": "croissant",
+          "word": "croissant",
+          "ipa": "/kroʊˈɒ̃/",
+          "meaning": "羊角面包",
+          "sentence": "Look at the delicious croissant on the plate.",
+          "sentenceTranslation": "看盘子上的美味羊角面包。",
+          "audioPath": "/assets/generated/scene_user_20260420113529_662210/scene_user_20260420113529_662210_en-US-JennyNeural_US_female_croissant_look_at_the_delicious_croissant_on.mp3",
+          "rect": {
+            "l": 35.0,
+            "t": 50.0,
+            "w": 30.0,
+            "h": 40.0
+          }
+        },
+        {
+          "id": "mango",
+          "word": "mango",
+          "ipa": "/ˈmæŋɡoʊ/",
+          "meaning": "芒果",
+          "sentence": "The mango slices are placed on top of the croissants.",
+          "sentenceTranslation": "芒果片放在羊角面包上面。",
+          "audioPath": "/assets/generated/scene_user_20260420113529_662210/scene_user_20260420113529_662210_en-US-JennyNeural_US_female_mango_the_mango_slices_are_placed_on.mp3",
+          "rect": {
+            "l": 45.0,
+            "t": 55.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "coffee",
+          "word": "coffee",
+          "ipa": "/ˈkɒfi/",
+          "meaning": "咖啡",
+          "sentence": "There is a cup of coffee next to the book.",
+          "sentenceTranslation": "书旁边有一杯咖啡。",
+          "audioPath": "/assets/generated/scene_user_20260420113529_662210/scene_user_20260420113529_662210_en-US-JennyNeural_US_female_coffee_there_is_a_cup_of_coffee.mp3",
+          "rect": {
+            "l": 70.0,
+            "t": 20.0,
+            "w": 15.0,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "book",
+          "word": "book",
+          "ipa": "/bʊk/",
+          "meaning": "书",
+          "sentence": "Let's read this book while enjoying our breakfast.",
+          "sentenceTranslation": "让我们在享受早餐的同时读书吧。",
+          "audioPath": "/assets/generated/scene_user_20260420113529_662210/scene_user_20260420113529_662210_en-US-JennyNeural_US_female_book_lets_read_this_book_while_enjoying.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 60.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "almonds",
+          "word": "almond",
+          "ipa": "/ˈɔːlmənd/",
+          "meaning": "杏仁",
+          "sentence": "Almonds are scattered around the table.",
+          "sentenceTranslation": "桌子周围散落着一些杏仁。",
+          "audioPath": "/assets/generated/scene_user_20260420113529_662210/scene_user_20260420113529_662210_en-US-JennyNeural_US_female_almonds_almonds_are_scattered_around_the_table.mp3",
+          "rect": {
+            "l": 80.0,
+            "t": 30.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "eat",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "Eat the croissant slowly and enjoy it!",
+          "sentenceTranslation": "慢慢吃这个羊角面包，享受它吧！",
+          "audioPath": "/assets/generated/scene_user_20260420113529_662210/scene_user_20260420113529_662210_en-US-JennyNeural_US_female_eat_eat_the_croissant_slowly_and_enjoy.mp3",
+          "relatedItem": "croissant"
+        },
+        {
+          "id": "drink",
+          "word": "drink",
+          "ipa": "/drɪŋk/",
+          "meaning": "喝",
+          "sentence": "Drink your coffee carefully so you don't spill it.",
+          "sentenceTranslation": "小心地喝你的咖啡，以免洒出来。",
+          "audioPath": "/assets/generated/scene_user_20260420113529_662210/scene_user_20260420113529_662210_en-US-JennyNeural_US_female_drink_drink_your_coffee_carefully_so_you.mp3",
+          "relatedItem": "coffee"
+        },
+        {
+          "id": "read",
+          "word": "read",
+          "ipa": "/riːd/",
+          "meaning": "读",
+          "sentence": "Read the book quietly while we have breakfast.",
+          "sentenceTranslation": "在我们吃早餐的时候静静地看书。",
+          "audioPath": "/assets/generated/scene_user_20260420113529_662210/scene_user_20260420113529_662210_en-US-JennyNeural_US_female_read_read_the_book_quietly_while_we.mp3",
+          "relatedItem": "book"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260420100826_eb169b",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260420113529_662210",
+        "core100SceneTitle": "早餐桌",
+        "recommendedCategory": "food",
+        "tags": [
+          "早餐",
+          "美食",
+          "休闲"
+        ],
+        "version": 1
+      }
     }
   ]
 }

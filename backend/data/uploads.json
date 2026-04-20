@@ -395,6 +395,66 @@
       "height": 1600,
       "createdAt": "2026-04-10T23:26:13Z",
       "updatedAt": "2026-04-10T23:26:13Z"
+    },
+    {
+      "uploadId": "upload_20260418021032_c6ab0c",
+      "ownerId": "user_20260408024505_7358e9",
+      "originalFilename": "tmp_df07b5883c8660b0a033a387268be22dca99da1483e0c6b7.jpg",
+      "contentType": "image/jpeg",
+      "filePath": "/assets/uploads/upload_20260418021032_c6ab0c/source.jpg",
+      "sizeBytes": 121571,
+      "width": 715,
+      "height": 1600,
+      "createdAt": "2026-04-18T02:10:32Z",
+      "updatedAt": "2026-04-18T02:10:32Z"
+    },
+    {
+      "uploadId": "upload_20260418050009_89b5cd",
+      "ownerId": "admin_console:admin",
+      "originalFilename": "微信图片_20260201164538_31_661.jpg",
+      "contentType": "image/jpeg",
+      "filePath": "/assets/uploads/upload_20260418050009_89b5cd/source.jpg",
+      "sizeBytes": 510255,
+      "width": 1200,
+      "height": 1600,
+      "createdAt": "2026-04-18T05:00:09Z",
+      "updatedAt": "2026-04-18T05:00:09Z"
+    },
+    {
+      "uploadId": "upload_20260418050010_0dae18",
+      "ownerId": "admin_console:admin",
+      "originalFilename": "微信图片_20260201222704_335_661.jpg",
+      "contentType": "image/jpeg",
+      "filePath": "/assets/uploads/upload_20260418050010_0dae18/source.jpg",
+      "sizeBytes": 460002,
+      "width": 1200,
+      "height": 1600,
+      "createdAt": "2026-04-18T05:00:10Z",
+      "updatedAt": "2026-04-18T05:00:10Z"
+    },
+    {
+      "uploadId": "upload_20260420100825_2af719",
+      "ownerId": "admin_console:admin",
+      "originalFilename": "Camera_XHS_17696642814841040g00830pe28og3400g4a1mu912l0un92mmlvg.jpg",
+      "contentType": "image/jpeg",
+      "filePath": "/assets/uploads/upload_20260420100825_2af719/source.jpg",
+      "sizeBytes": 169687,
+      "width": 1200,
+      "height": 1600,
+      "createdAt": "2026-04-20T10:08:26Z",
+      "updatedAt": "2026-04-20T10:08:26Z"
+    },
+    {
+      "uploadId": "upload_20260420100826_eb169b",
+      "ownerId": "admin_console:admin",
+      "originalFilename": "Camera_1040g3k831lqvttfg5idg5o1sivfg80onkiaqcn8.jpg",
+      "contentType": "image/jpeg",
+      "filePath": "/assets/uploads/upload_20260420100826_eb169b/source.jpg",
+      "sizeBytes": 294115,
+      "width": 1200,
+      "height": 1600,
+      "createdAt": "2026-04-20T10:08:26Z",
+      "updatedAt": "2026-04-20T10:08:26Z"
     }
   ]
 }

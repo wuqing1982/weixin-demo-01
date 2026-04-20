@@ -22,7 +22,11 @@ const state = {
   editingCategory: null,
   editingCollection: null,
   publishingDraft: null,
-  sceneViewMode: 'card'
+  sceneViewMode: 'card',
+  sceneSearchQuery: '',
+  sceneFilterCategory: '',
+  sceneFilterVisibility: '',
+  generatorFiles: []
 };
 
 const loginForm = document.getElementById('login-form');
@@ -37,6 +41,63 @@ const pageTitle = document.getElementById('page-title');
 const logoutBtn = document.getElementById('logout-btn');
 const refreshBtn = document.getElementById('refresh-btn');
 const navItems = Array.from(document.querySelectorAll('.nav-item'));
+
+function openModal(title, bodyHtml) {
+  const overlay = document.getElementById('modal-overlay');
+  const titleEl = document.getElementById('modal-title');
+  const bodyEl = document.getElementById('modal-body');
+  if (!overlay) return;
+  titleEl.textContent = title;
+  bodyEl.innerHTML = bodyHtml;
+  overlay.hidden = false;
+  requestAnimationFrame(() => overlay.classList.add('showing'));
+}
+
+function closeModal() {
+  const overlay = document.getElementById('modal-overlay');
+  if (!overlay) return;
+  overlay.classList.remove('showing');
+  setTimeout(() => { overlay.hidden = true; }, 200);
+}
+
+function getFilteredScenes() {
+  let list = state.scenes;
+  const q = (state.sceneSearchQuery || '').trim().toLowerCase();
+  if (q) {
+    list = list.filter((s) => {
+      const title = (s.title || '').toLowerCase();
+      const id = (s.sceneId || '').toLowerCase();
+      return title.includes(q) || id.includes(q);
+    });
+  }
+  if (state.sceneFilterCategory) {
+    list = list.filter((s) => {
+      const cat = (s.publication && (s.publication.categoryName || s.publication.categoryId)) || s.category || '';
+      return cat === state.sceneFilterCategory;
+    });
+  }
+  if (state.sceneFilterVisibility) {
+    list = list.filter((s) => (s.visibility || 'public') === state.sceneFilterVisibility);
+  }
+  return list;
+}
+
+function getSelectedSceneIds() {
+  return Array.from(panelBody.querySelectorAll('.scene-checkbox:checked')).map((cb) => cb.value);
+}
+
+function updateSceneBatchBar() {
+  const ids = getSelectedSceneIds();
+  const bar = document.getElementById('scene-batch-bar');
+  if (!bar) return;
+  const countEl = bar.querySelector('.batch-bar-count');
+  if (countEl) countEl.textContent = `已选 ${ids.length} 项`;
+  bar.classList.toggle('visible', ids.length > 0);
+}
+
+function updateSceneBatchState() {
+  updateSceneBatchBar();
+}
 
 function escapeHtml(value) {
   return String(value == null ? '' : value)
@@ -132,8 +193,23 @@ async function compressImageFile(file, maxEdge = 1600, quality = 0.82) {
   return new File([blob], safeName, { type: 'image/jpeg' });
 }
 
-function toast(message) {
-  window.alert(message);
+function toast(message, type) {
+  const container = document.getElementById('toast-container');
+  if (!container) {
+    window.alert(message);
+    return;
+  }
+  const item = document.createElement('div');
+  item.className = 'toast-item' + (type === 'error' ? ' toast-item--error' : ' toast-item--success');
+  item.textContent = message;
+  container.appendChild(item);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => item.classList.add('visible'));
+  });
+  setTimeout(() => {
+    item.classList.remove('visible');
+    setTimeout(() => item.remove(), 300);
+  }, 2500);
 }
 
 function metricCard(label, value) {
@@ -707,28 +783,6 @@ function renderTasks() {
   `;
 }
 
-function getSelectedSceneIds() {
-  return Array.from(panelBody.querySelectorAll('.scene-checkbox:checked')).map((cb) => cb.value);
-}
-
-function updateSceneBatchState() {
-  const checkboxes = panelBody.querySelectorAll('.scene-checkbox');
-  const checked = panelBody.querySelectorAll('.scene-checkbox:checked');
-  const selectAll = panelHead.querySelector('#select-all-scenes');
-  const batchBtn = document.getElementById('scene-batch-action-btn');
-  const countSpan = document.getElementById('scenes-selected-count');
-  if (selectAll) {
-    selectAll.checked = checkboxes.length > 0 && checked.length === checkboxes.length;
-    selectAll.indeterminate = checked.length > 0 && checked.length < checkboxes.length;
-  }
-  if (batchBtn) {
-    batchBtn.disabled = checked.length === 0;
-  }
-  if (countSpan) {
-    countSpan.textContent = checked.length > 0 ? `已选 ${checked.length} 项` : '';
-  }
-}
-
 async function batchDeleteScenes() {
   const ids = getSelectedSceneIds();
   if (ids.length === 0) return;
@@ -790,49 +844,11 @@ function buildCoverUrl(path) {
   return window.location.origin + '/' + path.replace(/^\//, '');
 }
 
-function renderScenes() {
+function openSceneModal() {
   const scene = state.editingScene || {};
-  const viewMode = state.sceneViewMode || 'card';
-  panelHead.innerHTML = `
-    <div>
-      <h3 class="panel-title">公共场景管理</h3>
-      <p class="panel-subtitle">支持新增和编辑公共场景元数据；对有源草稿映射的公开场景，可直接覆盖发布最新生成结果。</p>
-    </div>
-    <div class="panel-actions">
-      <span id="scenes-selected-count" class="selected-count"></span>
-      <label class="checkbox-cell"><input type="checkbox" id="select-all-scenes"></label>
-      <div class="batch-action-dropdown">
-        <button id="scene-batch-action-btn" class="mini-btn" disabled data-action="scene-batch-toggle">批量操作 &#9662;</button>
-        <div class="batch-action-menu" id="scene-batch-menu">
-          <button class="batch-menu-item" data-action="scene-batch-visibility" data-visibility="public">设为公开</button>
-          <button class="batch-menu-item" data-action="scene-batch-visibility" data-visibility="private">设为隐藏</button>
-          <div class="batch-menu-divider"></div>
-          <button class="batch-menu-item" data-action="scene-batch-free" data-free="true">设为免费可见</button>
-          <button class="batch-menu-item" data-action="scene-batch-free" data-free="false">取消免费可见</button>
-          <div class="batch-menu-divider"></div>
-          <button class="batch-menu-item has-sub" data-action="scene-batch-category-toggle">移动到分类 &#9656;</button>
-          <div class="batch-sub-menu" id="scene-batch-category-submenu">
-            ${state.categories.map((cat) => `
-              <button class="batch-menu-item" data-action="scene-batch-category" data-category-id="${escapeHtml(cat.categoryId)}" data-category-name="${escapeHtml(cat.name)}">${escapeHtml(cat.name)}</button>
-            `).join('')}
-          </div>
-          <div class="batch-menu-divider"></div>
-          <button class="batch-menu-item danger" data-action="batch-delete-scenes">批量删除</button>
-        </div>
-      </div>
-      <button class="view-toggle-btn" data-action="toggle-scene-view">
-        ${viewMode === 'card' ? '&#9776;' : '&#9638;'}
-      </button>
-      <span class="meta-chip">${state.scenes.length} 个场景</span>
-    </div>
-  `;
-
-  panelBody.innerHTML = `
-    <form id="scene-form" class="editor-card">
-      <div class="editor-title-row">
-        <h4>${scene.sceneId ? '编辑场景' : '新建场景'}</h4>
-        ${scene.sceneId ? '<button type="button" class="mini-btn" data-action="scene-cancel-edit">取消</button>' : ''}
-      </div>
+  const isEdit = !!scene.sceneId;
+  const formHtml = `
+    <form id="scene-form">
       <div class="field-grid">
         <label><span>标题</span><input name="title" value="${escapeHtml(scene.title || '')}" required></label>
         <label><span>分类</span>
@@ -860,122 +876,350 @@ function renderScenes() {
         <label class="full"><span>背景图路径</span><input name="backgroundPath" value="${escapeHtml(scene.backgroundPath || '')}"></label>
         <label class="full"><span>封面图路径</span><input name="coverPath" value="${escapeHtml(scene.coverPath || '')}"></label>
       </div>
-      <div class="form-actions">
-        <button class="primary-btn compact" type="submit">${scene.sceneId ? '保存场景' : '创建场景'}</button>
+      <div class="form-actions" style="display:flex;gap:10px;margin-top:18px">
+        <button class="primary-btn compact" type="submit">${isEdit ? '保存场景' : '创建场景'}</button>
+        <button type="button" class="ghost-btn" data-action="scene-cancel-edit">取消</button>
       </div>
     </form>
+  `;
+  openModal(isEdit ? '编辑场景' : '新建场景', formHtml);
+}
 
-    <div class="scene-views ${viewMode === 'card' ? 'show-cards' : 'show-table'}">
-      <div class="table view-table">
-        <div class="table-head">
-          <label class="checkbox-cell"><input type="checkbox" class="scene-select-all" data-scope="table"></label>
-          <strong>场景</strong>
-          <span>分类</span>
-          <span>热点数</span>
-          <span>可见性</span>
-          <span>操作</span>
+function renderScenes() {
+  const viewMode = state.sceneViewMode || 'card';
+  const filteredScenes = getFilteredScenes();
+  const categoryNames = [...new Set(state.scenes.map((s) => (s.publication && (s.publication.categoryName || s.publication.categoryId)) || s.category || '').filter(Boolean))];
+
+  panelHead.innerHTML = `
+    <div class="scene-toolbar">
+      <div class="scene-toolbar-left">
+        <div class="scene-search">
+          <input type="text" id="scene-search-input" placeholder="搜索标题或 ID..." value="${escapeHtml(state.sceneSearchQuery)}">
         </div>
-        ${state.scenes.map((item) => `
-          <div class="table-row">
-            <label class="checkbox-cell"><input type="checkbox" class="scene-checkbox" value="${escapeHtml(item.sceneId)}"></label>
-            <strong>${escapeHtml(item.title)}<br><small>${escapeHtml(item.sceneId)}</small></strong>
-            <span>${escapeHtml((item.publication && (item.publication.categoryName || item.publication.categoryId)) || item.category || '-')}</span>
-            <span>${escapeHtml(item.itemCount || 0)} / ${escapeHtml(item.verbCount || 0)}</span>
-            <span>${escapeHtml(item.visibility || 'public')}</span>
-            <span class="action-group">
+        <div class="scene-filter-group">
+          <select class="scene-filter-select" id="scene-filter-category">
+            <option value="">全部分类</option>
+            ${categoryNames.map((name) => `<option value="${escapeHtml(name)}" ${name === state.sceneFilterCategory ? 'selected' : ''}>${escapeHtml(name)}</option>`).join('')}
+          </select>
+          <select class="scene-filter-select" id="scene-filter-visibility">
+            <option value="">全部状态</option>
+            <option value="public" ${state.sceneFilterVisibility === 'public' ? 'selected' : ''}>公开</option>
+            <option value="member" ${state.sceneFilterVisibility === 'member' ? 'selected' : ''}>会员</option>
+            <option value="private" ${state.sceneFilterVisibility === 'private' ? 'selected' : ''}>隐藏</option>
+          </select>
+        </div>
+      </div>
+      <div class="scene-toolbar-right">
+        <button class="btn-new-scene" data-action="scene-open-create">新建场景</button>
+        <div class="scene-view-toggles">
+          <button class="scene-view-toggle ${viewMode === 'card' ? 'active' : ''}" data-action="set-scene-view-card" title="卡片视图">&#9638;</button>
+          <button class="scene-view-toggle ${viewMode === 'table' ? 'active' : ''}" data-action="set-scene-view-table" title="列表视图">&#9776;</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  if (filteredScenes.length === 0) {
+    const isFiltered = state.sceneSearchQuery || state.sceneFilterCategory || state.sceneFilterVisibility;
+    panelBody.innerHTML = `
+      <div class="scene-empty">
+        <div class="scene-empty-icon">${isFiltered ? '\uD83D\uDD0D' : '\uD83C\uDFAC'}</div>
+        <div class="scene-empty-title">${isFiltered ? '没有匹配的场景' : '暂无场景'}</div>
+        <div class="scene-empty-desc">${isFiltered ? '试试调整搜索条件或筛选项' : '点击上方「新建场景」添加第一个场景'}</div>
+      </div>
+    `;
+  } else if (viewMode === 'table') {
+    panelBody.innerHTML = renderSceneTable(filteredScenes);
+  } else {
+    panelBody.innerHTML = renderSceneCards(filteredScenes);
+  }
+
+  // Floating batch bar
+  const existingBar = document.getElementById('scene-batch-bar');
+  if (existingBar) existingBar.remove();
+  const batchBarHtml = `
+    <div id="scene-batch-bar" class="batch-bar">
+      <div class="batch-bar-inner">
+        <span class="batch-bar-count">已选 0 项</span>
+        <button class="batch-bar-btn" data-action="scene-batch-visibility" data-visibility="public">设为公开</button>
+        <button class="batch-bar-btn" data-action="scene-batch-visibility" data-visibility="member">设为会员</button>
+        <button class="batch-bar-btn" data-action="scene-batch-visibility" data-visibility="private">设为隐藏</button>
+        <button class="batch-bar-btn" data-action="scene-batch-free" data-free="true">设为免费</button>
+        <button class="batch-bar-btn" data-action="scene-batch-free" data-free="false">取消免费</button>
+        <span style="position:relative;display:inline-flex">
+          <button class="batch-bar-btn" data-action="scene-batch-category-toggle">移动到分类 &#9650;</button>
+          <div class="batch-bar-category-menu" id="batch-bar-category-menu">
+            ${state.categories.map((cat) => `<button class="batch-menu-item" data-action="scene-batch-category" data-category-id="${escapeHtml(cat.categoryId)}" data-category-name="${escapeHtml(cat.name)}">${escapeHtml(cat.name)}</button>`).join('')}
+          </div>
+        </span>
+        <button class="batch-bar-btn batch-bar-btn--danger" data-action="batch-delete-scenes">删除</button>
+        <button class="batch-bar-close" data-action="scene-batch-clear">&times;</button>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', batchBarHtml);
+}
+
+function renderSceneCards(scenes) {
+  return `
+    <div class="scene-list-header">
+      <div class="scene-list-header-left">
+        <label class="checkbox-cell"><input type="checkbox" id="select-all-scenes"></label>
+        <span class="scene-list-count">共 <strong>${scenes.length}</strong> 个场景</span>
+      </div>
+    </div>
+    <div class="card-grid">
+      ${scenes.map((item) => {
+        const cat = (item.publication && (item.publication.categoryName || item.publication.categoryId)) || item.category || '-';
+        const vis = item.visibility || 'public';
+        const coverUrl = buildCoverUrl(item.coverPath || item.backgroundPath);
+        return `
+        <div class="scene-card" data-id="${escapeHtml(item.sceneId)}">
+          <label class="scene-card-check">
+            <input type="checkbox" class="scene-checkbox" value="${escapeHtml(item.sceneId)}">
+            <span class="scene-card-checkmark"></span>
+          </label>
+          <div class="scene-card-cover">
+            ${coverUrl ? `<img src="${coverUrl}" onerror="this.remove()">` : ''}
+            ${!coverUrl ? '<div class="cover-placeholder">\uD83C\uDFAC</div>' : ''}
+          </div>
+          <div class="scene-card-body">
+            <strong class="scene-card-title">${escapeHtml(item.title)}</strong>
+            <div class="scene-card-meta">
+              <span>${escapeHtml(cat)}</span>
+              <span class="scene-card-meta-dot"></span>
+              <span>${item.itemCount || 0} 词 / ${item.verbCount || 0} 动词</span>
+            </div>
+            <div class="scene-card-tags">
+              ${vis === 'public' ? '<span class="scene-tag scene-tag--public">公开</span>' : ''}
+              ${vis === 'member' ? '<span class="scene-tag scene-tag--member">会员</span>' : ''}
+              ${vis === 'private' ? '<span class="scene-tag scene-tag--private">隐藏</span>' : ''}
+              ${item.free ? '<span class="scene-tag scene-tag--free">免费</span>' : ''}
+            </div>
+            <div class="scene-card-actions">
               <button class="mini-btn" data-action="scene-edit" data-id="${escapeHtml(item.sceneId)}">编辑</button>
               ${item.publication && item.publication.sourceGeneratedSceneId
                 ? `<button class="mini-btn success-btn" data-action="scene-republish" data-id="${escapeHtml(item.sceneId)}">覆盖发布</button>`
                 : ''}
-            </span>
+            </div>
           </div>
-        `).join('')}
-      </div>
-
-      <div class="card-grid view-cards">
-        ${state.scenes.map((item) => {
-          const cat = (item.publication && (item.publication.categoryName || item.publication.categoryId)) || item.category || '-';
-          const vis = item.visibility || 'public';
-          return `
-          <div class="scene-card ${vis !== 'public' ? 'scene-card--' + vis : ''}" data-id="${escapeHtml(item.sceneId)}">
-            <label class="scene-card-check">
-              <input type="checkbox" class="scene-checkbox" value="${escapeHtml(item.sceneId)}">
-              <span class="scene-card-checkmark"></span>
-            </label>
-            ${item.free ? '<span class="scene-card-badge scene-card-badge--free">免费</span>' : ''}
-            ${vis === 'private' ? '<span class="scene-card-badge scene-card-badge--hidden">隐藏</span>' : ''}
-            <div class="scene-card-cover">
-              <img src="${buildCoverUrl(item.coverPath || item.backgroundPath)}"
-                   onerror="this.src='';this.classList.add('broken')">
-            </div>
-            <div class="scene-card-body">
-              <strong class="scene-card-title">${escapeHtml(item.title)}</strong>
-              <span class="scene-card-meta">${escapeHtml(cat)} · ${item.itemCount || 0}/${item.verbCount || 0}</span>
-              <div class="scene-card-actions">
-                <button class="mini-btn" data-action="scene-edit" data-id="${escapeHtml(item.sceneId)}">编辑</button>
-                ${item.publication && item.publication.sourceGeneratedSceneId
-                  ? `<button class="mini-btn success-btn" data-action="scene-republish" data-id="${escapeHtml(item.sceneId)}">覆盖发布</button>`
-                  : ''}
-              </div>
-            </div>
-          </div>`;
-        }).join('')}
-      </div>
+        </div>`;
+      }).join('')}
     </div>
   `;
+}
+
+function renderSceneTable(scenes) {
+  return `
+    <div class="scene-list-header">
+      <div class="scene-list-header-left">
+        <label class="checkbox-cell"><input type="checkbox" id="select-all-scenes"></label>
+        <span class="scene-list-count">共 <strong>${scenes.length}</strong> 个场景</span>
+      </div>
+    </div>
+    <div class="scene-table">
+      <div class="scene-table-head">
+        <label class="checkbox-cell" style="padding:0"><input type="checkbox" class="scene-select-all"></label>
+        <span>场景</span>
+        <span>分类</span>
+        <span>词汇</span>
+        <span>状态</span>
+        <span>免费</span>
+        <span>操作</span>
+      </div>
+      ${scenes.map((item) => {
+        const cat = (item.publication && (item.publication.categoryName || item.publication.categoryId)) || item.category || '-';
+        const vis = item.visibility || 'public';
+        return `
+        <div class="scene-table-row" data-id="${escapeHtml(item.sceneId)}">
+          <label class="checkbox-cell" style="padding:0"><input type="checkbox" class="scene-checkbox" value="${escapeHtml(item.sceneId)}"></label>
+          <div class="scene-table-title">
+            <strong>${escapeHtml(item.title)}</strong>
+            <small>${escapeHtml(item.sceneId)}</small>
+          </div>
+          <span style="font-size:13px">${escapeHtml(cat)}</span>
+          <span style="font-size:13px">${item.itemCount || 0} / ${item.verbCount || 0}</span>
+          <span>
+            ${vis === 'public' ? '<span class="scene-tag scene-tag--public">公开</span>' : ''}
+            ${vis === 'member' ? '<span class="scene-tag scene-tag--member">会员</span>' : ''}
+            ${vis === 'private' ? '<span class="scene-tag scene-tag--private">隐藏</span>' : ''}
+          </span>
+          <span style="font-size:13px">${item.free ? '\u2705' : '-'}</span>
+          <span class="action-group">
+            <button class="mini-btn" data-action="scene-edit" data-id="${escapeHtml(item.sceneId)}">编辑</button>
+            ${item.publication && item.publication.sourceGeneratedSceneId
+              ? `<button class="mini-btn success-btn" data-action="scene-republish" data-id="${escapeHtml(item.sceneId)}">覆盖发布</button>`
+              : ''}
+          </span>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+function addGeneratorFiles(fileList) {
+  const files = Array.from(fileList || []);
+  files.forEach((file) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      state.generatorFiles.push({ file, dataUrl: reader.result });
+      renderGeneratorPreviews();
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function removeGeneratorFile(index) {
+  state.generatorFiles.splice(index, 1);
+  renderGeneratorPreviews();
+}
+
+function renderGeneratorPreviews() {
+  const grid = document.getElementById('gen-preview-grid');
+  const count = document.getElementById('gen-file-count');
+  const submitBtn = document.getElementById('gen-submit-btn');
+  if (!grid) return;
+  grid.innerHTML = state.generatorFiles.map((item, i) => `
+    <div class="gen-preview-card">
+      <img src="${item.dataUrl}" alt="${escapeHtml(item.file.name)}">
+      <button type="button" class="gen-preview-delete" data-action="gen-remove-file" data-index="${i}">&times;</button>
+      <div class="gen-preview-name">${escapeHtml(item.file.name)}</div>
+    </div>
+  `).join('');
+  if (count) {
+    count.innerHTML = state.generatorFiles.length > 0
+      ? `<strong>${state.generatorFiles.length}</strong> 张图片已选择`
+      : '';
+  }
+  if (submitBtn) {
+    submitBtn.disabled = state.generatorFiles.length === 0;
+  }
+}
+
+function taskStatusClass(status) {
+  if (status === 'done' || status === 'completed') return 'gen-task-status--done';
+  if (status === 'failed') return 'gen-task-status--failed';
+  if (status === 'processing' || status === 'running') return 'gen-task-status--processing';
+  return 'gen-task-status--pending';
+}
+
+function progressBarClass(status) {
+  if (status === 'done' || status === 'completed') return 'done';
+  if (status === 'failed') return 'failed';
+  return '';
 }
 
 function renderGenerator() {
   const generatorTasks = state.tasks.filter((task) => task.requestSource === 'admin_web_generator');
   panelHead.innerHTML = `
     <div>
-      <h3 class="panel-title">Admin 场景生成器</h3>
-      <p class="panel-subtitle">浏览器端先压缩图片，再批量上传并创建异步任务。生成完成后可自动发布到公开场景库。</p>
+      <h3 class="panel-title">场景生成器</h3>
+      <p class="panel-subtitle">上传全景图片，AI 自动分析生成英语学习场景，完成后可自动发布到公开场景库。</p>
     </div>
-    <span class="meta-chip">${generatorTasks.length} 条生成任务</span>
+    <span class="meta-chip">${generatorTasks.length} 条任务</span>
   `;
 
+  const hasFiles = state.generatorFiles.length > 0;
   panelBody.innerHTML = `
-    <form id="generator-form" class="editor-card">
-      <div class="editor-title-row">
-        <h4>批量生成公开场景</h4>
-        <span class="meta-chip">多图 -> 多任务</span>
+    <div class="gen-layout">
+      <div class="gen-upload-section">
+        <div class="gen-drop-zone" id="gen-drop-zone">
+          <div class="gen-drop-zone-icon">&#128247;</div>
+          <div class="gen-drop-zone-title">拖拽图片到此处，或点击选择</div>
+          <div class="gen-drop-zone-desc">支持 JPG / PNG，可多选</div>
+          <input type="file" accept="image/*" multiple id="gen-file-input">
+        </div>
+        <div id="gen-file-count" class="gen-file-count">${hasFiles ? `<strong>${state.generatorFiles.length}</strong> 张图片已选择` : ''}</div>
+        <div class="gen-preview-grid" id="gen-preview-grid">
+          ${state.generatorFiles.map((item, i) => `
+            <div class="gen-preview-card">
+              <img src="${item.dataUrl}" alt="${escapeHtml(item.file.name)}">
+              <button type="button" class="gen-preview-delete" data-action="gen-remove-file" data-index="${i}">&times;</button>
+              <div class="gen-preview-name">${escapeHtml(item.file.name)}</div>
+            </div>
+          `).join('')}
+        </div>
       </div>
-      <div class="field-grid">
-        <label class="full"><span>选择图片</span><input name="files" type="file" accept="image/*" multiple required></label>
-        <label><span>主分类</span>
-          <select name="categoryId" required>
+
+      <div class="gen-config">
+        <h4 class="gen-config-title">生成配置</h4>
+        <div class="gen-field">
+          <span class="gen-field-label">主分类</span>
+          <select name="categoryId" id="gen-category">
             <option value="">请选择分类</option>
             ${categoryOptions('')}
           </select>
-        </label>
-        <label><span>公开可见性</span><input name="publishVisibility" value="public" required></label>
-        <label><span>生成动词</span><select name="includeVerbs"><option value="true" selected>生成</option><option value="false">不生成</option></select></label>
-        <label class="full"><span>合集</span><div class="checkbox-grid">${collectionCheckboxes([]) || '<span class="empty-copy">请先创建合集</span>'}</div></label>
-        <label class="full"><span>发布策略</span><div class="checkbox-grid"><label class="checkbox-chip"><input type="checkbox" name="autoPublish" checked><span>生成完成后自动发布到公开库</span></label></div></label>
-      </div>
-      <div class="form-actions">
-        <button class="primary-btn compact" type="submit">压缩上传并开始批量生成</button>
-      </div>
-    </form>
-
-    <div class="table">
-      <div class="table-head">
-        <strong>任务</strong>
-        <span>状态</span>
-        <span>进度</span>
-        <span>生成场景</span>
-        <span>公开场景</span>
-      </div>
-      ${generatorTasks.map((task) => `
-        <div class="table-row">
-          <strong>${escapeHtml(task.title || task.uploadId || task.taskId)}<br><small>${escapeHtml(task.taskId)}</small></strong>
-          <span>${escapeHtml(task.status)}</span>
-          <span>${escapeHtml(task.progress || 0)}% · ${escapeHtml(task.step || '-')}</span>
-          <span>${escapeHtml(task.sceneId || '-')}</span>
-          <span>${escapeHtml(task.publishedSceneId || '-')}</span>
         </div>
-      `).join('') || '<div class="empty-copy">暂无 admin 生成任务</div>'}
+        <div class="gen-field">
+          <span class="gen-field-label">可见性</span>
+          <select id="gen-visibility">
+            <option value="public" selected>公开</option>
+            <option value="member">会员</option>
+            <option value="private">隐藏</option>
+          </select>
+        </div>
+        <div class="gen-field">
+          <span class="gen-field-label">生成动词</span>
+          <select id="gen-include-verbs">
+            <option value="true" selected>生成动词</option>
+            <option value="false">不生成动词</option>
+          </select>
+        </div>
+        <div class="gen-field">
+          <span class="gen-field-label">合集</span>
+          <div class="gen-checkbox-group">
+            ${collectionCheckboxes([]) || '<span class="empty-copy" style="font-size:13px">请先创建合集</span>'}
+          </div>
+        </div>
+        <div class="gen-field">
+          <span class="gen-field-label">发布策略</span>
+          <div class="gen-checkbox-group">
+            <label class="gen-checkbox-item"><input type="checkbox" id="gen-auto-publish" checked> 生成后自动发布</label>
+          </div>
+        </div>
+        <button class="gen-submit-btn" id="gen-submit-btn" data-action="gen-submit" ${hasFiles ? '' : 'disabled'}>
+          压缩上传并开始生成
+        </button>
+      </div>
+
+      <div class="gen-tasks-section">
+        <div class="gen-tasks-header">
+          <h4>生成任务</h4>
+          <span class="meta-chip">${generatorTasks.length} 条</span>
+        </div>
+        ${generatorTasks.length > 0 ? `
+          <div class="gen-tasks-grid">
+            ${generatorTasks.map((task) => {
+              const progress = task.progress || 0;
+              const status = task.status || 'pending';
+              const statusLabel = { pending: '等待中', processing: '处理中', running: '处理中', done: '已完成', completed: '已完成', failed: '失败' }[status] || status;
+              return `
+              <div class="gen-task-card">
+                <div class="gen-task-top">
+                  <div>
+                    <div class="gen-task-title">${escapeHtml(task.title || task.uploadId || '未命名')}</div>
+                    <div class="gen-task-id">${escapeHtml(task.taskId)}</div>
+                  </div>
+                  <span class="gen-task-status ${taskStatusClass(status)}">${statusLabel}</span>
+                </div>
+                <div class="gen-task-progress">
+                  <div class="gen-task-progress-bar ${progressBarClass(status)}" style="width:${Math.max(2, progress)}%"></div>
+                </div>
+                <div class="gen-task-meta">
+                  <span class="gen-task-meta-item">${escapeHtml(task.step || '-')}</span>
+                  <span class="gen-task-meta-item">${progress}%</span>
+                </div>
+                ${(task.sceneId || task.publishedSceneId) ? `
+                  <div class="gen-task-links">
+                    ${task.sceneId ? `<span class="gen-task-link">生成: ${escapeHtml(task.sceneId).substring(0, 12)}...</span>` : ''}
+                    ${task.publishedSceneId ? `<span class="gen-task-link">发布: ${escapeHtml(task.publishedSceneId).substring(0, 12)}...</span>` : ''}
+                  </div>
+                ` : ''}
+              </div>`;
+            }).join('')}
+          </div>
+        ` : '<div class="gen-tasks-empty">暂无生成任务，上传图片开始创建</div>'}
+      </div>
     </div>
   `;
 }
@@ -1393,44 +1637,56 @@ async function submitPublishForm(form) {
   await loadConsole();
 }
 
-async function submitGeneratorForm(form) {
-  const files = Array.from(form.files.files || []);
-  if (!files.length) {
-    throw new Error('请先选择至少一张图片');
+async function submitGeneratorForm() {
+  if (!state.generatorFiles.length) {
+    toast('请先选择至少一张图片', 'error');
+    return;
   }
-  const categoryId = form.categoryId.value;
-  const collectionIds = Array.from(form.querySelectorAll('input[name="collectionIds"]:checked')).map((input) => input.value);
-  const includeVerbs = form.includeVerbs.value === 'true';
-  const autoPublish = !!form.autoPublish.checked;
-  const publishVisibility = form.publishVisibility.value.trim() || 'public';
+  const categoryId = (document.getElementById('gen-category') || {}).value || '';
+  const publishVisibility = (document.getElementById('gen-visibility') || {}).value || 'public';
+  const includeVerbs = ((document.getElementById('gen-include-verbs') || {}).value || 'true') === 'true';
+  const autoPublish = !!(document.getElementById('gen-auto-publish') || {}).checked;
+  const collectionIds = Array.from(panelBody.querySelectorAll('input[name="collectionIds"]:checked')).map((input) => input.value);
 
-  const items = [];
-  for (const file of files) {
-    const compressed = await compressImageFile(file);
-    const upload = await uploadAdminImage(compressed, compressed.name);
-    items.push({
-      uploadId: upload.uploadId,
-      title: ''
-    });
+  const submitBtn = document.getElementById('gen-submit-btn');
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = '上传中...';
   }
 
-  const result = await api('/api/admin/tasks/scene-generate-batch', {
-    method: 'POST',
-    body: {
-      items,
-      includeVerbs,
-      autoPublish,
-      categoryId,
-      collectionIds,
-      publishVisibility
+  try {
+    const items = [];
+    for (const entry of state.generatorFiles) {
+      const compressed = await compressImageFile(entry.file);
+      const upload = await uploadAdminImage(compressed, compressed.name);
+      items.push({ uploadId: upload.uploadId, title: '' });
     }
-  });
-  toast(`已创建 ${result.list.length} 条生成任务`);
-  form.reset();
-  await loadConsole();
+
+    const result = await api('/api/admin/tasks/scene-generate-batch', {
+      method: 'POST',
+      body: { items, includeVerbs, autoPublish, categoryId, collectionIds, publishVisibility }
+    });
+    toast(`已创建 ${result.list.length} 条生成任务`);
+    state.generatorFiles = [];
+    await loadConsole();
+  } catch (error) {
+    toast(error.message || '提交失败', 'error');
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = '压缩上传并开始生成';
+    }
+  }
 }
 
 async function handleAction(action, id) {
+  if (action === 'gen-remove-file') {
+    removeGeneratorFile(Number(event.target.dataset.index));
+    return;
+  }
+  if (action === 'gen-submit') {
+    await submitGeneratorForm();
+    return;
+  }
   if (action === 'user-detail') {
     state.selectedUser = await api(`/api/admin/users/${id}`);
     renderCurrentView();
@@ -1551,7 +1807,7 @@ async function handleAction(action, id) {
   }
   if (action === 'scene-edit') {
     state.editingScene = state.scenes.find((item) => item.sceneId === id) || null;
-    renderCurrentView();
+    openSceneModal();
     return;
   }
   if (action === 'scene-republish') {
@@ -1582,7 +1838,29 @@ async function handleAction(action, id) {
   }
   if (action === 'scene-cancel-edit') {
     state.editingScene = null;
+    closeModal();
     renderCurrentView();
+    return;
+  }
+  if (action === 'scene-open-create') {
+    state.editingScene = null;
+    openSceneModal();
+    return;
+  }
+  if (action === 'set-scene-view-card') {
+    state.sceneViewMode = 'card';
+    renderScenes();
+    return;
+  }
+  if (action === 'set-scene-view-table') {
+    state.sceneViewMode = 'table';
+    renderScenes();
+    return;
+  }
+  if (action === 'scene-batch-clear') {
+    panelBody.querySelectorAll('.scene-checkbox').forEach((cb) => { cb.checked = false; });
+    updateSceneBatchBar();
+    return;
   }
 }
 
@@ -1597,10 +1875,6 @@ panelBody.addEventListener('submit', async (event) => {
       await submitSkuForm(event.target);
       return;
     }
-    if (event.target.id === 'scene-form') {
-      await submitSceneForm(event.target);
-      return;
-    }
     if (event.target.id === 'category-form') {
       await submitCategoryForm(event.target);
       return;
@@ -1612,9 +1886,6 @@ panelBody.addEventListener('submit', async (event) => {
     if (event.target.id === 'publish-form') {
       await submitPublishForm(event.target);
       return;
-    }
-    if (event.target.id === 'generator-form') {
-      await submitGeneratorForm(event.target);
     }
   } catch (error) {
     toast(error.message || '提交失败');
@@ -1682,97 +1953,95 @@ panelBody.addEventListener('change', (event) => {
 
 panelHead.addEventListener('click', async (event) => {
   const action = event.target.dataset.action;
+  if (!action) return;
+
   if (action === 'batch-delete-orders') {
-    try {
-      await batchDeleteOrders();
-    } catch (error) {
-      toast(error.message || '批量删除失败');
-    }
+    try { await batchDeleteOrders(); } catch (error) { toast(error.message || '批量删除失败', 'error'); }
     return;
   }
   if (action === 'batch-delete-tasks') {
-    try {
-      await batchDeleteTasks();
-    } catch (error) {
-      toast(error.message || '批量删除失败');
-    }
+    try { await batchDeleteTasks(); } catch (error) { toast(error.message || '批量删除失败', 'error'); }
     return;
   }
   if (action === 'batch-delete-users') {
-    try {
-      await batchDeleteUsers();
-    } catch (error) {
-      toast(error.message || '批量删除失败');
-    }
+    try { await batchDeleteUsers(); } catch (error) { toast(error.message || '批量删除失败', 'error'); }
     return;
   }
   if (action === 'batch-delete-scenes') {
-    try {
-      await batchDeleteScenes();
-    } catch (error) {
-      toast(error.message || '批量删除失败');
-    }
-    return;
-  }
-  if (action === 'scene-batch-toggle') {
-    const menu = document.getElementById('scene-batch-menu');
-    if (menu) menu.classList.toggle('open');
-    return;
-  }
-  if (action === 'scene-batch-visibility') {
-    const visibility = event.target.dataset.visibility;
-    const menu = document.getElementById('scene-batch-menu');
-    if (menu) menu.classList.remove('open');
-    try {
-      await batchSceneVisibility(visibility);
-    } catch (error) {
-      toast(error.message || '批量修改失败');
-    }
-    return;
-  }
-  if (action === 'scene-batch-free') {
-    const free = event.target.dataset.free === 'true';
-    const menu = document.getElementById('scene-batch-menu');
-    if (menu) menu.classList.remove('open');
-    try {
-      await batchSceneFree(free);
-    } catch (error) {
-      toast(error.message || '批量修改失败');
-    }
-    return;
-  }
-  if (action === 'scene-batch-category-toggle') {
-    const sub = document.getElementById('scene-batch-category-submenu');
-    if (sub) sub.classList.toggle('open');
-    return;
-  }
-  if (action === 'scene-batch-category') {
-    const categoryId = event.target.dataset.categoryId;
-    const categoryName = event.target.dataset.categoryName;
-    const menu = document.getElementById('scene-batch-menu');
-    if (menu) menu.classList.remove('open');
-    try {
-      await batchSceneCategory(categoryId, categoryName);
-    } catch (error) {
-      toast(error.message || '批量移动失败');
-    }
-    return;
-  }
-  if (action === 'toggle-scene-view') {
-    state.sceneViewMode = state.sceneViewMode === 'card' ? 'table' : 'card';
-    renderScenes();
+    try { await batchDeleteScenes(); } catch (error) { toast(error.message || '批量删除失败', 'error'); }
     return;
   }
   if (action === 'batch-delete-cdk') {
-    try {
-      await batchDeleteCdk();
-    } catch (error) {
-      toast(error.message || '批量删除失败');
+    try { await batchDeleteCdk(); } catch (error) { toast(error.message || '批量删除失败', 'error'); }
+    return;
+  }
+});
+
+// Generator: drag/drop + file selection (delegated from panelBody)
+panelBody.addEventListener('dragover', (event) => {
+  const zone = document.getElementById('gen-drop-zone');
+  if (zone && zone.contains(event.target)) {
+    event.preventDefault();
+    zone.classList.add('drag-over');
+  }
+});
+
+panelBody.addEventListener('dragleave', (event) => {
+  const zone = document.getElementById('gen-drop-zone');
+  if (zone) {
+    const related = event.relatedTarget;
+    if (!zone.contains(related)) {
+      zone.classList.remove('drag-over');
+    }
+  }
+});
+
+panelBody.addEventListener('drop', (event) => {
+  const zone = document.getElementById('gen-drop-zone');
+  if (zone && zone.contains(event.target)) {
+    event.preventDefault();
+    zone.classList.remove('drag-over');
+    if (event.dataTransfer && event.dataTransfer.files.length) {
+      addGeneratorFiles(event.dataTransfer.files);
+    }
+  }
+});
+
+panelBody.addEventListener('change', (event) => {
+  if (event.target.id === 'gen-file-input') {
+    if (event.target.files && event.target.files.length) {
+      addGeneratorFiles(event.target.files);
+      event.target.value = '';
+    }
+    return;
+  }
+});
+
+// Scene search and filter (delegated from panelHead)
+panelHead.addEventListener('input', (event) => {
+  if (event.target.id === 'scene-search-input') {
+    state.sceneSearchQuery = event.target.value;
+    renderScenes();
+    // Refocus and restore cursor position
+    const input = document.getElementById('scene-search-input');
+    if (input) {
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
     }
   }
 });
 
 panelHead.addEventListener('change', (event) => {
+  if (event.target.id === 'scene-filter-category') {
+    state.sceneFilterCategory = event.target.value;
+    renderScenes();
+    return;
+  }
+  if (event.target.id === 'scene-filter-visibility') {
+    state.sceneFilterVisibility = event.target.value;
+    renderScenes();
+    return;
+  }
   if (event.target.id === 'select-all-scenes') {
     const checked = event.target.checked;
     panelBody.querySelectorAll('.scene-checkbox').forEach((cb) => { cb.checked = checked; });
@@ -1780,12 +2049,88 @@ panelHead.addEventListener('change', (event) => {
   }
 });
 
-document.addEventListener('click', (event) => {
-  const menu = document.getElementById('scene-batch-menu');
-  if (!menu || !menu.classList.contains('open')) return;
-  if (event.target.closest('.batch-action-dropdown')) return;
-  menu.classList.remove('open');
+// Global delegated events: modal, batch bar, close dropdowns
+document.addEventListener('click', async (event) => {
+  const action = event.target.dataset.action;
+  if (!action) {
+    // Close batch bar category menu if clicking outside
+    const catMenu = document.getElementById('batch-bar-category-menu');
+    if (catMenu && catMenu.classList.contains('open') && !event.target.closest('#batch-bar-category-menu') && !event.target.closest('[data-action="scene-batch-category-toggle"]')) {
+      catMenu.classList.remove('open');
+    }
+    return;
+  }
+
+  // Modal close button
+  if (action === 'scene-cancel-edit' || event.target.id === 'modal-close') {
+    state.editingScene = null;
+    closeModal();
+    return;
+  }
+
+  // Batch bar actions
+  if (action === 'scene-batch-clear') {
+    panelBody.querySelectorAll('.scene-checkbox').forEach((cb) => { cb.checked = false; });
+    updateSceneBatchBar();
+    return;
+  }
+  if (action === 'scene-batch-visibility') {
+    const visibility = event.target.dataset.visibility;
+    try { await batchSceneVisibility(visibility); } catch (error) { toast(error.message || '批量修改失败', 'error'); }
+    return;
+  }
+  if (action === 'scene-batch-free') {
+    const free = event.target.dataset.free === 'true';
+    try { await batchSceneFree(free); } catch (error) { toast(error.message || '批量修改失败', 'error'); }
+    return;
+  }
+  if (action === 'scene-batch-category-toggle') {
+    const sub = document.getElementById('batch-bar-category-menu');
+    if (sub) sub.classList.toggle('open');
+    return;
+  }
+  if (action === 'scene-batch-category') {
+    const categoryId = event.target.dataset.categoryId;
+    const categoryName = event.target.dataset.categoryName;
+    const catMenu = document.getElementById('batch-bar-category-menu');
+    if (catMenu) catMenu.classList.remove('open');
+    try { await batchSceneCategory(categoryId, categoryName); } catch (error) { toast(error.message || '批量移动失败', 'error'); }
+    return;
+  }
 });
+
+// Modal overlay backdrop click to close
+const modalOverlay = document.getElementById('modal-overlay');
+if (modalOverlay) {
+  modalOverlay.addEventListener('click', (event) => {
+    if (event.target === modalOverlay) {
+      state.editingScene = null;
+      closeModal();
+    }
+  });
+
+  // Handle scene form submit inside modal
+  document.getElementById('modal-body').addEventListener('submit', async (event) => {
+    if (event.target.id === 'scene-form') {
+      event.preventDefault();
+      try {
+        await submitSceneForm(event.target);
+        closeModal();
+      } catch (error) {
+        toast(error.message || '提交失败', 'error');
+      }
+    }
+  });
+
+  // Handle cancel button click inside modal
+  document.getElementById('modal-body').addEventListener('click', (event) => {
+    const action = event.target.dataset.action;
+    if (action === 'scene-cancel-edit') {
+      state.editingScene = null;
+      closeModal();
+    }
+  });
+}
 
 loginForm.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -1827,6 +2172,12 @@ logoutBtn.addEventListener('click', () => {
   state.editingCategory = null;
   state.editingCollection = null;
   state.publishingDraft = null;
+  state.sceneSearchQuery = '';
+  state.sceneFilterCategory = '';
+  state.sceneFilterVisibility = '';
+  state.generatorFiles = [];
+  const bar = document.getElementById('scene-batch-bar');
+  if (bar) bar.remove();
 });
 
 refreshBtn.addEventListener('click', async () => {

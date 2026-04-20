@@ -684,6 +684,149 @@
         "categoryId": "scene_category_001",
         "collectionIds": []
       }
+    },
+    {
+      "sceneId": "scene_20260418050044_45e38f",
+      "title": "动物园",
+      "category": "动物世界",
+      "visibility": "public",
+      "sceneType": "public",
+      "backgroundPath": "/assets/generated/scene_user_20260418050010_da1ed1/background.jpg",
+      "coverPath": "/assets/generated/scene_user_20260418050010_da1ed1/background.jpg",
+      "items": [
+        {
+          "id": "giraffe",
+          "word": "giraffe",
+          "ipa": "/ˈɡɪrəf/",
+          "meaning": "长颈鹿",
+          "sentence": "The giraffe is eating leaves from the tree.",
+          "sentenceTranslation": "长颈鹿正在从树上吃叶子。",
+          "audioPath": "/assets/generated/scene_user_20260418050010_da1ed1/scene_user_20260418050010_da1ed1_en-US-JennyNeural_US_female_giraffe_the_giraffe_is_eating_leaves_from.mp3",
+          "rect": {
+            "l": 30.0,
+            "t": 20.0,
+            "w": 25.0,
+            "h": 40.0
+          }
+        },
+        {
+          "id": "zebra",
+          "word": "zebra",
+          "ipa": "/ˈziːbrə/",
+          "meaning": "斑马",
+          "sentence": "The zebra is grazing on the grass.",
+          "sentenceTranslation": "斑马正在草地上觅食。",
+          "audioPath": "/assets/generated/scene_user_20260418050010_da1ed1/scene_user_20260418050010_da1ed1_en-US-JennyNeural_US_female_zebra_the_zebra_is_grazing_on_the.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 35.0,
+            "w": 20.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "deer",
+          "word": "deer",
+          "ipa": "/diːə(r)/",
+          "meaning": "鹿",
+          "sentence": "The deer is standing near the fence.",
+          "sentenceTranslation": "鹿正站在围栏附近。",
+          "audioPath": "/assets/generated/scene_user_20260418050010_da1ed1/scene_user_20260418050010_da1ed1_en-US-JennyNeural_US_female_deer_the_deer_is_standing_near_the.mp3",
+          "rect": {
+            "l": 70.0,
+            "t": 45.0,
+            "w": 15.0,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "fence",
+          "word": "fence",
+          "ipa": "/fens/",
+          "meaning": "栅栏",
+          "sentence": "The animals are behind the fence.",
+          "sentenceTranslation": "这些动物都在栅栏后面。",
+          "audioPath": "/assets/generated/scene_user_20260418050010_da1ed1/scene_user_20260418050010_da1ed1_en-US-JennyNeural_US_female_fence_the_animals_are_behind_the_fence.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 60.0,
+            "w": 80.0,
+            "h": 40.0
+          }
+        },
+        {
+          "id": "grass",
+          "word": "grass",
+          "ipa": "/grɑːs/",
+          "meaning": "草地",
+          "sentence": "The animals are walking on the grass.",
+          "sentenceTranslation": "这些动物正在草地上行走。",
+          "audioPath": "/assets/generated/scene_user_20260418050010_da1ed1/scene_user_20260418050010_da1ed1_en-US-JennyNeural_US_female_grass_the_animals_are_walking_on_the.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 75.0,
+            "w": 90.0,
+            "h": 25.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "eat",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "The giraffe eats leaves from the tree.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260418050010_da1ed1/scene_user_20260418050010_da1ed1_en-US-JennyNeural_US_female_eat_the_giraffe_eats_leaves_from_the.mp3",
+          "relatedItem": "giraffe"
+        },
+        {
+          "id": "graze",
+          "word": "graze",
+          "ipa": "/ɡreɪz/",
+          "meaning": "啃食",
+          "sentence": "The zebra grazes on the grass.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260418050010_da1ed1/scene_user_20260418050010_da1ed1_en-US-JennyNeural_US_female_graze_the_zebra_grazes_on_the_grass.mp3",
+          "relatedItem": "zebra"
+        },
+        {
+          "id": "stand",
+          "word": "stand",
+          "ipa": "/stænd/",
+          "meaning": "站立",
+          "sentence": "The deer stands near the fence.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260418050010_da1ed1/scene_user_20260418050010_da1ed1_en-US-JennyNeural_US_female_stand_the_deer_stands_near_the_fence.mp3",
+          "relatedItem": "deer"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260418050009_89b5cd",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260418050010_da1ed1",
+        "core100SceneTitle": "动物园",
+        "recommendedCategory": "animals",
+        "tags": [
+          "动物",
+          "自然",
+          "观赏"
+        ],
+        "version": 1,
+        "sourceGeneratedSceneId": "scene_user_20260418050010_da1ed1",
+        "publishedBy": "admin_console:admin",
+        "publishedAt": "2026-04-18T05:00:44Z",
+        "categoryId": "scene_category_animals",
+        "collectionIds": []
+      }
     }
   ]
 }

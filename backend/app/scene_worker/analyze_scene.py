@@ -407,11 +407,13 @@ def analyze_scene_with_glm4v(image_path, scene_name, api_key=None, model="glm-4v
                     ]
                 }
             ],
-            thinking={"type": "enabled"}
         )
 
         # 解析返回的 JSON
         response_text = response.choices[0].message.content
+        print(f"📝 模型返回内容长度: {len(response_text) if response_text else 0}")
+        if response_text:
+            print(f"📝 前200字符: {response_text[:200]}")
 
         # 使用智能修复模块解析 JSON
         print("📝 解析 JSON 响应...")

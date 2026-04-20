@@ -1,4 +1,5 @@
 import copy
+import fcntl
 from pathlib import Path
 from threading import Lock
 from typing import Any
@@ -7,10 +8,26 @@ from .store_utils import build_object_id, ensure_json_file, read_json_file, utcn
 
 
 class TaskStore:
-    def __init__(self, data_file: Path):
+    def __init__(self, data_file: Path, cross_process: bool = False):
         self.data_file = data_file
         self.lock = Lock()
+        self._lock_file = data_file.with_suffix('.lock')
+        self._lock_fd = None
+        self.cross_process = cross_process
         ensure_json_file(self.data_file, {'tasks': []})
+
+    def _acquire(self):
+        if self.cross_process:
+            self._lock_fd = open(self._lock_file, 'w')
+            fcntl.flock(self._lock_fd, fcntl.LOCK_EX)
+        self.lock.acquire()
+
+    def _release(self):
+        self.lock.release()
+        if self.cross_process and self._lock_fd:
+            fcntl.flock(self._lock_fd, fcntl.LOCK_UN)
+            self._lock_fd.close()
+            self._lock_fd = None
 
     def create_task(self, *, owner_id: str, payload: dict[str, Any]) -> dict[str, Any]:
         task_id = build_object_id('task')
@@ -40,16 +57,22 @@ class TaskStore:
             'updatedAt': now,
         }
 
-        with self.lock:
+        self._acquire()
+        try:
             data = read_json_file(self.data_file)
             data.setdefault('tasks', []).append(task)
             write_json_file(self.data_file, data)
+        finally:
+            self._release()
 
         return copy.deepcopy(task)
 
     def get_task(self, task_id: str) -> dict[str, Any] | None:
-        with self.lock:
+        self._acquire()
+        try:
             tasks = read_json_file(self.data_file).get('tasks', [])
+        finally:
+            self._release()
 
         for task in tasks:
             if task.get('taskId') == task_id:
@@ -57,7 +80,8 @@ class TaskStore:
         return None
 
     def update_task(self, task_id: str, **changes: Any) -> dict[str, Any] | None:
-        with self.lock:
+        self._acquire()
+        try:
             data = read_json_file(self.data_file)
             tasks = data.setdefault('tasks', [])
             for index, task in enumerate(tasks):
@@ -70,13 +94,18 @@ class TaskStore:
                 tasks[index] = next_task
                 write_json_file(self.data_file, data)
                 return copy.deepcopy(next_task)
+        finally:
+            self._release()
 
         return None
 
     def list_tasks(self, limit: int = 100) -> list[dict[str, Any]]:
         limit = max(1, int(limit or 100))
-        with self.lock:
+        self._acquire()
+        try:
             tasks = read_json_file(self.data_file).get('tasks', [])
+        finally:
+            self._release()
         ordered = sorted(
             tasks,
             key=lambda item: item.get('updatedAt') or item.get('createdAt') or '',
@@ -85,7 +114,8 @@ class TaskStore:
         return [copy.deepcopy(task) for task in ordered[:limit]]
 
     def retry_task(self, task_id: str) -> dict[str, Any] | None:
-        with self.lock:
+        self._acquire()
+        try:
             data = read_json_file(self.data_file)
             tasks = data.setdefault('tasks', [])
             for index, task in enumerate(tasks):
@@ -102,10 +132,13 @@ class TaskStore:
                 tasks[index] = next_task
                 write_json_file(self.data_file, data)
                 return copy.deepcopy(next_task)
+        finally:
+            self._release()
         return None
 
     def claim_next_task(self) -> dict[str, Any] | None:
-        with self.lock:
+        self._acquire()
+        try:
             data = read_json_file(self.data_file)
             tasks = data.setdefault('tasks', [])
             for index, task in enumerate(tasks):
@@ -120,6 +153,8 @@ class TaskStore:
                 tasks[index] = claimed
                 write_json_file(self.data_file, data)
                 return copy.deepcopy(claimed)
+        finally:
+            self._release()
 
         return None
 
@@ -127,16 +162,20 @@ class TaskStore:
         if not task_ids:
             return 0
         id_set = set(task_ids)
-        with self.lock:
+        self._acquire()
+        try:
             data = read_json_file(self.data_file)
             tasks = data.setdefault('tasks', [])
             before = len(tasks)
             data['tasks'] = [t for t in tasks if t.get('taskId') not in id_set]
             write_json_file(self.data_file, data)
             return before - len(data['tasks'])
+        finally:
+            self._release()
 
     def requeue_unfinished_tasks(self) -> None:
-        with self.lock:
+        self._acquire()
+        try:
             data = read_json_file(self.data_file)
             tasks = data.setdefault('tasks', [])
             changed = False
@@ -153,3 +192,5 @@ class TaskStore:
 
             if changed:
                 write_json_file(self.data_file, data)
+        finally:
+            self._release()
