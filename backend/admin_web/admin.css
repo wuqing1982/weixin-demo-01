@@ -2036,6 +2036,14 @@ input {
   color: var(--danger);
 }
 
+.gen-task-status--source {
+  background: rgba(100, 116, 139, 0.1);
+  color: #475569;
+  font-size: 10px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
 .gen-task-progress {
   height: 6px;
   border-radius: 3px;

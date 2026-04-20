@@ -1110,11 +1110,11 @@ function progressBarClass(status) {
 }
 
 function renderGenerator() {
-  const generatorTasks = state.tasks.filter((task) => task.requestSource === 'admin_web_generator');
+  const generatorTasks = state.tasks;
   panelHead.innerHTML = `
     <div>
       <h3 class="panel-title">场景生成器</h3>
-      <p class="panel-subtitle">上传全景图片，AI 自动分析生成英语学习场景，完成后可自动发布到公开场景库。</p>
+      <p class="panel-subtitle">所有来源的生成任务（Admin 上传 + 小程序拍照）。</p>
     </div>
     <span class="meta-chip">${generatorTasks.length} 条任务</span>
   `;
@@ -1193,11 +1193,12 @@ function renderGenerator() {
               const progress = task.progress || 0;
               const status = task.status || 'pending';
               const statusLabel = { pending: '等待中', processing: '处理中', running: '处理中', done: '已完成', completed: '已完成', failed: '失败' }[status] || status;
+              const sourceLabel = task.requestSource === 'admin_web_generator' ? 'Admin' : (task.requestSource === 'miniapp' ? '小程序' : (task.requestSource || '-'));
               return `
               <div class="gen-task-card">
                 <div class="gen-task-top">
                   <div>
-                    <div class="gen-task-title">${escapeHtml(task.title || task.uploadId || '未命名')}</div>
+                    <div class="gen-task-title">${escapeHtml(task.title || task.uploadId || '未命名')} <span class="gen-task-status gen-task-status--source">${sourceLabel}</span></div>
                     <div class="gen-task-id">${escapeHtml(task.taskId)}</div>
                   </div>
                   <span class="gen-task-status ${taskStatusClass(status)}">${statusLabel}</span>
@@ -1974,6 +1975,11 @@ panelHead.addEventListener('click', async (event) => {
   if (action === 'batch-delete-cdk') {
     try { await batchDeleteCdk(); } catch (error) { toast(error.message || '批量删除失败', 'error'); }
     return;
+  }
+  try {
+    await handleAction(action, event.target.dataset.id);
+  } catch (error) {
+    toast(error.message || '操作失败');
   }
 });
 

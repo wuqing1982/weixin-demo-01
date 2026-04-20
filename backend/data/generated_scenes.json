@@ -4301,6 +4301,147 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260420172920_e390fa",
+      "title": "客厅",
+      "category": "home",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260420172920_e390fa/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260420172920_e390fa/background.jpg",
+      "items": [
+        {
+          "id": "television",
+          "word": "television",
+          "ipa": "/ˈtelɪvɪʒən/",
+          "meaning": "电视",
+          "sentence": "Look at the television on the stand.",
+          "sentenceTranslation": "看放在架子上的电视。",
+          "audioPath": "/assets/generated/scene_user_20260420172920_e390fa/scene_user_20260420172920_e390fa_en-US-JennyNeural_US_female_television_look_at_the_television_on_the.mp3",
+          "rect": {
+            "l": 17.13,
+            "t": 36.39,
+            "w": 30.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "kettle",
+          "word": "kettle",
+          "ipa": "/ˈketl/",
+          "meaning": "电热水壶",
+          "sentence": "The kettle is on the stand next to the television.",
+          "sentenceTranslation": "电热水壶在电视机旁边的架子上。",
+          "audioPath": "/assets/generated/scene_user_20260420172920_e390fa/scene_user_20260420172920_e390fa_en-US-JennyNeural_US_female_kettle_the_kettle_is_on_the_stand.mp3",
+          "rect": {
+            "l": 71.28,
+            "t": 52.18,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "cups",
+          "word": "cup",
+          "ipa": "/kʌp/",
+          "meaning": "杯子",
+          "sentence": "There are two cups on the stand.",
+          "sentenceTranslation": "架子上有两个杯子。",
+          "audioPath": "/assets/generated/scene_user_20260420172920_e390fa/scene_user_20260420172920_e390fa_en-US-JennyNeural_US_female_cups_there_are_two_cups_on_the.mp3",
+          "rect": {
+            "l": 58.53,
+            "t": 56.2,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "toys",
+          "word": "toy",
+          "ipa": "/tɔɪ/",
+          "meaning": "玩具",
+          "sentence": "The toys are under the stand.",
+          "sentenceTranslation": "玩具在架子下面。",
+          "audioPath": "/assets/generated/scene_user_20260420172920_e390fa/scene_user_20260420172920_e390fa_en-US-JennyNeural_US_female_toys_the_toys_are_under_the_stand.mp3",
+          "rect": {
+            "l": 80.07,
+            "t": 65.21,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "remote_control",
+          "word": "remote control",
+          "ipa": "/rɪˈmɒt ˈkɒntroʊl/",
+          "meaning": "遥控器",
+          "sentence": "Put the remote control back in its place.",
+          "sentenceTranslation": "把遥控器放回原位。",
+          "audioPath": "/assets/generated/scene_user_20260420172920_e390fa/scene_user_20260420172920_e390fa_en-US-JennyNeural_US_female_remote_control_put_the_remote_control_back_in.mp3",
+          "rect": {
+            "l": 41.36,
+            "t": 61.2,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "watch",
+          "word": "watch",
+          "ipa": "/wɒtʃ/",
+          "meaning": "观看",
+          "sentence": "Let's watch a movie on the television.",
+          "sentenceTranslation": "我们可以在电视上看一部电影。",
+          "audioPath": "/assets/generated/scene_user_20260420172920_e390fa/scene_user_20260420172920_e390fa_en-US-JennyNeural_US_female_watch_lets_watch_a_movie_on_the.mp3",
+          "relatedItem": "television"
+        },
+        {
+          "id": "make_coffee",
+          "word": "make",
+          "ipa": "/meɪk/",
+          "meaning": "制作",
+          "sentence": "Can you make some coffee with the kettle?",
+          "sentenceTranslation": "你能用电热水壶泡杯咖啡吗？",
+          "audioPath": "/assets/generated/scene_user_20260420172920_e390fa/scene_user_20260420172920_e390fa_en-US-JennyNeural_US_female_make_coffee_can_you_make_some_coffee_with.mp3",
+          "relatedItem": "kettle"
+        },
+        {
+          "id": "play",
+          "word": "play",
+          "ipa": "/pleɪ/",
+          "meaning": "玩耍",
+          "sentence": "It's time to play with your toys.",
+          "sentenceTranslation": "现在是玩玩具的时候了。",
+          "audioPath": "/assets/generated/scene_user_20260420172920_e390fa/scene_user_20260420172920_e390fa_en-US-JennyNeural_US_female_play_its_time_to_play_with_your.mp3",
+          "relatedItem": "toys"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260408024505_7358e9",
+        "uploadId": "upload_20260420172103_eba5d0",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260420172920_e390fa",
+        "core100SceneTitle": "客厅",
+        "recommendedCategory": "home",
+        "tags": [
+          "家庭",
+          "居住空间",
+          "休闲"
+        ],
+        "version": 2,
+        "hotspotEditable": true,
+        "hotspotUpdatedAt": "2026-04-20T17:31:08Z",
+        "hotspotUpdatedBy": "user_20260408024505_7358e9"
+      }
     }
   ]
 }
