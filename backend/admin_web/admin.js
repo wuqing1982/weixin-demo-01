@@ -706,6 +706,22 @@ function updateTaskBatchState() {
   }
 }
 
+function updateGeneratorBatchState() {
+  const checkboxes = panelBody.querySelectorAll('.gen-task-checkbox');
+  const checked = panelBody.querySelectorAll('.gen-task-checkbox:checked');
+  const selectAll = panelBody.querySelector('#select-all-gen-tasks');
+  const bar = document.getElementById('gen-batch-bar');
+  if (selectAll) {
+    selectAll.checked = checkboxes.length > 0 && checked.length === checkboxes.length;
+    selectAll.indeterminate = checked.length > 0 && checked.length < checkboxes.length;
+  }
+  if (bar) {
+    bar.classList.toggle('visible', checked.length > 0);
+    const countEl = bar.querySelector('.batch-bar-count');
+    if (countEl) countEl.textContent = `已选 ${checked.length} 项`;
+  }
+}
+
 async function batchDeleteTasks() {
   const ids = getSelectedTaskIds();
   if (ids.length === 0) return;
@@ -1184,8 +1200,11 @@ function renderGenerator() {
 
       <div class="gen-tasks-section">
         <div class="gen-tasks-header">
-          <h4>生成任务</h4>
-          <span class="meta-chip">${generatorTasks.length} 条</span>
+          <div style="display:flex;align-items:center;gap:12px">
+            <label class="checkbox-cell"><input type="checkbox" id="select-all-gen-tasks"></label>
+            <h4>生成任务</h4>
+            <span class="meta-chip">${generatorTasks.length} 条</span>
+          </div>
         </div>
         ${generatorTasks.length > 0 ? `
           <div class="gen-tasks-grid">
@@ -1194,28 +1213,37 @@ function renderGenerator() {
               const status = task.status || 'pending';
               const statusLabel = { pending: '等待中', processing: '处理中', running: '处理中', done: '已完成', completed: '已完成', failed: '失败' }[status] || status;
               const sourceLabel = task.requestSource === 'admin_web_generator' ? 'Admin' : (task.requestSource === 'miniapp' ? '小程序' : (task.requestSource || '-'));
+              const coverUrl = task.coverUrl || '';
               return `
-              <div class="gen-task-card">
-                <div class="gen-task-top">
-                  <div>
-                    <div class="gen-task-title">${escapeHtml(task.title || task.uploadId || '未命名')} <span class="gen-task-status gen-task-status--source">${sourceLabel}</span></div>
-                    <div class="gen-task-id">${escapeHtml(task.taskId)}</div>
+              <div class="scene-card gen-task-card" data-task-id="${escapeHtml(task.taskId)}">
+                <label class="scene-card-check">
+                  <input type="checkbox" class="gen-task-checkbox" value="${escapeHtml(task.taskId)}">
+                  <span class="scene-card-checkmark"></span>
+                </label>
+                <div class="scene-card-cover">
+                  ${coverUrl ? `<img src="${coverUrl}" onerror="this.remove()">` : ''}
+                  ${!coverUrl ? '<div class="cover-placeholder">&#127912;</div>' : ''}
+                </div>
+                <div class="scene-card-body">
+                  <strong class="scene-card-title">${escapeHtml(task.title || task.uploadId || '未命名')}</strong>
+                  <div class="scene-card-meta">
+                    <span class="gen-task-status ${taskStatusClass(status)}">${statusLabel}</span>
+                    <span class="scene-card-meta-dot"></span>
+                    <span>${sourceLabel}</span>
+                    <span class="scene-card-meta-dot"></span>
+                    <span>${progress}%</span>
                   </div>
-                  <span class="gen-task-status ${taskStatusClass(status)}">${statusLabel}</span>
-                </div>
-                <div class="gen-task-progress">
-                  <div class="gen-task-progress-bar ${progressBarClass(status)}" style="width:${Math.max(2, progress)}%"></div>
-                </div>
-                <div class="gen-task-meta">
-                  <span class="gen-task-meta-item">${escapeHtml(task.step || '-')}</span>
-                  <span class="gen-task-meta-item">${progress}%</span>
-                </div>
-                ${(task.sceneId || task.publishedSceneId) ? `
-                  <div class="gen-task-links">
-                    ${task.sceneId ? `<span class="gen-task-link">生成: ${escapeHtml(task.sceneId).substring(0, 12)}...</span>` : ''}
-                    ${task.publishedSceneId ? `<span class="gen-task-link">发布: ${escapeHtml(task.publishedSceneId).substring(0, 12)}...</span>` : ''}
+                  <div class="gen-task-progress">
+                    <div class="gen-task-progress-bar ${progressBarClass(status)}" style="width:${Math.max(2, progress)}%"></div>
                   </div>
-                ` : ''}
+                  <div class="scene-card-actions" style="margin-top:8px">
+                    ${status === 'failed' ? `<button class="mini-btn success-btn" data-action="task-retry" data-id="${escapeHtml(task.taskId)}">重试</button>` : ''}
+                    ${(task.sceneId || task.publishedSceneId) ? `
+                      ${task.sceneId ? `<span class="gen-task-link" title="生成场景">SC ${escapeHtml(task.sceneId).substring(0, 8)}</span>` : ''}
+                      ${task.publishedSceneId ? `<span class="gen-task-link" title="发布场景">PB ${escapeHtml(task.publishedSceneId).substring(0, 8)}</span>` : ''}
+                    ` : ''}
+                  </div>
+                </div>
               </div>`;
             }).join('')}
           </div>
@@ -1223,6 +1251,19 @@ function renderGenerator() {
       </div>
     </div>
   `;
+
+  const existingBar = document.getElementById('gen-batch-bar');
+  if (existingBar) existingBar.remove();
+  const batchBarHtml = `
+    <div id="gen-batch-bar" class="batch-bar">
+      <div class="batch-bar-inner">
+        <span class="batch-bar-count">已选 0 项</span>
+        <button class="batch-bar-btn batch-bar-btn--danger" data-action="gen-batch-delete">删除</button>
+        <button class="batch-bar-close" data-action="gen-batch-clear">&times;</button>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', batchBarHtml);
 }
 
 function renderTaxonomy() {
@@ -1427,6 +1468,9 @@ function renderCurrentView() {
   });
 
   pageTitle.textContent = VIEW_TITLES[state.currentView] || state.currentView;
+
+  const genBar = document.getElementById('gen-batch-bar');
+  if (genBar && state.currentView !== 'generator') genBar.remove();
 
   if (state.currentView === 'overview') {
     overviewCards.hidden = false;
@@ -1863,6 +1907,11 @@ async function handleAction(action, id) {
     updateSceneBatchBar();
     return;
   }
+  if (action === 'gen-batch-clear') {
+    panelBody.querySelectorAll('.gen-task-checkbox').forEach((cb) => { cb.checked = false; });
+    updateGeneratorBatchState();
+    return;
+  }
 }
 
 panelBody.addEventListener('submit', async (event) => {
@@ -1939,6 +1988,16 @@ panelBody.addEventListener('change', (event) => {
   }
   if (event.target.classList.contains('scene-checkbox')) {
     updateSceneBatchState();
+    return;
+  }
+  if (event.target.classList.contains('gen-task-checkbox')) {
+    updateGeneratorBatchState();
+    return;
+  }
+  if (event.target.id === 'select-all-gen-tasks') {
+    const checked = event.target.checked;
+    panelBody.querySelectorAll('.gen-task-checkbox').forEach((cb) => { cb.checked = checked; });
+    updateGeneratorBatchState();
     return;
   }
   if (event.target.classList.contains('cdk-checkbox')) {
@@ -2103,6 +2162,19 @@ document.addEventListener('click', async (event) => {
     try { await batchSceneCategory(categoryId, categoryName); } catch (error) { toast(error.message || '批量移动失败', 'error'); }
     return;
   }
+  if (action === 'gen-batch-delete') {
+    const ids = Array.from(panelBody.querySelectorAll('.gen-task-checkbox:checked')).map((cb) => cb.value);
+    if (ids.length === 0) return;
+    if (!window.confirm(`确定要删除选中的 ${ids.length} 条任务吗？此操作不可恢复。`)) return;
+    try {
+      await api('/api/admin/tasks/batch-delete', { method: 'POST', body: { taskIds: ids } });
+      toast(`成功删除 ${ids.length} 条任务`);
+      await loadConsole();
+    } catch (error) {
+      toast(error.message || '批量删除失败', 'error');
+    }
+    return;
+  }
 });
 
 // Modal overlay backdrop click to close
@@ -2184,6 +2256,8 @@ logoutBtn.addEventListener('click', () => {
   state.generatorFiles = [];
   const bar = document.getElementById('scene-batch-bar');
   if (bar) bar.remove();
+  const genBarLogout = document.getElementById('gen-batch-bar');
+  if (genBarLogout) genBarLogout.remove();
 });
 
 refreshBtn.addEventListener('click', async () => {
