@@ -93,6 +93,10 @@ function updateSceneBatchBar() {
   const countEl = bar.querySelector('.batch-bar-count');
   if (countEl) countEl.textContent = `已选 ${ids.length} 项`;
   bar.classList.toggle('visible', ids.length > 0);
+  const dropdown = document.getElementById('scene-batch-action');
+  const executeBtn = document.getElementById('scene-batch-execute');
+  if (dropdown) dropdown.selectedIndex = 0;
+  if (executeBtn) executeBtn.disabled = true;
 }
 
 function updateSceneBatchState() {
@@ -961,18 +965,27 @@ function renderScenes() {
     <div id="scene-batch-bar" class="batch-bar">
       <div class="batch-bar-inner">
         <span class="batch-bar-count">已选 0 项</span>
-        <button class="batch-bar-btn" data-action="scene-batch-visibility" data-visibility="public">设为公开</button>
-        <button class="batch-bar-btn" data-action="scene-batch-visibility" data-visibility="member">设为会员</button>
-        <button class="batch-bar-btn" data-action="scene-batch-visibility" data-visibility="private">设为隐藏</button>
-        <button class="batch-bar-btn" data-action="scene-batch-free" data-free="true">设为免费</button>
-        <button class="batch-bar-btn" data-action="scene-batch-free" data-free="false">取消免费</button>
-        <span style="position:relative;display:inline-flex">
-          <button class="batch-bar-btn" data-action="scene-batch-category-toggle">移动到分类 &#9650;</button>
-          <div class="batch-bar-category-menu" id="batch-bar-category-menu">
-            ${state.categories.map((cat) => `<button class="batch-menu-item" data-action="scene-batch-category" data-category-id="${escapeHtml(cat.categoryId)}" data-category-name="${escapeHtml(cat.name)}">${escapeHtml(cat.name)}</button>`).join('')}
-          </div>
-        </span>
-        <button class="batch-bar-btn batch-bar-btn--danger" data-action="batch-delete-scenes">删除</button>
+        <div class="batch-bar-dropdown-wrap">
+          <select id="scene-batch-action" class="batch-bar-dropdown">
+            <option value="">选择操作…</option>
+            <optgroup label="可见性">
+              <option value="visibility:public">设为公开</option>
+              <option value="visibility:member">设为会员</option>
+              <option value="visibility:private">设为隐藏</option>
+            </optgroup>
+            <optgroup label="价格">
+              <option value="free:true">设为免费</option>
+              <option value="free:false">取消免费</option>
+            </optgroup>
+            <optgroup label="分类">
+              ${state.categories.map((cat) => `<option value="category:${escapeHtml(cat.categoryId)}:${escapeHtml(cat.name)}">移动到「${escapeHtml(cat.name)}」</option>`).join('')}
+            </optgroup>
+            <optgroup label="危险操作">
+              <option value="delete" style="color:#e74c3c">删除</option>
+            </optgroup>
+          </select>
+          <button class="batch-bar-execute-btn" id="scene-batch-execute" data-action="scene-batch-execute" disabled>执行</button>
+        </div>
         <button class="batch-bar-close" data-action="scene-batch-clear">&times;</button>
       </div>
     </div>
@@ -2128,14 +2141,7 @@ panelHead.addEventListener('change', (event) => {
 // Global delegated events: modal, batch bar, close dropdowns
 document.addEventListener('click', async (event) => {
   const action = event.target.dataset.action;
-  if (!action) {
-    // Close batch bar category menu if clicking outside
-    const catMenu = document.getElementById('batch-bar-category-menu');
-    if (catMenu && catMenu.classList.contains('open') && !event.target.closest('#batch-bar-category-menu') && !event.target.closest('[data-action="scene-batch-category-toggle"]')) {
-      catMenu.classList.remove('open');
-    }
-    return;
-  }
+  if (!action) return;
 
   // Modal close button
   if (action === 'scene-cancel-edit' || event.target.id === 'modal-close') {
@@ -2150,27 +2156,28 @@ document.addEventListener('click', async (event) => {
     updateSceneBatchBar();
     return;
   }
-  if (action === 'scene-batch-visibility') {
-    const visibility = event.target.dataset.visibility;
-    try { await batchSceneVisibility(visibility); } catch (error) { toast(error.message || '批量修改失败', 'error'); }
-    return;
-  }
-  if (action === 'scene-batch-free') {
-    const free = event.target.dataset.free === 'true';
-    try { await batchSceneFree(free); } catch (error) { toast(error.message || '批量修改失败', 'error'); }
-    return;
-  }
-  if (action === 'scene-batch-category-toggle') {
-    const sub = document.getElementById('batch-bar-category-menu');
-    if (sub) sub.classList.toggle('open');
-    return;
-  }
-  if (action === 'scene-batch-category') {
-    const categoryId = event.target.dataset.categoryId;
-    const categoryName = event.target.dataset.categoryName;
-    const catMenu = document.getElementById('batch-bar-category-menu');
-    if (catMenu) catMenu.classList.remove('open');
-    try { await batchSceneCategory(categoryId, categoryName); } catch (error) { toast(error.message || '批量移动失败', 'error'); }
+  if (action === 'scene-batch-execute') {
+    const dropdown = document.getElementById('scene-batch-action');
+    const selectedAction = dropdown ? dropdown.value : '';
+    if (!selectedAction) { toast('请先选择操作', 'error'); return; }
+    const ids = getSelectedSceneIds();
+    if (ids.length === 0) return;
+
+    if (selectedAction === 'delete') {
+      if (!window.confirm(`确定要删除选中的 ${ids.length} 个场景吗？此操作不可恢复。`)) return;
+      try { await batchDeleteScenes(); } catch (error) { toast(error.message || '批量删除失败', 'error'); }
+    } else if (selectedAction.startsWith('visibility:')) {
+      const visibility = selectedAction.split(':')[1];
+      try { await batchSceneVisibility(visibility); } catch (error) { toast(error.message || '批量修改失败', 'error'); }
+    } else if (selectedAction.startsWith('free:')) {
+      const free = selectedAction.split(':')[1] === 'true';
+      try { await batchSceneFree(free); } catch (error) { toast(error.message || '批量修改失败', 'error'); }
+    } else if (selectedAction.startsWith('category:')) {
+      const parts = selectedAction.split(':');
+      const categoryId = parts[1];
+      const categoryName = parts.slice(2).join(':');
+      try { await batchSceneCategory(categoryId, categoryName); } catch (error) { toast(error.message || '批量移动失败', 'error'); }
+    }
     return;
   }
   if (action === 'gen-batch-execute') {
@@ -2209,6 +2216,10 @@ document.addEventListener('click', async (event) => {
 document.addEventListener('change', (event) => {
   if (event.target.id === 'gen-batch-action') {
     const executeBtn = document.getElementById('gen-batch-execute');
+    if (executeBtn) executeBtn.disabled = !event.target.value;
+  }
+  if (event.target.id === 'scene-batch-action') {
+    const executeBtn = document.getElementById('scene-batch-execute');
     if (executeBtn) executeBtn.disabled = !event.target.value;
   }
 });
