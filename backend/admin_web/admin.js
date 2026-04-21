@@ -101,6 +101,13 @@ function updateSceneBatchBar() {
 
 function updateSceneBatchState() {
   updateSceneBatchBar();
+  const checkboxes = panelBody.querySelectorAll('.scene-checkbox');
+  const checked = panelBody.querySelectorAll('.scene-checkbox:checked');
+  const selectAll = panelBody.querySelector('#select-all-scenes');
+  if (selectAll) {
+    selectAll.checked = checkboxes.length > 0 && checked.length === checkboxes.length;
+    selectAll.indeterminate = checked.length > 0 && checked.length < checkboxes.length;
+  }
 }
 
 function escapeHtml(value) {
@@ -2104,6 +2111,11 @@ panelBody.addEventListener('change', (event) => {
     }
     return;
   }
+  if (event.target.id === 'select-all-scenes') {
+    const checked = event.target.checked;
+    panelBody.querySelectorAll('.scene-checkbox').forEach((cb) => { cb.checked = checked; });
+    updateSceneBatchState();
+  }
 });
 
 // Scene search and filter (delegated from panelHead)
@@ -2130,11 +2142,6 @@ panelHead.addEventListener('change', (event) => {
     state.sceneFilterVisibility = event.target.value;
     renderScenes();
     return;
-  }
-  if (event.target.id === 'select-all-scenes') {
-    const checked = event.target.checked;
-    panelBody.querySelectorAll('.scene-checkbox').forEach((cb) => { cb.checked = checked; });
-    updateSceneBatchState();
   }
 });
 
