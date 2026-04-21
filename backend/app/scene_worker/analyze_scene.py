@@ -422,6 +422,15 @@ def analyze_scene_with_glm4v(image_path, scene_name, api_key=None, model="glm-4v
         if not success:
             print(f"❌ JSON解析全部失败，原始响应（前500字符）:")
             print(response_text[:500] if response_text else '(empty)')
+            # Save raw response for diagnosis
+            from ..settings import GENERATED_DIR
+            debug_dir = Path(GENERATED_DIR) / '_debug'
+            debug_dir.mkdir(parents=True, exist_ok=True)
+            from datetime import datetime
+            ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+            debug_file = debug_dir / f'raw_response_{scene_name}_{ts}.txt'
+            debug_file.write_text(response_text or '(empty)', encoding='utf-8')
+            print(f"📋 原始响应已保存到: {debug_file}")
             raise ValueError(f"无法解析JSON响应: {method}")
 
         print(f"✅ JSON解析成功: {method}")

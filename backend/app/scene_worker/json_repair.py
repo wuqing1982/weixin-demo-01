@@ -39,6 +39,7 @@ def repair_truncated_json(json_str: str, verbose: bool = False) -> Tuple[bool, O
     for repair_func, label in (
         (repair_by_adding_braces, '补全闭合括号成功'),
         (repair_by_truncating_to_last_hotspot, '截取到最后完整hotspot成功'),
+        (repair_by_removing_empty_values, '移除空值成功'),
         (repair_by_regex_extraction, '正则提取成功'),
         (repair_by_bracket_matching, '括号匹配修复成功'),
     ):
@@ -115,21 +116,62 @@ def repair_by_truncating_to_last_hotspot(json_str: str) -> str:
     return prefix + truncated_content + '\n  ]\n}'
 
 
-def repair_by_regex_extraction(json_str: str) -> str:
-    pattern = r'\{[^{}]*"(?:id|word|ipa|meaning|sentence|rect)"[^{}]*\}'
-    matches = re.findall(pattern, json_str, re.DOTALL)
-    if not matches:
-        raise ValueError('未找到任何完整对象')
+def _extract_hotspot_objects(json_str: str) -> list[dict]:
+    """Extract individual hotspot objects using balanced-brace scanning.
 
-    valid_objects = []
-    for match in matches:
+    Handles nested objects like ``rect: {"l": 1, "t": 2, ...}`` which a
+    simple ``[^{}]*`` regex cannot match.
+    """
+    # Find all top-level object boundaries in the hotspots array region
+    hotspot_start = json_str.find('"hotspots"')
+    if hotspot_start == -1:
+        hotspot_start = json_str.find('"items"')
+    if hotspot_start == -1:
+        return []
+
+    array_bracket = json_str.find('[', hotspot_start)
+    if array_bracket == -1:
+        return []
+
+    text = json_str[array_bracket + 1:]
+    objects = []
+    pos = 0
+
+    while pos < len(text):
+        obj_start = text.find('{', pos)
+        if obj_start == -1:
+            break
+
+        depth = 0
+        end = obj_start
+        for i in range(obj_start, len(text)):
+            if text[i] == '{':
+                depth += 1
+            elif text[i] == '}':
+                depth -= 1
+                if depth == 0:
+                    end = i
+                    break
+
+        if depth != 0:
+            pos = obj_start + 1
+            continue
+
+        candidate = text[obj_start:end + 1]
+        pos = end + 1
+
         try:
-            obj = json.loads(remove_trailing_commas(match))
-            if 'id' in obj:
-                valid_objects.append(obj)
+            obj = json.loads(remove_trailing_commas(candidate))
+            if isinstance(obj, dict) and 'id' in obj and 'rect' in obj:
+                objects.append(obj)
         except Exception:
             continue
 
+    return objects
+
+
+def repair_by_regex_extraction(json_str: str) -> str:
+    valid_objects = _extract_hotspot_objects(json_str)
     if not valid_objects:
         raise ValueError('未找到有效的 hotspot 对象')
 
@@ -147,6 +189,30 @@ def repair_by_regex_extraction(json_str: str) -> str:
         'image': image,
         'hotspots': valid_objects,
     }, indent=2, ensure_ascii=False)
+
+
+def repair_by_removing_empty_values(json_str: str) -> str:
+    """Remove key-value pairs with missing values (e.g. ``"id": ,`` or ``"id":``)."""
+    cleaned = json_str
+    # Remove lines where value is missing: "key": <comma or end-of-object>
+    cleaned = re.sub(
+        r',?\s*\n?\s*"(?:[^"\\]|\\.)*"\s*:\s*,',
+        ',',
+        cleaned,
+    )
+    # Remove trailing empty-value before closing brace: "key": }
+    cleaned = re.sub(
+        r',?\s*"(?:[^"\\]|\\.)*"\s*:\s*([}\]])',
+        r'\1',
+        cleaned,
+    )
+    # Remove empty-value at line end before next key: "key": \n "next_key"
+    cleaned = re.sub(
+        r',?\s*\n\s*"(?:[^"\\]|\\.)*"\s*:\s*\n(\s*")',
+        r'\n\1',
+        cleaned,
+    )
+    return cleaned
 
 
 def repair_by_bracket_matching(json_str: str) -> str:

@@ -4442,6 +4442,1534 @@
         "hotspotUpdatedAt": "2026-04-20T17:31:08Z",
         "hotspotUpdatedBy": "user_20260408024505_7358e9"
       }
+    },
+    {
+      "sceneId": "scene_user_20260421090708_7e9bf5",
+      "title": "储藏室",
+      "category": "home",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260421090708_7e9bf5/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260421090708_7e9bf5/background.jpg",
+      "items": [
+        {
+          "id": "box_1",
+          "word": "box",
+          "ipa": "/bɑːks/",
+          "meaning": "箱子",
+          "sentence": "Look at the box on top of the Little Swan appliance.",
+          "sentenceTranslation": "看那个放在小天鹅电器上面的箱子。",
+          "audioPath": "/assets/generated/scene_user_20260421090708_7e9bf5/scene_user_20260421090708_7e9bf5_en-US-JennyNeural_US_female_box_1_look_at_the_box_on_top.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 30.0,
+            "w": 35.0,
+            "h": 40.0
+          }
+        },
+        {
+          "id": "plastic_container",
+          "word": "container",
+          "ipa": "/kənˈteɪnər/",
+          "meaning": "塑料容器",
+          "sentence": "The plastic container is holding some items.",
+          "sentenceTranslation": "这个塑料容器里装着一些东西。",
+          "audioPath": "/assets/generated/scene_user_20260421090708_7e9bf5/scene_user_20260421090708_7e9bf5_en-US-JennyNeural_US_female_plastic_container_the_plastic_container_is_holding_some.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 45.0,
+            "w": 25.0,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "clothes_hanger",
+          "word": "hanger",
+          "ipa": "/ˈhæŋər/",
+          "meaning": "衣架",
+          "sentence": "There are clothes hanging on the hanger.",
+          "sentenceTranslation": "衣服挂在衣架上。",
+          "audioPath": "/assets/generated/scene_user_20260421090708_7e9bf5/scene_user_20260421090708_7e9bf5_en-US-JennyNeural_US_female_clothes_hanger_there_are_clothes_hanging_on_the.mp3",
+          "rect": {
+            "l": 80.0,
+            "t": 60.0,
+            "w": 15.0,
+            "h": 15.0
+          }
+        },
+        {
+          "id": "appliance",
+          "word": "appliance",
+          "ipa": "/əˈplɛəns/",
+          "meaning": "家用电器",
+          "sentence": "The Little Swan appliance is a washing machine.",
+          "sentenceTranslation": "小天鹅电器是一台洗衣机。",
+          "audioPath": "/assets/generated/scene_user_20260421090708_7e9bf5/scene_user_20260421090708_7e9bf5_en-US-JennyNeural_US_female_appliance_the_little_swan_appliance_is_a.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 70.0,
+            "w": 30.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "clothing",
+          "word": "clothing",
+          "ipa": "/ˈkləʊðɪŋ/",
+          "meaning": "衣物",
+          "sentence": "There are clothes hanging on the hanger.",
+          "sentenceTranslation": "衣服挂在衣架上。",
+          "audioPath": "/assets/generated/scene_user_20260421090708_7e9bf5/scene_user_20260421090708_7e9bf5_en-US-JennyNeural_US_female_clothing_there_are_clothes_hanging_on_the.mp3",
+          "rect": {
+            "l": 85.0,
+            "t": 65.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "store",
+          "word": "store",
+          "ipa": "/stɔːr/",
+          "meaning": "存放",
+          "sentence": "We store our belongings in boxes.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260421090708_7e9bf5/scene_user_20260421090708_7e9bf5_en-US-JennyNeural_US_female_store_we_store_our_belongings_in_boxes.mp3",
+          "relatedItem": "box_1"
+        },
+        {
+          "id": "hold",
+          "word": "hold",
+          "ipa": "/həʊld/",
+          "meaning": "拿着",
+          "sentence": "She holds the plastic container with both hands.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260421090708_7e9bf5/scene_user_20260421090708_7e9bf5_en-US-JennyNeural_US_female_hold_she_holds_the_plastic_container_with.mp3",
+          "relatedItem": "plastic_container"
+        },
+        {
+          "id": "hang",
+          "word": "hang",
+          "ipa": "/hæŋ/",
+          "meaning": "悬挂",
+          "sentence": "He hangs his jacket on the hanger.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260421090708_7e9bf5/scene_user_20260421090708_7e9bf5_en-US-JennyNeural_US_female_hang_he_hangs_his_jacket_on_the.mp3",
+          "relatedItem": "clothes_hanger"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260408024505_7358e9",
+        "uploadId": "upload_20260421090707_679d48",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260421090708_7e9bf5",
+        "core100SceneTitle": "储藏室",
+        "recommendedCategory": "home",
+        "tags": [
+          "家庭",
+          "储存",
+          "物品"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260421090928_900b35",
+      "title": "咖啡店",
+      "category": "food",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260421090928_900b35/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260421090928_900b35/background.jpg",
+      "items": [
+        {
+          "id": "cake",
+          "word": "cake",
+          "ipa": "/keɪk/",
+          "meaning": "蛋糕",
+          "sentence": "Look at the cake on the plate.",
+          "sentenceTranslation": "看盘子上的蛋糕。",
+          "audioPath": "/assets/generated/scene_user_20260421090928_900b35/scene_user_20260421090928_900b35_en-US-JennyNeural_US_female_cake_look_at_the_cake_on_the.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 40.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "pastry",
+          "word": "pastry",
+          "ipa": "/ˈpæstri/",
+          "meaning": "糕点",
+          "sentence": "The pastry is on a white plate.",
+          "sentenceTranslation": "糕点在白色的盘子上。",
+          "audioPath": "/assets/generated/scene_user_20260421090928_900b35/scene_user_20260421090928_900b35_en-US-JennyNeural_US_female_pastry_the_pastry_is_on_a_white.mp3",
+          "rect": {
+            "l": 30.0,
+            "t": 60.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "coffee",
+          "word": "coffee",
+          "ipa": "/ˈkɒfi/",
+          "meaning": "咖啡",
+          "sentence": "Would you like some coffee with your cake?",
+          "sentenceTranslation": "你想喝杯咖啡配蛋糕吗？",
+          "audioPath": "/assets/generated/scene_user_20260421090928_900b35/scene_user_20260421090928_900b35_en-US-JennyNeural_US_female_coffee_would_you_like_some_coffee_with.mp3",
+          "rect": {
+            "l": 70.0,
+            "t": 45.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "juice",
+          "word": "juice",
+          "ipa": "/ˈdʒuːs/",
+          "meaning": "果汁",
+          "sentence": "There are two glasses of juice on the table.",
+          "sentenceTranslation": "桌子上有两杯果汁。",
+          "audioPath": "/assets/generated/scene_user_20260421090928_900b35/scene_user_20260421090928_900b35_en-US-JennyNeural_US_female_juice_there_are_two_glasses_of_juice.mp3",
+          "rect": {
+            "l": 75.0,
+            "t": 25.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "bread",
+          "word": "bread",
+          "ipa": "/brɛd/",
+          "meaning": "面包",
+          "sentence": "The bread is in a black bowl.",
+          "sentenceTranslation": "面包在一个黑色的碗里。",
+          "audioPath": "/assets/generated/scene_user_20260421090928_900b35/scene_user_20260421090928_900b35_en-US-JennyNeural_US_female_bread_the_bread_is_in_a_black.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 35.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "eat",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "Let's eat the cake together.",
+          "sentenceTranslation": "让我们一起吃蛋糕吧。",
+          "audioPath": "/assets/generated/scene_user_20260421090928_900b35/scene_user_20260421090928_900b35_en-US-JennyNeural_US_female_eat_lets_eat_the_cake_together.mp3",
+          "relatedItem": "cake"
+        },
+        {
+          "id": "drink",
+          "word": "drink",
+          "ipa": "/drɪŋk/",
+          "meaning": "喝",
+          "sentence": "Please drink the juice slowly.",
+          "sentenceTranslation": "请慢慢喝果汁。",
+          "audioPath": "/assets/generated/scene_user_20260421090928_900b35/scene_user_20260421090928_900b35_en-US-JennyNeural_US_female_drink_please_drink_the_juice_slowly.mp3",
+          "relatedItem": "juice"
+        },
+        {
+          "id": "serve",
+          "word": "serve",
+          "ipa": "/sɜːv/",
+          "meaning": "服务",
+          "sentence": "The waiter served us coffee and cake.",
+          "sentenceTranslation": "服务员给我们端上了咖啡和蛋糕。",
+          "audioPath": "/assets/generated/scene_user_20260421090928_900b35/scene_user_20260421090928_900b35_en-US-JennyNeural_US_female_serve_the_waiter_served_us_coffee_and.mp3",
+          "relatedItem": "coffee"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260421090916_6f0da2",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260421090928_900b35",
+        "core100SceneTitle": "咖啡店",
+        "recommendedCategory": "food",
+        "tags": [
+          "美食",
+          "甜点",
+          "饮料"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260421090928_e225ad",
+      "title": "面包店",
+      "category": "food",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260421090928_e225ad/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260421090928_e225ad/background.jpg",
+      "items": [
+        {
+          "id": "bread",
+          "word": "bread",
+          "ipa": "/bɛərd/",
+          "meaning": "面包",
+          "sentence": "Look at the bread on the shelf.",
+          "sentenceTranslation": "看架上的面包。",
+          "audioPath": "/assets/generated/scene_user_20260421090928_e225ad/scene_user_20260421090928_e225ad_en-US-JennyNeural_US_female_bread_look_at_the_bread_on_the.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 40.0,
+            "w": 30.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "pastry",
+          "word": "pastry",
+          "ipa": "/ˈpæstri/",
+          "meaning": "糕点",
+          "sentence": "There are pastries in the display case.",
+          "sentenceTranslation": "展示柜里有糕点。",
+          "audioPath": "/assets/generated/scene_user_20260421090928_e225ad/scene_user_20260421090928_e225ad_en-US-JennyNeural_US_female_pastry_there_are_pastries_in_the_display.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 45.0,
+            "w": 25.0,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "cookies",
+          "word": "cookie",
+          "ipa": "/ˈkʊki/",
+          "meaning": "饼干",
+          "sentence": "The cookies are stacked neatly on the counter.",
+          "sentenceTranslation": "柜台上的饼干整齐地堆放着。",
+          "audioPath": "/assets/generated/scene_user_20260421090928_e225ad/scene_user_20260421090928_e225ad_en-US-JennyNeural_US_female_cookies_the_cookies_are_stacked_neatly_on.mp3",
+          "rect": {
+            "l": 70.0,
+            "t": 35.0,
+            "w": 15.0,
+            "h": 15.0
+          }
+        },
+        {
+          "id": "donuts",
+          "word": "donut",
+          "ipa": "/ˈdɒnɪt/",
+          "meaning": "甜甜圈",
+          "sentence": "Donuts are a popular treat here.",
+          "sentenceTranslation": "甜甜圈在这里很受欢迎。",
+          "audioPath": "/assets/generated/scene_user_20260421090928_e225ad/scene_user_20260421090928_e225ad_en-US-JennyNeural_US_female_donuts_donuts_are_a_popular_treat_here.mp3",
+          "rect": {
+            "l": 85.0,
+            "t": 55.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "display_case",
+          "word": "display",
+          "ipa": "/dɪsˈpleɪ/",
+          "meaning": "展示柜",
+          "sentence": "The bakery uses a glass display case to show its products.",
+          "sentenceTranslation": "面包店用一个玻璃展示柜来展示它的产品。",
+          "audioPath": "/assets/generated/scene_user_20260421090928_e225ad/scene_user_20260421090928_e225ad_en-US-JennyNeural_US_female_display_case_the_bakery_uses_a_glass_display.mp3",
+          "rect": {
+            "l": 30.0,
+            "t": 60.0,
+            "w": 40.0,
+            "h": 40.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "v1",
+          "word": "bake",
+          "ipa": "/beɪk/",
+          "meaning": "烤",
+          "sentence": "We bake bread in the bakery.",
+          "sentenceTranslation": "我们在面包店烤面包。",
+          "audioPath": "/assets/generated/scene_user_20260421090928_e225ad/scene_user_20260421090928_e225ad_en-US-JennyNeural_US_female_v1_we_bake_bread_in_the_bakery.mp3",
+          "relatedItem": "bread"
+        },
+        {
+          "id": "v2",
+          "word": "display",
+          "ipa": "/dɪˈsplɑːɪ/",
+          "meaning": "展示",
+          "sentence": "They display pastries in the glass display case.",
+          "sentenceTranslation": "他们把糕点展示在玻璃展示柜里。",
+          "audioPath": "/assets/generated/scene_user_20260421090928_e225ad/scene_user_20260421090928_e225ad_en-US-JennyNeural_US_female_v2_they_display_pastries_in_the_glass.mp3",
+          "relatedItem": "display_case"
+        },
+        {
+          "id": "v3",
+          "word": "stack",
+          "ipa": "/stæk/",
+          "meaning": "堆叠",
+          "sentence": "The cookies are stacked neatly on the counter.",
+          "sentenceTranslation": "饼干被整齐地堆在柜台。",
+          "audioPath": "/assets/generated/scene_user_20260421090928_e225ad/scene_user_20260421090928_e225ad_en-US-JennyNeural_US_female_v3_the_cookies_are_stacked_neatly_on.mp3",
+          "relatedItem": "bread"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260421090919_81e1aa",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260421090928_e225ad",
+        "core100SceneTitle": "面包店",
+        "recommendedCategory": "food",
+        "tags": [
+          "美食",
+          "烘焙",
+          "甜点"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260421090929_0ce733",
+      "title": "咖啡店",
+      "category": "food",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260421090929_0ce733/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260421090929_0ce733/background.jpg",
+      "items": [
+        {
+          "id": "cake",
+          "word": "cake",
+          "ipa": "/keɪk/",
+          "meaning": "蛋糕",
+          "sentence": "Look at the delicious cake on the table.",
+          "sentenceTranslation": "看桌子上美味的蛋糕。",
+          "audioPath": "/assets/generated/scene_user_20260421090929_0ce733/scene_user_20260421090929_0ce733_en-US-JennyNeural_US_female_cake_look_at_the_delicious_cake_on.mp3",
+          "rect": {
+            "l": 30.0,
+            "t": 40.0,
+            "w": 35.0,
+            "h": 35.0
+          }
+        },
+        {
+          "id": "fruit_tart",
+          "word": "fruit tart",
+          "ipa": "/fruːt tɑːrt/",
+          "meaning": "水果塔",
+          "sentence": "The fruit tart is topped with fresh berries.",
+          "sentenceTranslation": "水果塔上面放着新鲜浆果。",
+          "audioPath": "/assets/generated/scene_user_20260421090929_0ce733/scene_user_20260421090929_0ce733_en-US-JennyNeural_US_female_fruit_tart_the_fruit_tart_is_topped_with.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 45.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "rose",
+          "word": "rose",
+          "ipa": "/roʊz/",
+          "meaning": "玫瑰",
+          "sentence": "There are beautiful roses in a vase.",
+          "sentenceTranslation": "花瓶里有漂亮的玫瑰花。",
+          "audioPath": "/assets/generated/scene_user_20260421090929_0ce733/scene_user_20260421090929_0ce733_en-US-JennyNeural_US_female_rose_there_are_beautiful_roses_in_a.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 10.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "glass_of_liquid",
+          "word": "drink",
+          "ipa": "/drɪŋk/",
+          "meaning": "饮料",
+          "sentence": "Let's have a refreshing drink.",
+          "sentenceTranslation": "让我们来一杯清凉的饮料吧。",
+          "audioPath": "/assets/generated/scene_user_20260421090929_0ce733/scene_user_20260421090929_0ce733_en-US-JennyNeural_US_female_glass_of_liquid_lets_have_a_refreshing_drink.mp3",
+          "rect": {
+            "l": 25.0,
+            "t": 20.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "table",
+          "word": "table",
+          "ipa": "/teɪbəl/",
+          "meaning": "桌子",
+          "sentence": "Put your drink on the table.",
+          "sentenceTranslation": "把你的饮料放在桌子上。",
+          "audioPath": "/assets/generated/scene_user_20260421090929_0ce733/scene_user_20260421090929_0ce733_en-US-JennyNeural_US_female_table_put_your_drink_on_the_table.mp3",
+          "rect": {
+            "l": 60.0,
+            "t": 10.0,
+            "w": 30.0,
+            "h": 30.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "verb1",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "Eat the delicious cake.",
+          "sentenceTranslation": "吃这个美味的蛋糕。",
+          "audioPath": "/assets/generated/scene_user_20260421090929_0ce733/scene_user_20260421090929_0ce733_en-US-JennyNeural_US_female_verb1_eat_the_delicious_cake.mp3",
+          "relatedItem": "cake"
+        },
+        {
+          "id": "verb2",
+          "word": "cut",
+          "ipa": "/kʌt/",
+          "meaning": "切",
+          "sentence": "Cut the fruit tart.",
+          "sentenceTranslation": "切这个水果挞。",
+          "audioPath": "/assets/generated/scene_user_20260421090929_0ce733/scene_user_20260421090929_0ce733_en-US-JennyNeural_US_female_verb2_cut_the_fruit_tart.mp3",
+          "relatedItem": "fruit_tart"
+        },
+        {
+          "id": "verb3",
+          "word": "drink",
+          "ipa": "/drɪŋk/",
+          "meaning": "喝",
+          "sentence": "Drink the refreshing drink.",
+          "sentenceTranslation": "喝这个清爽的饮料。",
+          "audioPath": "/assets/generated/scene_user_20260421090929_0ce733/scene_user_20260421090929_0ce733_en-US-JennyNeural_US_female_verb3_drink_the_refreshing_drink.mp3",
+          "relatedItem": "glass_of_liquid"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260421090922_8c7293",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260421090929_0ce733",
+        "core100SceneTitle": "咖啡店",
+        "recommendedCategory": "food",
+        "tags": [
+          "饮料",
+          "甜点",
+          "休闲"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260421090949_b09e55",
+      "title": "厨房",
+      "category": "home",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260421090949_b09e55/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260421090949_b09e55/background.jpg",
+      "items": [
+        {
+          "id": "bread",
+          "word": "bread",
+          "ipa": "/bɛərd/",
+          "meaning": "面包",
+          "sentence": "The bread is on the table.",
+          "sentenceTranslation": "桌子上有一些面包。",
+          "audioPath": "/assets/generated/scene_user_20260421090949_b09e55/scene_user_20260421090949_b09e55_en-US-JennyNeural_US_female_bread_the_bread_is_on_the_table.mp3",
+          "rect": {
+            "l": 30.0,
+            "t": 40.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "sandwich",
+          "word": "sandwich",
+          "ipa": "/ˈsændwɪtʃ/",
+          "meaning": "三明治",
+          "sentence": "I want to eat a sandwich.",
+          "sentenceTranslation": "我想吃一个三明治。",
+          "audioPath": "/assets/generated/scene_user_20260421090949_b09e55/scene_user_20260421090949_b09e55_en-US-JennyNeural_US_female_sandwich_i_want_to_eat_a_sandwich.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 45.0,
+            "w": 25.0,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "ice_cream",
+          "word": "ice cream",
+          "ipa": "/aɪs kriːm/",
+          "meaning": "冰淇淋",
+          "sentence": "Can I have some ice cream?",
+          "sentenceTranslation": "我能要一些冰淇淋吗？",
+          "audioPath": "/assets/generated/scene_user_20260421090949_b09e55/scene_user_20260421090949_b09e55_en-US-JennyNeural_US_female_ice_cream_can_i_have_some_ice_cream.mp3",
+          "rect": {
+            "l": 65.0,
+            "t": 70.0,
+            "w": 15.0,
+            "h": 15.0
+          }
+        },
+        {
+          "id": "cake",
+          "word": "cake",
+          "ipa": "/keɪk/",
+          "meaning": "蛋糕",
+          "sentence": "Let's share the cake with friends.",
+          "sentenceTranslation": "让我们和朋友分享这个蛋糕吧。",
+          "audioPath": "/assets/generated/scene_user_20260421090949_b09e55/scene_user_20260421090949_b09e55_en-US-JennyNeural_US_female_cake_lets_share_the_cake_with_friends.mp3",
+          "rect": {
+            "l": 35.0,
+            "t": 55.0,
+            "w": 18.0,
+            "h": 18.0
+          }
+        },
+        {
+          "id": "spoon",
+          "word": "spoon",
+          "ipa": "/spuːn/",
+          "meaning": "勺子",
+          "sentence": "Use the spoon to eat your food.",
+          "sentenceTranslation": "用勺子吃饭。",
+          "audioPath": "/assets/generated/scene_user_20260421090949_b09e55/scene_user_20260421090949_b09e55_en-US-JennyNeural_US_female_spoon_use_the_spoon_to_eat_your.mp3",
+          "rect": {
+            "l": 75.0,
+            "t": 80.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "eat",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "Eat your sandwich before it gets cold.",
+          "sentenceTranslation": "在它变冷之前吃掉你的三明治。",
+          "audioPath": "/assets/generated/scene_user_20260421090949_b09e55/scene_user_20260421090949_b09e55_en-US-JennyNeural_US_female_eat_eat_your_sandwich_before_it_gets.mp3",
+          "relatedItem": "sandwich"
+        },
+        {
+          "id": "share",
+          "word": "share",
+          "ipa": "/ʃeər/",
+          "meaning": "分享",
+          "sentence": "Let's share the cake with our friends.",
+          "sentenceTranslation": "让我们和朋友们分享这个蛋糕吧。",
+          "audioPath": "/assets/generated/scene_user_20260421090949_b09e55/scene_user_20260421090949_b09e55_en-US-JennyNeural_US_female_share_lets_share_the_cake_with_our.mp3",
+          "relatedItem": "cake"
+        },
+        {
+          "id": "serve",
+          "word": "serve",
+          "ipa": "/sɜːrv/",
+          "meaning": "服务",
+          "sentence": "Serve yourself some ice cream with the spoon.",
+          "sentenceTranslation": "用勺子给自己盛一些冰淇淋。",
+          "audioPath": "/assets/generated/scene_user_20260421090949_b09e55/scene_user_20260421090949_b09e55_en-US-JennyNeural_US_female_serve_serve_yourself_some_ice_cream_with.mp3",
+          "relatedItem": "spoon"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260421090922_bb2a67",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260421090949_b09e55",
+        "core100SceneTitle": "厨房",
+        "recommendedCategory": "home",
+        "tags": [
+          "家庭",
+          "烹饪",
+          "美食"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260421091002_c44e35",
+      "title": "咖啡店",
+      "category": "food",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260421091002_c44e35/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260421091002_c44e35/background.jpg",
+      "items": [
+        {
+          "id": "coffee_cup",
+          "word": "coffee",
+          "ipa": "/kəˈfiː/",
+          "meaning": "咖啡",
+          "sentence": "Let's have a cup of coffee.",
+          "sentenceTranslation": "让我们来一杯咖啡。",
+          "audioPath": "/assets/generated/scene_user_20260421091002_c44e35/scene_user_20260421091002_c44e35_en-US-JennyNeural_US_female_coffee_cup_lets_have_a_cup_of_coffee.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 50.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "cake_slice",
+          "word": "cake",
+          "ipa": "/keɪk/",
+          "meaning": "蛋糕",
+          "sentence": "I want to eat a slice of cake.",
+          "sentenceTranslation": "我想吃一片蛋糕。",
+          "audioPath": "/assets/generated/scene_user_20260421091002_c44e35/scene_user_20260421091002_c44e35_en-US-JennyNeural_US_female_cake_slice_i_want_to_eat_a_slice.mp3",
+          "rect": {
+            "l": 30.0,
+            "t": 60.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "dessert_plate",
+          "word": "dessert",
+          "ipa": "/ˈdɛsərt/",
+          "meaning": "甜点",
+          "sentence": "The dessert looks delicious.",
+          "sentenceTranslation": "这道甜点看起来很好吃。",
+          "audioPath": "/assets/generated/scene_user_20260421091002_c44e35/scene_user_20260421091002_c44e35_en-US-JennyNeural_US_female_dessert_plate_the_dessert_looks_delicious.mp3",
+          "rect": {
+            "l": 70.0,
+            "t": 60.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "handbag",
+          "word": "handbag",
+          "ipa": "/ˈhændbæg/",
+          "meaning": "手提包",
+          "sentence": "She put her handbag on the table.",
+          "sentenceTranslation": "她把手提包放在桌子上。",
+          "audioPath": "/assets/generated/scene_user_20260421091002_c44e35/scene_user_20260421091002_c44e35_en-US-JennyNeural_US_female_handbag_she_put_her_handbag_on_the.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 10.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "stuffed_animal",
+          "word": "stuffed animal",
+          "ipa": "/ˈstʌft ˈænɪməl/",
+          "meaning": "毛绒玩具",
+          "sentence": "The stuffed animal is cute.",
+          "sentenceTranslation": "这个毛绒玩具很可爱。",
+          "audioPath": "/assets/generated/scene_user_20260421091002_c44e35/scene_user_20260421091002_c44e35_en-US-JennyNeural_US_female_stuffed_animal_the_stuffed_animal_is_cute.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 10.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "eat",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "Eat your cake slowly and enjoy it.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260421091002_c44e35/scene_user_20260421091002_c44e35_en-US-JennyNeural_US_female_eat_eat_your_cake_slowly_and_enjoy.mp3",
+          "relatedItem": "cake_slice"
+        },
+        {
+          "id": "drink",
+          "word": "drink",
+          "ipa": "/drɪŋk/",
+          "meaning": "喝",
+          "sentence": "Drink your coffee carefully so you don't spill it.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260421091002_c44e35/scene_user_20260421091002_c44e35_en-US-JennyNeural_US_female_drink_drink_your_coffee_carefully_so_you.mp3",
+          "relatedItem": "coffee_cup"
+        },
+        {
+          "id": "serve",
+          "word": "serve",
+          "ipa": "/sɜːrv/",
+          "meaning": "服务",
+          "sentence": "The waiter served the dessert on a plate.",
+          "sentenceTranslation": "",
+          "audioPath": "/assets/generated/scene_user_20260421091002_c44e35/scene_user_20260421091002_c44e35_en-US-JennyNeural_US_female_serve_the_waiter_served_the_dessert_on.mp3",
+          "relatedItem": "dessert_plate"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260421090924_b98f35",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260421091002_c44e35",
+        "core100SceneTitle": "咖啡店",
+        "recommendedCategory": "food",
+        "tags": [
+          "饮料",
+          "甜点",
+          "休闲"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260421091010_48d9f6",
+      "title": "面包店",
+      "category": "food",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260421091010_48d9f6/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260421091010_48d9f6/background.jpg",
+      "items": [
+        {
+          "id": "bread",
+          "word": "bread",
+          "ipa": "/bɛːd/",
+          "meaning": "面包",
+          "sentence": "Can you see the bread on the shelf?",
+          "sentenceTranslation": "你能看到架子上的面包吗？",
+          "audioPath": "/assets/generated/scene_user_20260421091010_48d9f6/scene_user_20260421091010_48d9f6_en-US-JennyNeural_US_female_bread_can_you_see_the_bread_on.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 30.0,
+            "w": 35.0,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "pastry",
+          "word": "pastry",
+          "ipa": "/ˈpæstri/",
+          "meaning": "糕点",
+          "sentence": "Look at those delicious pastries!",
+          "sentenceTranslation": "看那些美味的糕点吧！",
+          "audioPath": "/assets/generated/scene_user_20260421091010_48d9f6/scene_user_20260421091010_48d9f6_en-US-JennyNeural_US_female_pastry_look_at_those_delicious_pastries.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 40.0,
+            "w": 30.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "cake",
+          "word": "cake",
+          "ipa": "/keɪk/",
+          "meaning": "蛋糕",
+          "sentence": "Do you want to try a piece of cake?",
+          "sentenceTranslation": "你想尝一块蛋糕吗？",
+          "audioPath": "/assets/generated/scene_user_20260421091010_48d9f6/scene_user_20260421091010_48d9f6_en-US-JennyNeural_US_female_cake_do_you_want_to_try_a.mp3",
+          "rect": {
+            "l": 70.0,
+            "t": 45.0,
+            "w": 20.0,
+            "h": 15.0
+          }
+        },
+        {
+          "id": "donut",
+          "word": "donut",
+          "ipa": "/ˈdɒnət/",
+          "meaning": "甜甜圈",
+          "sentence": "There are donuts in the basket.",
+          "sentenceTranslation": "篮子里有甜甜圈。",
+          "audioPath": "/assets/generated/scene_user_20260421091010_48d9f6/scene_user_20260421091010_48d9f6_en-US-JennyNeural_US_female_donut_there_are_donuts_in_the_basket.mp3",
+          "rect": {
+            "l": 85.0,
+            "t": 55.0,
+            "w": 12.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "sandwich",
+          "word": "sandwich",
+          "ipa": "/ˈsændwɪtʃ/",
+          "meaning": "三明治",
+          "sentence": "I made a sandwich for lunch.",
+          "sentenceTranslation": "我为午餐做了一个三明治。",
+          "audioPath": "/assets/generated/scene_user_20260421091010_48d9f6/scene_user_20260421091010_48d9f6_en-US-JennyNeural_US_female_sandwich_i_made_a_sandwich_for_lunch.mp3",
+          "rect": {
+            "l": 95.0,
+            "t": 60.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "buy",
+          "word": "buy",
+          "ipa": "/baɪ/",
+          "meaning": "买",
+          "sentence": "Let's go buy some bread.",
+          "sentenceTranslation": "我们去买些面包吧。",
+          "audioPath": "/assets/generated/scene_user_20260421091010_48d9f6/scene_user_20260421091010_48d9f6_en-US-JennyNeural_US_female_buy_lets_go_buy_some_bread.mp3",
+          "relatedItem": "bread"
+        },
+        {
+          "id": "eat",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "Eat your cake before it gets cold.",
+          "sentenceTranslation": "趁蛋糕没凉了赶紧吃吧。",
+          "audioPath": "/assets/generated/scene_user_20260421091010_48d9f6/scene_user_20260421091010_48d9f6_en-US-JennyNeural_US_female_eat_eat_your_cake_before_it_gets.mp3",
+          "relatedItem": "cake"
+        },
+        {
+          "id": "serve",
+          "word": "serve",
+          "ipa": "/sɜːv/",
+          "meaning": "供应",
+          "sentence": "The bakery serves fresh sandwiches every day.",
+          "sentenceTranslation": "这家面包店每天都供应新鲜的三明治。",
+          "audioPath": "/assets/generated/scene_user_20260421091010_48d9f6/scene_user_20260421091010_48d9f6_en-US-JennyNeural_US_female_serve_the_bakery_serves_fresh_sandwiches_every.mp3",
+          "relatedItem": "sandwich"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260421090925_636ad7",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260421091010_48d9f6",
+        "core100SceneTitle": "面包店",
+        "recommendedCategory": "food",
+        "tags": [
+          "美食",
+          "甜点",
+          "烘焙"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260421093109_4e9db3",
+      "title": "咖啡店",
+      "category": "food",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260421093109_4e9db3/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260421093109_4e9db3/background.jpg",
+      "items": [
+        {
+          "id": "cake_1",
+          "word": "cake",
+          "ipa": "/keɪk/",
+          "meaning": "蛋糕",
+          "sentence": "Look at the cake on the plate.",
+          "sentenceTranslation": "看盘子上的蛋糕。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_4e9db3/scene_user_20260421093109_4e9db3_en-US-JennyNeural_US_female_cake_1_look_at_the_cake_on_the.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 50.0,
+            "w": 30.0,
+            "h": 40.0
+          }
+        },
+        {
+          "id": "cake_2",
+          "word": "cake",
+          "ipa": "/keɪk/",
+          "meaning": "蛋糕",
+          "sentence": "The cake is very delicious.",
+          "sentenceTranslation": "这个蛋糕很好吃。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_4e9db3/scene_user_20260421093109_4e9db3_en-US-JennyNeural_US_female_cake_2_the_cake_is_very_delicious.mp3",
+          "rect": {
+            "l": 60.0,
+            "t": 70.0,
+            "w": 35.0,
+            "h": 45.0
+          }
+        },
+        {
+          "id": "coffee_1",
+          "word": "coffee",
+          "ipa": "/ˈkɒfi/",
+          "meaning": "咖啡",
+          "sentence": "Let's have a cup of coffee.",
+          "sentenceTranslation": "让我们喝一杯咖啡吧。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_4e9db3/scene_user_20260421093109_4e9db3_en-US-JennyNeural_US_female_coffee_1_lets_have_a_cup_of_coffee.mp3",
+          "rect": {
+            "l": 35.0,
+            "t": 25.0,
+            "w": 35.0,
+            "h": 55.0
+          }
+        },
+        {
+          "id": "coffee_2",
+          "word": "coffee",
+          "ipa": "/ˈkɒfi/",
+          "meaning": "咖啡",
+          "sentence": "I like to drink coffee in the morning.",
+          "sentenceTranslation": "我喜欢早上喝咖啡。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_4e9db3/scene_user_20260421093109_4e9db3_en-US-JennyNeural_US_female_coffee_2_i_like_to_drink_coffee_in.mp3",
+          "rect": {
+            "l": 75.0,
+            "t": 30.0,
+            "w": 35.0,
+            "h": 55.0
+          }
+        },
+        {
+          "id": "spoon",
+          "word": "spoon",
+          "ipa": "/spuːn/",
+          "meaning": "勺子",
+          "sentence": "Use the spoon to eat the cake.",
+          "sentenceTranslation": "用勺子吃蛋糕。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_4e9db3/scene_user_20260421093109_4e9db3_en-US-JennyNeural_US_female_spoon_use_the_spoon_to_eat_the.mp3",
+          "rect": {
+            "l": 5.0,
+            "t": 80.0,
+            "w": 15.0,
+            "h": 15.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "eat",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "Eat the cake slowly and enjoy it.",
+          "sentenceTranslation": "慢慢吃蛋糕，享受它。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_4e9db3/scene_user_20260421093109_4e9db3_en-US-JennyNeural_US_female_eat_eat_the_cake_slowly_and_enjoy.mp3",
+          "relatedItem": "cake_1"
+        },
+        {
+          "id": "drink",
+          "word": "drink",
+          "ipa": "/drɪŋk/",
+          "meaning": "喝",
+          "sentence": "Drink your coffee carefully.",
+          "sentenceTranslation": "小心地喝你的咖啡。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_4e9db3/scene_user_20260421093109_4e9db3_en-US-JennyNeural_US_female_drink_drink_your_coffee_carefully.mp3",
+          "relatedItem": "coffee_1"
+        },
+        {
+          "id": "serve",
+          "word": "serve",
+          "ipa": "/sɜːv/",
+          "meaning": "服务",
+          "sentence": "The waiter served the cake with a spoon.",
+          "sentenceTranslation": "服务员用勺子端上了蛋糕。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_4e9db3/scene_user_20260421093109_4e9db3_en-US-JennyNeural_US_female_serve_the_waiter_served_the_cake_with.mp3",
+          "relatedItem": "spoon"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260421090913_2d8c3e",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260421093109_4e9db3",
+        "core100SceneTitle": "咖啡店",
+        "recommendedCategory": "food",
+        "tags": [
+          "饮料",
+          "甜点",
+          "休闲"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260421093108_a61183",
+      "title": "公交车站",
+      "category": "transport",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260421093108_a61183/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260421093108_a61183/background.jpg",
+      "items": [
+        {
+          "id": "bus_stop_shelter",
+          "word": "bus stop shelter",
+          "ipa": "/bʌs stɒp ˈʃelər/",
+          "meaning": "公交车站棚",
+          "sentence": "We wait at the bus stop shelter.",
+          "sentenceTranslation": "我们在公交车站棚里等候。",
+          "audioPath": "/assets/generated/scene_user_20260421093108_a61183/scene_user_20260421093108_a61183_en-US-JennyNeural_US_female_bus_stop_shelter_we_wait_at_the_bus_stop.mp3",
+          "rect": {
+            "l": 50.0,
+            "t": 40.0,
+            "w": 30.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "grass",
+          "word": "grass",
+          "ipa": "/grɑːs/",
+          "meaning": "草地",
+          "sentence": "The grass is green and lush.",
+          "sentenceTranslation": "草地上绿油油的，非常茂盛。",
+          "audioPath": "/assets/generated/scene_user_20260421093108_a61183/scene_user_20260421093108_a61183_en-US-JennyNeural_US_female_grass_the_grass_is_green_and_lush.mp3",
+          "rect": {
+            "l": 25.0,
+            "t": 60.0,
+            "w": 35.0,
+            "h": 15.0
+          }
+        },
+        {
+          "id": "tree",
+          "word": "tree",
+          "ipa": "/triː/",
+          "meaning": "树",
+          "sentence": "Look at that tall tree!",
+          "sentenceTranslation": "看那棵高高的树吧！",
+          "audioPath": "/assets/generated/scene_user_20260421093108_a61183/scene_user_20260421093108_a61183_en-US-JennyNeural_US_female_tree_look_at_that_tall_tree.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 45.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "building",
+          "word": "building",
+          "ipa": "/ˈbɪldɪŋ/",
+          "meaning": "建筑物",
+          "sentence": "There are many buildings in the city.",
+          "sentenceTranslation": "城市里有好多建筑物。",
+          "audioPath": "/assets/generated/scene_user_20260421093108_a61183/scene_user_20260421093108_a61183_en-US-JennyNeural_US_female_building_there_are_many_buildings_in_the.mp3",
+          "rect": {
+            "l": 70.0,
+            "t": 10.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "road",
+          "word": "road",
+          "ipa": "/rəʊd/",
+          "meaning": "马路",
+          "sentence": "Let's walk down this road.",
+          "sentenceTranslation": "我们沿着这条路走吧。",
+          "audioPath": "/assets/generated/scene_user_20260421093108_a61183/scene_user_20260421093108_a61183_en-US-JennyNeural_US_female_road_lets_walk_down_this_road.mp3",
+          "rect": {
+            "l": 55.0,
+            "t": 65.0,
+            "w": 30.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "wait",
+          "word": "wait",
+          "ipa": "/weɪt/",
+          "meaning": "等待",
+          "sentence": "We wait at the bus stop shelter.",
+          "sentenceTranslation": "我们在公交车站棚里等候。",
+          "audioPath": "/assets/generated/scene_user_20260421093108_a61183/scene_user_20260421093108_a61183_en-US-JennyNeural_US_female_wait_we_wait_at_the_bus_stop.mp3",
+          "relatedItem": "bus_stop_shelter"
+        },
+        {
+          "id": "walk",
+          "word": "walk",
+          "ipa": "/wɔːk/",
+          "meaning": "步行",
+          "sentence": "Let's walk down this road.",
+          "sentenceTranslation": "我们沿着这条路走吧。",
+          "audioPath": "/assets/generated/scene_user_20260421093108_a61183/scene_user_20260421093108_a61183_en-US-JennyNeural_US_female_walk_lets_walk_down_this_road.mp3",
+          "relatedItem": "road"
+        },
+        {
+          "id": "look",
+          "word": "look",
+          "ipa": "/lʊk/",
+          "meaning": "看",
+          "sentence": "Look at that tall tree!",
+          "sentenceTranslation": "看那棵高高的树吧！",
+          "audioPath": "/assets/generated/scene_user_20260421093108_a61183/scene_user_20260421093108_a61183_en-US-JennyNeural_US_female_look_look_at_that_tall_tree.mp3",
+          "relatedItem": "tree"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260408024505_7358e9",
+        "uploadId": "upload_20260421031800_f78644",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260421093108_a61183",
+        "core100SceneTitle": "公交车站",
+        "recommendedCategory": "transport",
+        "tags": [
+          "公共交通",
+          "等候区",
+          "城市环境"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260421093109_c31935",
+      "title": "面包店",
+      "category": "food",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260421093109_c31935/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260421093109_c31935/background.jpg",
+      "items": [
+        {
+          "id": "sandwich",
+          "word": "sandwich",
+          "ipa": "/ˈsændwɪtʃ/",
+          "meaning": "三明治",
+          "sentence": "Look at the sandwich with lettuce and ham.",
+          "sentenceTranslation": "看这个生菜和火腿的三明治。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_c31935/scene_user_20260421093109_c31935_en-US-JennyNeural_US_female_sandwich_look_at_the_sandwich_with_lettuce.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 40.0,
+            "w": 30.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "donut",
+          "word": "donut",
+          "ipa": "/ˈdɒnət/",
+          "meaning": "甜甜圈",
+          "sentence": "There are donuts on the right side of the tray.",
+          "sentenceTranslation": "托盘右边有甜甜圈。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_c31935/scene_user_20260421093109_c31935_en-US-JennyNeural_US_female_donut_there_are_donuts_on_the_right.mp3",
+          "rect": {
+            "l": 70.0,
+            "t": 50.0,
+            "w": 25.0,
+            "h": 25.0
+          }
+        },
+        {
+          "id": "bread",
+          "word": "bread",
+          "ipa": "/breð/",
+          "meaning": "面包",
+          "sentence": "The bread is fresh and baked daily.",
+          "sentenceTranslation": "这些面包新鲜出炉。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_c31935/scene_user_20260421093109_c31935_en-US-JennyNeural_US_female_bread_the_bread_is_fresh_and_baked.mp3",
+          "rect": {
+            "l": 35.0,
+            "t": 10.0,
+            "w": 45.0,
+            "h": 45.0
+          }
+        },
+        {
+          "id": "cake",
+          "word": "cake",
+          "ipa": "/keɪk/",
+          "meaning": "蛋糕",
+          "sentence": "The cake has colorful decorations.",
+          "sentenceTranslation": "这个蛋糕有彩色的装饰。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_c31935/scene_user_20260421093109_c31935_en-US-JennyNeural_US_female_cake_the_cake_has_colorful_decorations.mp3",
+          "rect": {
+            "l": 80.0,
+            "t": 60.0,
+            "w": 15.0,
+            "h": 15.0
+          }
+        },
+        {
+          "id": "pastry",
+          "word": "pastry",
+          "ipa": "/ˈpæstri/",
+          "meaning": "糕点",
+          "sentence": "The pastries are displayed in a neat row.",
+          "sentenceTranslation": "这些糕点整齐地排成一列。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_c31935/scene_user_20260421093109_c31935_en-US-JennyNeural_US_female_pastry_the_pastries_are_displayed_in_a.mp3",
+          "rect": {
+            "l": 55.0,
+            "t": 20.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "buy",
+          "word": "buy",
+          "ipa": "/baɪ/",
+          "meaning": "买",
+          "sentence": "Let's buy some sandwiches for lunch.",
+          "sentenceTranslation": "我们午餐买些三明治吧。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_c31935/scene_user_20260421093109_c31935_en-US-JennyNeural_US_female_buy_lets_buy_some_sandwiches_for_lunch.mp3",
+          "relatedItem": "sandwich"
+        },
+        {
+          "id": "eat",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "Don't forget to eat your donut after school.",
+          "sentenceTranslation": "放学后别忘了吃你的甜甜圈。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_c31935/scene_user_20260421093109_c31935_en-US-JennyNeural_US_female_eat_dont_forget_to_eat_your_donut.mp3",
+          "relatedItem": "donut"
+        },
+        {
+          "id": "serve",
+          "word": "serve",
+          "ipa": "/sɜːv/",
+          "meaning": "供应",
+          "sentence": "The bakery serves freshly baked bread every day.",
+          "sentenceTranslation": "这家面包店每天都供应新鲜出炉的面包。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_c31935/scene_user_20260421093109_c31935_en-US-JennyNeural_US_female_serve_the_bakery_serves_freshly_baked_bread.mp3",
+          "relatedItem": "bread"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260421090918_2e2a2e",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260421093109_c31935",
+        "core100SceneTitle": "面包店",
+        "recommendedCategory": "food",
+        "tags": [
+          "美食",
+          "甜点",
+          "烘焙"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260421093109_e50ff5",
+      "title": "微信图片 20260201204831 216 661",
+      "category": "home",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260421093109_e50ff5/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260421093109_e50ff5/background.jpg",
+      "items": [
+        {
+          "id": "strawberry_cup",
+          "word": "strawberry",
+          "ipa": "/ˈstrɔːbəri/",
+          "meaning": "草莓",
+          "sentence": "Look at the strawberry in the cup.",
+          "sentenceTranslation": "看杯子里的草莓。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_e50ff5/scene_user_20260421093109_e50ff5_en-US-JennyNeural_US_female_strawberry_cup_look_at_the_strawberry_in_the.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 30.0,
+            "w": 25.0,
+            "h": 25.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "verb1",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "I eat the strawberry.",
+          "sentenceTranslation": "我吃草莓。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_e50ff5/scene_user_20260421093109_e50ff5_en-US-JennyNeural_US_female_verb1_i_eat_the_strawberry.mp3",
+          "relatedItem": "strawberry_cup"
+        },
+        {
+          "id": "verb2",
+          "word": "look",
+          "ipa": "/lʊk/",
+          "meaning": "看",
+          "sentence": "Look at the strawberry in the cup.",
+          "sentenceTranslation": "看杯子里面的草莓。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_e50ff5/scene_user_20260421093109_e50ff5_en-US-JennyNeural_US_female_verb2_look_at_the_strawberry_in_the.mp3",
+          "relatedItem": "strawberry_cup"
+        },
+        {
+          "id": "verb3",
+          "word": "take",
+          "ipa": "/teɪk/",
+          "meaning": "拿",
+          "sentence": "Take the strawberry from the cup.",
+          "sentenceTranslation": "从杯子里拿草莓。",
+          "audioPath": "/assets/generated/scene_user_20260421093109_e50ff5/scene_user_20260421093109_e50ff5_en-US-JennyNeural_US_female_verb3_take_the_strawberry_from_the_cup.mp3",
+          "relatedItem": "strawberry_cup"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260421090920_dfa97c",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260421093109_e50ff5",
+        "core100SceneTitle": "微信图片 20260201204831 216 661",
+        "recommendedCategory": "home",
+        "tags": [],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260421093853_fc1700",
+      "title": "微信图片 20260201204830 215 661(1)",
+      "category": "home",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260421093853_fc1700/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260421093853_fc1700/background.jpg",
+      "items": [
+        {
+          "id": "cake_1",
+          "word": "cake",
+          "ipa": "/keɪk/",
+          "meaning": "蛋糕",
+          "sentence": "Look at the cake on the shelf.",
+          "sentenceTranslation": "看架子上面的蛋糕。",
+          "audioPath": "/assets/generated/scene_user_20260421093853_fc1700/scene_user_20260421093853_fc1700_en-US-JennyNeural_US_female_cake_1_look_at_the_cake_on_the.mp3",
+          "rect": {
+            "l": 20.0,
+            "t": 30.0,
+            "w": 25.0,
+            "h": 25.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "verb1",
+          "word": "bake",
+          "ipa": "/beɪk/",
+          "meaning": "烤（制作）",
+          "sentence": "We bake the cake.",
+          "sentenceTranslation": "我们烤蛋糕。",
+          "audioPath": "/assets/generated/scene_user_20260421093853_fc1700/scene_user_20260421093853_fc1700_en-US-JennyNeural_US_female_verb1_we_bake_the_cake.mp3",
+          "relatedItem": "cake_1"
+        },
+        {
+          "id": "verb2",
+          "word": "cut",
+          "ipa": "/kʌt/",
+          "meaning": "切",
+          "sentence": "We cut the cake.",
+          "sentenceTranslation": "我们切蛋糕。",
+          "audioPath": "/assets/generated/scene_user_20260421093853_fc1700/scene_user_20260421093853_fc1700_en-US-JennyNeural_US_female_verb2_we_cut_the_cake.mp3",
+          "relatedItem": "cake_1"
+        },
+        {
+          "id": "verb3",
+          "word": "eat",
+          "ipa": "/iːt/",
+          "meaning": "吃",
+          "sentence": "We eat the cake.",
+          "sentenceTranslation": "我们吃蛋糕。",
+          "audioPath": "/assets/generated/scene_user_20260421093853_fc1700/scene_user_20260421093853_fc1700_en-US-JennyNeural_US_female_verb3_we_eat_the_cake.mp3",
+          "relatedItem": "cake_1"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "admin_console:admin",
+        "uploadId": "upload_20260421090926_16492b",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260421093853_fc1700",
+        "core100SceneTitle": "微信图片 20260201204830 215 661(1)",
+        "recommendedCategory": "home",
+        "tags": [],
+        "version": 1
+      }
     }
   ]
 }

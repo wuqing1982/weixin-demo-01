@@ -193,7 +193,7 @@ class InlineSceneWorker:
                 errorMessage=str(exc),
             )
 
-    SCENE_ANALYSIS_MAX_RETRIES = 2
+    SCENE_ANALYSIS_MAX_RETRIES = 3
 
     def _analyze_scene(self, *, scene_id: str, preferred_title: str, task: dict, upload: dict) -> dict:
         source_path = self.upload_store.resolve_disk_path(upload['filePath'])

@@ -28,7 +28,7 @@ def read_json_file(path: Path) -> dict[str, Any]:
 
 def write_json_file(path: Path, payload: dict[str, Any]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    temp_path = path.with_suffix(f'{path.suffix}.tmp')
+    temp_path = path.with_suffix(f'{path.suffix}.tmp.{token_hex(4)}')
     with temp_path.open('w', encoding='utf-8') as handle:
         json.dump(payload, handle, ensure_ascii=False, indent=2)
     temp_path.replace(path)
