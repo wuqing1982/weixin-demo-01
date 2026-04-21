@@ -608,11 +608,19 @@ def serialize_admin_user(user: dict) -> dict:
     return payload
 
 
-def serialize_admin_task(task: dict) -> dict:
+def serialize_admin_task(task: dict, request: Request | None = None) -> dict:
+    cover_url = ''
+    upload_id = task.get('uploadId', '')
+    if upload_id and request is not None:
+        upload = upload_store.get_upload(upload_id)
+        if upload and upload.get('filePath'):
+            cover_url = asset_url(request, upload['filePath'])
+
     return {
         'taskId': task.get('taskId', ''),
         'ownerId': task.get('ownerId', ''),
-        'uploadId': task.get('uploadId', ''),
+        'uploadId': upload_id,
+        'coverUrl': cover_url,
         'title': task.get('title', ''),
         'requestSource': task.get('requestSource', 'miniapp'),
         'autoPublish': bool(task.get('autoPublish')),
@@ -1024,7 +1032,7 @@ def admin_list_tasks(request: Request, limit: int = Query(default=50, ge=1, le=2
     get_current_admin(request)
     tasks = task_store.list_tasks(limit) if hasattr(task_store, 'list_tasks') else []
     return success({
-        'list': [serialize_admin_task(task) for task in tasks],
+        'list': [serialize_admin_task(task, request) for task in tasks],
     })
 
 
@@ -1034,7 +1042,7 @@ def admin_get_task(task_id: str, request: Request):
     task = task_store.get_task(task_id)
     if not task:
         raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'task not found'})
-    return success(serialize_admin_task(task))
+    return success(serialize_admin_task(task, request))
 
 
 @app.post('/api/admin/tasks/{task_id}/retry')
@@ -1043,7 +1051,7 @@ def admin_retry_task(task_id: str, request: Request):
     task = task_store.retry_task(task_id) if hasattr(task_store, 'retry_task') else None
     if not task:
         raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'task not found'})
-    return success(serialize_admin_task(task))
+    return success(serialize_admin_task(task, request))
 
 
 @app.post('/api/admin/tasks/batch-delete')
@@ -2171,7 +2179,7 @@ def admin_create_scene_generate_batch(request: Request, payload: AdminBatchScene
                 'publishVisibility': payload.publishVisibility,
             },
         )
-        created.append(serialize_admin_task(task))
+        created.append(serialize_admin_task(task, request))
     return success({'list': created})
 
 
