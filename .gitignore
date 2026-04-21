@@ -9,3 +9,19 @@ assets/generated/
 assets/uploads/
 assets/audio/
 assets/video_exports/
+
+# Design screenshots (not needed in repo or mini program package)
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+*.bmp
+*.mp3
+*.wav
+# Exceptions: keep mini program UI icons/assets that ARE needed
+!components/**/*.png
+!components/**/*.jpg
+!pages/**/*.png
+!pages/**/*.jpg
+!assets/icons/

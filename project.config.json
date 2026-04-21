@@ -122,6 +122,42 @@
       {
         "value": "project.private.config.json",
         "type": "file"
+      },
+      {
+        "value": ".playwright-mcp",
+        "type": "folder"
+      },
+      {
+        "value": "S1.jpg",
+        "type": "file"
+      },
+      {
+        "value": "generator-cards-full.png",
+        "type": "file"
+      },
+      {
+        "value": "generator-redesign.png",
+        "type": "file"
+      },
+      {
+        "value": "generator-redesign-wide.png",
+        "type": "file"
+      },
+      {
+        "value": "scene-redesign-cards.png",
+        "type": "file"
+      },
+      {
+        "value": "generator-cards-with-images.png",
+        "type": "file"
+      },
+      {
+        "value": "generator-cards-with-images2.png",
+        "type": "file"
+      },
+      {
+        "value": "generator-cards-verification.png",
+        "type": "file"
       }
     ],
     "include": []
