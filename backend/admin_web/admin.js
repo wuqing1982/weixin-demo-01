@@ -719,6 +719,10 @@ function updateGeneratorBatchState() {
     bar.classList.toggle('visible', checked.length > 0);
     const countEl = bar.querySelector('.batch-bar-count');
     if (countEl) countEl.textContent = `已选 ${checked.length} 项`;
+    const dropdown = document.getElementById('gen-batch-action');
+    const executeBtn = document.getElementById('gen-batch-execute');
+    if (dropdown) dropdown.selectedIndex = 0;
+    if (executeBtn) executeBtn.disabled = true;
   }
 }
 
@@ -1258,7 +1262,14 @@ function renderGenerator() {
     <div id="gen-batch-bar" class="batch-bar">
       <div class="batch-bar-inner">
         <span class="batch-bar-count">已选 0 项</span>
-        <button class="batch-bar-btn batch-bar-btn--danger" data-action="gen-batch-delete">删除</button>
+        <div class="batch-bar-dropdown-wrap">
+          <select id="gen-batch-action" class="batch-bar-dropdown">
+            <option value="">选择操作…</option>
+            <option value="delete">删除</option>
+            <option value="retry">重试</option>
+          </select>
+          <button class="batch-bar-execute-btn" id="gen-batch-execute" data-action="gen-batch-execute" disabled>执行</button>
+        </div>
         <button class="batch-bar-close" data-action="gen-batch-clear">&times;</button>
       </div>
     </div>
@@ -2162,18 +2173,43 @@ document.addEventListener('click', async (event) => {
     try { await batchSceneCategory(categoryId, categoryName); } catch (error) { toast(error.message || '批量移动失败', 'error'); }
     return;
   }
-  if (action === 'gen-batch-delete') {
+  if (action === 'gen-batch-execute') {
+    const dropdown = document.getElementById('gen-batch-action');
+    const selectedAction = dropdown ? dropdown.value : '';
+    if (!selectedAction) { toast('请先选择操作', 'error'); return; }
     const ids = Array.from(panelBody.querySelectorAll('.gen-task-checkbox:checked')).map((cb) => cb.value);
     if (ids.length === 0) return;
-    if (!window.confirm(`确定要删除选中的 ${ids.length} 条任务吗？此操作不可恢复。`)) return;
-    try {
-      await api('/api/admin/tasks/batch-delete', { method: 'POST', body: { taskIds: ids } });
-      toast(`成功删除 ${ids.length} 条任务`);
+
+    if (selectedAction === 'delete') {
+      if (!window.confirm(`确定要删除选中的 ${ids.length} 条任务吗？此操作不可恢复。`)) return;
+      try {
+        await api('/api/admin/tasks/batch-delete', { method: 'POST', body: { taskIds: ids } });
+        toast(`成功删除 ${ids.length} 条任务`);
+        await loadConsole();
+      } catch (error) {
+        toast(error.message || '批量删除失败', 'error');
+      }
+    } else if (selectedAction === 'retry') {
+      if (!window.confirm(`确定要重试选中的 ${ids.length} 条失败任务吗？`)) return;
+      let successCount = 0;
+      for (const id of ids) {
+        try {
+          await api(`/api/admin/tasks/${id}/retry`, { method: 'POST' });
+          successCount++;
+        } catch (_) { /* skip individual failures */ }
+      }
+      toast(`已重新排队 ${successCount} 条任务`);
       await loadConsole();
-    } catch (error) {
-      toast(error.message || '批量删除失败', 'error');
     }
     return;
+  }
+});
+
+// Dropdown change toggles execute button
+document.addEventListener('change', (event) => {
+  if (event.target.id === 'gen-batch-action') {
+    const executeBtn = document.getElementById('gen-batch-execute');
+    if (executeBtn) executeBtn.disabled = !event.target.value;
   }
 });
 

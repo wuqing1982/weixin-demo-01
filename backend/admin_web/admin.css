@@ -1498,6 +1498,63 @@ input {
   color: #fff;
 }
 
+/* Dropdown + Execute button in batch bar */
+.batch-bar-dropdown-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.batch-bar-dropdown {
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 6px 32px 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='rgba(255,255,255,0.6)'/%3E%3C/svg%3E") no-repeat right 10px center;
+  color: #fff;
+  font-size: 13px;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  outline: none;
+}
+
+.batch-bar-dropdown:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+.batch-bar-dropdown:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.4);
+}
+
+.batch-bar-dropdown option {
+  background: #2d2b55;
+  color: #fff;
+}
+
+.batch-bar-execute-btn {
+  padding: 6px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.batch-bar-execute-btn:hover:not(:disabled) {
+  background: #5b4bd5;
+}
+
+.batch-bar-execute-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 /* Batch category sub-menu in floating bar */
 .batch-bar-category-menu {
   display: none;
