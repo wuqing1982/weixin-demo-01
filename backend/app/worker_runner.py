@@ -193,22 +193,34 @@ class InlineSceneWorker:
                 errorMessage=str(exc),
             )
 
+    SCENE_ANALYSIS_MAX_RETRIES = 2
+
     def _analyze_scene(self, *, scene_id: str, preferred_title: str, task: dict, upload: dict) -> dict:
         source_path = self.upload_store.resolve_disk_path(upload['filePath'])
         if not source_path.exists():
             raise RuntimeError('uploaded source file missing')
 
-        raw_result = analyze_scene_with_glm4v(
-            str(source_path),
-            'auto',
-            api_key=self.api_key,
-            model=self.model,
-            include_verbs=bool(task.get('includeVerbs', True)),
-        )
-        if not isinstance(raw_result, dict):
-            raise RuntimeError('scene analysis returned invalid payload')
-        if not raw_result.get('hotspots'):
-            raise RuntimeError('scene analysis returned empty hotspots')
+        last_error = None
+        for attempt in range(1 + self.SCENE_ANALYSIS_MAX_RETRIES):
+            try:
+                raw_result = analyze_scene_with_glm4v(
+                    str(source_path),
+                    'auto',
+                    api_key=self.api_key,
+                    model=self.model,
+                    include_verbs=bool(task.get('includeVerbs', True)),
+                )
+                if not isinstance(raw_result, dict):
+                    raise RuntimeError('scene analysis returned invalid payload')
+                if not raw_result.get('hotspots'):
+                    raise RuntimeError('scene analysis returned empty hotspots')
+                break
+            except (ValueError, RuntimeError) as exc:
+                last_error = exc
+                if attempt < self.SCENE_ANALYSIS_MAX_RETRIES:
+                    print(f"⚠️  场景分析第 {attempt + 1} 次失败，正在重试: {exc}")
+        else:
+            raise last_error
 
         core_scene = dict(raw_result)
         core_scene['scene_id'] = scene_id

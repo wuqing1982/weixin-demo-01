@@ -1,0 +1,405 @@
+- generic [ref=e1]:
+  - generic [ref=e16]:
+    - complementary [ref=e17]:
+      - generic [ref=e18]:
+        - generic [ref=e19]: ADMIN
+        - heading "英语场景后台" [level=1] [ref=e20]
+      - navigation [ref=e21]:
+        - button "数据概览" [ref=e23] [cursor=pointer]
+        - generic [ref=e24]:
+          - button "场景管理" [ref=e25] [cursor=pointer]
+          - button "场景生成" [active] [ref=e26] [cursor=pointer]
+          - button "草稿发布" [ref=e27] [cursor=pointer]
+          - button "分类/合集" [ref=e28] [cursor=pointer]
+        - generic [ref=e29]:
+          - button "用户管理" [ref=e30] [cursor=pointer]
+          - button "商品管理" [ref=e31] [cursor=pointer]
+          - button "订单管理" [ref=e32] [cursor=pointer]
+          - button "卡密管理" [ref=e33] [cursor=pointer]
+          - button "任务管理" [ref=e34] [cursor=pointer]
+      - generic [ref=e35]:
+        - generic [ref=e36]: admin · super_admin
+        - button "退出登录" [ref=e37] [cursor=pointer]
+    - main [ref=e38]:
+      - generic [ref=e39]:
+        - heading "场景生成" [level=2] [ref=e68]
+        - button "刷新" [ref=e41] [cursor=pointer]
+      - generic [ref=e67]:
+        - generic [ref=e69]:
+          - generic [ref=e70]:
+            - heading "场景生成器" [level=3] [ref=e71]
+            - paragraph [ref=e72]: 所有来源的生成任务（Admin 上传 + 小程序拍照）。
+          - generic [ref=e73]: 31 条任务
+        - generic [ref=e75]:
+          - generic [ref=e77] [cursor=pointer]:
+            - generic [ref=e78]: 📷
+            - generic [ref=e79]: 拖拽图片到此处，或点击选择
+            - generic [ref=e80]: 支持 JPG / PNG，可多选
+            - button "Choose File" [ref=e81]
+          - generic [ref=e83]:
+            - heading "生成配置" [level=4] [ref=e84]
+            - generic [ref=e85]:
+              - generic [ref=e86]: 主分类
+              - combobox [ref=e87]:
+                - option "请选择分类" [selected]
+                - option "家庭生活"
+                - option "饮食"
+                - option "自然户外"
+                - option "动物世界"
+                - option "交通出行"
+                - option "社区职业"
+                - option "校园学习"
+                - option "运动娱乐"
+            - generic [ref=e88]:
+              - generic [ref=e89]: 可见性
+              - combobox [ref=e90]:
+                - option "公开" [selected]
+                - option "会员"
+                - option "隐藏"
+            - generic [ref=e91]:
+              - generic [ref=e92]: 生成动词
+              - combobox [ref=e93]:
+                - option "生成动词" [selected]
+                - option "不生成动词"
+            - generic [ref=e94]:
+              - generic [ref=e95]: 合集
+              - generic [ref=e97]:
+                - checkbox "面试和工作" [ref=e98]
+                - generic [ref=e99]: 面试和工作
+            - generic [ref=e100]:
+              - generic [ref=e101]: 发布策略
+              - generic [ref=e103] [cursor=pointer]:
+                - checkbox "生成后自动发布" [checked] [ref=e104]
+                - text: 生成后自动发布
+            - button "压缩上传并开始生成" [disabled] [ref=e105]
+          - generic [ref=e106]:
+            - generic [ref=e108]:
+              - checkbox [ref=e110] [cursor=pointer]
+              - heading "生成任务" [level=4] [ref=e111]
+              - generic [ref=e112]: 31 条
+            - generic [ref=e113]:
+              - generic [ref=e114]:
+                - checkbox [ref=e116] [cursor=pointer]
+                - generic [ref=e119]: 🎨
+                - generic [ref=e120]:
+                  - strong [ref=e121]: upload_20260421031800_f78644
+                  - generic [ref=e122]:
+                    - generic [ref=e123]: 失败
+                    - generic [ref=e125]: 小程序
+                    - generic [ref=e127]: 100%
+                  - generic [ref=e130]:
+                    - button "重试" [ref=e131] [cursor=pointer]
+                    - generic "生成场景" [ref=e132]: SC scene_us
+              - generic [ref=e133]:
+                - checkbox [ref=e135] [cursor=pointer]
+                - generic [ref=e138]: 🎨
+                - generic [ref=e139]:
+                  - strong [ref=e140]: upload_20260420172103_eba5d0
+                  - generic [ref=e141]:
+                    - generic [ref=e142]: 已完成
+                    - generic [ref=e144]: 小程序
+                    - generic [ref=e146]: 100%
+                  - generic "生成场景" [ref=e150]: SC scene_us
+              - generic [ref=e151]:
+                - checkbox [ref=e153] [cursor=pointer]
+                - generic [ref=e156]: 🎨
+                - generic [ref=e157]:
+                  - strong [ref=e158]: upload_20260420100826_eb169b
+                  - generic [ref=e159]:
+                    - generic [ref=e160]: 已完成
+                    - generic [ref=e162]: Admin
+                    - generic [ref=e164]: 100%
+                  - generic "生成场景" [ref=e168]: SC scene_us
+              - generic [ref=e169]:
+                - checkbox [ref=e171] [cursor=pointer]
+                - generic [ref=e174]: 🎨
+                - generic [ref=e175]:
+                  - strong [ref=e176]: upload_20260420100825_2af719
+                  - generic [ref=e177]:
+                    - generic [ref=e178]: 已完成
+                    - generic [ref=e180]: Admin
+                    - generic [ref=e182]: 100%
+                  - generic "生成场景" [ref=e186]: SC scene_us
+              - generic [ref=e187]:
+                - checkbox [ref=e189] [cursor=pointer]
+                - generic [ref=e192]: 🎨
+                - generic [ref=e193]:
+                  - strong [ref=e194]: upload_20260418050010_0dae18
+                  - generic [ref=e195]:
+                    - generic [ref=e196]: 已完成
+                    - generic [ref=e198]: Admin
+                    - generic [ref=e200]: 100%
+                  - generic "生成场景" [ref=e204]: SC scene_us
+              - generic [ref=e205]:
+                - checkbox [ref=e207] [cursor=pointer]
+                - generic [ref=e210]: 🎨
+                - generic [ref=e211]:
+                  - strong [ref=e212]: upload_20260418050009_89b5cd
+                  - generic [ref=e213]:
+                    - generic [ref=e214]: 已完成
+                    - generic [ref=e216]: Admin
+                    - generic [ref=e218]: 100%
+                  - generic [ref=e221]:
+                    - generic "生成场景" [ref=e222]: SC scene_us
+                    - generic "发布场景" [ref=e223]: PB scene_20
+              - generic [ref=e224]:
+                - checkbox [ref=e226] [cursor=pointer]
+                - generic [ref=e229]: 🎨
+                - generic [ref=e230]:
+                  - strong [ref=e231]: upload_20260418021032_c6ab0c
+                  - generic [ref=e232]:
+                    - generic [ref=e233]: 已完成
+                    - generic [ref=e235]: 小程序
+                    - generic [ref=e237]: 100%
+                  - generic "生成场景" [ref=e241]: SC scene_us
+              - generic [ref=e242]:
+                - checkbox [ref=e244] [cursor=pointer]
+                - generic [ref=e247]: 🎨
+                - generic [ref=e248]:
+                  - strong [ref=e249]: upload_20260410232613_7f8bef
+                  - generic [ref=e250]:
+                    - generic [ref=e251]: 已完成
+                    - generic [ref=e253]: 小程序
+                    - generic [ref=e255]: 100%
+                  - generic "生成场景" [ref=e259]: SC scene_us
+              - generic [ref=e260]:
+                - checkbox [ref=e262] [cursor=pointer]
+                - generic [ref=e265]: 🎨
+                - generic [ref=e266]:
+                  - strong [ref=e267]: upload_20260410090701_31f969
+                  - generic [ref=e268]:
+                    - generic [ref=e269]: 已完成
+                    - generic [ref=e271]: 小程序
+                    - generic [ref=e273]: 100%
+                  - generic "生成场景" [ref=e277]: SC scene_us
+              - generic [ref=e278]:
+                - checkbox [ref=e280] [cursor=pointer]
+                - generic [ref=e283]: 🎨
+                - generic [ref=e284]:
+                  - strong [ref=e285]: upload_20260410042025_f6b036
+                  - generic [ref=e286]:
+                    - generic [ref=e287]: 已完成
+                    - generic [ref=e289]: 小程序
+                    - generic [ref=e291]: 100%
+                  - generic "生成场景" [ref=e295]: SC scene_us
+              - generic [ref=e296]:
+                - checkbox [ref=e298] [cursor=pointer]
+                - generic [ref=e301]: 🎨
+                - generic [ref=e302]:
+                  - strong [ref=e303]: upload_20260408100154_8ed7ef
+                  - generic [ref=e304]:
+                    - generic [ref=e305]: 已完成
+                    - generic [ref=e307]: 小程序
+                    - generic [ref=e309]: 100%
+                  - generic "生成场景" [ref=e313]: SC scene_us
+              - generic [ref=e314]:
+                - checkbox [ref=e316] [cursor=pointer]
+                - generic [ref=e319]: 🎨
+                - generic [ref=e320]:
+                  - strong [ref=e321]: upload_20260408022615_477c8f
+                  - generic [ref=e322]:
+                    - generic [ref=e323]: 已完成
+                    - generic [ref=e325]: 小程序
+                    - generic [ref=e327]: 100%
+                  - generic "生成场景" [ref=e331]: SC scene_us
+              - generic [ref=e332]:
+                - checkbox [ref=e334] [cursor=pointer]
+                - generic [ref=e337]: 🎨
+                - generic [ref=e338]:
+                  - strong [ref=e339]: upload_20260408010529_c9722c
+                  - generic [ref=e340]:
+                    - generic [ref=e341]: 已完成
+                    - generic [ref=e343]: 小程序
+                    - generic [ref=e345]: 100%
+                  - generic "生成场景" [ref=e349]: SC scene_us
+              - generic [ref=e350]:
+                - checkbox [ref=e352] [cursor=pointer]
+                - generic [ref=e355]: 🎨
+                - generic [ref=e356]:
+                  - strong [ref=e357]: upload_20260407105443_6ffceb
+                  - generic [ref=e358]:
+                    - generic [ref=e359]: 失败
+                    - generic [ref=e361]: 小程序
+                    - generic [ref=e363]: 100%
+                  - generic [ref=e366]:
+                    - button "重试" [ref=e367] [cursor=pointer]
+                    - generic "生成场景" [ref=e368]: SC scene_us
+              - generic [ref=e369]:
+                - checkbox [ref=e371] [cursor=pointer]
+                - generic [ref=e374]: 🎨
+                - generic [ref=e375]:
+                  - strong [ref=e376]: upload_20260407063631_686dd4
+                  - generic [ref=e377]:
+                    - generic [ref=e378]: 已完成
+                    - generic [ref=e380]: 小程序
+                    - generic [ref=e382]: 100%
+                  - generic "生成场景" [ref=e386]: SC scene_us
+              - generic [ref=e387]:
+                - checkbox [ref=e389] [cursor=pointer]
+                - generic [ref=e392]: 🎨
+                - generic [ref=e393]:
+                  - strong [ref=e394]: upload_20260407053521_7022a9
+                  - generic [ref=e395]:
+                    - generic [ref=e396]: 已完成
+                    - generic [ref=e398]: 小程序
+                    - generic [ref=e400]: 100%
+                  - generic "生成场景" [ref=e404]: SC scene_us
+              - generic [ref=e405]:
+                - checkbox [ref=e407] [cursor=pointer]
+                - generic [ref=e410]: 🎨
+                - generic [ref=e411]:
+                  - strong [ref=e412]: upload_20260406074415_90015e
+                  - generic [ref=e413]:
+                    - generic [ref=e414]: 已完成
+                    - generic [ref=e416]: 小程序
+                    - generic [ref=e418]: 100%
+                  - generic "生成场景" [ref=e422]: SC scene_us
+              - generic [ref=e423]:
+                - checkbox [ref=e425] [cursor=pointer]
+                - generic [ref=e428]: 🎨
+                - generic [ref=e429]:
+                  - strong [ref=e430]: upload_20260406071525_f0c7f0
+                  - generic [ref=e431]:
+                    - generic [ref=e432]: 已完成
+                    - generic [ref=e434]: 小程序
+                    - generic [ref=e436]: 100%
+                  - generic "生成场景" [ref=e440]: SC scene_us
+              - generic [ref=e441]:
+                - checkbox [ref=e443] [cursor=pointer]
+                - generic [ref=e446]: 🎨
+                - generic [ref=e447]:
+                  - strong [ref=e448]: upload_20260406064856_668563
+                  - generic [ref=e449]:
+                    - generic [ref=e450]: 已完成
+                    - generic [ref=e452]: 小程序
+                    - generic [ref=e454]: 100%
+                  - generic "生成场景" [ref=e458]: SC scene_us
+              - generic [ref=e459]:
+                - checkbox [ref=e461] [cursor=pointer]
+                - generic [ref=e464]: 🎨
+                - generic [ref=e465]:
+                  - strong [ref=e466]: upload_20260406063406_304a92
+                  - generic [ref=e467]:
+                    - generic [ref=e468]: 已完成
+                    - generic [ref=e470]: 小程序
+                    - generic [ref=e472]: 100%
+                  - generic "生成场景" [ref=e476]: SC scene_us
+              - generic [ref=e477]:
+                - checkbox [ref=e479] [cursor=pointer]
+                - generic [ref=e482]: 🎨
+                - generic [ref=e483]:
+                  - strong [ref=e484]: upload_20260405220518_d18863
+                  - generic [ref=e485]:
+                    - generic [ref=e486]: 已完成
+                    - generic [ref=e488]: Admin
+                    - generic [ref=e490]: 100%
+                  - generic [ref=e493]:
+                    - generic "生成场景" [ref=e494]: SC scene_us
+                    - generic "发布场景" [ref=e495]: PB scene_20
+              - generic [ref=e496]:
+                - checkbox [ref=e498] [cursor=pointer]
+                - generic [ref=e501]: 🎨
+                - generic [ref=e502]:
+                  - strong [ref=e503]: upload_20260405220517_12ed13
+                  - generic [ref=e504]:
+                    - generic [ref=e505]: 已完成
+                    - generic [ref=e507]: Admin
+                    - generic [ref=e509]: 100%
+                  - generic [ref=e512]:
+                    - generic "生成场景" [ref=e513]: SC scene_us
+                    - generic "发布场景" [ref=e514]: PB scene_20
+              - generic [ref=e515]:
+                - checkbox [ref=e517] [cursor=pointer]
+                - generic [ref=e520]: 🎨
+                - generic [ref=e521]:
+                  - strong [ref=e522]: upload_20260405173712_061cb2
+                  - generic [ref=e523]:
+                    - generic [ref=e524]: 已完成
+                    - generic [ref=e526]: 小程序
+                    - generic [ref=e528]: 100%
+                  - generic "生成场景" [ref=e532]: SC scene_us
+              - generic [ref=e533]:
+                - checkbox [ref=e535] [cursor=pointer]
+                - generic [ref=e538]: 🎨
+                - generic [ref=e539]:
+                  - strong [ref=e540]: upload_20260405165722_65eb2b
+                  - generic [ref=e541]:
+                    - generic [ref=e542]: 已完成
+                    - generic [ref=e544]: 小程序
+                    - generic [ref=e546]: 100%
+                  - generic "生成场景" [ref=e550]: SC scene_us
+              - generic [ref=e551]:
+                - checkbox [ref=e553] [cursor=pointer]
+                - generic [ref=e556]: 🎨
+                - generic [ref=e557]:
+                  - strong [ref=e558]: upload_20260405145129_b5b831
+                  - generic [ref=e559]:
+                    - generic [ref=e560]: 已完成
+                    - generic [ref=e562]: 小程序
+                    - generic [ref=e564]: 100%
+                  - generic "生成场景" [ref=e568]: SC scene_us
+              - generic [ref=e569]:
+                - checkbox [ref=e571] [cursor=pointer]
+                - generic [ref=e574]: 🎨
+                - generic [ref=e575]:
+                  - strong [ref=e576]: upload_20260405112757_a9c69b
+                  - generic [ref=e577]:
+                    - generic [ref=e578]: 已完成
+                    - generic [ref=e580]: 小程序
+                    - generic [ref=e582]: 100%
+                  - generic "生成场景" [ref=e586]: SC scene_us
+              - generic [ref=e587]:
+                - checkbox [ref=e589] [cursor=pointer]
+                - generic [ref=e592]: 🎨
+                - generic [ref=e593]:
+                  - strong [ref=e594]: upload_20260405111411_4f517a
+                  - generic [ref=e595]:
+                    - generic [ref=e596]: 已完成
+                    - generic [ref=e598]: 小程序
+                    - generic [ref=e600]: 100%
+                  - generic "生成场景" [ref=e604]: SC scene_us
+              - generic [ref=e605]:
+                - checkbox [ref=e607] [cursor=pointer]
+                - generic [ref=e610]: 🎨
+                - generic [ref=e611]:
+                  - strong [ref=e612]: upload_20260405072255_526e7f
+                  - generic [ref=e613]:
+                    - generic [ref=e614]: 已完成
+                    - generic [ref=e616]: 小程序
+                    - generic [ref=e618]: 100%
+                  - generic "生成场景" [ref=e622]: SC scene_us
+              - generic [ref=e623]:
+                - checkbox [ref=e625] [cursor=pointer]
+                - generic [ref=e628]: 🎨
+                - generic [ref=e629]:
+                  - strong [ref=e630]: upload_20260404144235_933a52
+                  - generic [ref=e631]:
+                    - generic [ref=e632]: 已完成
+                    - generic [ref=e634]: 小程序
+                    - generic [ref=e636]: 100%
+                  - generic "生成场景" [ref=e640]: SC scene_us
+              - generic [ref=e641]:
+                - checkbox [ref=e643] [cursor=pointer]
+                - generic [ref=e646]: 🎨
+                - generic [ref=e647]:
+                  - strong [ref=e648]: upload_20260404125540_762919
+                  - generic [ref=e649]:
+                    - generic [ref=e650]: 已完成
+                    - generic [ref=e652]: 小程序
+                    - generic [ref=e654]: 100%
+                  - generic "生成场景" [ref=e658]: SC scene_us
+              - generic [ref=e659]:
+                - checkbox [ref=e661] [cursor=pointer]
+                - generic [ref=e664]: 🎨
+                - generic [ref=e665]:
+                  - strong [ref=e666]: upload_20260404121741_427966
+                  - generic [ref=e667]:
+                    - generic [ref=e668]: 已完成
+                    - generic [ref=e670]: 小程序
+                    - generic [ref=e672]: 100%
+                  - generic "生成场景" [ref=e676]: SC scene_us
+  - generic:
+    - generic:
+      - generic: 已选 0 项
+      - button "删除"
+      - button "×"

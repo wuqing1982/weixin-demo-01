@@ -1,0 +1,50 @@
+- generic [ref=e16]:
+  - complementary [ref=e17]:
+    - generic [ref=e18]:
+      - generic [ref=e19]: ADMIN
+      - heading "英语场景后台" [level=1] [ref=e20]
+    - navigation [ref=e21]:
+      - button "数据概览" [ref=e23] [cursor=pointer]
+      - generic [ref=e24]:
+        - button "场景管理" [ref=e25] [cursor=pointer]
+        - button "场景生成" [ref=e26] [cursor=pointer]
+        - button "草稿发布" [ref=e27] [cursor=pointer]
+        - button "分类/合集" [ref=e28] [cursor=pointer]
+      - generic [ref=e29]:
+        - button "用户管理" [ref=e30] [cursor=pointer]
+        - button "商品管理" [ref=e31] [cursor=pointer]
+        - button "订单管理" [ref=e32] [cursor=pointer]
+        - button "卡密管理" [ref=e33] [cursor=pointer]
+        - button "任务管理" [ref=e34] [cursor=pointer]
+    - generic [ref=e35]:
+      - generic [ref=e36]: admin · super_admin
+      - button "退出登录" [ref=e37] [cursor=pointer]
+  - main [ref=e38]:
+    - generic [ref=e39]:
+      - heading "数据概览" [level=2] [ref=e40]
+      - button "刷新" [ref=e41] [cursor=pointer]
+    - generic [ref=e42]:
+      - article [ref=e43]:
+        - generic [ref=e44]: 用户数
+        - generic [ref=e45]: "3"
+      - article [ref=e46]:
+        - generic [ref=e47]: 有效会员
+        - generic [ref=e48]: "3"
+      - article [ref=e49]:
+        - generic [ref=e50]: 商品数
+        - generic [ref=e51]: "5"
+      - article [ref=e52]:
+        - generic [ref=e53]: 今日订单
+        - generic [ref=e54]: "0"
+      - article [ref=e55]:
+        - generic [ref=e56]: 今日支付
+        - generic [ref=e57]: ¥0.00
+      - article [ref=e58]:
+        - generic [ref=e59]: 失败任务
+        - generic [ref=e60]: "1"
+      - article [ref=e61]:
+        - generic [ref=e62]: 今日任务
+        - generic [ref=e63]: "0"
+      - article [ref=e64]:
+        - generic [ref=e65]: 总任务数
+        - generic [ref=e66]: "27"

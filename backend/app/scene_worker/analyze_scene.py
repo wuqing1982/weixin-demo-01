@@ -420,6 +420,8 @@ def analyze_scene_with_glm4v(image_path, scene_name, api_key=None, model="glm-4v
         success, result, method = repair_truncated_json(response_text, verbose=True)
 
         if not success:
+            print(f"❌ JSON解析全部失败，原始响应（前500字符）:")
+            print(response_text[:500] if response_text else '(empty)')
             raise ValueError(f"无法解析JSON响应: {method}")
 
         print(f"✅ JSON解析成功: {method}")

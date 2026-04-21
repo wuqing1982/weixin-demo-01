@@ -1,0 +1,13 @@
+- generic [ref=e3]:
+  - generic [ref=e4]: ADMIN
+  - heading "英语场景平台后台" [level=1] [ref=e5]
+  - paragraph [ref=e6]: 面向运营与管理员的最小控制台
+  - generic [ref=e7]:
+    - generic [ref=e8]:
+      - generic [ref=e9]: 账号
+      - textbox "账号" [ref=e10]: admin
+    - generic [ref=e11]:
+      - generic [ref=e12]: 密码
+      - textbox "密码" [ref=e13]: admin123456
+    - button "登录后台" [ref=e14] [cursor=pointer]
+    - paragraph [ref=e15]

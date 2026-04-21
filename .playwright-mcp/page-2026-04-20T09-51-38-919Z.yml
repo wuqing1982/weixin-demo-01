@@ -1,0 +1,124 @@
+- generic [ref=e16]:
+  - complementary [ref=e17]:
+    - generic [ref=e18]:
+      - generic [ref=e19]: ADMIN
+      - heading "英语场景后台" [level=1] [ref=e20]
+    - navigation [ref=e21]:
+      - button "数据概览" [ref=e23] [cursor=pointer]
+      - generic [ref=e24]:
+        - button "场景管理" [ref=e25] [cursor=pointer]
+        - button "场景生成" [active] [ref=e26] [cursor=pointer]
+        - button "草稿发布" [ref=e27] [cursor=pointer]
+        - button "分类/合集" [ref=e28] [cursor=pointer]
+      - generic [ref=e29]:
+        - button "用户管理" [ref=e30] [cursor=pointer]
+        - button "商品管理" [ref=e31] [cursor=pointer]
+        - button "订单管理" [ref=e32] [cursor=pointer]
+        - button "卡密管理" [ref=e33] [cursor=pointer]
+        - button "任务管理" [ref=e34] [cursor=pointer]
+    - generic [ref=e35]:
+      - generic [ref=e36]: admin · super_admin
+      - button "退出登录" [ref=e37] [cursor=pointer]
+  - main [ref=e38]:
+    - generic [ref=e39]:
+      - heading "场景生成" [level=2] [ref=e68]
+      - button "刷新" [ref=e41] [cursor=pointer]
+    - generic [ref=e67]:
+      - generic [ref=e69]:
+        - generic [ref=e70]:
+          - heading "场景生成器" [level=3] [ref=e71]
+          - paragraph [ref=e72]: 上传全景图片，AI 自动分析生成英语学习场景，完成后可自动发布到公开场景库。
+        - generic [ref=e73]: 4 条任务
+      - generic [ref=e75]:
+        - generic [ref=e77] [cursor=pointer]:
+          - generic [ref=e78]: 📷
+          - generic [ref=e79]: 拖拽图片到此处，或点击选择
+          - generic [ref=e80]: 支持 JPG / PNG，可多选
+          - button "Choose File" [ref=e81]
+        - generic [ref=e83]:
+          - heading "生成配置" [level=4] [ref=e84]
+          - generic [ref=e85]:
+            - generic [ref=e86]: 主分类
+            - combobox [ref=e87]:
+              - option "请选择分类" [selected]
+              - option "家庭生活"
+              - option "饮食"
+              - option "自然户外"
+              - option "动物世界"
+              - option "交通出行"
+              - option "社区职业"
+              - option "校园学习"
+              - option "运动娱乐"
+          - generic [ref=e88]:
+            - generic [ref=e89]: 可见性
+            - combobox [ref=e90]:
+              - option "公开" [selected]
+              - option "会员"
+              - option "隐藏"
+          - generic [ref=e91]:
+            - generic [ref=e92]: 生成动词
+            - combobox [ref=e93]:
+              - option "生成动词" [selected]
+              - option "不生成动词"
+          - generic [ref=e94]:
+            - generic [ref=e95]: 合集
+            - generic [ref=e97]:
+              - checkbox "面试和工作" [ref=e98]
+              - generic [ref=e99]: 面试和工作
+          - generic [ref=e100]:
+            - generic [ref=e101]: 发布策略
+            - generic [ref=e103] [cursor=pointer]:
+              - checkbox "生成后自动发布" [checked] [ref=e104]
+              - text: 生成后自动发布
+          - button "压缩上传并开始生成" [disabled] [ref=e105]
+        - generic [ref=e106]:
+          - generic [ref=e107]:
+            - heading "生成任务" [level=4] [ref=e108]
+            - generic [ref=e109]: 4 条
+          - generic [ref=e110]:
+            - generic [ref=e111]:
+              - generic [ref=e112]:
+                - generic [ref=e113]:
+                  - generic [ref=e114]: upload_20260418050010_0dae18
+                  - generic [ref=e115]: task_20260418050010_e279d5
+                - generic [ref=e116]: 处理中
+              - generic [ref=e119]:
+                - generic [ref=e120]: analyze_scene
+                - generic [ref=e121]: 55%
+              - generic [ref=e123]: "生成: scene_user_2..."
+            - generic [ref=e124]:
+              - generic [ref=e125]:
+                - generic [ref=e126]:
+                  - generic [ref=e127]: upload_20260418050009_89b5cd
+                  - generic [ref=e128]: task_20260418050010_1f55b1
+                - generic [ref=e129]: 已完成
+              - generic [ref=e132]:
+                - generic [ref=e133]: finished
+                - generic [ref=e134]: 100%
+              - generic [ref=e135]:
+                - generic [ref=e136]: "生成: scene_user_2..."
+                - generic [ref=e137]: "发布: scene_202604..."
+            - generic [ref=e138]:
+              - generic [ref=e139]:
+                - generic [ref=e140]:
+                  - generic [ref=e141]: upload_20260405220518_d18863
+                  - generic [ref=e142]: task_20260405220518_3b2526
+                - generic [ref=e143]: 已完成
+              - generic [ref=e146]:
+                - generic [ref=e147]: finished
+                - generic [ref=e148]: 100%
+              - generic [ref=e149]:
+                - generic [ref=e150]: "生成: scene_user_2..."
+                - generic [ref=e151]: "发布: scene_202604..."
+            - generic [ref=e152]:
+              - generic [ref=e153]:
+                - generic [ref=e154]:
+                  - generic [ref=e155]: upload_20260405220517_12ed13
+                  - generic [ref=e156]: task_20260405220518_4691a1
+                - generic [ref=e157]: 已完成
+              - generic [ref=e160]:
+                - generic [ref=e161]: finished
+                - generic [ref=e162]: 100%
+              - generic [ref=e163]:
+                - generic [ref=e164]: "生成: scene_user_2..."
+                - generic [ref=e165]: "发布: scene_202604..."
