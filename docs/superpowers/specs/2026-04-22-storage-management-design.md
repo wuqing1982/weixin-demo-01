@@ -27,8 +27,8 @@ backend/app/storage/
 ├── local.py              # LocalStorage 实现
 ├── r2.py                 # CloudflareR2Storage 实现
 ├── cos.py                # TencentCOSStorage 实现
-├── config_store.py       # 存储配置 JSON 读写
-└── factory.py            # get_active_storage() 工厂
+├── config_store.py       # 存储配置 JSON 读写（线程安全）
+└── factory.py            # get_active_storage() 工厂（带缓存）
 ```
 
 ### 2.2 StorageBackend Protocol
@@ -40,12 +40,14 @@ backend/app/storage/
 | upload | `upload(path: str, content: bytes, content_type: str) -> str` | 上传文件，返回公开 URL |
 | download | `download(path: str) -> bytes` | 下载文件内容 |
 | delete | `delete(path: str) -> bool` | 删除文件 |
-| get_usage | `get_usage() -> StorageUsage` | 返回用量统计 |
+| get_usage | `get_usage() -> StorageUsage` | 返回用量统计（带缓存，5分钟 TTL） |
 | test_connection | `test_connection() -> ConnectionTestResult` | 测试连接 |
-| list_files | `list_files(prefix: str, limit: int) -> list[FileInfo]` | 列举文件 |
+| list_files | `list_files(prefix: str, limit: int) -> list[FileInfo]` | 列举文件（Phase 2 使用，当前不暴露给前端） |
 
 数据类：
-- `StorageUsage(total_bytes: int, used_bytes: int, file_count: int)`
+- `StorageUsage(total_bytes: int, used_bytes: int, file_count: int, by_type: dict[str, int])`
+  - 本地存储的 `total_bytes` = 磁盘分区可用空间
+  - `by_type` 按文件扩展名分类统计（如 `.jpg`、`.mp3`）
 - `ConnectionTestResult(ok: bool, message: str)`
 - `FileInfo(path: str, size_bytes: int, last_modified: str | None)`
 
@@ -53,9 +55,16 @@ backend/app/storage/
 
 配置文件：`backend/data/storage_config.json`
 
+**密钥存储策略**：敏感字段（secret_key、secret_access_key、secret_id）存放在 JSON 文件中，但：
+1. 文件创建时强制 `chmod 600`
+2. 文件路径加入 `.gitignore`
+3. `GET` API 返回时脱敏（只显示后4位）
+4. 与现有 `.env` 模式并行，不破坏现有密钥管理
+
 ```json
 {
   "activeBackend": "local",
+  "lastActiveBackend": "local",
   "backends": {
     "local": {
       "type": "local",
@@ -93,6 +102,8 @@ backend/app/storage/
 }
 ```
 
+**backend_id 说明**：`"local"`、`"r2"`、`"cos"` 为固定 ID，与 `type` 字段一一对应。Phase 1 不支持自定义后端或多实例。
+
 ### 2.4 工厂函数
 
 `factory.py` 职责：
@@ -100,9 +111,24 @@ backend/app/storage/
 - `get_all_backends() -> dict` — 返回所有后端配置摘要（密钥脱敏）
 - 切换活跃后端时更新配置文件，下次调用自动使用新后端
 
+**缓存策略**：
+- 按 backend type 缓存单例实例（`_instances: dict[str, StorageBackend]`）
+- `activate` 切换时清除旧实例缓存，强制下次重新创建
+- 配置文件每次调用时读取（JSON 解析开销极小，~1μs）
+- 已激活的后端在实例化失败时自动回退到 `lastActiveBackend`
+
+**config_store.py 线程安全**：
+- 使用 `threading.Lock` 保护 JSON 文件读写（与现有 `UploadStore`、`SceneStore` 一致）
+
+### 2.5 阶段说明
+
+**Phase 1（本次）**：`StorageBackend.upload()` / `download()` / `delete()` 已定义但**不被任何调用者使用**。只有 `get_usage()`、`test_connection()` 和配置管理被接入。实际文件操作将在 Phase 2（`UploadStore` 改造）中接入。
+
 ## 3. Admin API
 
-在 `backend/app/main.py` 新增路由组 `/api/admin/storage/*`：
+### 3.1 路由模块
+
+为避免 `main.py` 进一步膨胀，新增独立路由文件 `backend/app/routes/storage_admin.py`，在 `main.py` 中通过 `include_router` 挂载。
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
@@ -113,17 +139,43 @@ backend/app/storage/
 | POST | `/api/admin/storage/activate/{backend_id}` | 切换活跃后端 |
 | GET | `/api/admin/storage/usage` | 获取当前活跃后端用量 |
 
-### 3.1 密钥脱敏
+### 3.2 输入验证
+
+新增 Pydantic v2 模型：
+
+```python
+class StorageConfigUpdateRequest(BaseModel):
+    name: str | None = None
+    enabled: bool | None = None
+    config: dict[str, str] | None = None
+```
+
+`backend_id` 路径参数验证：仅允许 `"local"` / `"r2"` / `"cos"`，否则返回 400。
+
+### 3.3 密钥脱敏
 
 - `secret_key` / `secret_access_key` / `secret_id` 等敏感字段 → 只返回 `****xxxx`（后4位）
 - PUT 更新时：如果字段值以 `****` 开头则不更新该字段（保留原值）
+- **所有存储管理 API 要求 HTTPS**（生产环境必须启用 TLS）
 
-### 3.2 切换活跃后端流程
+### 3.4 切换活跃后端流程
 
 1. 调用目标后端的 `test_connection()` 验证可用性
-2. 验证通过 → 更新 `storage_config.json` 的 `activeBackend`
-3. 下次 `get_active_storage()` 调用自动使用新后端
-4. 无需重启服务
+2. 验证失败 → 返回错误，不切换
+3. 验证通过 → 保存 `lastActiveBackend = 当前活跃后端`，然后更新 `activeBackend`
+4. 清除工厂缓存
+5. 无需重启服务
+
+**回退机制**：
+- `config.json` 记录 `lastActiveBackend`（切换前的活跃后端）
+- 如果新后端在后续操作中失败，管理员可一键切回 `lastActiveBackend`
+- 本地存储始终作为兜底（不可禁用）
+
+### 3.5 get_usage() 性能
+
+- 本地存储：使用 `os.scandir()` 遍历，结果缓存 5 分钟（`_usage_cache` + `time.monotonic()`）
+- R2/COS：调用 SDK 的统计 API 或遍历列举，同样缓存 5 分钟
+- 超时保护：遍历超过 10 秒则返回部分结果 + 超时标记
 
 ## 4. Admin 前端
 
@@ -178,11 +230,25 @@ Modal 编辑表单根据后端类型动态显示字段：
 - `storageUsage` — 当前用量
 - `editingBackend` — 正在编辑的后端 ID
 
+### 4.4 加载与错误状态
+
+- 页面切换到 storage 视图时调用 `loadStorageData()` 获取 overview + configs
+- API 失败时显示错误提示（toast），metric 卡片显示 `-` 占位
+- 初始状态（无配置文件）自动创建默认配置
+- 测试连接按钮显示 loading spinner，完成后显示成功/失败标签
+
 ## 5. 依赖
 
 新增 Python 依赖：
 - `boto3` — Cloudflare R2 兼容 S3 API
-- `qcloud-cos-sdk` (即 `cos-python-sdk-v5`) — 腾讯云 COS SDK
+- `cos-python-sdk-v5` — 腾讯云 COS SDK
+
+**系统级依赖**（安装 COS SDK 可能需要）：
+```bash
+sudo apt install python3-dev build-essential
+```
+
+如果 `crcmod` 编译失败，COS 的 HMAC 签名功能会降级为纯 Python 实现（性能略差但功能正常）。
 
 ## 6. 文件变更清单
 
@@ -190,23 +256,26 @@ Modal 编辑表单根据后端类型动态显示字段：
 
 ```
 backend/app/storage/__init__.py
-backend/app/storage/base.py
-backend/app/storage/local.py
-backend/app/storage/r2.py
-backend/app/storage/cos.py
-backend/app/storage/config_store.py
-backend/app/storage/factory.py
-backend/data/storage_config.json
+backend/app/storage/base.py         # StorageBackend Protocol + 数据类
+backend/app/storage/local.py        # LocalStorage 实现
+backend/app/storage/r2.py           # CloudflareR2Storage 实现
+backend/app/storage/cos.py          # TencentCOSStorage 实现
+backend/app/storage/config_store.py # 配置 JSON 读写（线程安全）
+backend/app/storage/factory.py      # 工厂函数（带缓存 + 回退）
+backend/app/routes/storage_admin.py # Admin API 路由
+backend/data/storage_config.json    # 自动生成（首次运行时）
 ```
 
 ### 修改文件
 
 ```
-backend/admin_web/index.html       # 侧边栏加导航组
-backend/admin_web/admin.js         # 新增 storage 视图渲染 + API 调用
-backend/admin_web/admin.css        # 存储卡片样式
-backend/app/main.py                # 新增 /api/admin/storage/* 路由
-backend/requirements.txt           # 新增 boto3, qcloud-cos-sdk
+backend/admin_web/index.html        # 侧边栏加「系统配置」导航组
+backend/admin_web/admin.js          # 新增 storage 视图 + state + renderStorage() + API 调用
+                                     # 更新 VIEW_TITLES 和 renderCurrentView()
+backend/admin_web/admin.css         # 存储卡片 + 配置 modal 样式
+backend/app/main.py                 # include_router 挂载 storage_admin 路由
+backend/requirements.txt            # 新增 boto3, cos-python-sdk-v5
+.gitignore                          # 新增 backend/data/storage_config.json
 ```
 
 ### 不改的文件
@@ -215,14 +284,20 @@ backend/requirements.txt           # 新增 boto3, qcloud-cos-sdk
 - `settings.py` 不动
 - 不影响小程序前端
 
-## 7. 风险
+## 7. 风险与缓解
 
-- `qcloud-cos-sdk` 依赖 `crcmod`，可能需要系统级编译环境
-- 密钥明文存储在 JSON 文件中，需配合文件权限保护（`chmod 600`）
-- R2/COS 的 `get_usage()` 可能需要遍历文件统计，大量文件时有性能问题
+| 风险 | 缓解措施 |
+|------|---------|
+| `qcloud-cos-sdk` 安装需编译环境 | 提前安装 `python3-dev build-essential`；编译失败时降级为纯 Python |
+| 密钥明文存储在 JSON 中 | `chmod 600` + `.gitignore` 排除 + API 脱敏返回 |
+| R2/COS `get_usage()` 遍历性能 | 5 分钟缓存 + 10 秒超时保护 |
+| 切换后端后新后端不可用 | `lastActiveBackend` 回退 + 本地存储兜底 |
+| `main.py` 已 2337 行 | 路由拆分到独立文件 `routes/storage_admin.py` |
 
 ## 8. 后续扩展（不在本次范围）
 
 - `UploadStore` 改造为使用 `StorageBackend` 抽象层进行实际上传/下载
 - 文件浏览管理器（上传/下载/删除文件）
 - 存储迁移工具（本地 → R2/COS）
+- 支持多后端实例（如多个 R2 bucket）
+- `list_files()` 分页与前端文件浏览器集成
