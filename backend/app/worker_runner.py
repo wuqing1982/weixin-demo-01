@@ -1,9 +1,13 @@
 import json
+import logging
 import re
 import shutil
 import tempfile
+import time
 from pathlib import Path
 from threading import Event, Thread
+
+logger = logging.getLogger(__name__)
 
 from .generated_scene_store import GeneratedSceneStore
 from .scene_publication import publish_generated_scene_to_public
@@ -89,6 +93,7 @@ class InlineSceneWorker:
         self.poll_interval = poll_interval
         self.stop_event = Event()
         self.thread: Thread | None = None
+        self._task_counter = 0
         self.generated_root.mkdir(parents=True, exist_ok=True)
 
     def start(self) -> None:
@@ -112,6 +117,7 @@ class InlineSceneWorker:
                 continue
 
             self._process_task(task)
+            time.sleep(2)
 
     def _process_task(self, task: dict) -> None:
         task_id = task['taskId']
@@ -160,21 +166,41 @@ class InlineSceneWorker:
 
             self.task_store.update_task(task_id, step='write_scene', progress=90, sceneId=scene_id)
             self.generated_scene_store.upsert_scene(scene)
+
             published_scene_id = ''
-            if task.get('autoPublish') and self.public_scene_store and self.commerce_store and task.get('categoryId'):
-                self.task_store.update_task(task_id, step='publish_scene', progress=95, sceneId=scene_id)
-                public_scene, _ = publish_generated_scene_to_public(
-                    source_scene=scene,
-                    source_scene_id=scene_id,
-                    public_store=self.public_scene_store,
-                    commerce_store=self.commerce_store,
-                    category_id=task.get('categoryId', ''),
-                    collection_ids=task.get('collectionIds', []) or [],
-                    visibility=task.get('publishVisibility', 'public') or 'public',
-                    published_by=task.get('ownerId', ''),
-                    title=(task.get('title') or '').strip(),
-                )
-                published_scene_id = public_scene.get('sceneId', '')
+            publish_error = ''
+            if task.get('autoPublish'):
+                if not self.public_scene_store or not self.commerce_store:
+                    missing = []
+                    if not self.public_scene_store:
+                        missing.append('public_scene_store')
+                    if not self.commerce_store:
+                        missing.append('commerce_store')
+                    publish_error = f'publish skipped: {", ".join(missing)} not configured'
+                    logger.warning('[worker] task=%s autoPublish skipped: %s', task_id, publish_error)
+                elif not task.get('categoryId'):
+                    publish_error = 'publish skipped: categoryId is empty'
+                    logger.warning('[worker] task=%s autoPublish skipped: no categoryId', task_id)
+                else:
+                    try:
+                        self.task_store.update_task(task_id, step='publish_scene', progress=95, sceneId=scene_id)
+                        public_scene, _ = publish_generated_scene_to_public(
+                            source_scene=scene,
+                            source_scene_id=scene_id,
+                            public_store=self.public_scene_store,
+                            commerce_store=self.commerce_store,
+                            category_id=task.get('categoryId', ''),
+                            collection_ids=task.get('collectionIds', []) or [],
+                            visibility=task.get('publishVisibility', 'public') or 'public',
+                            published_by=task.get('ownerId', ''),
+                            title=(task.get('title') or '').strip(),
+                        )
+                        published_scene_id = public_scene.get('sceneId', '')
+                        logger.info('[worker] task=%s published scene=%s', task_id, published_scene_id)
+                    except Exception as pub_exc:
+                        publish_error = f'publish failed: {pub_exc}'
+                        logger.exception('[worker] task=%s publish error', task_id)
+
             self.task_store.update_task(
                 task_id,
                 status='done',
@@ -182,7 +208,7 @@ class InlineSceneWorker:
                 progress=100,
                 sceneId=scene_id,
                 publishedSceneId=published_scene_id,
-                errorMessage='',
+                errorMessage=publish_error,
             )
         except Exception as exc:
             self.task_store.update_task(
@@ -195,19 +221,34 @@ class InlineSceneWorker:
 
     SCENE_ANALYSIS_MAX_RETRIES = 3
 
+    SCENE_MODELS = ('glm-4v-flash', 'glm-4.6v-flash', 'glm-4.6v-flashx')
+
+    def _next_model(self) -> str:
+        idx = self._task_counter % len(self.SCENE_MODELS)
+        self._task_counter += 1
+        return self.SCENE_MODELS[idx]
+
+    def _is_rate_limit_error(self, exc: Exception) -> bool:
+        msg = str(exc).lower()
+        return '429' in msg or 'rate' in msg or '速率' in msg or '频率' in msg
+
     def _analyze_scene(self, *, scene_id: str, preferred_title: str, task: dict, upload: dict) -> dict:
         source_path = self.upload_store.resolve_disk_path(upload['filePath'])
         if not source_path.exists():
             raise RuntimeError('uploaded source file missing')
 
         last_error = None
+        primary_model = self._next_model()
         for attempt in range(1 + self.SCENE_ANALYSIS_MAX_RETRIES):
             try:
+                model = self.SCENE_MODELS[(self._task_counter - 1 + attempt) % len(self.SCENE_MODELS)]
+                tag = f"模型={model}" + (f" (重试 #{attempt + 1})" if attempt > 0 else "")
+                print(f"📸 [{scene_id}] {tag}")
                 raw_result = analyze_scene_with_glm4v(
                     str(source_path),
                     'auto',
                     api_key=self.api_key,
-                    model=self.model,
+                    model=model,
                     include_verbs=bool(task.get('includeVerbs', True)),
                 )
                 if not isinstance(raw_result, dict):
@@ -215,10 +256,12 @@ class InlineSceneWorker:
                 if not raw_result.get('hotspots'):
                     raise RuntimeError('scene analysis returned empty hotspots')
                 break
-            except (ValueError, RuntimeError) as exc:
+            except Exception as exc:
                 last_error = exc
                 if attempt < self.SCENE_ANALYSIS_MAX_RETRIES:
-                    print(f"⚠️  场景分析第 {attempt + 1} 次失败，正在重试: {exc}")
+                    wait = (attempt + 1) * 8 if self._is_rate_limit_error(exc) else 2
+                    print(f"⚠️  场景分析第 {attempt + 1} 次失败，等待 {wait}s 后重试: {exc}")
+                    time.sleep(wait)
         else:
             raise last_error
 
