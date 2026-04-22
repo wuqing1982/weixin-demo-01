@@ -25,3 +25,6 @@ assets/video_exports/
 !pages/**/*.png
 !pages/**/*.jpg
 !assets/icons/
+
+# Storage config (contains cloud credentials)
+backend/data/storage_config.json

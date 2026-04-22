@@ -198,6 +198,9 @@ app.mount('/assets', StaticFiles(directory=str(ASSETS_DIR)), name='assets')
 if ADMIN_WEB_DIR.exists():
     app.mount('/admin/static', StaticFiles(directory=str(ADMIN_WEB_DIR)), name='admin-static')
 
+from .routes.storage_admin import router as storage_admin_router
+app.include_router(storage_admin_router)
+
 
 def success(data):
     return {
