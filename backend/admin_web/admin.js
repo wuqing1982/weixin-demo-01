@@ -26,7 +26,11 @@ const state = {
   sceneSearchQuery: '',
   sceneFilterCategory: '',
   sceneFilterVisibility: '',
-  generatorFiles: []
+  generatorFiles: [],
+  storageOverview: null,
+  storageConfigs: null,
+  editingBackend: null,
+  testingBackend: null
 };
 
 const loginForm = document.getElementById('login-form');
@@ -1490,8 +1494,137 @@ const VIEW_TITLES = {
   products: '商品管理',
   orders: '订单管理',
   tasks: '任务管理',
-  cdk: '卡密管理'
+  cdk: '卡密管理',
+  storage: '存储管理'
 };
+
+function formatBytes(bytes) {
+  if (!bytes || bytes === 0) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + units[i];
+}
+
+async function loadStorageData() {
+  try {
+    const [overview, configs] = await Promise.all([
+      api('/api/admin/storage/overview'),
+      api('/api/admin/storage/configs'),
+    ]);
+    state.storageOverview = overview;
+    state.storageConfigs = configs;
+  } catch (error) {
+    toast(error.message || '加载存储数据失败', 'error');
+  }
+}
+
+function renderStorage() {
+  const overview = state.storageOverview || {};
+  const usage = overview.usage || {};
+  const backends = overview.backends || {};
+  const activeId = overview.activeBackend || 'local';
+  const editing = state.editingBackend;
+  const editingConfig = editing ? (state.storageConfigs && state.storageConfigs.backends && state.storageConfigs.backends[editing]) || {} : {};
+
+  const backendCards = Object.entries(backends).map(([id, cfg]) => {
+    const isActive = id === activeId;
+    const isEnabled = cfg.enabled;
+    const statusLabel = isActive ? '使用中' : (isEnabled ? '已启用' : '未启用');
+    const statusClass = isActive ? 'scene-tag--public' : (isEnabled ? 'scene-tag--member' : 'scene-tag--private');
+    const canActivate = isEnabled && !isActive;
+    return `
+      <div class="storage-backend-card ${isActive ? 'storage-backend-card--active' : ''}">
+        <div class="storage-backend-header">
+          <strong class="storage-backend-name">${escapeHtml(cfg.name || id)}</strong>
+          <span class="scene-tag ${statusClass}">${statusLabel}</span>
+        </div>
+        <div class="storage-backend-type">${escapeHtml(cfg.type || id)}</div>
+        <div class="storage-backend-actions">
+          <button class="mini-btn" data-action="storage-edit" data-id="${escapeHtml(id)}">配置</button>
+          ${canActivate ? `<button class="mini-btn success-btn" data-action="storage-test-activate" data-id="${escapeHtml(id)}">${state.testingBackend === id ? '测试中...' : '设为默认'}</button>` : ''}
+          <button class="mini-btn" data-action="storage-test" data-id="${escapeHtml(id)}">${state.testingBackend === id ? '测试中...' : '测试连接'}</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  const byTypeEntries = Object.entries(usage.byType || {});
+  const maxTypeBytes = Math.max(...byTypeEntries.map(([, v]) => v), 1);
+  const typeBreakdown = byTypeEntries.length > 0 ? byTypeEntries.map(([type, bytes]) => `
+    <div class="storage-type-row">
+      <span class="storage-type-label">${escapeHtml(type)}</span>
+      <div class="storage-type-bar-wrap">
+        <div class="storage-type-bar" style="width:${Math.max(2, (bytes / maxTypeBytes) * 100)}%"></div>
+      </div>
+      <span class="storage-type-value">${formatBytes(bytes)}</span>
+    </div>
+  `).join('') : '<div class="empty-copy">暂无分类数据</div>';
+
+  panelHead.innerHTML = `
+    <div>
+      <h3 class="panel-title">存储管理</h3>
+      <p class="panel-subtitle">配置存储后端、监控用量、切换默认存储。</p>
+    </div>
+  `;
+
+  panelBody.innerHTML = `
+    <div class="storage-metrics">
+      ${metricCard('已用空间', formatBytes(usage.usedBytes))}
+      ${metricCard('总容量', formatBytes(usage.totalBytes))}
+      ${metricCard('剩余空间', formatBytes(Math.max(0, (usage.totalBytes || 0) - (usage.usedBytes || 0))))}
+      ${metricCard('文件数量', usage.fileCount || 0)}
+    </div>
+
+    <div class="storage-section-title">存储后端配置</div>
+    <div class="storage-backends-grid">
+      ${backendCards}
+    </div>
+
+    <div class="storage-section-title">文件类型分布</div>
+    <div class="storage-type-breakdown">
+      ${typeBreakdown}
+    </div>
+  `;
+}
+
+function getStorageConfigFields(backendId, config) {
+  const type = config.type || backendId;
+  const cfg = config.config || {};
+  if (type === 'local') {
+    return `<label class="full"><span>根目录</span><input name="root_dir" value="${escapeHtml(cfg.root_dir || 'assets')}" readonly></label>`;
+  }
+  if (type === 'r2') {
+    return `
+      <label><span>Account ID</span><input name="account_id" value="${escapeHtml(cfg.account_id || '')}"></label>
+      <label><span>Access Key ID</span><input name="access_key_id" value="${escapeHtml(cfg.access_key_id || '')}"></label>
+      <label><span>Secret Access Key</span><input name="secret_access_key" type="password" value="${escapeHtml(cfg.secret_access_key || '')}" placeholder="留空保持不变"></label>
+      <label><span>Bucket</span><input name="bucket" value="${escapeHtml(cfg.bucket || '')}"></label>
+      <label class="full"><span>Public URL</span><input name="public_url" value="${escapeHtml(cfg.public_url || '')}"></label>
+      <label><span>启用</span>
+        <select name="enabled">
+          <option value="true" ${cfg.enabled !== false ? 'selected' : ''}>启用</option>
+          <option value="false" ${cfg.enabled === false ? 'selected' : ''}>禁用</option>
+        </select>
+      </label>
+    `;
+  }
+  if (type === 'cos') {
+    return `
+      <label><span>Secret ID</span><input name="secret_id" value="${escapeHtml(cfg.secret_id || '')}"></label>
+      <label><span>Secret Key</span><input name="secret_key" type="password" value="${escapeHtml(cfg.secret_key || '')}" placeholder="留空保持不变"></label>
+      <label><span>Region</span><input name="region" value="${escapeHtml(cfg.region || '')}"></label>
+      <label><span>Bucket</span><input name="bucket" value="${escapeHtml(cfg.bucket || '')}"></label>
+      <label class="full"><span>Public URL</span><input name="public_url" value="${escapeHtml(cfg.public_url || '')}"></label>
+      <label><span>启用</span>
+        <select name="enabled">
+          <option value="true" ${cfg.enabled !== false ? 'selected' : ''}>启用</option>
+          <option value="false" ${cfg.enabled === false ? 'selected' : ''}>禁用</option>
+        </select>
+      </label>
+    `;
+  }
+  return '';
+}
 
 function renderCurrentView() {
   navItems.forEach((button) => {
@@ -1542,6 +1675,15 @@ function renderCurrentView() {
   }
   if (state.currentView === 'scenes') {
     renderScenes();
+    return;
+  }
+  if (state.currentView === 'storage') {
+    if (!state.storageOverview) {
+      loadStorageData().then(() => renderStorage());
+      panelBody.innerHTML = '<div class="empty-copy">加载中...</div>';
+      return;
+    }
+    renderStorage();
     return;
   }
   renderUsers();
@@ -1923,6 +2065,67 @@ async function handleAction(action, id) {
     openSceneModal();
     return;
   }
+  if (action === 'storage-edit') {
+    state.editingBackend = id;
+    const configs = state.storageConfigs || {};
+    const backends = configs.backends || {};
+    const cfg = backends[id] || {};
+    const formHtml = `
+      <form id="storage-config-form">
+        <input type="hidden" name="backend_id" value="${escapeHtml(id)}">
+        <div class="field-grid">
+          ${getStorageConfigFields(id, cfg)}
+        </div>
+        <div class="form-actions" style="display:flex;gap:10px;margin-top:18px">
+          <button class="primary-btn compact" type="submit">保存配置</button>
+          <button type="button" class="ghost-btn" data-action="storage-cancel-edit">取消</button>
+        </div>
+      </form>
+    `;
+    openModal(`配置 ${escapeHtml(cfg.name || id)}`, formHtml);
+    return;
+  }
+  if (action === 'storage-cancel-edit') {
+    state.editingBackend = null;
+    closeModal();
+    return;
+  }
+  if (action === 'storage-test') {
+    state.testingBackend = id;
+    renderStorage();
+    try {
+      const result = await api(`/api/admin/storage/test/${id}`, { method: 'POST' });
+      toast(result.ok ? result.message : result.message, result.ok ? undefined : 'error');
+    } catch (error) {
+      toast(error.message || '测试失败', 'error');
+    }
+    state.testingBackend = null;
+    await loadStorageData();
+    renderStorage();
+    return;
+  }
+  if (action === 'storage-test-activate') {
+    state.testingBackend = id;
+    renderStorage();
+    try {
+      const testResult = await api(`/api/admin/storage/test/${id}`, { method: 'POST' });
+      if (!testResult.ok) {
+        toast(testResult.message, 'error');
+        state.testingBackend = null;
+        await loadStorageData();
+        renderStorage();
+        return;
+      }
+      await api(`/api/admin/storage/activate/${id}`, { method: 'POST' });
+      toast('已切换活跃存储后端');
+    } catch (error) {
+      toast(error.message || '切换失败', 'error');
+    }
+    state.testingBackend = null;
+    await loadStorageData();
+    renderStorage();
+    return;
+  }
   if (action === 'set-scene-view-card') {
     state.sceneViewMode = 'card';
     renderScenes();
@@ -1966,6 +2169,27 @@ panelBody.addEventListener('submit', async (event) => {
     }
     if (event.target.id === 'publish-form') {
       await submitPublishForm(event.target);
+      return;
+    }
+    if (event.target.id === 'storage-config-form') {
+      const form = event.target;
+      const backendId = form.backend_id.value;
+      const config = {};
+      const enabledVal = form.querySelector('[name="enabled"]');
+      const fields = form.querySelectorAll('input[name]:not([name="backend_id"]):not([name="enabled"]), select[name]:not([name="enabled"])');
+      fields.forEach((input) => {
+        config[input.name] = input.value;
+      });
+      const payload = { config };
+      if (enabledVal) {
+        payload.enabled = enabledVal.value === 'true';
+      }
+      await api(`/api/admin/storage/configs/${backendId}`, { method: 'PUT', body: payload });
+      toast('配置已保存');
+      state.editingBackend = null;
+      closeModal();
+      await loadStorageData();
+      renderStorage();
       return;
     }
   } catch (error) {

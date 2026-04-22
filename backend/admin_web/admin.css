@@ -2178,3 +2178,108 @@ input {
     grid-template-columns: 1fr;
   }
 }
+
+/* ========== Storage Management ========== */
+
+.storage-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.storage-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  margin: 24px 0 14px;
+  color: var(--ink);
+}
+
+.storage-backends-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.storage-backend-card {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--panel);
+  transition: box-shadow 0.2s;
+}
+
+.storage-backend-card:hover {
+  box-shadow: var(--shadow);
+}
+
+.storage-backend-card--active {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.12);
+}
+
+.storage-backend-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.storage-backend-name {
+  font-size: 16px;
+}
+
+.storage-backend-type {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.storage-backend-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.storage-type-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.storage-type-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.storage-type-label {
+  width: 60px;
+  font-size: 13px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.storage-type-bar-wrap {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: rgba(108, 92, 231, 0.08);
+  overflow: hidden;
+}
+
+.storage-type-bar {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--accent);
+  transition: width 0.3s;
+}
+
+.storage-type-value {
+  width: 80px;
+  text-align: right;
+  font-size: 13px;
+  color: var(--muted);
+}
