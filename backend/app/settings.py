@@ -86,6 +86,12 @@ WECHAT_PAY_NOTIFY_URL = _normalize_base_url(os.getenv('WECHAT_PAY_NOTIFY_URL', '
 WECHAT_PAY_API_BASE = _normalize_base_url(os.getenv('WECHAT_PAY_API_BASE', 'https://api.mch.weixin.qq.com'))
 WECHAT_PAY_CURRENCY = (os.getenv('WECHAT_PAY_CURRENCY', 'CNY') or 'CNY').strip().upper()
 WECHAT_PAY_TIMEOUT_SECONDS = float(os.getenv('WECHAT_PAY_TIMEOUT_SECONDS', '10'))
+# Virtual Payment (xpay) configuration
+WX_VIRTUAL_PAY_APP_KEY = (os.getenv('WX_VIRTUAL_PAY_APP_KEY', '') or '').strip()
+WX_VIRTUAL_PAY_OFFER_ID = (os.getenv('WX_VIRTUAL_PAY_OFFER_ID', '') or '').strip()
+WX_VIRTUAL_PAY_ENV = int(os.getenv('WX_VIRTUAL_PAY_ENV', '1'))  # 0=production, 1=sandbox
+WX_VIRTUAL_PAY_API_BASE = _normalize_base_url(os.getenv('WX_VIRTUAL_PAY_API_BASE', 'https://api.weixin.qq.com'))
+WX_VIRTUAL_PAY_TIMEOUT_SECONDS = float(os.getenv('WX_VIRTUAL_PAY_TIMEOUT_SECONDS', '10'))
 WORKER_POLL_INTERVAL = float(os.getenv('WORKER_POLL_INTERVAL', '2'))
 ENABLE_INLINE_SCENE_WORKER = _normalize_bool(os.getenv('ENABLE_INLINE_SCENE_WORKER'), default=True)
 CORE100_MODEL = (os.getenv('CORE100_MODEL', 'glm-4v-flash') or 'glm-4v-flash').strip()

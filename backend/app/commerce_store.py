@@ -1542,7 +1542,7 @@ class CommerceStore:
                             payment_no,
                             order_id,
                             user_id,
-                            'wechat_pay',
+                            payment_mode,
                             'pending',
                             order_row.get('payable_amount'),
                             None,

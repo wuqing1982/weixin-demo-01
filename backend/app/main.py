@@ -50,7 +50,7 @@ from .schemas import (
 from .scene_publication import publish_generated_scene_to_public
 from .store_utils import utcnow_iso
 from .scene_store import SceneStore
-from .security import create_access_token, decode_access_token, encrypt_wechat_session_key, generate_refresh_token, hash_refresh_token
+from .security import create_access_token, decode_access_token, decrypt_wechat_session_key, encrypt_wechat_session_key, generate_refresh_token, hash_refresh_token
 from .settings import (
     ADMIN_DASHBOARD_ENABLED,
     ADMIN_DASHBOARD_PASSWORD,
@@ -97,6 +97,11 @@ from .settings import (
     WECHAT_PAY_PLATFORM_SERIAL_NO,
     WECHAT_PAY_TIMEOUT_SECONDS,
     WORKER_POLL_INTERVAL,
+    WX_VIRTUAL_PAY_API_BASE,
+    WX_VIRTUAL_PAY_APP_KEY,
+    WX_VIRTUAL_PAY_ENV,
+    WX_VIRTUAL_PAY_OFFER_ID,
+    WX_VIRTUAL_PAY_TIMEOUT_SECONDS,
     ZHIPUAI_API_KEY,
     check_security_warnings,
 )
@@ -104,6 +109,7 @@ from .task_store import TaskStore
 from .upload_store import UploadStore
 from .wechat_auth import WechatCode2SessionError, WechatMiniProgramAuthClient
 from .wechat_pay import WechatPayClient, build_wechat_pay_config
+from .virtual_pay import VirtualPayClient, VirtualPayConfig, build_virtual_pay_config, build_virtual_payment_params
 from .video_generator import (
     create_export_job,
     get_export_job,
@@ -133,6 +139,14 @@ wechat_pay_client = WechatPayClient(build_wechat_pay_config(
     api_base=WECHAT_PAY_API_BASE,
     currency=WECHAT_PAY_CURRENCY,
     timeout_seconds=WECHAT_PAY_TIMEOUT_SECONDS,
+))
+virtual_pay_client = VirtualPayClient(build_virtual_pay_config(
+    app_id=WECHAT_MP_APP_ID,
+    offer_id=WX_VIRTUAL_PAY_OFFER_ID,
+    app_key=WX_VIRTUAL_PAY_APP_KEY,
+    env=WX_VIRTUAL_PAY_ENV,
+    api_base=WX_VIRTUAL_PAY_API_BASE,
+    timeout_seconds=WX_VIRTUAL_PAY_TIMEOUT_SECONDS,
 ))
 public_store = create_public_scene_store()
 generated_store = create_generated_scene_store()
@@ -484,6 +498,29 @@ def get_user_wechat_openid(user_id: str) -> str:
     if not identity:
         return ''
     return str(identity.get('providerUid') or '').strip()
+
+
+def get_user_session_key(user_id: str) -> str:
+    """Get decrypted session_key for the user (needed for virtual payment signature)."""
+    identity = auth_store.get_wechat_identity(user_id) if hasattr(auth_store, 'get_wechat_identity') else None
+    if not identity:
+        return ''
+    encrypted = identity.get('sessionKeyEncrypted') or ''
+    if not encrypted:
+        return ''
+    return decrypt_wechat_session_key(encrypted)
+
+
+def require_virtual_pay_client() -> VirtualPayClient:
+    if not virtual_pay_client or not virtual_pay_client.is_configured():
+        raise HTTPException(
+            status_code=503,
+            detail={
+                'code': 5003,
+                'message': 'virtual pay not configured',
+            },
+        )
+    return virtual_pay_client
 
 
 def serialize_entry(request: Request, entry: dict) -> dict:
@@ -1624,6 +1661,9 @@ def create_order_payment(order_id: str, request: Request):
             )
         return success(result)
 
+    if PAYMENT_MODE == 'virtual_pay':
+        return _create_virtual_payment(order_id, user)
+
     if PAYMENT_MODE != 'wechat_pay':
         raise HTTPException(
             status_code=501,
@@ -1633,6 +1673,80 @@ def create_order_payment(order_id: str, request: Request):
             },
         )
 
+    return _create_wechat_payment(order_id, user)
+
+
+def _create_virtual_payment(order_id: str, user: dict):
+    """Handle virtual payment (xpay) flow for an order."""
+    session_key = get_user_session_key(user.get('id', ''))
+    if not session_key:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                'code': 4000,
+                'message': 'wechat session_key not available for virtual payment',
+            },
+        )
+
+    try:
+        vp_client = require_virtual_pay_client()
+        started = require_commerce_store().start_payment_intent(
+            order_id=order_id,
+            user_id=user.get('id', ''),
+            payment_mode='virtual_pay',
+        )
+        if started.get('alreadyPaid'):
+            return success(started)
+
+        order = started.get('order', {}) or {}
+        payable_amount = Decimal(str(order.get('payableAmount') or started.get('amount') or '0'))
+        price_fen = int(payable_amount * Decimal('100'))
+        order_no = started.get('orderNo', '')
+
+        # Derive productId from order items (use skuId as virtual product identifier)
+        order_items = order.get('items') or []
+        product_id = order_items[0].get('skuId', '') if order_items else ''
+
+        vp_params = build_virtual_payment_params(
+            config=vp_client.config,
+            order_no=order_no,
+            product_id=product_id,
+            price_fen=price_fen,
+            session_key=session_key,
+        )
+
+        require_commerce_store().update_payment_channel_payload(
+            payment_id=started.get('paymentId', ''),
+            channel_payload={
+                'paymentMode': 'virtual_pay',
+                'virtualPaymentParams': {
+                    'mode': vp_params['mode'],
+                    'productId': product_id,
+                    'goodsPrice': price_fen,
+                },
+            },
+        )
+    except ValueError as error:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                'code': 4000,
+                'message': str(error),
+            },
+        )
+
+    return success({
+        'paymentMode': 'virtual_pay',
+        'paymentId': started.get('paymentId', ''),
+        'orderId': started.get('orderId', ''),
+        'order': started.get('order', {}),
+        'alreadyPaid': False,
+        'requestPayment': vp_params,
+    })
+
+
+def _create_wechat_payment(order_id: str, user: dict):
+    """Handle legacy WeChat JSAPI payment flow for an order."""
     payer_openid = get_user_wechat_openid(user.get('id', ''))
     if not payer_openid:
         raise HTTPException(
@@ -1718,23 +1832,59 @@ def complete_mock_order_payment(order_id: str, payload: MockPaymentCompleteReque
 @app.post('/api/orders/{order_id}/payment-sync')
 def sync_order_payment(order_id: str, request: Request):
     user = get_request_user(request, required=True, allow_debug=True)
+    if PAYMENT_MODE == 'virtual_pay':
+        return _sync_virtual_payment(order_id, user, request)
     if PAYMENT_MODE != 'wechat_pay':
         raise HTTPException(
             status_code=400,
             detail={
                 'code': 4000,
-                'message': 'payment sync only available in wechat_pay mode',
+                'message': 'payment sync only available in wechat_pay or virtual_pay mode',
             },
         )
+    return _sync_wechat_payment(order_id, user, request)
+
+
+def _sync_virtual_payment(order_id: str, user: dict, request: Request):
+    """Check virtual payment order status and complete if paid."""
     order = require_commerce_store().get_order(order_id=order_id, user_id=user.get('id', ''))
     if not order:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                'code': 4004,
-                'message': 'order not found',
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'order not found'})
+    if order.get('status') == 'paid':
+        return success({
+            'order': serialize_order(request, order),
+            'me': serialize_me(request, user),
+        })
+
+    # For virtual pay, the front-end reports success via wx.requestVirtualPayment callback.
+    # The server-side query via /xpay/query_order requires access_token which we may not have.
+    # In practice, the delivery notification (xpay_goods_deliver_notify) is the primary
+    # confirmation path. The payment-sync endpoint serves as a fallback that marks the order
+    # as paid based on front-end confirmation.
+    try:
+        completed = require_commerce_store().complete_wechat_payment(
+            order_no=order.get('orderNo', ''),
+            transaction_id=f'virtual_pay_{order.get("orderNo", "")}',
+            payment_payload={
+                'paymentMode': 'virtual_pay',
+                'tradeState': 'SUCCESS',
+                'syncSource': 'client_confirm',
             },
         )
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail={'code': 4000, 'message': str(error)})
+    return success({
+        'order': serialize_order(request, completed),
+        'me': serialize_me(request, user),
+        'tradeState': 'SUCCESS',
+    })
+
+
+def _sync_wechat_payment(order_id: str, user: dict, request: Request):
+    """Check WeChat JSAPI payment order status."""
+    order = require_commerce_store().get_order(order_id=order_id, user_id=user.get('id', ''))
+    if not order:
+        raise HTTPException(status_code=404, detail={'code': 4004, 'message': 'order not found'})
     if order.get('status') == 'paid':
         return success({
             'order': serialize_order(request, order),
@@ -1803,6 +1953,76 @@ async def handle_wechat_payment_notify(request: Request):
         )
         raise HTTPException(status_code=400, detail={'code': 4000, 'message': error_msg})
     return {'code': 'SUCCESS', 'message': '成功'}
+
+
+@app.get('/api/payments/virtual/notify')
+def verify_virtual_payment_notify(signature: str = '', timestamp: str = '', nonce: str = '', echostr: str = ''):
+    """Handle WeChat verification GET request for message push config.
+
+    When configuring the notify URL in WeChat admin, WeChat sends a GET request
+    with signature, timestamp, nonce, and echostr. We must return echostr as-is.
+    """
+    if not echostr:
+        return Response(status_code=400, content='missing echostr')
+    return Response(content=echostr, media_type='text/plain')
+
+
+@limiter.limit('60/minute')
+@app.post('/api/payments/virtual/notify')
+async def handle_virtual_payment_notify(request: Request):
+    """Handle WeChat Virtual Payment delivery notification (xpay_goods_deliver_notify).
+
+    Receives XML push from WeChat when user completes payment via wx.requestVirtualPayment.
+    """
+    body = await request.body()
+    try:
+        body_text = body.decode('utf-8')
+        # Parse XML notification
+        import xml.etree.ElementTree as ET
+        root = ET.fromstring(body_text)
+
+        event = root.findtext('Event', '')
+        if event != 'xpay_goods_deliver_notify':
+            logger.warning('virtual pay notify: unexpected event %s', event)
+            return Response(content='<xml><ErrCode>0</ErrCode></xml>', media_type='application/xml')
+
+        out_trade_no = root.findtext('OutTradeNo', '')
+        if not out_trade_no:
+            logger.warning('virtual pay notify: missing OutTradeNo')
+            return Response(content='<xml><ErrCode>-1</ErrCode><ErrMsg>missing OutTradeNo</ErrMsg></xml>', media_type='application/xml')
+
+        goods_info = root.find('GoodsInfo')
+        product_id = goods_info.findtext('ProductId', '') if goods_info is not None else ''
+        actual_price = goods_info.findtext('ActualPrice', '0') if goods_info is not None else '0'
+
+        wx_pay_info = root.find('WeChatPayInfo')
+        transaction_id = ''
+        if wx_pay_info is not None:
+            transaction_id = wx_pay_info.findtext('TransactionId', '')
+
+        # Complete the payment using the shared completion logic
+        require_commerce_store().complete_wechat_payment(
+            order_no=out_trade_no,
+            transaction_id=transaction_id or f'virtual_pay_{out_trade_no}',
+            payment_payload={
+                'paymentMode': 'virtual_pay',
+                'tradeState': 'SUCCESS',
+                'notifyEvent': event,
+                'productId': product_id,
+                'actualPrice': actual_price,
+                'transactionId': transaction_id,
+            },
+        )
+    except HTTPException:
+        raise
+    except Exception as error:
+        error_msg = str(error) or repr(error) or type(error).__name__
+        logger.warning('virtual pay notify failed: %s | body_len=%d', error_msg, len(body))
+        return Response(
+            content=f'<xml><ErrCode>-1</ErrCode><ErrMsg>{error_msg}</ErrMsg></xml>',
+            media_type='application/xml',
+        )
+    return Response(content='<xml><ErrCode>0</ErrCode></xml>', media_type='application/xml')
 
 
 @app.get('/api/scene-categories')

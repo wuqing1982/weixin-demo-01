@@ -22,6 +22,23 @@ function requestPaymentAsync(params) {
   });
 }
 
+function requestVirtualPaymentAsync(params) {
+  return new Promise((resolve, reject) => {
+    if (!wx.canIUse || !wx.canIUse('requestVirtualPayment')) {
+      reject({ errMsg: '当前微信版本不支持虚拟支付，请升级微信', errCode: -1 });
+      return;
+    }
+    wx.requestVirtualPayment({
+      signData: params.signData,
+      mode: params.mode,
+      paySig: params.paySig,
+      signature: params.signature,
+      success: resolve,
+      fail: reject
+    });
+  });
+}
+
 async function refreshCurrentUser(appInstance) {
   const accessToken = getAccessToken();
   if (!accessToken) {
@@ -63,6 +80,19 @@ async function payOrder(orderId, appInstance) {
     return completed.order;
   }
 
+  if (payment.paymentMode === 'virtual_pay') {
+    const rp = payment.requestPayment || {};
+    await requestVirtualPaymentAsync(rp);
+    const synced = await syncOrderPayment(orderId);
+    if (synced && synced.me) {
+      storeCurrentUser(synced.me, appInstance);
+    } else {
+      await refreshCurrentUser(appInstance);
+    }
+    return synced.order || payment.order;
+  }
+
+  // Legacy wechat_pay mode
   await requestPaymentAsync(payment.requestPayment || {});
   const synced = await syncOrderPayment(orderId);
   if (synced && synced.me) {
