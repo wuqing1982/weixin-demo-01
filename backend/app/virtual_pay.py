@@ -94,7 +94,7 @@ def build_virtual_payment_params(
         'productId': product_id,
         'goodsPrice': price_fen,
         'outTradeNo': order_no,
-        'attach': attach,
+        'attach': attach or order_no,
     }
     sign_data_str = json.dumps(sign_data_dict, separators=(',', ':'))
 
