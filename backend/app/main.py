@@ -1703,9 +1703,15 @@ def _create_virtual_payment(order_id: str, user: dict):
         price_fen = int(payable_amount * Decimal('100'))
         order_no = started.get('orderNo', '')
 
-        # Derive productId from order items (use skuId as virtual product identifier)
+        # Map skuId to WeChat virtual payment ProductId
+        _SKU_TO_VIRTUAL_PRODUCT = {
+            'sku_tier_pro': 'sku_pro_yearly',
+            'sku_tier_plus': 'sku_plus_yearly',
+            'sku_tier_max': 'sku_max_yearly',
+        }
         order_items = order.get('items') or []
-        product_id = order_items[0].get('skuId', '') if order_items else ''
+        sku_id = order_items[0].get('skuId', '') if order_items else ''
+        product_id = _SKU_TO_VIRTUAL_PRODUCT.get(sku_id, sku_id)
 
         vp_params = build_virtual_payment_params(
             config=vp_client.config,
@@ -1734,6 +1740,12 @@ def _create_virtual_payment(order_id: str, user: dict):
                 'message': str(error),
             },
         )
+
+    logger.info(
+        'virtual pay params | order_no=%s product_id=%s price_fen=%s env=%s offer_id=%s pay_sig=%s signature=%s',
+        order_no, product_id, price_fen, vp_client.config.env, vp_client.config.offer_id,
+        vp_params.get('paySig', '')[:16], vp_params.get('signature', '')[:16],
+    )
 
     return success({
         'paymentMode': 'virtual_pay',
