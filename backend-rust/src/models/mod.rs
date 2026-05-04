@@ -2,4 +2,7 @@ pub mod commerce;
 pub mod order;
 pub mod product;
 pub mod scene;
+pub mod task;
+pub mod upload;
 pub mod user;
+pub mod video;

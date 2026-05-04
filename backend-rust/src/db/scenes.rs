@@ -85,3 +85,29 @@ pub async fn save_hotspots(
         .await?;
     Ok(())
 }
+
+pub async fn upsert_scene(
+    pool: &PgPool,
+    scene: &serde_json::Value,
+) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        "INSERT INTO scenes (scene_id, title, category, visibility, scene_type, cover_path, background_path, items, verbs, meta_json, owner_id) \
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) \
+         ON CONFLICT (scene_id) DO UPDATE SET \
+         title = $2, category = $3, items = $8, verbs = $9, meta_json = $10, updated_at = now()"
+    )
+    .bind(scene["sceneId"].as_str().unwrap_or(""))
+    .bind(scene["title"].as_str().unwrap_or(""))
+    .bind(scene["category"].as_str().unwrap_or(""))
+    .bind(scene["visibility"].as_str().unwrap_or("private"))
+    .bind(scene["sceneType"].as_str().unwrap_or("private"))
+    .bind(scene["coverPath"].as_str().unwrap_or(""))
+    .bind(scene["backgroundPath"].as_str().unwrap_or(""))
+    .bind(&scene["items"])
+    .bind(&scene["verbs"])
+    .bind(&scene["metaJson"])
+    .bind(scene["metaJson"]["ownerId"].as_str())
+    .execute(pool)
+    .await?;
+    Ok(())
+}
