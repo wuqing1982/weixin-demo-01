@@ -2148,7 +2148,7 @@ async function handleAction(action, id) {
   }
 }
 
-panelBody.addEventListener('submit', async (event) => {
+document.addEventListener('submit', async (event) => {
   event.preventDefault();
   try {
     if (event.target.id === 'product-form') {
@@ -2371,12 +2371,21 @@ panelHead.addEventListener('change', (event) => {
 
 // Global delegated events: modal, batch bar, close dropdowns
 document.addEventListener('click', async (event) => {
+  // Modal close button (×) — has no data-action, must check before early return
+  if (event.target.id === 'modal-close') {
+    state.editingScene = null;
+    state.editingBackend = null;
+    closeModal();
+    return;
+  }
+
   const action = event.target.dataset.action;
   if (!action) return;
 
-  // Modal close button
-  if (action === 'scene-cancel-edit' || event.target.id === 'modal-close') {
+  // Modal close/cancel buttons
+  if (action === 'scene-cancel-edit' || action === 'storage-cancel-edit') {
     state.editingScene = null;
+    state.editingBackend = null;
     closeModal();
     return;
   }
@@ -2481,8 +2490,9 @@ if (modalOverlay) {
   // Handle cancel button click inside modal
   document.getElementById('modal-body').addEventListener('click', (event) => {
     const action = event.target.dataset.action;
-    if (action === 'scene-cancel-edit') {
+    if (action === 'scene-cancel-edit' || action === 'storage-cancel-edit') {
       state.editingScene = null;
+      state.editingBackend = null;
       closeModal();
     }
   });

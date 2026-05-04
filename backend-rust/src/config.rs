@@ -19,6 +19,12 @@ pub struct Config {
     pub scene_page_size: i64,
     pub hotspot_editor_enabled: bool,
     pub server_port: u16,
+    // Commerce
+    pub payment_mode: String,
+    pub wx_virtual_pay_app_id: String,
+    pub wx_virtual_pay_offer_id: String,
+    pub wx_virtual_pay_app_key: String,
+    pub wx_virtual_pay_env: i64,
 }
 
 fn env_or(key: &str, default: &str) -> String {
@@ -63,6 +69,11 @@ impl Config {
             scene_page_size: env_int("SCENE_PAGE_SIZE", 20),
             hotspot_editor_enabled: env_bool("HOTSPOT_EDITOR_ENABLED", true),
             server_port: env::var("SERVER_PORT").ok().and_then(|v| v.parse().ok()).unwrap_or(8000),
+            payment_mode: env_or("PAYMENT_MODE", "mock"),
+            wx_virtual_pay_app_id: env_or("WX_VIRTUAL_PAY_APP_ID", ""),
+            wx_virtual_pay_offer_id: env_or("WX_VIRTUAL_PAY_OFFER_ID", ""),
+            wx_virtual_pay_app_key: env_or("WX_VIRTUAL_PAY_APP_KEY", ""),
+            wx_virtual_pay_env: env_int("WX_VIRTUAL_PAY_ENV", 1),
         }
     }
 }

@@ -133,3 +133,12 @@ pub async fn update_user_profile(
         .fetch_one(pool)
         .await
 }
+
+pub async fn find_user_identities(pool: &PgPool, user_id: &str) -> Result<Vec<UserIdentity>, sqlx::Error> {
+    sqlx::query_as::<_, UserIdentity>(
+        "SELECT * FROM user_identities WHERE user_id = $1"
+    )
+        .bind(user_id)
+        .fetch_all(pool)
+        .await
+}

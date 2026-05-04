@@ -8252,6 +8252,423 @@
         ],
         "version": 1
       }
+    },
+    {
+      "sceneId": "scene_user_20260428021314_f3e130",
+      "title": "办公室",
+      "category": "home",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260428021314_f3e130/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260428021314_f3e130/background.jpg",
+      "items": [
+        {
+          "id": "bookshelf",
+          "word": "bookshelf",
+          "ipa": "/bʊkˈʃelf/",
+          "meaning": "书架",
+          "sentence": "Look at the bookshelf with many books.",
+          "sentenceTranslation": "看那个有很多书的书架。",
+          "audioPath": "/assets/generated/scene_user_20260428021314_f3e130/scene_user_20260428021314_f3e130_en-US-JennyNeural_US_female_bookshelf_look_at_the_bookshelf_with_many.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 20.0,
+            "w": 30.0,
+            "h": 60.0
+          }
+        },
+        {
+          "id": "desk",
+          "word": "desk",
+          "ipa": "/dɛsk/",
+          "meaning": "桌子",
+          "sentence": "Put your books on the desk.",
+          "sentenceTranslation": "把你的书放在桌子上。",
+          "audioPath": "/assets/generated/scene_user_20260428021314_f3e130/scene_user_20260428021314_f3e130_en-US-JennyNeural_US_female_desk_put_your_books_on_the_desk.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 50.0,
+            "w": 20.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "chair",
+          "word": "chair",
+          "ipa": "/tʃeər/",
+          "meaning": "椅子",
+          "sentence": "Sit in the chair and study.",
+          "sentenceTranslation": "坐在椅子上学习。",
+          "audioPath": "/assets/generated/scene_user_20260428021314_f3e130/scene_user_20260428021314_f3e130_en-US-JennyNeural_US_female_chair_sit_in_the_chair_and_study.mp3",
+          "rect": {
+            "l": 80.0,
+            "t": 70.0,
+            "w": 10.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "window",
+          "word": "window",
+          "ipa": "/ˈwɪndoʊ/",
+          "meaning": "窗户",
+          "sentence": "Look out the window to see the outside world.",
+          "sentenceTranslation": "透过窗户看看外面的世界。",
+          "audioPath": "/assets/generated/scene_user_20260428021314_f3e130/scene_user_20260428021314_f3e130_en-US-JennyNeural_US_female_window_look_out_the_window_to_see.mp3",
+          "rect": {
+            "l": 90.0,
+            "t": 20.0,
+            "w": 10.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "trash_can",
+          "word": "trash can",
+          "ipa": "/træʃˈkæn/",
+          "meaning": "垃圾桶",
+          "sentence": "Throw away the trash in the trash can.",
+          "sentenceTranslation": "把垃圾扔进垃圾桶里。",
+          "audioPath": "/assets/generated/scene_user_20260428021314_f3e130/scene_user_20260428021314_f3e130_en-US-JennyNeural_US_female_trash_can_throw_away_the_trash_in_the.mp3",
+          "rect": {
+            "l": 45.0,
+            "t": 75.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "read",
+          "word": "read",
+          "ipa": "/riːd/",
+          "meaning": "阅读",
+          "sentence": "Read a book from the bookshelf.",
+          "sentenceTranslation": "从书架上拿一本书来读。",
+          "audioPath": "/assets/generated/scene_user_20260428021314_f3e130/scene_user_20260428021314_f3e130_en-US-JennyNeural_US_female_read_read_a_book_from_the_bookshelf.mp3",
+          "relatedItem": "bookshelf"
+        },
+        {
+          "id": "sit",
+          "word": "sit",
+          "ipa": "/sɪt/",
+          "meaning": "坐下",
+          "sentence": "Sit in the chair and work.",
+          "sentenceTranslation": "坐在椅子上工作。",
+          "audioPath": "/assets/generated/scene_user_20260428021314_f3e130/scene_user_20260428021314_f3e130_en-US-JennyNeural_US_female_sit_sit_in_the_chair_and_work.mp3",
+          "relatedItem": "chair"
+        },
+        {
+          "id": "organize",
+          "word": "organize",
+          "ipa": "/ɒrˈgænɪz/",
+          "meaning": "整理",
+          "sentence": "Organize your things on the desk.",
+          "sentenceTranslation": "整理一下桌上的东西。",
+          "audioPath": "/assets/generated/scene_user_20260428021314_f3e130/scene_user_20260428021314_f3e130_en-US-JennyNeural_US_female_organize_organize_your_things_on_the_desk.mp3",
+          "relatedItem": "desk"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260408024505_7358e9",
+        "uploadId": "upload_20260428021312_be18d4",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260428021314_f3e130",
+        "core100SceneTitle": "办公室",
+        "recommendedCategory": "home",
+        "tags": [
+          "学习",
+          "办公",
+          "整洁"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260428025900_46c106",
+      "title": "公交车站",
+      "category": "transport",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260428025900_46c106/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260428025900_46c106/background.jpg",
+      "items": [
+        {
+          "id": "bus_shelter",
+          "word": "bus shelter",
+          "ipa": "/bʌsˈʃelər/",
+          "meaning": "公交车站棚",
+          "sentence": "We wait at the bus shelter.",
+          "sentenceTranslation": "我们在公交车站棚里等候。",
+          "audioPath": "/assets/generated/scene_user_20260428025900_46c106/scene_user_20260428025900_46c106_en-US-JennyNeural_US_female_bus_shelter_we_wait_at_the_bus_shelter.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 50.0,
+            "w": 20.0,
+            "h": 30.0
+          }
+        },
+        {
+          "id": "grass",
+          "word": "grass",
+          "ipa": "/ɡrɑːs/",
+          "meaning": "草地",
+          "sentence": "The grass is green and lush.",
+          "sentenceTranslation": "草地上绿油油的，非常茂盛。",
+          "audioPath": "/assets/generated/scene_user_20260428025900_46c106/scene_user_20260428025900_46c106_en-US-JennyNeural_US_female_grass_the_grass_is_green_and_lush.mp3",
+          "rect": {
+            "l": 10.0,
+            "t": 70.0,
+            "w": 60.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "building",
+          "word": "building",
+          "ipa": "/ˈbɪldɪŋ/",
+          "meaning": "建筑物",
+          "sentence": "There are tall buildings in the distance.",
+          "sentenceTranslation": "远处有许多高楼大厦。",
+          "audioPath": "/assets/generated/scene_user_20260428025900_46c106/scene_user_20260428025900_46c106_en-US-JennyNeural_US_female_building_there_are_tall_buildings_in_the.mp3",
+          "rect": {
+            "l": 80.0,
+            "t": 20.0,
+            "w": 20.0,
+            "h": 40.0
+          }
+        },
+        {
+          "id": "road",
+          "word": "road",
+          "ipa": "/rəʊd/",
+          "meaning": "马路",
+          "sentence": "The road is wet from the rain.",
+          "sentenceTranslation": "马路因为下雨而湿滑。",
+          "audioPath": "/assets/generated/scene_user_20260428025900_46c106/scene_user_20260428025900_46c106_en-US-JennyNeural_US_female_road_the_road_is_wet_from_the.mp3",
+          "rect": {
+            "l": 40.0,
+            "t": 70.0,
+            "w": 40.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "fence",
+          "word": "fence",
+          "ipa": "/fens/",
+          "meaning": "栅栏",
+          "sentence": "The fence surrounds the park.",
+          "sentenceTranslation": "栅栏围绕着这个公园。",
+          "audioPath": "/assets/generated/scene_user_20260428025900_46c106/scene_user_20260428025900_46c106_en-US-JennyNeural_US_female_fence_the_fence_surrounds_the_park.mp3",
+          "rect": {
+            "l": 0.0,
+            "t": 80.0,
+            "w": 10.0,
+            "h": 20.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "v1",
+          "word": "wait",
+          "ipa": "/weɪt/",
+          "meaning": "等待",
+          "sentence": "We wait at the bus shelter.",
+          "sentenceTranslation": "我们在公交站等。",
+          "audioPath": "/assets/generated/scene_user_20260428025900_46c106/scene_user_20260428025900_46c106_en-US-JennyNeural_US_female_v1_we_wait_at_the_bus_shelter.mp3",
+          "relatedItem": "bus_shelter"
+        },
+        {
+          "id": "v2",
+          "word": "walk",
+          "ipa": "/wɔːk/",
+          "meaning": "走路",
+          "sentence": "We walk on the road to the bus stop.",
+          "sentenceTranslation": "我们走在路上去公交站。",
+          "audioPath": "/assets/generated/scene_user_20260428025900_46c106/scene_user_20260428025900_46c106_en-US-JennyNeural_US_female_v2_we_walk_on_the_road_to.mp3",
+          "relatedItem": "road"
+        },
+        {
+          "id": "v3",
+          "word": "look",
+          "ipa": "/lʊk/",
+          "meaning": "看",
+          "sentence": "We look at the tall buildings.",
+          "sentenceTranslation": "我们看高大的建筑。",
+          "audioPath": "/assets/generated/scene_user_20260428025900_46c106/scene_user_20260428025900_46c106_en-US-JennyNeural_US_female_v3_we_look_at_the_tall_buildings.mp3",
+          "relatedItem": "building"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260408024505_7358e9",
+        "uploadId": "upload_20260428025859_8813cd",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260428025900_46c106",
+        "core100SceneTitle": "公交车站",
+        "recommendedCategory": "transport",
+        "tags": [
+          "等待",
+          "公共交通",
+          "城市"
+        ],
+        "version": 1
+      }
+    },
+    {
+      "sceneId": "scene_user_20260504153711_7b608e",
+      "title": "客厅",
+      "category": "home",
+      "visibility": "private",
+      "sceneType": "private",
+      "coverPath": "/assets/generated/scene_user_20260504153711_7b608e/background.jpg",
+      "backgroundPath": "/assets/generated/scene_user_20260504153711_7b608e/background.jpg",
+      "items": [
+        {
+          "id": "television",
+          "word": "television",
+          "ipa": "/ˈtelɪvɪʒən/",
+          "meaning": "电视",
+          "sentence": "Let's watch television together.",
+          "sentenceTranslation": "让我们一起看电视吧。",
+          "audioPath": "/assets/generated/scene_user_20260504153711_7b608e/scene_user_20260504153711_7b608e_en-US-JennyNeural_US_female_television_lets_watch_television_together.mp3",
+          "rect": {
+            "l": 22.28,
+            "t": 16.2,
+            "w": 31.73,
+            "h": 24.17
+          }
+        },
+        {
+          "id": "kettle",
+          "word": "kettle",
+          "ipa": "/ˈketl/",
+          "meaning": "电热水壶",
+          "sentence": "Can I use the kettle to make some tea?",
+          "sentenceTranslation": "我可以用电热水壶泡些茶吗？",
+          "audioPath": "/assets/generated/scene_user_20260504153711_7b608e/scene_user_20260504153711_7b608e_en-US-JennyNeural_US_female_kettle_can_i_use_the_kettle_to.mp3",
+          "rect": {
+            "l": 80.0,
+            "t": 70.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        },
+        {
+          "id": "medication",
+          "word": "medication",
+          "ipa": "/ˌmedɪˈkeɪʃn/",
+          "meaning": "药物",
+          "sentence": "Please take your medication on time.",
+          "sentenceTranslation": "请按时吃药。",
+          "audioPath": "/assets/generated/scene_user_20260504153711_7b608e/scene_user_20260504153711_7b608e_en-US-JennyNeural_US_female_medication_please_take_your_medication_on_time.mp3",
+          "rect": {
+            "l": 45.0,
+            "t": 60.0,
+            "w": 20.0,
+            "h": 20.0
+          }
+        },
+        {
+          "id": "snacks",
+          "word": "snack",
+          "ipa": "/snæk/",
+          "meaning": "零食",
+          "sentence": "Would you like a snack with your tea?",
+          "sentenceTranslation": "你想吃点零食配茶吗？",
+          "audioPath": "/assets/generated/scene_user_20260504153711_7b608e/scene_user_20260504153711_7b608e_en-US-JennyNeural_US_female_snacks_would_you_like_a_snack_with.mp3",
+          "rect": {
+            "l": 66.46,
+            "t": 69.4,
+            "w": 15.0,
+            "h": 15.0
+          }
+        },
+        {
+          "id": "remote_control",
+          "word": "remote control",
+          "ipa": "/ˈrɛmət ˈkɒntroʊl/",
+          "meaning": "遥控器",
+          "sentence": "Don't forget to put the remote control back in its place.",
+          "sentenceTranslation": "别忘了把遥控器放回原处。",
+          "audioPath": "/assets/generated/scene_user_20260504153711_7b608e/scene_user_20260504153711_7b608e_en-US-JennyNeural_US_female_remote_control_dont_forget_to_put_the_remote.mp3",
+          "rect": {
+            "l": 30.0,
+            "t": 75.0,
+            "w": 10.0,
+            "h": 10.0
+          }
+        }
+      ],
+      "verbs": [
+        {
+          "id": "v1",
+          "word": "watch",
+          "ipa": "/wɒtʃ/",
+          "meaning": "观看",
+          "sentence": "Let's watch television together.",
+          "sentenceTranslation": "我们一起看电视吧。",
+          "audioPath": "/assets/generated/scene_user_20260504153711_7b608e/scene_user_20260504153711_7b608e_en-US-JennyNeural_US_female_v1_lets_watch_television_together.mp3",
+          "relatedItem": "television"
+        },
+        {
+          "id": "v2",
+          "word": "use",
+          "ipa": "/juːz/",
+          "meaning": "使用",
+          "sentence": "Can I use the kettle to make some tea?",
+          "sentenceTranslation": "我能用水壶泡茶吗？",
+          "audioPath": "/assets/generated/scene_user_20260504153711_7b608e/scene_user_20260504153711_7b608e_en-US-JennyNeural_US_female_v2_can_i_use_the_kettle_to.mp3",
+          "relatedItem": "kettle"
+        },
+        {
+          "id": "v3",
+          "word": "put",
+          "ipa": "/pʊt/",
+          "meaning": "放",
+          "sentence": "Don't forget to put the remote control back in its place.",
+          "sentenceTranslation": "别忘了把遥控器放回原处。",
+          "audioPath": "/assets/generated/scene_user_20260504153711_7b608e/scene_user_20260504153711_7b608e_en-US-JennyNeural_US_female_v3_dont_forget_to_put_the_remote.mp3",
+          "relatedItem": "remote_control"
+        }
+      ],
+      "meta": {
+        "sceneType": "private",
+        "visibility": "private",
+        "sourceType": "upload",
+        "ownerId": "user_20260408024505_7358e9",
+        "uploadId": "upload_20260504153710_d915c3",
+        "generatorMode": "core100",
+        "accent": "en-US",
+        "voiceGender": "female",
+        "voiceName": "JennyNeural",
+        "core100SceneId": "scene_user_20260504153711_7b608e",
+        "core100SceneTitle": "客厅",
+        "recommendedCategory": "home",
+        "tags": [
+          "家庭生活",
+          "休闲",
+          "居住空间"
+        ],
+        "version": 2,
+        "hotspotEditable": true,
+        "hotspotUpdatedAt": "2026-05-04T15:49:01Z",
+        "hotspotUpdatedBy": "user_20260408024505_7358e9"
+      }
     }
   ]
 }

@@ -28,3 +28,6 @@ assets/video_exports/
 
 # Storage config (contains cloud credentials)
 backend/data/storage_config.json
+
+# Playwright MCP logs
+.playwright-mcp/
