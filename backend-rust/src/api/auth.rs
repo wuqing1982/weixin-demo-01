@@ -27,11 +27,13 @@ pub struct DevicePayload {
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RefreshRequest {
     refresh_token: String,
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LogoutRequest {
     refresh_token: Option<String>,
 }

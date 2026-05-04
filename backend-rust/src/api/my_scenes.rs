@@ -3,6 +3,7 @@ use axum::Json;
 use serde::Deserialize;
 use serde_json::{json, Value};
 
+use crate::api::scene::asset_url;
 use crate::db;
 use crate::error::AppError;
 use crate::middleware::auth::AuthUser;
@@ -26,7 +27,7 @@ pub async fn list_my_scenes(
 
     let (scenes, total) = db::scenes::get_user_scenes(&state.pool, &auth.user_id, page_size, offset).await?;
 
-    let items: Vec<Value> = scenes
+    let list: Vec<Value> = scenes
         .iter()
         .map(|s| {
             json!({
@@ -35,15 +36,16 @@ pub async fn list_my_scenes(
                 "category": s.category,
                 "visibility": s.visibility,
                 "sceneType": s.scene_type,
-                "coverPath": s.cover_path,
-                "itemsCount": s.items.as_array().map(|a| a.len()).unwrap_or(0),
+                "coverUrl": asset_url(&state.config.public_base_url, &s.cover_path),
+                "backgroundUrl": asset_url(&state.config.public_base_url, &s.background_path),
+                "itemCount": s.items.as_array().map(|a| a.len()).unwrap_or(0),
                 "createdAt": s.created_at.to_rfc3339(),
             })
         })
         .collect();
 
     Ok(success(json!({
-        "items": items,
+        "list": list,
         "total": total,
         "page": page,
         "pageSize": page_size,

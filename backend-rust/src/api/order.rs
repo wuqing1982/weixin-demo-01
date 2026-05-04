@@ -176,8 +176,10 @@ pub async fn pay_order(
                 .find(|i| i.provider == "wechat")
                 .and_then(|i| i.session_key_encrypted.as_ref());
 
-            let session_key = match (&state.config.wechat_session_key_secret, session_key_encrypted) {
-                (Some(secret), Some(encrypted)) => {
+            let session_key = match session_key_encrypted {
+                Some(encrypted) if !encrypted.is_empty() => {
+                    let secret = state.config.wechat_session_key_secret.as_deref()
+                        .unwrap_or(&state.config.auth_jwt_secret);
                     crate::services::wechat_session::decrypt_session_key(secret, encrypted)
                         .map_err(|e| AppError::Internal(e))?
                 }

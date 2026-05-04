@@ -64,7 +64,7 @@ pub async fn list_scene_collections(
     Ok(success(json!({"list": cols})))
 }
 
-fn asset_url(base_url: &str, path: &str) -> String {
+pub(crate) fn asset_url(base_url: &str, path: &str) -> String {
     if path.is_empty() || path.starts_with("http") {
         return path.to_string();
     }
@@ -96,12 +96,12 @@ fn serialize_scene_detail(state: &AppState, scene: &crate::models::scene::Scene)
         "category": scene.category,
         "visibility": scene.visibility,
         "sceneType": scene.scene_type,
-        "backgroundUrl": asset_url(&state.config.public_base_url, &scene.background_path),
-        "coverUrl": asset_url(&state.config.public_base_url, &scene.cover_path),
+        "background": asset_url(&state.config.public_base_url, &scene.background_path),
+        "cover": asset_url(&state.config.public_base_url, &scene.cover_path),
         "items": hotspots,
         "verbs": verbs,
         "meta": scene.meta_json,
         "free": scene.meta_json.get("free").and_then(|v| v.as_bool()).unwrap_or(false),
-        "createdAt": scene.created_at.to_rfc3339(),
+        "capabilities": { "canEditHotspots": false },
     })
 }

@@ -2,7 +2,9 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+#[serde(rename_all = "camelCase")]
 pub struct Product {
+    #[serde(rename = "productId")]
     pub id: String,
     pub product_code: String,
     pub product_type: String,
@@ -17,7 +19,9 @@ pub struct Product {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+#[serde(rename_all = "camelCase")]
 pub struct ProductSku {
+    #[serde(rename = "skuId")]
     pub id: String,
     pub sku_code: String,
     pub product_id: String,
@@ -36,7 +40,9 @@ pub struct ProductSku {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+#[serde(rename_all = "camelCase")]
 pub struct SkuBenefit {
+    #[serde(rename = "benefitId")]
     pub id: String,
     pub sku_id: String,
     pub benefit_type: String,

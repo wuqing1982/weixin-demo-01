@@ -34,11 +34,8 @@ async fn main() {
     let assets_dir = state.config.assets_dir.clone();
     let app = api::routes()
         .layer(cors)
-        .with_state(state)
-        .fallback_service(
-            tower_http::services::ServeDir::new(&assets_dir)
-                .append_index_html_on_directories(false),
-        );
+        .nest_service("/assets", tower_http::services::ServeDir::new(&assets_dir))
+        .with_state(state);
 
     let addr = format!("0.0.0.0:{port}");
     tracing::info!("Server starting on {}", addr);

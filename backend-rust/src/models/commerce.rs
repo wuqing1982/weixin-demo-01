@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 use sqlx::FromRow;
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+#[serde(rename_all = "camelCase")]
 pub struct UserEntitlement {
     pub id: String,
     pub user_id: String,
@@ -18,6 +19,7 @@ pub struct UserEntitlement {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+#[serde(rename_all = "camelCase")]
 pub struct UserCreditAccount {
     pub id: String,
     pub user_id: String,
@@ -29,6 +31,7 @@ pub struct UserCreditAccount {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+#[serde(rename_all = "camelCase")]
 pub struct CreditLedger {
     pub id: String,
     pub user_id: String,
@@ -42,6 +45,7 @@ pub struct CreditLedger {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, FromRow)]
+#[serde(rename_all = "camelCase")]
 pub struct CdkCode {
     pub id: String,
     pub code: String,
