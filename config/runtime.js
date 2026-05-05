@@ -23,7 +23,7 @@ const ENV_PROFILES = {
 };
 
 // <-- 切换这一行即可更换环境
-const CURRENT_ENV = 'production';
+const CURRENT_ENV = 'staging';
 
 const DEFAULT_RUNTIME_CONFIG = ENV_PROFILES[CURRENT_ENV];
 
