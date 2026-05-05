@@ -27,7 +27,7 @@ Page({
     this.setData({ loading: true, errorMessage: '' });
     try {
       const data = await getMyVideoExports();
-      const list = (data.list || []).map(item => {
+      const list = (data.items || []).map(item => {
         if (item.videoUrl && !item.videoUrl.startsWith('http')) {
           const { staticBaseUrl } = getConfig();
           item.videoUrl = staticBaseUrl + item.videoUrl;

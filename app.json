@@ -21,6 +21,9 @@
   "permission": {
     "scope.camera": {
       "desc": "用于拍摄全景图片创建场景"
+    },
+    "scope.writePhotosAlbum": {
+      "desc": "用于保存导出的学习视频到手机相册"
     }
   },
   "lazyCodeLoading": "requiredComponents",

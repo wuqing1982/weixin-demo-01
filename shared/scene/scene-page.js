@@ -456,6 +456,8 @@ function createScenePage(sceneData) {
           const message = data.message || '';
           const status = data.status || '';
 
+          console.log('[video-export] poll:', JSON.stringify({ status, progress, videoUrl: data.videoUrl ? 'has-url' : 'empty' }));
+
           if (status === 'completed') {
             wx.hideLoading();
             this._exporting = false;

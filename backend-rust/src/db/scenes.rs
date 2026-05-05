@@ -31,6 +31,19 @@ pub async fn get_scene(pool: &PgPool, scene_id: &str) -> Result<Option<Scene>, s
         .await
 }
 
+pub async fn get_scenes_by_ids(pool: &PgPool, ids: &[&str]) -> Result<Vec<Scene>, sqlx::Error> {
+    if ids.is_empty() {
+        return Ok(Vec::new());
+    }
+    let placeholders: Vec<String> = ids.iter().enumerate().map(|(i, _)| format!("${}", i + 1)).collect();
+    let query = format!("SELECT * FROM scenes WHERE scene_id IN ({})", placeholders.join(","));
+    let mut q = sqlx::query_as::<_, Scene>(&query);
+    for id in ids {
+        q = q.bind(id);
+    }
+    q.fetch_all(pool).await
+}
+
 pub async fn get_user_scenes(
     pool: &PgPool,
     user_id: &str,

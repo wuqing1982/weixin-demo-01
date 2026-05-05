@@ -81,19 +81,37 @@ pub async fn list_my_video_exports(
 ) -> Result<Json<Value>, AppError> {
     let jobs = db::videos::list_user_video_exports(&state.pool, &auth.user_id, 20).await?;
 
+    // Batch-load scene titles and covers
+    let scene_ids: Vec<&str> = jobs.iter().map(|j| j.scene_id.as_str()).collect();
+    let scenes = db::scenes::get_scenes_by_ids(&state.pool, &scene_ids).await.unwrap_or_default();
+    let scene_map: std::collections::HashMap<&str, &crate::models::scene::Scene> =
+        scenes.iter().map(|s| (s.scene_id.as_str(), s)).collect();
+
     let items: Vec<Value> = jobs
         .iter()
         .map(|job| {
             let video_url = job.output_path.as_ref().map(|p| {
                 format!("{}/assets/generated/videos/{}", state.config.public_base_url, p.split('/').last().unwrap_or(""))
             });
+            let scene = scene_map.get(job.scene_id.as_str());
+            let (scene_title, cover_url) = if let Some(s) = scene {
+                (
+                    s.title.as_str(),
+                    Some(crate::api::scene::asset_url(&state.config.public_base_url, &s.cover_path)),
+                )
+            } else {
+                ("", None)
+            };
             json!({
                 "jobId": job.id,
                 "sceneId": job.scene_id,
                 "status": job.status,
                 "progress": job.progress,
                 "videoUrl": video_url,
+                "coverUrl": cover_url,
+                "sceneTitle": scene_title,
                 "createdAt": job.created_at.to_rfc3339(),
+                "completedAt": job.completed_at.map(|t| t.to_rfc3339()),
             })
         })
         .collect();
