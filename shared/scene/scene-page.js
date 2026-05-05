@@ -568,11 +568,6 @@ function createScenePage(sceneData) {
         audioSrc = `${staticBaseUrl}${audioSrc.startsWith('/') ? '' : '/'}${audioSrc}`;
       }
       if (!this.audioContext || !audioSrc) {
-        wx.showToast({
-          title: '使用在线语音...',
-          icon: 'none',
-          duration: 1000
-        });
         this.simulateTTS(entry);
         return;
       }
