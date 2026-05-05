@@ -50,8 +50,10 @@ pub async fn process_video_export(state: AppState, job_id: String) {
     let output_path = video_dir.join(&output_filename);
 
     // Build FFmpeg command to create a video from scene image + audio
+    let cwd = std::env::current_dir().unwrap_or_default();
     let bg_path = if scene.background_path.starts_with('/') {
-        format!("..{}", scene.background_path)
+        let resolved = cwd.join(format!(".{}", scene.background_path));
+        resolved.canonicalize().unwrap_or(resolved).to_string_lossy().to_string()
     } else {
         scene.background_path.clone()
     };
@@ -125,13 +127,19 @@ async fn run_ffmpeg_with_audio(
     let concat_list_path = tmp_dir.join(format!("concat_{}.txt", uuid::Uuid::new_v4()));
     let mut concat_content = String::new();
 
+    let cwd = std::env::current_dir().map_err(|e| format!("get cwd: {e}"))?;
     for audio in audio_files {
-        let audio_path = if audio.starts_with('/') {
-            format!("..{audio}")
+        let resolved = if audio.starts_with('/') {
+            cwd.join(format!(".{audio}"))
         } else {
-            audio.clone()
+            cwd.join(audio)
         };
-        concat_content.push_str(&format!("file '{audio_path}'\n"));
+        let abs_path = resolved
+            .canonicalize()
+            .unwrap_or(resolved)
+            .to_string_lossy()
+            .to_string();
+        concat_content.push_str(&format!("file '{abs_path}'\n"));
     }
 
     std::fs::write(&concat_list_path, &concat_content).map_err(|e| format!("write concat: {e}"))?;
