@@ -189,10 +189,8 @@ pub async fn pay_order(
             // Map sku_id to virtual product ID
             let sku_id_str = order_detail.items.first().map(|i| i.sku_id.as_str()).unwrap_or("");
             let virtual_product_id = map_sku_to_virtual_product(sku_id_str);
-            let price_fen = (order_detail.order.payable_amount * rust_decimal::Decimal::from(100))
-                .to_string()
-                .parse::<i64>()
-                .unwrap_or(0);
+            let fen_decimal = (order_detail.order.payable_amount * rust_decimal::Decimal::from(100)).round();
+            let price_fen = fen_decimal.mantissa() as i64 / 10i64.pow(fen_decimal.scale() as u32);
 
             let params = virtual_pay::build_virtual_payment_params(
                 &state.config.wx_virtual_pay_offer_id,
