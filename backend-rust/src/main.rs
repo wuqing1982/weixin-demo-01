@@ -30,6 +30,14 @@ async fn main() {
         config: Arc::new(c),
     };
 
+    // Spawn periodic video cleanup (deletes exports older than video_max_age_seconds)
+    {
+        let cleanup_state = state.clone();
+        tokio::spawn(async move {
+            services::video_cleanup::run_video_cleanup_loop(cleanup_state).await;
+        });
+    }
+
     let cors = CorsLayer::permissive();
     let assets_dir = state.config.assets_dir.clone();
     let app = api::routes()

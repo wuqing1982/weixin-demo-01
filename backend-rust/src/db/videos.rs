@@ -72,3 +72,19 @@ pub async fn update_video_export(
     .await?;
     Ok(())
 }
+
+pub async fn cleanup_expired_video_jobs(
+    pool: &PgPool,
+    max_age_seconds: i64,
+) -> Result<Vec<String>, sqlx::Error> {
+    let rows: Vec<(String,)> = sqlx::query_as(
+        "DELETE FROM video_export_jobs \
+         WHERE status IN ('completed', 'failed') \
+         AND created_at < now() - ($1 || ' seconds')::interval \
+         RETURNING id",
+    )
+    .bind(format!("{max_age_seconds}"))
+    .fetch_all(pool)
+    .await?;
+    Ok(rows.into_iter().map(|(id,)| id).collect())
+}
