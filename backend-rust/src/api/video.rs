@@ -19,12 +19,11 @@ pub async fn export_video(
         .await?
         .ok_or_else(|| AppError::NotFound("scene not found".into()))?;
 
-    // Permission check
+    // Permission check: only admin or scene owner can export video
     let is_admin = auth.role == "admin";
     let is_owner = scene.owner_id.as_deref() == Some(&auth.user_id);
-    let is_public = scene.visibility == "public";
-    if !is_admin && !is_owner && !is_public {
-        return Err(AppError::Forbidden("cannot export this scene".into()));
+    if !is_admin && !is_owner {
+        return Err(AppError::Forbidden("只能导出自己创建的场景视频".into()));
     }
 
     let job_id = format!("vexp_{}", uuid::Uuid::new_v4());

@@ -71,7 +71,7 @@ pub async fn set_published_scene(
     published_scene_id: &str,
 ) -> Result<(), sqlx::Error> {
     sqlx::query(
-        "UPDATE tasks SET published_scene_id = $1, status = 'completed', step = 'completed', \
+        "UPDATE tasks SET published_scene_id = $1, status = 'done', step = 'done', \
          progress = 100, updated_at = now() WHERE id = $2",
     )
     .bind(published_scene_id)

@@ -145,7 +145,7 @@ pub async fn process_scene_task(state: AppState, task_id: String) {
         let _ = db::tasks::update_task(pool, &task_id, "running", "publishing", 95, None, None).await;
         let _ = db::tasks::set_published_scene(pool, &task_id, &scene_id).await;
     } else {
-        let _ = db::tasks::update_task(pool, &task_id, "completed", "completed", 100, None, None).await;
+        let _ = db::tasks::update_task(pool, &task_id, "done", "done", 100, None, None).await;
     }
 
     tracing::info!(task_id, scene_id, "scene generation completed");
