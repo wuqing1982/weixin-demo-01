@@ -41,13 +41,15 @@ pub async fn list_scenes(
 pub async fn get_scene(
     State(state): State<AppState>,
     Path(scene_id): Path<String>,
-    _auth: OptionalAuthUser,
+    opt_auth: OptionalAuthUser,
 ) -> Result<Json<Value>, AppError> {
     let scene = scenes::get_scene(&state.pool, &scene_id)
         .await?
         .ok_or_else(|| AppError::NotFound(format!("scene {scene_id} not found")))?;
 
-    Ok(success(json!(serialize_scene_detail(&state, &scene))))
+    let can_edit = can_edit_hotspots(&state, &scene, opt_auth.0.as_ref());
+
+    Ok(success(json!(serialize_scene_detail(&state, &scene, can_edit))))
 }
 
 pub async fn list_scene_categories(
@@ -86,7 +88,7 @@ fn serialize_scene_summary(state: &AppState, scene: &crate::models::scene::Scene
     })
 }
 
-fn serialize_scene_detail(state: &AppState, scene: &crate::models::scene::Scene) -> Value {
+fn serialize_scene_detail(state: &AppState, scene: &crate::models::scene::Scene, can_edit: bool) -> Value {
     let hotspots: Vec<crate::models::scene::HotspotItem> = serde_json::from_value(scene.items.clone()).unwrap_or_default();
     let verbs: Vec<crate::models::scene::VerbItem> = serde_json::from_value(scene.verbs.clone()).unwrap_or_default();
 
@@ -102,6 +104,37 @@ fn serialize_scene_detail(state: &AppState, scene: &crate::models::scene::Scene)
         "verbs": verbs,
         "meta": scene.meta_json,
         "free": scene.meta_json.get("free").and_then(|v| v.as_bool()).unwrap_or(false),
-        "capabilities": { "canEditHotspots": false },
+        "capabilities": { "canEditHotspots": can_edit },
     })
+}
+
+fn can_edit_hotspots(
+    state: &AppState,
+    scene: &crate::models::scene::Scene,
+    auth: Option<&crate::middleware::auth::AuthUser>,
+) -> bool {
+    if !state.config.hotspot_editor_enabled {
+        return false;
+    }
+
+    let Some(auth) = auth else { return false };
+
+    // Admin always allowed
+    if auth.role == "admin" || auth.role == "super_admin" {
+        return true;
+    }
+
+    // Owner of generated/private scenes can edit
+    if scene.owner_id.as_deref() == Some(&auth.user_id) {
+        return true;
+    }
+
+    // Check meta.hotspotEditors for explicit per-scene access
+    if let Some(editors) = scene.meta_json.get("hotspotEditors").and_then(|v| v.as_array()) {
+        if editors.iter().any(|e| e.as_str() == Some("*") || e.as_str() == Some(&auth.user_id)) {
+            return true;
+        }
+    }
+
+    false
 }
