@@ -50,9 +50,11 @@ pub async fn process_video_export(state: AppState, job_id: String) {
     let output_path = video_dir.join(&output_filename);
 
     // Build FFmpeg command to create a video from scene image + audio
-    let cwd = std::env::current_dir().unwrap_or_default();
+    // Paths like /assets/... are relative to project root, which is ../ from backend-rust CWD
     let bg_path = if scene.background_path.starts_with('/') {
-        let resolved = cwd.join(format!(".{}", scene.background_path));
+        let relative = format!("..{}", scene.background_path);
+        let cwd = std::env::current_dir().unwrap_or_default();
+        let resolved = cwd.join(&relative);
         resolved.canonicalize().unwrap_or(resolved).to_string_lossy().to_string()
     } else {
         scene.background_path.clone()
@@ -129,11 +131,13 @@ async fn run_ffmpeg_with_audio(
 
     let cwd = std::env::current_dir().map_err(|e| format!("get cwd: {e}"))?;
     for audio in audio_files {
-        let resolved = if audio.starts_with('/') {
-            cwd.join(format!(".{audio}"))
+        // Paths like /assets/... are relative to project root (../ from backend-rust CWD)
+        let relative = if audio.starts_with('/') {
+            format!("..{audio}")
         } else {
-            cwd.join(audio)
+            audio.clone()
         };
+        let resolved = cwd.join(&relative);
         let abs_path = resolved
             .canonicalize()
             .unwrap_or(resolved)
