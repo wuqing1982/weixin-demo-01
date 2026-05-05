@@ -314,29 +314,30 @@ function createScenePage(sceneData) {
       this.navigateToScene(targetScene);
     },
 
+    _applyPlaybackRate(ctx, rate) {
+      if (!ctx) return;
+      ctx.playbackRate = rate;
+    },
+
     onRateChange(event) {
       const rate = parseFloat(event.detail.value);
-      this.setData({
-        playbackRate: rate
-      });
+      this.setData({ playbackRate: rate });
       try {
         wx.setStorageSync('preferredPlaybackRate', rate.toString());
-      } catch (error) {
-        console.log('保存播放速度失败', error);
-      }
+      } catch (e) { /* ignore */ }
+      this._applyPlaybackRate(this.audioContext, rate);
+      this._applyPlaybackRate(this.ttsAudioContext, rate);
     },
 
     onRatePreset(event) {
       const { rate } = event.currentTarget.dataset;
       const rateValue = parseFloat(rate);
-      this.setData({
-        playbackRate: rateValue
-      });
+      this.setData({ playbackRate: rateValue });
       try {
         wx.setStorageSync('preferredPlaybackRate', rate);
-      } catch (error) {
-        console.log('保存播放速度失败', error);
-      }
+      } catch (e) { /* ignore */ }
+      this._applyPlaybackRate(this.audioContext, rateValue);
+      this._applyPlaybackRate(this.ttsAudioContext, rateValue);
       wx.showToast({
         title: rateValue < 1 ? '慢速播放' : '快速播放',
         icon: 'none',
@@ -346,9 +347,13 @@ function createScenePage(sceneData) {
 
     onToggleLoop() {
       const newLoopState = !this.data.isLooping;
-      this.setData({
-        isLooping: newLoopState
-      });
+      this.setData({ isLooping: newLoopState });
+      if (this.audioContext) {
+        this.audioContext.loop = newLoopState;
+      }
+      if (this.ttsAudioContext) {
+        this.ttsAudioContext.loop = newLoopState;
+      }
       wx.showToast({
         title: newLoopState ? '循环播放已开启' : '循环播放已关闭',
         icon: 'none',
@@ -557,7 +562,12 @@ function createScenePage(sceneData) {
     },
 
     playAudio(entry) {
-      if (!this.audioContext || !entry.audio) {
+      let audioSrc = entry.audio || entry.audioPath || '';
+      if (audioSrc && !audioSrc.startsWith('http')) {
+        const { staticBaseUrl } = require('../../services/config').getConfig();
+        audioSrc = `${staticBaseUrl}${audioSrc.startsWith('/') ? '' : '/'}${audioSrc}`;
+      }
+      if (!this.audioContext || !audioSrc) {
         wx.showToast({
           title: '使用在线语音...',
           icon: 'none',
@@ -567,20 +577,21 @@ function createScenePage(sceneData) {
         return;
       }
 
-      this.audioContext.playbackRate = this.data.playbackRate;
+      const rate = this.data.playbackRate;
       this.audioContext.stop();
-      this.audioContext.src = entry.audio;
-      this.audioContext.play();
+      this.audioContext.offPlay();
+      this.audioContext.loop = this.data.isLooping;
 
-      if (this.data.isLooping) {
-        this.audioContext.onEnded(() => {
-          if (this.data.isLooping && this.data.activeId === entry.id) {
-            setTimeout(() => {
-              this.audioContext.play();
-            }, 500);
-          }
-        });
-      }
+      // playbackRate must be set inside onPlay — direct/timeout/canplay setting
+      // has no effect on real devices (WeChat known issue)
+      this.audioContext.onPlay(() => {
+        if (this.audioContext) {
+          this.audioContext.playbackRate = rate;
+        }
+      });
+
+      this.audioContext.src = audioSrc;
+      this.audioContext.play();
     },
 
     simulateTTS(entry) {
@@ -590,15 +601,25 @@ function createScenePage(sceneData) {
         return;
       }
       const ttsUrl = getTtsUrl(text);
+      const rate = this.data.playbackRate;
       if (this.ttsAudioContext) {
         this.ttsAudioContext.stop();
         this.ttsAudioContext.destroy();
       }
       this.ttsAudioContext = wx.createInnerAudioContext();
       this.ttsAudioContext.obeyMuteSwitch = false;
+      this.ttsAudioContext.loop = this.data.isLooping;
       this.ttsAudioContext.onError((err) => {
         console.log('TTS audio error', err);
       });
+
+      // playbackRate must be set inside onPlay for real-device compatibility
+      this.ttsAudioContext.onPlay(() => {
+        if (this.ttsAudioContext) {
+          this.ttsAudioContext.playbackRate = rate;
+        }
+      });
+
       this.ttsAudioContext.src = ttsUrl;
       this.ttsAudioContext.play();
     },
