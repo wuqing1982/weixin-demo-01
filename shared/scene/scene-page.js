@@ -463,12 +463,12 @@ function createScenePage(sceneData) {
             if (videoUrl) {
               wx.showModal({
                 title: '导出完成',
-                content: '视频已生成，可以保存到相册或分享给好友。',
-                confirmText: '查看视频',
+                content: '视频已生成，点击保存到手机相册。',
+                confirmText: '保存到相册',
                 cancelText: '关闭',
                 success: (res) => {
                   if (res.confirm && videoUrl) {
-                    this._previewExportVideo(videoUrl);
+                    this._downloadAndSaveVideo(videoUrl);
                   }
                 }
               });
@@ -520,18 +520,63 @@ function createScenePage(sceneData) {
       setTimeout(poll, 1000);
     },
 
-    _previewExportVideo(videoUrl) {
+    _resolveFullUrl(videoUrl) {
       const { staticBaseUrl } = require('../../services/config').getConfig();
-      const fullUrl = videoUrl.startsWith('http')
+      return videoUrl.startsWith('http')
         ? videoUrl
         : `${staticBaseUrl}${videoUrl.startsWith('/') ? '' : '/'}${videoUrl}`;
+    },
 
-      wx.previewMedia({
-        sources: [{
-          url: fullUrl,
-          type: 'video'
-        }],
-        current: 0
+    _downloadAndSaveVideo(videoUrl) {
+      const fullUrl = this._resolveFullUrl(videoUrl);
+      wx.showLoading({ title: '下载视频中...', mask: true });
+
+      const downloadTask = wx.downloadFile({
+        url: fullUrl,
+        success: (res) => {
+          if (res.statusCode === 200) {
+            wx.saveVideoToPhotosAlbum({
+              filePath: res.tempFilePath,
+              success: () => {
+                wx.hideLoading();
+                wx.showToast({ title: '已保存到相册', icon: 'success' });
+              },
+              fail: (err) => {
+                wx.hideLoading();
+                const errMsg = (err && err.errMsg) || '';
+                if (errMsg.indexOf('auth deny') !== -1 || errMsg.indexOf('authorize') !== -1) {
+                  wx.showModal({
+                    title: '需要授权',
+                    content: '请在设置中允许访问相册，然后重试。',
+                    confirmText: '去设置',
+                    success: (modalRes) => {
+                      if (modalRes.confirm) {
+                        wx.openSetting();
+                      }
+                    }
+                  });
+                } else {
+                  wx.showModal({
+                    title: '保存失败',
+                    content: errMsg || '保存到相册失败，请重试。',
+                    showCancel: false
+                  });
+                }
+              }
+            });
+          } else {
+            wx.hideLoading();
+            wx.showToast({ title: '下载失败', icon: 'none' });
+          }
+        },
+        fail: () => {
+          wx.hideLoading();
+          wx.showToast({ title: '下载失败，请检查网络', icon: 'none' });
+        }
+      });
+
+      downloadTask.onProgressUpdate((res) => {
+        wx.showLoading({ title: `下载 ${res.progress}%`, mask: true });
       });
     },
 
