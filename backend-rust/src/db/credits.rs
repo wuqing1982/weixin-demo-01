@@ -3,6 +3,8 @@ use sqlx::PgPool;
 use crate::error::AppError;
 use crate::models::commerce::*;
 
+const SCENE_CREDIT_TYPE: &str = "scene_generation_credits";
+
 pub async fn get_membership_summary(pool: &PgPool, user_id: &str) -> Result<MembershipSummary, AppError> {
     let row = sqlx::query_as::<_, UserEntitlement>(
         "SELECT * FROM user_entitlements \
@@ -38,7 +40,7 @@ pub async fn get_credit_summary(pool: &PgPool, user_id: &str) -> Result<CreditSu
 
     let scene_balance = accounts
         .iter()
-        .find(|a| a.credit_type == "scene_generate")
+        .find(|a| a.credit_type == SCENE_CREDIT_TYPE)
         .map(|a| a.balance)
         .unwrap_or(0);
 
@@ -422,4 +424,78 @@ fn tier_price(tier: &str) -> f64 {
         "max" => 199.00,
         _ => 0.0,
     }
+}
+
+/// Get the user's scene generation credit balance.
+pub async fn get_scene_credit_balance(pool: &PgPool, user_id: &str) -> Result<i32, AppError> {
+    let balance = sqlx::query_scalar::<_, i32>(
+        "SELECT COALESCE((SELECT balance FROM user_credit_accounts WHERE user_id = $1 AND credit_type = $2), 0)"
+    )
+    .bind(user_id)
+    .bind(SCENE_CREDIT_TYPE)
+    .fetch_one(pool)
+    .await?;
+    Ok(balance)
+}
+
+/// Deduct credits from a user's account. Returns the balance after deduction.
+/// Fails if insufficient balance.
+pub async fn deduct_credit(
+    pool: &PgPool,
+    user_id: &str,
+    credit_type: &str,
+    amount: i32,
+    reason_type: &str,
+    reason_id: &str,
+    remark: &str,
+) -> Result<i32, AppError> {
+    let mut tx = pool.begin().await?;
+
+    // Lock and check balance
+    let current = sqlx::query_as::<_, UserCreditAccount>(
+        "SELECT * FROM user_credit_accounts WHERE user_id = $1 AND credit_type = $2 FOR UPDATE"
+    )
+    .bind(user_id)
+    .bind(credit_type)
+    .fetch_optional(&mut *tx)
+    .await?;
+
+    let account = current.ok_or_else(|| AppError::BadRequest("积分账户不存在".into()))?;
+
+    if account.balance < amount {
+        tx.rollback().await?;
+        return Err(AppError::BadRequest(format!(
+            "积分不足，当前 {}，需要 {}",
+            account.balance, amount
+        )));
+    }
+
+    let new_balance = account.balance - amount;
+
+    sqlx::query(
+        "UPDATE user_credit_accounts SET balance = $1, updated_at = now() WHERE id = $2"
+    )
+    .bind(new_balance)
+    .bind(&account.id)
+    .execute(&mut *tx)
+    .await?;
+
+    let ledger_id = format!("cl_{}", uuid::Uuid::new_v4());
+    sqlx::query(
+        "INSERT INTO credit_ledger (id, user_id, credit_type, change_amount, balance_after, reason_type, reason_id, remark) \
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)"
+    )
+    .bind(&ledger_id)
+    .bind(user_id)
+    .bind(credit_type)
+    .bind(-amount)
+    .bind(new_balance)
+    .bind(reason_type)
+    .bind(reason_id)
+    .bind(remark)
+    .execute(&mut *tx)
+    .await?;
+
+    tx.commit().await?;
+    Ok(new_balance)
 }

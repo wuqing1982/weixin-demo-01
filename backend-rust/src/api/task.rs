@@ -31,6 +31,12 @@ pub async fn create_scene_generate_task(
     auth: AuthUser,
     Json(body): Json<SceneGenerateRequest>,
 ) -> Result<Json<Value>, AppError> {
+    // Check and deduct scene generation credit
+    let balance = db::credits::get_scene_credit_balance(&state.pool, &auth.user_id).await?;
+    if balance < 1 {
+        return Err(AppError::BadRequest("积分不足，无法生成场景".into()));
+    }
+
     // Validate upload ownership
     let upload = db::uploads::get_upload(&state.pool, &body.upload_id)
         .await?
@@ -56,6 +62,17 @@ pub async fn create_scene_generate_task(
     });
 
     let task = db::tasks::create_task(&state.pool, &task_id, &auth.user_id, &payload).await?;
+
+    // Deduct 1 credit after task creation
+    let _new_balance = db::credits::deduct_credit(
+        &state.pool,
+        &auth.user_id,
+        "scene_generation_credits",
+        1,
+        "scene_generate",
+        &task_id,
+        "Scene generation task",
+    ).await?;
 
     // Spawn background worker
     let worker_state = state.clone();
