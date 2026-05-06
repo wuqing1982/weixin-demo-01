@@ -103,6 +103,7 @@ function createScenePage(sceneData) {
       saveButtonPosition: normalizeFloatingButtonPosition(DEFAULT_SAVE_BUTTON_POSITION),
       deviceMode: 'mobile',
       playbackRate: 1.0,
+      playbackRateLabel: '1.0',
       isLooping: false,
       loading: !initialState.sceneId,
       errorMessage: ''
@@ -136,7 +137,8 @@ function createScenePage(sceneData) {
         const savedRate = wx.getStorageSync('preferredPlaybackRate');
         if (savedRate) {
           this.setData({
-            playbackRate: parseFloat(savedRate) || 1.0
+            playbackRate: parseFloat(savedRate) || 1.0,
+            playbackRateLabel: (parseFloat(savedRate) || 1.0).toFixed(1),
           });
         }
       } catch (error) {
@@ -321,7 +323,7 @@ function createScenePage(sceneData) {
 
     onRateChange(event) {
       const rate = parseFloat(event.detail.value);
-      this.setData({ playbackRate: rate });
+      this.setData({ playbackRate: rate, playbackRateLabel: rate.toFixed(1) });
       try {
         wx.setStorageSync('preferredPlaybackRate', rate.toString());
       } catch (e) { /* ignore */ }
@@ -332,7 +334,7 @@ function createScenePage(sceneData) {
     onRatePreset(event) {
       const { rate } = event.currentTarget.dataset;
       const rateValue = parseFloat(rate);
-      this.setData({ playbackRate: rateValue });
+      this.setData({ playbackRate: rateValue, playbackRateLabel: rateValue.toFixed(1) });
       try {
         wx.setStorageSync('preferredPlaybackRate', rate);
       } catch (e) { /* ignore */ }

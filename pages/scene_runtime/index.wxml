@@ -57,7 +57,7 @@
                 title="快速"
               >🐇</view>
             </view>
-            <text class="rate-display">{{playbackRate}}x</text>
+            <text class="rate-display">{{playbackRateLabel}}x</text>
           </view>
         </view>
       </view>
