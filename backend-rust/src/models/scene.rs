@@ -24,6 +24,8 @@ pub struct HotspotItem {
     #[serde(default)]
     pub sentence_translation: String,
     #[serde(default)]
+    pub audio_path: String,
+    #[serde(default)]
     pub rect: Option<Rect>,
     #[serde(default)]
     pub hidden: bool,
@@ -46,6 +48,8 @@ pub struct VerbItem {
     pub sentence: String,
     #[serde(default)]
     pub sentence_translation: String,
+    #[serde(default)]
+    pub audio_path: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
