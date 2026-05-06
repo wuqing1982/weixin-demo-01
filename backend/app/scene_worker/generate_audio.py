@@ -69,7 +69,7 @@ ALL_VOICES = [
 def generate_combined_audio(item_id, word, sentence, voice, accent, gender,
                            scene_id, output_dir, tts_url):
     """
-    生成合并音频：单词 + 0.1秒静音 + 句子
+    生成音频：将 word 和 sentence 拼接为单段文本，一次 TTS 请求生成。
 
     返回: True if success, False otherwise
     """
@@ -92,48 +92,25 @@ def generate_combined_audio(item_id, word, sentence, voice, accent, gender,
         # TTS API 端点
         tts_endpoint = f"{tts_url}/api/tts/speak"
 
-        # 创建临时目录
-        with tempfile.TemporaryDirectory() as temp_dir:
-            temp_dir_path = Path(temp_dir)
+        # 拼接文本：word. sentence
+        if not word or word == sentence:
+            combined_text = sentence or word
+        elif not sentence:
+            combined_text = word
+        else:
+            combined_text = f"{word}. {sentence}"
 
-            # 请求参数
-            word_params = {"text": word, "voice": voice}
-            sentence_params = {"text": sentence, "voice": voice}
+        params = {"text": combined_text, "voice": voice}
+        response = requests.get(tts_endpoint, params=params, timeout=30)
+        response.raise_for_status()
 
-            # 调用 TTS API
-            word_response = requests.get(tts_endpoint, params=word_params, timeout=30)
-            sentence_response = requests.get(tts_endpoint, params=sentence_params, timeout=30)
-
-            word_response.raise_for_status()
-            sentence_response.raise_for_status()
-
-            # 保存单词音频
-            word_audio_path = temp_dir_path / "word.mp3"
-            with open(word_audio_path, 'wb') as f:
-                f.write(word_response.content)
-
-            # 保存句子音频
-            sentence_audio_path = temp_dir_path / "sentence.mp3"
-            with open(sentence_audio_path, 'wb') as f:
-                f.write(sentence_response.content)
-
-            # 加载音频
-            word_audio = AudioSegment.from_mp3(str(word_audio_path))
-            sentence_audio = AudioSegment.from_mp3(str(sentence_audio_path))
-
-            # 创建0.1秒静音
-            silence = AudioSegment.silent(duration=100)
-
-            # 拼接：单词 + 静音 + 句子
-            combined_audio = word_audio + silence + sentence_audio
-
-            # 保存合并后的音频
-            combined_audio.export(str(output_path), format="mp3")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'wb') as f:
+            f.write(response.content)
 
         file_size = output_path.stat().st_size
         size_kb = file_size / 1024
-        duration_sec = len(combined_audio) / 1000
-        print(f"  ✅ 完成: {filename} ({size_kb:.1f} KB, {duration_sec:.1f}s)")
+        print(f"  ✅ 完成: {filename} ({size_kb:.1f} KB)")
 
         return True
 

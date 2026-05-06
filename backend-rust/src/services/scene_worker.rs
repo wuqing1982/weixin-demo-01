@@ -408,24 +408,23 @@ async fn generate_audio_entry(
     scene_id: &str,
     filename: &str,
 ) -> Option<String> {
-    // Fetch word audio
-    let word_url = format!(
-        "{}/api/tts/speak?text={}&voice={}",
-        tts_url,
-        urlencoding::encode(word),
-        voice_code
-    );
-    let word_audio = client.get(&word_url).send().await.ok()?.bytes().await.ok()?;
+    // Combine word + sentence into a single TTS text: "word. sentence"
+    let combined_text = if word == sentence || sentence.is_empty() {
+        word.to_string()
+    } else if word.is_empty() {
+        sentence.to_string()
+    } else {
+        format!("{word}. {sentence}")
+    };
 
-    // Fetch sentence audio
-    let sentence_url = format!(
+    let tts_url_str = format!(
         "{}/api/tts/speak?text={}&voice={}",
         tts_url,
-        urlencoding::encode(sentence),
+        urlencoding::encode(&combined_text),
         voice_code
     );
-    let sentence_audio = client
-        .get(&sentence_url)
+    let audio_data = client
+        .get(&tts_url_str)
         .send()
         .await
         .ok()?
@@ -433,13 +432,9 @@ async fn generate_audio_entry(
         .await
         .ok()?;
 
-    // Simple concat: word audio + sentence audio (MP3 concat works for simple cases)
     let dir = Path::new(generated_dir).join(scene_id);
     let output_path = dir.join(format!("{filename}.mp3"));
-    let mut file = tokio::fs::File::create(&output_path).await.ok()?;
-    file.write_all(&word_audio).await.ok()?;
-    // Add small silence gap (100ms of low-level noise as MP3 frames)
-    file.write_all(&sentence_audio).await.ok()?;
+    tokio::fs::write(&output_path, &audio_data).await.ok()?;
 
     Some(format!("/assets/generated/{scene_id}/{filename}.mp3"))
 }

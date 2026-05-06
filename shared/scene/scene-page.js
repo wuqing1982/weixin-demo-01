@@ -638,6 +638,7 @@ function createScenePage(sceneData) {
 
     simulateTTS(entry) {
       const { getTtsUrl } = require('../../services/scene');
+      // Live TTS: only reads sentence (to distinguish from pre-generated MP3)
       const text = entry.sentence || entry.word || '';
       if (!text) {
         return;
@@ -655,7 +656,6 @@ function createScenePage(sceneData) {
         console.log('TTS audio error', err);
       });
 
-      // playbackRate must be set inside onPlay for real-device compatibility
       this.ttsAudioContext.onPlay(() => {
         if (this.ttsAudioContext) {
           this.ttsAudioContext.playbackRate = rate;
