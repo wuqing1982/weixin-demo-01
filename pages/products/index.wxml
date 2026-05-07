@@ -83,17 +83,19 @@
   <view class="cdk-modal-mask" wx:if="{{showCdkModal}}" bindtap="onCloseCdkModal">
     <view class="cdk-modal theme-{{theme}}" catchtap="">
       <text class="cdk-modal-title theme-{{theme}}">卡密兑换</text>
-      <input
-        class="cdk-input theme-{{theme}} {{cdkInputFocused ? 'cdk-input-focused' : ''}}"
-        placeholder="请输入卡密码，如 PLUS-A1B2-C3D4-E5F6-G7H8"
-        placeholder-class="cdk-placeholder theme-{{theme}}"
-        value="{{cdkInput}}"
-        bindinput="onCdkInput"
-        bindfocus="onCdkInputFocus"
-        bindblur="onCdkInputBlur"
-        adjust-position="{{false}}"
-        maxlength="27"
-      />
+      <view class="cdk-input-wrap theme-{{theme}} {{cdkInputFocused ? 'cdk-input-focused' : ''}}">
+        <input
+          class="cdk-input theme-{{theme}}"
+          placeholder="请输入卡密码，如 PLUS-A1B2-C3D4-E5F6-G7H8"
+          placeholder-class="cdk-placeholder theme-{{theme}}"
+          value="{{cdkInput}}"
+          bindinput="onCdkInput"
+          bindfocus="onCdkInputFocus"
+          bindblur="onCdkInputBlur"
+          adjust-position="{{false}}"
+          maxlength="27"
+        />
+      </view>
       <view class="cdk-modal-actions">
         <button class="btn-secondary theme-{{theme}} cdk-cancel-btn" bindtap="onCloseCdkModal">取消</button>
         <button class="btn-primary theme-{{theme}} cdk-confirm-btn" loading="{{cdkRedeeming}}" disabled="{{cdkRedeeming || !cdkInput}}" bindtap="onRedeemCdk">确认兑换</button>
