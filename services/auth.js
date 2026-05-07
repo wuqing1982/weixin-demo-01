@@ -101,6 +101,10 @@ async function initializeAuth(appInstance) {
       const refreshed = await refreshSession(appInstance);
       const me = refreshed.me || (await fetchMe(refreshed.accessToken));
       storeCurrentUser(me, appInstance);
+
+      // Background: refresh session_key via wx.login to keep it fresh for virtual payment
+      loginSilently(appInstance).catch(() => {});
+
       return me;
     } catch (error) {
       console.log('refresh session failed', error);
