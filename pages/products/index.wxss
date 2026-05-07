@@ -418,17 +418,19 @@
 .cdk-modal-title.theme-light { color: #1a1a1a !important; }
 .cdk-modal-title.theme-ocean { color: #e8f4ff !important; }
 
-/* wrapper 控制边框/圆角/背景/聚焦态，input 本体不画边框 */
+/* Visible fake field; the real native input is kept to a 1rpx keyboard sink. */
 .cdk-input-wrap {
+  position: relative;
   box-sizing: border-box;
   width: 100%;
-  min-height: 88rpx;
-  padding: 0 24rpx;
+  min-height: 104rpx;
+  padding: 14rpx 24rpx;
   border: 2rpx solid rgba(255, 255, 255, 0.25);
   border-radius: 16rpx;
   background: rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
+  overflow: hidden;
 }
 
 .cdk-input-focused {
@@ -456,33 +458,86 @@
   box-shadow: 0 0 0 4rpx rgba(102, 217, 255, 0.25);
 }
 
-/* input 内部透明无边框，只负责输入 */
-.cdk-input {
+.cdk-input-display {
+  position: relative;
+  z-index: 1;
   flex: 1;
-  height: 88rpx;
-  line-height: 88rpx;
+  min-width: 0;
+  min-height: 72rpx;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.cdk-input-value,
+.cdk-input-placeholder {
+  display: block;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
   font-size: 30rpx;
+  line-height: 72rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cdk-input-value {
   color: #ffffff;
+  font-weight: 600;
+  letter-spacing: 1rpx;
+}
+
+.cdk-input-value.theme-light {
+  color: #1a1a1a;
+}
+
+.cdk-input-value.theme-ocean {
+  color: #e3f2fd;
+}
+
+.cdk-input-placeholder {
+  color: rgba(255, 255, 255, 0.35) !important;
+}
+
+.cdk-input-placeholder.theme-light { color: #bbbbbb !important; }
+.cdk-input-placeholder.theme-ocean { color: rgba(180, 220, 255, 0.40) !important; }
+
+.cdk-input-caret {
+  width: 3rpx;
+  height: 36rpx;
+  margin-left: 6rpx;
+  border-radius: 2rpx;
+  background: #667eea;
+  flex-shrink: 0;
+  animation: cdk-caret-blink 1s steps(2, start) infinite;
+}
+
+.cdk-input-caret.theme-light { background: #667eea; }
+.cdk-input-caret.theme-ocean { background: #66d9ff; }
+
+@keyframes cdk-caret-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cdk-native-input {
+  position: absolute;
+  left: 20rpx;
+  top: 20rpx;
+  z-index: 0;
+  width: 1rpx;
+  min-width: 1rpx;
+  height: 1rpx;
+  min-height: 1rpx;
+  line-height: 1rpx;
+  opacity: 0;
+  color: transparent;
   background: transparent;
   border: none;
   padding: 0;
   margin: 0;
 }
-
-.cdk-input.theme-light {
-  color: #1a1a1a;
-}
-
-.cdk-input.theme-ocean {
-  color: #e3f2fd;
-}
-
-.cdk-placeholder {
-  color: rgba(255, 255, 255, 0.35) !important;
-}
-
-.cdk-placeholder.theme-light { color: #bbbbbb !important; }
-.cdk-placeholder.theme-ocean { color: rgba(180, 220, 255, 0.40) !important; }
 
 .cdk-modal-actions {
   display: flex;

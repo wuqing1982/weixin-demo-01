@@ -199,15 +199,19 @@ Page({
       wx.navigateTo({ url: '/pages/login/index' });
       return;
     }
-    this.setData({ showCdkModal: true, cdkInput: '', cdkRedeeming: false });
+    this.setData({ showCdkModal: true, cdkInput: '', cdkRedeeming: false, cdkInputFocused: false });
   },
 
   onCloseCdkModal() {
-    this.setData({ showCdkModal: false, cdkInput: '', cdkRedeeming: false });
+    this.setData({ showCdkModal: false, cdkInput: '', cdkRedeeming: false, cdkInputFocused: false });
   },
 
   onCdkInput(e) {
     this.setData({ cdkInput: e.detail.value.toUpperCase() });
+  },
+
+  onFocusCdkInput() {
+    this.setData({ cdkInputFocused: true });
   },
 
   onCdkInputFocus() {
@@ -226,7 +230,7 @@ Page({
     try {
       await redeemCdk(code);
       wx.showToast({ title: '兑换成功', icon: 'success' });
-      this.setData({ showCdkModal: false, cdkInput: '' });
+      this.setData({ showCdkModal: false, cdkInput: '', cdkInputFocused: false });
       this.loadPage();
     } catch (error) {
       wx.showToast({ title: error.message || '兑换失败', icon: 'none' });
