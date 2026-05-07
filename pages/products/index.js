@@ -98,8 +98,7 @@ Page({
     payingSkuId: '',
     showCdkModal: false,
     cdkInput: '',
-    cdkRedeeming: false,
-    cdkInputFocused: false
+    cdkRedeeming: false
   },
 
   onShow() {
@@ -199,27 +198,15 @@ Page({
       wx.navigateTo({ url: '/pages/login/index' });
       return;
     }
-    this.setData({ showCdkModal: true, cdkInput: '', cdkRedeeming: false, cdkInputFocused: false });
+    this.setData({ showCdkModal: true, cdkInput: '', cdkRedeeming: false });
   },
 
   onCloseCdkModal() {
-    this.setData({ showCdkModal: false, cdkInput: '', cdkRedeeming: false, cdkInputFocused: false });
+    this.setData({ showCdkModal: false, cdkInput: '', cdkRedeeming: false });
   },
 
   onCdkInput(e) {
     this.setData({ cdkInput: e.detail.value.toUpperCase() });
-  },
-
-  onCdkInputFocus() {
-    this.setData({ cdkInputFocused: true });
-  },
-
-  onCdkInputTap() {
-    this.setData({ cdkInputFocused: true });
-  },
-
-  onCdkInputBlur() {
-    this.setData({ cdkInputFocused: false });
   },
 
   async onRedeemCdk() {

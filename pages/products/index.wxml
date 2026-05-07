@@ -83,21 +83,15 @@
   <view class="cdk-modal-mask" wx:if="{{showCdkModal}}" bindtap="onCloseCdkModal">
     <view class="cdk-modal theme-{{theme}}" catchtap="">
       <text class="cdk-modal-title theme-{{theme}}">卡密兑换</text>
-      <!-- Visual input field (pure view, not affected by native overlay) -->
-      <view class="cdk-input-wrap theme-{{theme}} {{cdkInputFocused ? 'cdk-input-focused' : ''}}" bindtap="onCdkInputTap">
-        <text wx:if="{{!cdkInput}}" class="cdk-placeholder theme-{{theme}}">请输入卡密码，如 PLUS-A1B2-C3D4-E5F6-G7H8</text>
-        <text wx:else class="cdk-input-text theme-{{theme}}">{{cdkInput}}</text>
-      </view>
-      <!-- Hidden real input for keyboard capture -->
       <input
-        class="cdk-hidden-input"
+        class="cdk-input theme-{{theme}}"
+        placeholder="请输入卡密码，如 PLUS-A1B2-C3D4-E5F6-G7H8"
+        placeholder-class="cdk-placeholder theme-{{theme}}"
         value="{{cdkInput}}"
         bindinput="onCdkInput"
-        bindfocus="onCdkInputFocus"
-        bindblur="onCdkInputBlur"
-        adjust-position="{{false}}"
         maxlength="27"
-        focus="{{cdkInputFocused}}"
+        always-embed
+        adjust-position="{{false}}"
       />
       <view class="cdk-modal-actions">
         <button class="btn-secondary theme-{{theme}} cdk-cancel-btn" bindtap="onCloseCdkModal">取消</button>
