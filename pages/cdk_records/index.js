@@ -30,9 +30,14 @@ Page({
         getMyRedemptions(),
         getMe()
       ]);
+      const records = (data.list || []).map(r => ({
+        ...r,
+        redeemedAt: (r.redeemedAt || '').slice(0, 10)
+      }));
+
       this.setData({
         loading: false,
-        records: data.list || [],
+        records,
         me
       });
     } catch (error) {
