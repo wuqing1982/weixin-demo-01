@@ -13,7 +13,7 @@ from .json_repair import repair_truncated_json
 
 
 def generate_verbs_fallback(hotspots, scene_name="scene", api_key=None, model="glm-4.6v-flash"):
-    """当主模型未生成动词时，使用纯文本兜底生成 3 个动词。"""
+    """当主模型未生成非名词词时，使用纯文本兜底生成 2 个非名词单词。"""
     try:
         from zhipuai import ZhipuAI
     except ImportError:
@@ -34,27 +34,29 @@ def generate_verbs_fallback(hotspots, scene_name="scene", api_key=None, model="g
     )
     scene_display = scene_name.replace("_", " ").title()
 
-    prompt = f"""你是一个儿童英语教育专家。请为以下 "{scene_display}" 场景生成 3 个常用动词。
+    prompt = f"""你是一个儿童英语教育专家。请为以下 "{scene_display}" 场景生成 2 个非名词单词。
 
 **已识别的场景物体：**
 {items_context}
 
-**动词生成要求：**
-1. 恰好生成 3 个与场景活动相关的常用动词
-2. 每个动词必须关联到上面某个物体，related_item 必须是物体 id 之一
-3. sentence 必须同时包含动词本身和关联物体对应的英文名词
-4. 词汇要简单，适合儿童学习
+**非名词单词生成要求：**
+1. 恰好生成 2 个与场景活动相关的非名词单词
+2. 至少 1 个动词，另 1 个可以是动词、形容词或副词
+3. 每个词必须关联到上面某个物体，related_item 必须是物体 id 之一
+4. sentence 必须同时包含该词本身和关联物体对应的英文名词
+5. 词汇要简单，适合儿童学习
 
 **输出 JSON：**
 {{
   "verbs": [
     {{
-      "id": "verb_id",
-      "word": "verb_word",
+      "id": "word_id",
+      "word": "english_word",
+      "pos": "verb/adjective/adverb",
       "ipa": "/ipa/",
       "meaning": "中文释义",
       "related_item": "关联物体id",
-      "sentence": "包含动词和关联物体的例句",
+      "sentence": "包含该词和关联物体的例句",
       "sentence_translation": "例句中文翻译"
     }}
   ]
@@ -184,7 +186,7 @@ def analyze_scene_with_glm4v(image_path, scene_name, api_key=None, model="glm-4v
         scene_name: 场景名称
         api_key: API Key
         model: 模型选择 (glm-4v-flash 或 glm-4.5v)
-        include_verbs: 是否额外生成 3 个动词（True: 5 个名词 + 3 个动词，False: 仅 5 个名词）
+        include_verbs: 是否额外生成非名词单词（True: 5 个名词 + 2 个非名词，False: 仅 5 个名词）
 
     返回格式（单场景）：
     {
@@ -259,33 +261,38 @@ def analyze_scene_with_glm4v(image_path, scene_name, api_key=None, model="glm-4v
     if include_verbs:
         noun_count_instruction = """**⚠️ 数量限制（重要）：**
 - 只识别 5 个名词物体（hotspots）
-- 再生成 3 个与场景相关的常用动词（verbs）
+- 再生成 2 个非名词单词（verbs）——可以是动词、形容词或副词，但至少包含 1 个动词
 - 名词优先选择最明显、最容易识别、最适合儿童学习的物体"""
         verb_json_template = """,
   "verbs": [
     {
       "id": "verb_id",
-      "word": "verb_word",
+      "word": "english_word",
+      "pos": "词性（verb/adjective/adverb）",
       "ipa": "/ipa_pronunciation/",
       "meaning": "中文释义",
       "related_item": "关联的名词 hotspot id",
-      "sentence": "包含动词和关联物体的例句",
+      "sentence": "包含该词和关联物体的例句",
       "sentence_translation": "例句中文翻译"
     }
   ]"""
         verb_workflow = """
-8. 生成 3 个常用动词（verbs）：
-   - 动词必须和场景活动相关
-   - 每个动词必须关联一个已识别名词（related_item）
-   - sentence 必须同时包含动词本身和关联物体
+8. 生成 2 个非名词单词（verbs）：
+   - 至少 1 个动词，另 1 个可以是动词、形容词或副词
+   - 每个词必须和场景活动相关
+   - 每个词必须关联一个已识别名词（related_item）
+   - sentence 必须同时包含该词本身和关联物体
    - verbs 不需要 rect 坐标"""
         verb_rules = """
-**动词生成规则：**
-- 数量必须恰好为 3 个
+**非名词单词生成规则：**
+- 数量必须恰好为 2 个
+- 至少包含 1 个动词
+- 另 1 个可以是动词、形容词或副词
+- pos 字段标注词性：verb、adjective 或 adverb
 - related_item 必须是 hotspots 中某个 id
-- sentence 必须包含动词本身
+- sentence 必须包含该词本身
 - sentence 必须明确包含 related_item 对应热点的英文名词
-- 选择高频、儿童友好的动词，如 play, sit, eat, hold, drink, read"""
+- 选择高频、儿童友好的词，如 play, sit, eat, hold, drink, read, happy, fast, loud, soft"""
     else:
         noun_count_instruction = """**⚠️ 数量限制（重要）：**
 - 只识别 5 个名词物体（hotspots）

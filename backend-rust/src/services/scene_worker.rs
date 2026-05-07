@@ -222,8 +222,9 @@ fn build_analysis_prompt(scene_name: &str, include_verbs: bool) -> String {
         (
             r#","verbs": [
     {{
-      "id": "unique_verb",
-      "word": "english_verb",
+      "id": "word_id",
+      "word": "english_word",
+      "pos": "verb/adjective/adverb",
       "ipa": "/ipa/",
       "meaning": "中文",
       "related_item": "bench",
@@ -231,8 +232,8 @@ fn build_analysis_prompt(scene_name: &str, include_verbs: bool) -> String {
       "sentence_translation": "中文翻译"
     }}
   ]"#.to_string(),
-            "\n6. 生成 3 个常用动词".to_string(),
-            "\n- 动词与识别的物体相关\n- 动词用原形（sit, play, eat）".to_string(),
+            "\n6. 生成 2 个非名词单词：至少 1 个动词，另 1 个可以是动词、形容词或副词".to_string(),
+            "\n- 至少 1 个动词\n- pos 字段标注词性：verb、adjective 或 adverb\n- 每个词关联已识别物体\n- 词用原形（sit, play, happy, fast）".to_string(),
         )
     } else {
         ("".to_string(), "".to_string(), "".to_string())
