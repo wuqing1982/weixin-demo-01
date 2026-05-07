@@ -263,12 +263,12 @@ pub async fn redeem_cdk(
 
     let Some(cdk) = cdk else {
         tx.rollback().await?;
-        return Err(AppError::BadRequest("CDK 不存在".into()));
+        return Err(AppError::BadRequest("卡密码无效，请检查后重新输入".into()));
     };
 
     if cdk.status != "unused" {
         tx.rollback().await?;
-        return Err(AppError::BadRequest("CDK 已被使用".into()));
+        return Err(AppError::BadRequest("该卡密已被兑换，不可重复使用".into()));
     }
 
     let now = chrono::Utc::now();
