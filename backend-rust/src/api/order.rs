@@ -7,7 +7,7 @@ use crate::error::AppError;
 use crate::middleware::auth::AuthUser;
 use crate::models::order::*;
 use crate::response;
-use crate::services::virtual_pay;
+use crate::services::{virtual_pay, wechat_auth, wechat_session};
 use crate::state::AppState;
 
 pub async fn create_order(
@@ -104,6 +104,7 @@ pub async fn pay_order(
     State(state): State<AppState>,
     auth: AuthUser,
     Path(order_id): Path<String>,
+    Json(body): Json<PayOrderRequest>,
 ) -> Result<Json<Value>, AppError> {
     let order_detail = db::orders::get_order(&state.pool, &order_id, &auth.user_id)
         .await?
@@ -169,21 +170,40 @@ pub async fn pay_order(
             })))
         }
         "virtual_pay" => {
-            // Need session_key for virtual pay
-            let identity = db::users::find_user_identities(&state.pool, &auth.user_id).await?;
-            let session_key_encrypted = identity
-                .iter()
-                .find(|i| i.provider == "wechat")
-                .and_then(|i| i.session_key_encrypted.as_ref());
+            // Resolve session_key: prefer fresh wx_code, fall back to stored
+            let identities = db::users::find_user_identities(&state.pool, &auth.user_id).await?;
+            let wechat_identity = identities.iter().find(|i| i.provider == "wechat");
 
-            let session_key = match session_key_encrypted {
-                Some(encrypted) if !encrypted.is_empty() => {
+            let session_key = if let Some(code) = &body.wx_code {
+                // Fresh login: call code2session to get a valid session_key
+                let result = wechat_auth::code2session(
+                    &state.config.wechat_mp_app_id,
+                    &state.config.wechat_mp_app_secret,
+                    code,
+                ).await.map_err(|e| AppError::Internal(format!("code2session failed: {e}")))?;
+
+                // Update stored session_key
+                if let Some(identity) = wechat_identity {
                     let secret = state.config.wechat_session_key_secret.as_deref()
                         .unwrap_or(&state.config.auth_jwt_secret);
-                    crate::services::wechat_session::decrypt_session_key(secret, encrypted)
-                        .map_err(|e| AppError::Internal(e))?
+                    let encrypted = wechat_session::encrypt_session_key(secret, &result.session_key);
+                    db::users::update_identity_session_key(&state.pool, &identity.id, &encrypted).await?;
                 }
-                _ => return Err(AppError::BadRequest("缺少 session_key，请重新登录".into())),
+                result.session_key
+            } else {
+                // Fallback: use stored session_key
+                let session_key_encrypted = wechat_identity
+                    .and_then(|i| i.session_key_encrypted.as_ref());
+
+                match session_key_encrypted {
+                    Some(encrypted) if !encrypted.is_empty() => {
+                        let secret = state.config.wechat_session_key_secret.as_deref()
+                            .unwrap_or(&state.config.auth_jwt_secret);
+                        wechat_session::decrypt_session_key(secret, encrypted)
+                            .map_err(|e| AppError::Internal(e))?
+                    }
+                    _ => return Err(AppError::BadRequest("缺少 session_key，请重新登录".into())),
+                }
             };
 
             // Map sku_id to virtual product ID

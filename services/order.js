@@ -20,10 +20,11 @@ function getOrder(orderId) {
   });
 }
 
-function createOrderPayment(orderId) {
+function createOrderPayment(orderId, wxCode) {
   return request({
     url: `/orders/${orderId}/pay`,
-    method: 'POST'
+    method: 'POST',
+    data: wxCode ? { wxCode } : {}
   });
 }
 

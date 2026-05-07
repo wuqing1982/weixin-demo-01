@@ -1,4 +1,4 @@
-const { fetchMe } = require('./auth');
+const { fetchMe, loginWithWechatCode } = require('./auth');
 const { completeMockOrderPayment, createOrderPayment, syncOrderPayment } = require('./order');
 const { getAccessToken, storeCurrentUser } = require('./session');
 
@@ -57,7 +57,16 @@ async function refreshCurrentUser(appInstance) {
 }
 
 async function payOrder(orderId, appInstance) {
-  const payment = await createOrderPayment(orderId);
+  // Get a fresh wx code to ensure session_key is up-to-date for virtual payment
+  let wxCode = null;
+  try {
+    wxCode = await loginWithWechatCode();
+    console.log('[pay] got fresh wx code for session_key refresh');
+  } catch (e) {
+    console.warn('[pay] wx.login for session refresh failed, proceeding without:', e);
+  }
+
+  const payment = await createOrderPayment(orderId, wxCode);
 
   if (payment.alreadyPaid) {
     await refreshCurrentUser(appInstance);

@@ -76,3 +76,9 @@ pub struct CreateOrderRequest {
 pub struct MockPayRequest {
     pub payment_id: Option<String>,
 }
+
+#[derive(Debug, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct PayOrderRequest {
+    pub wx_code: Option<String>,
+}
