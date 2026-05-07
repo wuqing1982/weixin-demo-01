@@ -38,6 +38,14 @@ async fn main() {
         });
     }
 
+    // Spawn periodic upload cleanup (deletes uploads older than upload_max_age_seconds)
+    {
+        let cleanup_state = state.clone();
+        tokio::spawn(async move {
+            services::upload_cleanup::run_upload_cleanup_loop(cleanup_state).await;
+        });
+    }
+
     let cors = CorsLayer::permissive();
     let assets_dir = state.config.assets_dir.clone();
     let app = api::routes()

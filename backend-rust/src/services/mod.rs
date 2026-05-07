@@ -1,5 +1,6 @@
 pub mod jwt;
 pub mod scene_worker;
+pub mod upload_cleanup;
 pub mod video_cleanup;
 pub mod video_export;
 pub mod virtual_pay;
