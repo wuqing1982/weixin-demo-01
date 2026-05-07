@@ -418,46 +418,63 @@
 .cdk-modal-title.theme-light { color: #1a1a1a !important; }
 .cdk-modal-title.theme-ocean { color: #e8f4ff !important; }
 
-/* wrapper: 用 box-shadow 模拟边框，view 非原生组件不会被覆盖 */
+/* wrapper 控制边框/圆角/背景/聚焦态，input 本体不画边框 */
 .cdk-input-wrap {
-  width: 100%;
-  height: 88rpx;
-  border-radius: 16rpx;
   box-sizing: border-box;
-  background: rgba(255, 255, 255, 0.06) !important;
-  border: none !important;
-  box-shadow: 0 0 0 2rpx rgba(255, 255, 255, 0.25) !important;
+  width: 100%;
+  min-height: 88rpx;
+  padding: 0 24rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.25);
+  border-radius: 16rpx;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+}
+
+.cdk-input-focused {
+  border-color: #667eea;
+  box-shadow: 0 0 0 4rpx rgba(102, 126, 234, 0.25);
 }
 
 .cdk-input-wrap.theme-light {
-  background: #f5f5f5 !important;
-  box-shadow: 0 0 0 2rpx #c0c0c0 !important;
+  border-color: #d9d9d9;
+  background: #f5f5f5;
+}
+
+.cdk-input-focused.theme-light {
+  border-color: #667eea;
+  box-shadow: 0 0 0 4rpx rgba(102, 126, 234, 0.15);
 }
 
 .cdk-input-wrap.theme-ocean {
-  background: rgba(20, 60, 120, 0.25) !important;
-  box-shadow: 0 0 0 2rpx rgba(80, 160, 255, 0.30) !important;
+  border-color: rgba(80, 160, 255, 0.30);
+  background: rgba(20, 60, 120, 0.25);
 }
 
-/* input 本身透明无边框，视觉由 wrapper 承担 */
+.cdk-input-focused.theme-ocean {
+  border-color: #66d9ff;
+  box-shadow: 0 0 0 4rpx rgba(102, 217, 255, 0.25);
+}
+
+/* input 内部透明无边框，只负责输入 */
 .cdk-input {
-  width: 100%;
-  height: 100%;
-  padding: 0 24rpx;
-  font-size: 30rpx;
+  flex: 1;
+  height: 88rpx;
   line-height: 88rpx;
-  box-sizing: border-box;
-  background: transparent !important;
-  border: none !important;
-  color: #ffffff !important;
+  font-size: 30rpx;
+  color: #ffffff;
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
 }
 
 .cdk-input.theme-light {
-  color: #1a1a1a !important;
+  color: #1a1a1a;
 }
 
 .cdk-input.theme-ocean {
-  color: #e3f2fd !important;
+  color: #e3f2fd;
 }
 
 .cdk-placeholder {

@@ -98,7 +98,8 @@ Page({
     payingSkuId: '',
     showCdkModal: false,
     cdkInput: '',
-    cdkRedeeming: false
+    cdkRedeeming: false,
+    cdkInputFocused: false
   },
 
   onShow() {
@@ -207,6 +208,14 @@ Page({
 
   onCdkInput(e) {
     this.setData({ cdkInput: e.detail.value.toUpperCase() });
+  },
+
+  onCdkInputFocus() {
+    this.setData({ cdkInputFocused: true });
+  },
+
+  onCdkInputBlur() {
+    this.setData({ cdkInputFocused: false });
   },
 
   async onRedeemCdk() {
