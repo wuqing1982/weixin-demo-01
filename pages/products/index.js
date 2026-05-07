@@ -214,6 +214,10 @@ Page({
     this.setData({ cdkInputFocused: true });
   },
 
+  onCdkInputTap() {
+    this.setData({ cdkInputFocused: true });
+  },
+
   onCdkInputBlur() {
     this.setData({ cdkInputFocused: false });
   },
