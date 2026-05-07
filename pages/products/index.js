@@ -149,6 +149,11 @@ Page({
         });
       }
 
+      // 格式化到期时间为 YYYY-MM-DD
+      if (me && me.memberSummary && me.memberSummary.expiresAt) {
+        me.memberSummary.expiresAt = me.memberSummary.expiresAt.slice(0, 10);
+      }
+
       this.setData({
         loading: false,
         tierCards,
