@@ -174,13 +174,25 @@ pub async fn pay_order(
             let identities = db::users::find_user_identities(&state.pool, &auth.user_id).await?;
             let wechat_identity = identities.iter().find(|i| i.provider == "wechat");
 
+            tracing::info!(
+                "virtual_pay: wx_code received = {:?}, has_identity = {}",
+                body.wx_code.as_ref().map(|c| c.len()),
+                wechat_identity.is_some()
+            );
+
             let session_key = if let Some(code) = &body.wx_code {
                 // Fresh login: call code2session to get a valid session_key
+                tracing::info!("virtual_pay: calling code2session with code len={}", code.len());
                 let result = wechat_auth::code2session(
                     &state.config.wechat_mp_app_id,
                     &state.config.wechat_mp_app_secret,
                     code,
-                ).await.map_err(|e| AppError::Internal(format!("code2session failed: {e}")))?;
+                ).await.map_err(|e| {
+                    tracing::error!("virtual_pay: code2session failed: {e}");
+                    AppError::Internal(format!("code2session failed: {e}"))
+                })?;
+
+                tracing::info!("virtual_pay: code2session success, new session_key len={}", result.session_key.len());
 
                 // Update stored session_key
                 if let Some(identity) = wechat_identity {
@@ -188,10 +200,12 @@ pub async fn pay_order(
                         .unwrap_or(&state.config.auth_jwt_secret);
                     let encrypted = wechat_session::encrypt_session_key(secret, &result.session_key);
                     db::users::update_identity_session_key(&state.pool, &identity.id, &encrypted).await?;
+                    tracing::info!("virtual_pay: session_key updated in DB for identity {}", identity.id);
                 }
                 result.session_key
             } else {
                 // Fallback: use stored session_key
+                tracing::warn!("virtual_pay: no wx_code provided, using stored session_key (may be stale)");
                 let session_key_encrypted = wechat_identity
                     .and_then(|i| i.session_key_encrypted.as_ref());
 
@@ -224,10 +238,13 @@ pub async fn pay_order(
                 &order_detail.order.order_no,
             );
 
+            let sk_source = if body.wx_code.is_some() { "fresh_code2session" } else { "stored_decrypted" };
             let payload = json!({
                 "virtualPay": true,
                 "paymentNo": payment_no,
                 "params": params,
+                "debug_sk_source": sk_source,
+                "debug_sk_len": session_key.len(),
             });
             db::orders::update_payment_payload(&state.pool, &payment_id, &payload).await?;
 
