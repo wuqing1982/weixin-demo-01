@@ -88,7 +88,7 @@ fn serialize_scene_summary(state: &AppState, scene: &crate::models::scene::Scene
     })
 }
 
-fn serialize_scene_detail(state: &AppState, scene: &crate::models::scene::Scene, can_edit: bool) -> Value {
+pub(crate) fn serialize_scene_detail(state: &AppState, scene: &crate::models::scene::Scene, can_edit: bool) -> Value {
     let hotspots: Vec<crate::models::scene::HotspotItem> = serde_json::from_value(scene.items.clone()).unwrap_or_default();
     let verbs: Vec<crate::models::scene::VerbItem> = serde_json::from_value(scene.verbs.clone()).unwrap_or_default();
 
@@ -108,7 +108,7 @@ fn serialize_scene_detail(state: &AppState, scene: &crate::models::scene::Scene,
     })
 }
 
-fn can_edit_hotspots(
+pub(crate) fn can_edit_hotspots(
     state: &AppState,
     scene: &crate::models::scene::Scene,
     auth: Option<&crate::middleware::auth::AuthUser>,

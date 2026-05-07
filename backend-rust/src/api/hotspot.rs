@@ -101,9 +101,13 @@ pub async fn update_hotspots(
 
     db::scenes::save_hotspots(&state.pool, &scene_id, &items).await?;
 
-    Ok(success(json!({
-        "updatedCount": found_ids.len(),
-    })))
+    // Return full scene detail so frontend can re-render (matches Python backend behavior)
+    let updated_scene = db::scenes::get_scene(&state.pool, &scene_id)
+        .await?
+        .ok_or_else(|| AppError::Internal("scene disappeared after save".into()))?;
+
+    let can_edit = crate::api::scene::can_edit_hotspots(&state, &updated_scene, Some(&auth));
+    Ok(success(crate::api::scene::serialize_scene_detail(&state, &updated_scene, can_edit)))
 }
 
 fn clamp(v: f64) -> f64 {
