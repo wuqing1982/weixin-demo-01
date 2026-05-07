@@ -28,13 +28,20 @@ function requestVirtualPaymentAsync(params) {
       reject({ errMsg: '当前微信版本不支持虚拟支付，请升级微信', errCode: -1 });
       return;
     }
+    console.log('[virtual-pay] requestVirtualPayment params:', JSON.stringify(params));
     wx.requestVirtualPayment({
       signData: params.signData,
       mode: params.mode,
       paySig: params.paySig,
       signature: params.signature,
-      success: resolve,
-      fail: reject
+      success(res) {
+        console.log('[virtual-pay] requestVirtualPayment success:', JSON.stringify(res));
+        resolve(res);
+      },
+      fail(err) {
+        console.error('[virtual-pay] requestVirtualPayment fail:', JSON.stringify(err));
+        reject(err);
+      }
     });
   });
 }
@@ -82,7 +89,12 @@ async function payOrder(orderId, appInstance) {
 
   if (payment.paymentMode === 'virtual_pay') {
     const rp = payment.requestPayment || {};
-    await requestVirtualPaymentAsync(rp);
+    try {
+      await requestVirtualPaymentAsync(rp);
+    } catch (vpError) {
+      console.error('[virtual-pay] wx.requestVirtualPayment failed:', vpError);
+      throw vpError;
+    }
     const synced = await syncOrderPayment(orderId);
     if (synced && synced.me) {
       storeCurrentUser(synced.me, appInstance);

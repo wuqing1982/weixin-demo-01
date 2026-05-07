@@ -181,8 +181,12 @@ Page({
       wx.showToast({ title: '支付成功', icon: 'success' });
       this.loadPage();
     } catch (error) {
-      if (error && error.code !== 'PAY_CANCELLED') {
-        wx.showToast({ title: error.message || '支付失败', icon: 'none' });
+      if (error && error.code === 'PAY_CANCELLED') {
+        // user cancelled
+      } else {
+        const msg = error && (error.errMsg || error.message || '支付失败');
+        console.error('[pay] payment failed:', JSON.stringify(error));
+        wx.showToast({ title: msg, icon: 'none', duration: 3000 });
       }
     } finally {
       this.setData({ payingSkuId: '' });
