@@ -1,3 +1,4 @@
+pub mod admin;
 pub mod auth;
 pub mod cdk;
 pub mod health;
@@ -67,4 +68,6 @@ pub fn routes() -> Router<AppState> {
         // CDK
         .route("/api/cdk/redeem", post(cdk::redeem_cdk))
         .route("/api/cdk/my-redemptions", get(cdk::my_redemptions))
+        // Admin
+        .merge(admin::routes())
 }

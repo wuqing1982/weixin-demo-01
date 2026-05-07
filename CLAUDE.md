@@ -14,6 +14,8 @@ WeChat Mini Program (微信小程序) + dual backend (Python FastAPI + Rust Axum
 
 Standard WeChat Mini Program structure. Pages in `pages/`, services in `services/`, shared logic in `shared/`, components in `components/`.
 
+**AppID:** `wx8e3f9b18fc8f3241`. SASS compiler plugin enabled. Component lazy loading (`lazyCodeLoading: "requiredComponents"`).
+
 **Pages** (registered in `app.json`):
 - `login` — WeChat auth login
 - `home` — Scene browsing home
@@ -31,6 +33,14 @@ Standard WeChat Mini Program structure. Pages in `pages/`, services in `services
 - `session.js` — Access/refresh token storage in `wx.getStorageSync`
 - `config.js` — Reads `apiBaseUrl`/`staticBaseUrl` from app globalData, falls back to `config/runtime.js`
 - `scene.js`, `product.js`, `order.js`, `payment.js`, `upload.js`, `task.js`, `user.js`, `cdk.js` — Domain API wrappers
+
+**Shared modules** (`shared/`):
+- `scene/scene-page.js` — Factory function creating scene page logic (complex interaction handling: panorama touch, hotspot tap, audio playback, navigation)
+- `scene/hotspot-editor.js` — Geometry calculations for hotspot positioning (clamp, normalize, move/resize deltas)
+- `scene/scene-registry.js` — Scene navigation and neighbor lookup
+- `theme-helper.js` — Theme management for navigation bar
+
+**Reusable components** (`components/`): `empty-state`, `loading`.
 
 **Environment switching:** Edit `CURRENT_ENV` in `config/runtime.js`. Profiles: `local` (localhost:8000), `staging` (stag.cps.vin), `production` (e.cps.vin).
 
@@ -72,6 +82,12 @@ Located in `backend/`. Entry point: `app.main:app` (a single large FastAPI appli
 **Admin routes** (`backend/app/routes/`):
 - `storage_admin.py` — Admin API for storage configuration
 
+**Operational scripts** (`backend/scripts/`):
+- `run_scene_worker.py` — Standalone scene worker with daemon mode and parallel workers (`--workers N`)
+- `republish_unpublished_scenes.py` — Finds and publishes scenes with `autoPublish=True` but no `publishedSceneId`
+- `seed_demo_catalog.py` — Seeds 3 membership tiers (Pro/Plus/Max) with SKU benefits
+- `migrate_auth_to_postgres.py` / `migrate_scenes_to_postgres.py` — JSON → PostgreSQL migration
+
 **Storage backend selection** (controlled by env vars):
 - `AUTH_STORE_BACKEND`: `json` (default) or `postgres`
 - `COMMERCE_STORE_BACKEND`: `disabled` (default) or `postgres`
@@ -80,7 +96,7 @@ Located in `backend/`. Entry point: `app.main:app` (a single large FastAPI appli
 
 **Data files** (`backend/data/`): JSON files for scenes, tasks, uploads, auth when using JSON storage.
 
-### Backend — Rust Axum (new)
+### Backend — Rust Axum (new, production backend)
 
 Located in `backend-rust/`. Entry point: `src/main.rs`. Axum + SQLx + Tokio. Connects to the same PostgreSQL database.
 
@@ -94,6 +110,8 @@ Located in `backend-rust/`. Entry point: `src/main.rs`. Axum + SQLx + Tokio. Con
 - `db/` — Database access: users, scenes, products, orders, tasks, uploads, videos, credits
 - `models/` — Data structures: user, scene, product, order, task, upload, video, commerce
 - `middleware/` — Auth middleware
+
+**Important:** The env file in the repo is named `env` (no dot prefix). Rust's `dotenvy` reads `.env`. First deployment requires `cp env .env`.
 
 ## Development Commands
 
@@ -112,6 +130,9 @@ cd backend && python3 -m pytest tests/test_auth_api.py -v
 
 # Run a single test function
 cd backend && python3 -m pytest tests/test_auth_api.py::test_login -v
+
+# Run standalone scene worker (daemon mode, 2 parallel workers)
+cd backend && python3 scripts/run_scene_worker.py --daemon --workers 2
 ```
 
 ### Rust Backend
@@ -127,11 +148,11 @@ cd backend-rust && cargo build --release
 ```
 
 ### Frontend (Mini Program)
-No build step. Open the project root directory in WeChat DevTools (微信开发者工具). ES6 transpilation provided by DevTools.
+No build step. Open the project root directory in WeChat DevTools (微信开发者工具). ES6 transpilation and SASS provided by DevTools.
 
 ```bash
 # Run miniapp-side tests (Node.js based)
-node tests/<test-file>.test.js
+node tests/hotspot-editor-geometry.test.js
 ```
 
 ### Database Migrations
@@ -152,6 +173,33 @@ cd backend && python3 scripts/migrate_auth_to_postgres.py
 cd backend && python3 scripts/migrate_scenes_to_postgres.py
 ```
 
+## Deployment (Staging Server)
+
+**Server:** Ubuntu 24.04, 宝塔面板, Nginx, PostgreSQL 18.0
+
+**Request flow:** WeChat Mini Program → Nginx (443/SSL) → Rust backend (127.0.0.1:8001) → PostgreSQL (localhost:5432, database `weixin_saas_rust`)
+
+**Nginx config:** `/www/server/panel/vhost/nginx/stag.cps.vin.conf` — `/api/` and `/assets/` proxied to Rust backend. **Do not modify via 宝塔 panel** — config is hand-written.
+
+```bash
+# Deploy Rust binary (from local machine)
+cd backend-rust && cargo build --release
+scp target/release/backend-rust root@118.24.42.187:/www/wwwroot/stag.cps.vin/weixin-demo-01/backend-rust/target/release/
+
+# Remote: restart Rust backend
+kill $(pgrep -f 'target/release/backend-rust')
+cd /www/wwwroot/stag.cps.vin/weixin-demo-01/backend-rust && nohup ./target/release/backend-rust > /tmp/rust-backend.log 2>&1 &
+
+# Remote: check logs
+tail -f /tmp/rust-backend.log
+
+# Nginx reload after config change
+/www/server/nginx/sbin/nginx -t && /www/server/nginx/sbin/nginx -s reload
+
+# Database: backup
+su - postgres -c "/www/server/pgsql/bin/pg_dump weixin_saas_rust" > backup.sql
+```
+
 ## Key Configuration
 
 Environment variables loaded from `backend/.env` (Python) or `backend-rust/.env` (Rust). Important ones:
@@ -169,6 +217,8 @@ Environment variables loaded from `backend/.env` (Python) or `backend-rust/.env`
 | `HOTSPOT_EDITOR_ENABLED` | `true` | Enable hotspot editing UI |
 | `STORAGE_BACKEND` | `local` | `local`, `cos`, or `r2` |
 | `VIDEO_RETENTION_HOURS` | `3` | Auto-delete exported videos after N hours |
+| `SERVER_PORT` | `8000` | Rust backend listen port (`8001` on staging) |
+| `PUBLIC_BASE_URL` | — | Public-facing URL for this backend instance |
 
 ## API Structure
 
@@ -187,7 +237,7 @@ All API routes under `/api`:
 
 ## Key Patterns
 
-**Dual backend:** Python backend is the original, fully-featured implementation. Rust backend is a newer port sharing the same PostgreSQL database. Both can run independently.
+**Dual backend:** Python backend is the original, fully-featured implementation. Rust backend is the newer production backend sharing the same PostgreSQL database. Both can run independently. Staging/production runs Rust.
 
 **Scene data flow:** User uploads image → task created → scene worker (AI analysis + TTS generation) → scene published with hotspots → viewed in scene_runtime with interactive hotspots.
 
@@ -196,3 +246,5 @@ All API routes under `/api`:
 **Factory pattern for storage:** Auth, commerce, scene, and file storage all use factory functions that select the backend implementation based on env vars. Adding a new storage backend means implementing the existing interface and updating the factory.
 
 **JWT auth chain:** Access token (short-lived, 2h) + refresh token (30d). Frontend `services/api.js` transparently refreshes on 401. Backend verifies via `security.py` (Python) or `services/jwt.rs` (Rust).
+
+**Audio playback:** Uses `InnerAudioContext` with playback rate control. Pre-generated TTS audio preferred; falls back to live TTS if unavailable.

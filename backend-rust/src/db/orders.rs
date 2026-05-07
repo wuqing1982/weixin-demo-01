@@ -210,3 +210,73 @@ pub async fn find_order_by_no(pool: &PgPool, order_no: &str) -> Result<Option<Or
     .await?;
     Ok(order)
 }
+
+pub async fn list_all_orders(pool: &PgPool, limit: i64) -> Result<Vec<OrderDetail>, AppError> {
+    let orders = sqlx::query_as::<_, Order>(
+        "SELECT * FROM orders ORDER BY created_at DESC LIMIT $1"
+    )
+    .bind(limit)
+    .fetch_all(pool)
+    .await?;
+
+    let mut result = Vec::with_capacity(orders.len());
+    for order in orders {
+        let items = sqlx::query_as::<_, OrderItem>(
+            "SELECT * FROM order_items WHERE order_id = $1"
+        )
+        .bind(&order.id)
+        .fetch_all(pool)
+        .await?;
+
+        let payments = sqlx::query_as::<_, Payment>(
+            "SELECT * FROM payments WHERE order_id = $1"
+        )
+        .bind(&order.id)
+        .fetch_all(pool)
+        .await?;
+
+        result.push(OrderDetail { order, items, payments });
+    }
+    Ok(result)
+}
+
+pub async fn get_order_admin(pool: &PgPool, order_id: &str) -> Result<Option<OrderDetail>, AppError> {
+    let order = sqlx::query_as::<_, Order>(
+        "SELECT * FROM orders WHERE id = $1"
+    )
+    .bind(order_id)
+    .fetch_optional(pool)
+    .await?;
+
+    let Some(order) = order else { return Ok(None) };
+
+    let items = sqlx::query_as::<_, OrderItem>(
+        "SELECT * FROM order_items WHERE order_id = $1"
+    )
+    .bind(&order.id)
+    .fetch_all(pool)
+    .await?;
+
+    let payments = sqlx::query_as::<_, Payment>(
+        "SELECT * FROM payments WHERE order_id = $1"
+    )
+    .bind(&order.id)
+    .fetch_all(pool)
+    .await?;
+
+    Ok(Some(OrderDetail { order, items, payments }))
+}
+
+pub async fn batch_delete_orders(pool: &PgPool, order_ids: &[String]) -> Result<u64, AppError> {
+    let mut tx = pool.begin().await?;
+    for oid in order_ids {
+        sqlx::query("DELETE FROM payments WHERE order_id = $1")
+            .bind(oid).execute(&mut *tx).await?;
+        sqlx::query("DELETE FROM order_items WHERE order_id = $1")
+            .bind(oid).execute(&mut *tx).await?;
+        sqlx::query("DELETE FROM orders WHERE id = $1")
+            .bind(oid).execute(&mut *tx).await?;
+    }
+    tx.commit().await?;
+    Ok(order_ids.len() as u64)
+}

@@ -80,3 +80,32 @@ pub async fn set_published_scene(
     .await?;
     Ok(())
 }
+
+pub async fn list_all_tasks(pool: &PgPool, limit: i64) -> Result<Vec<Task>, sqlx::Error> {
+    sqlx::query_as::<_, Task>(
+        "SELECT * FROM tasks ORDER BY created_at DESC LIMIT $1"
+    )
+    .bind(limit)
+    .fetch_all(pool)
+    .await
+}
+
+pub async fn batch_delete_tasks(pool: &PgPool, task_ids: &[String]) -> Result<u64, sqlx::Error> {
+    let mut tx = pool.begin().await?;
+    for tid in task_ids {
+        sqlx::query("DELETE FROM tasks WHERE id = $1")
+            .bind(tid).execute(&mut *tx).await?;
+    }
+    tx.commit().await?;
+    Ok(task_ids.len() as u64)
+}
+
+pub async fn retry_task(pool: &PgPool, task_id: &str) -> Result<(), sqlx::Error> {
+    sqlx::query(
+        "UPDATE tasks SET status = 'queued', step = 'queued', progress = 0, error_message = NULL, updated_at = now() WHERE id = $1"
+    )
+    .bind(task_id)
+    .execute(pool)
+    .await?;
+    Ok(())
+}

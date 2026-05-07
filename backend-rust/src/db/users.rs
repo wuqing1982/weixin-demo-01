@@ -142,3 +142,73 @@ pub async fn find_user_identities(pool: &PgPool, user_id: &str) -> Result<Vec<Us
         .fetch_all(pool)
         .await
 }
+
+pub async fn count_users(pool: &PgPool) -> Result<i64, sqlx::Error> {
+    let row: (i64,) = sqlx::query_as("SELECT count(*) FROM users")
+        .fetch_one(pool)
+        .await?;
+    Ok(row.0)
+}
+
+pub async fn list_users(pool: &PgPool, limit: i64) -> Result<Vec<User>, sqlx::Error> {
+    sqlx::query_as::<_, User>(
+        "SELECT * FROM users ORDER BY created_at DESC LIMIT $1"
+    )
+    .bind(limit)
+    .fetch_all(pool)
+    .await
+}
+
+pub async fn update_user_status(pool: &PgPool, user_id: &str, status: &str) -> Result<(), sqlx::Error> {
+    sqlx::query("UPDATE users SET status = $1, updated_at = now() WHERE id = $2")
+        .bind(status)
+        .bind(user_id)
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
+pub async fn update_user_role(pool: &PgPool, user_id: &str, role: &str) -> Result<(), sqlx::Error> {
+    sqlx::query("UPDATE users SET role = $1, updated_at = now() WHERE id = $2")
+        .bind(role)
+        .bind(user_id)
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
+pub async fn batch_delete_users(pool: &PgPool, user_ids: &[String]) -> Result<u64, sqlx::Error> {
+    let mut tx = pool.begin().await?;
+    for uid in user_ids {
+        sqlx::query("DELETE FROM scene_publication_collections WHERE public_scene_id IN (SELECT public_scene_id FROM scene_publications WHERE source_generated_scene_id IN (SELECT scene_id FROM scenes WHERE owner_id = $1))")
+            .bind(uid).execute(&mut *tx).await?;
+        sqlx::query("DELETE FROM scene_publications WHERE source_generated_scene_id IN (SELECT scene_id FROM scenes WHERE owner_id = $1)")
+            .bind(uid).execute(&mut *tx).await?;
+        sqlx::query("DELETE FROM scenes WHERE owner_id = $1")
+            .bind(uid).execute(&mut *tx).await?;
+        sqlx::query("DELETE FROM credit_ledger WHERE user_id = $1")
+            .bind(uid).execute(&mut *tx).await?;
+        sqlx::query("DELETE FROM user_credit_accounts WHERE user_id = $1")
+            .bind(uid).execute(&mut *tx).await?;
+        sqlx::query("DELETE FROM user_entitlements WHERE user_id = $1")
+            .bind(uid).execute(&mut *tx).await?;
+        sqlx::query("DELETE FROM payments WHERE order_id IN (SELECT id FROM orders WHERE user_id = $1)")
+            .bind(uid).execute(&mut *tx).await?;
+        sqlx::query("DELETE FROM order_items WHERE order_id IN (SELECT id FROM orders WHERE user_id = $1)")
+            .bind(uid).execute(&mut *tx).await?;
+        sqlx::query("DELETE FROM orders WHERE user_id = $1")
+            .bind(uid).execute(&mut *tx).await?;
+        sqlx::query("DELETE FROM auth_refresh_tokens WHERE user_id = $1")
+            .bind(uid).execute(&mut *tx).await?;
+        sqlx::query("DELETE FROM user_identities WHERE user_id = $1")
+            .bind(uid).execute(&mut *tx).await?;
+        sqlx::query("DELETE FROM user_mobile_bind_logs WHERE user_id = $1")
+            .bind(uid).execute(&mut *tx).await?;
+        sqlx::query("DELETE FROM tasks WHERE owner_id = $1")
+            .bind(uid).execute(&mut *tx).await?;
+        sqlx::query("DELETE FROM users WHERE id = $1")
+            .bind(uid).execute(&mut *tx).await?;
+    }
+    tx.commit().await?;
+    Ok(user_ids.len() as u64)
+}

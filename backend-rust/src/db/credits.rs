@@ -499,3 +499,87 @@ pub async fn deduct_credit(
     tx.commit().await?;
     Ok(new_balance)
 }
+
+pub async fn list_cdk_codes_admin(
+    pool: &PgPool,
+    status: &str,
+    sku_id: &str,
+    limit: i64,
+    offset: i64,
+) -> Result<Vec<CdkCode>, AppError> {
+    let rows = if status.is_empty() && sku_id.is_empty() {
+        sqlx::query_as::<_, CdkCode>(
+            "SELECT * FROM cdk_codes ORDER BY created_at DESC LIMIT $1 OFFSET $2"
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(pool)
+        .await?
+    } else if !status.is_empty() && !sku_id.is_empty() {
+        sqlx::query_as::<_, CdkCode>(
+            "SELECT * FROM cdk_codes WHERE status = $1 AND sku_id = $2 ORDER BY created_at DESC LIMIT $3 OFFSET $4"
+        )
+        .bind(status)
+        .bind(sku_id)
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(pool)
+        .await?
+    } else if !status.is_empty() {
+        sqlx::query_as::<_, CdkCode>(
+            "SELECT * FROM cdk_codes WHERE status = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3"
+        )
+        .bind(status)
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(pool)
+        .await?
+    } else {
+        sqlx::query_as::<_, CdkCode>(
+            "SELECT * FROM cdk_codes WHERE sku_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3"
+        )
+        .bind(sku_id)
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(pool)
+        .await?
+    };
+    Ok(rows)
+}
+
+pub async fn batch_delete_cdk_codes(pool: &PgPool, cdk_ids: &[String]) -> Result<u64, AppError> {
+    let mut tx = pool.begin().await?;
+    let mut count = 0u64;
+    for cid in cdk_ids {
+        let result = sqlx::query("DELETE FROM cdk_codes WHERE id = $1 AND status = 'unused'")
+            .bind(cid).execute(&mut *tx).await?;
+        count += result.rows_affected();
+    }
+    tx.commit().await?;
+    Ok(count)
+}
+
+pub async fn generate_cdk_codes(
+    pool: &PgPool,
+    sku_id: &str,
+    quantity: i32,
+    note: Option<&str>,
+) -> Result<Vec<CdkCode>, AppError> {
+    let batch_id = format!("batch_{}", uuid::Uuid::new_v4());
+    let mut results = Vec::with_capacity(quantity as usize);
+    for _ in 0..quantity {
+        let id = format!("cdk_{}", uuid::Uuid::new_v4());
+        let code = format!(
+            "{}-{}",
+            &uuid::Uuid::new_v4().to_string().replace('-', "").to_uppercase()[..8],
+            &uuid::Uuid::new_v4().to_string().replace('-', "").to_uppercase()[..8]
+        );
+        let cdk = sqlx::query_as::<_, CdkCode>(
+            "INSERT INTO cdk_codes (id, code, sku_id, status, batch_id, note) VALUES ($1, $2, $3, 'unused', $4, $5) RETURNING *"
+        )
+        .bind(&id).bind(&code).bind(sku_id).bind(&batch_id).bind(note)
+        .fetch_one(pool).await?;
+        results.push(cdk);
+    }
+    Ok(results)
+}

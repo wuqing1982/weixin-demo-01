@@ -48,9 +48,11 @@ async fn main() {
 
     let cors = CorsLayer::permissive();
     let assets_dir = state.config.assets_dir.clone();
+    let admin_web_dir = state.config.admin_web_dir.clone();
     let app = api::routes()
         .layer(cors)
         .nest_service("/assets", tower_http::services::ServeDir::new(&assets_dir))
+        .nest_service("/admin/static", tower_http::services::ServeDir::new(&admin_web_dir))
         .with_state(state);
 
     let addr = format!("0.0.0.0:{port}");

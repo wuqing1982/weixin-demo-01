@@ -92,3 +92,14 @@ pub struct SceneCollection {
     pub cover_url: String,
     pub sort_order: i32,
 }
+
+#[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
+#[serde(rename_all = "camelCase")]
+pub struct ScenePublication {
+    pub source_generated_scene_id: String,
+    pub public_scene_id: String,
+    pub category_id: Option<String>,
+    pub visibility: String,
+    pub published_by: Option<String>,
+    pub published_at: Option<chrono::DateTime<chrono::Utc>>,
+}

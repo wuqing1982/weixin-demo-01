@@ -32,6 +32,11 @@ pub struct Config {
     pub wx_virtual_pay_offer_id: String,
     pub wx_virtual_pay_app_key: String,
     pub wx_virtual_pay_env: i64,
+    // Admin dashboard
+    pub admin_dashboard_enabled: bool,
+    pub admin_dashboard_username: String,
+    pub admin_dashboard_password: String,
+    pub admin_web_dir: String,
 }
 
 fn env_or(key: &str, default: &str) -> String {
@@ -88,6 +93,10 @@ impl Config {
             wx_virtual_pay_offer_id: env_or("WX_VIRTUAL_PAY_OFFER_ID", ""),
             wx_virtual_pay_app_key: env_or("WX_VIRTUAL_PAY_APP_KEY", ""),
             wx_virtual_pay_env: env_int("WX_VIRTUAL_PAY_ENV", 1),
+            admin_dashboard_enabled: env_bool("ADMIN_DASHBOARD_ENABLED", true),
+            admin_dashboard_username: env_or("ADMIN_DASHBOARD_USERNAME", "admin"),
+            admin_dashboard_password: env_or("ADMIN_DASHBOARD_PASSWORD", "admin123456"),
+            admin_web_dir: env_or("ADMIN_WEB_DIR", "../backend/admin_web"),
         }
     }
 }
