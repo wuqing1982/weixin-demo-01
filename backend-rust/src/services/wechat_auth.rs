@@ -118,12 +118,13 @@ pub async fn get_user_phone_number(
     let access_token = get_access_token(app_id, app_secret).await?;
 
     let url = format!(
-        "https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token={}&code={}",
-        access_token, code
+        "https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token={}",
+        access_token
     );
     let client = reqwest::Client::new();
     let resp: PhoneNumberResponse = client
         .post(&url)
+        .json(&serde_json::json!({ "code": code }))
         .timeout(std::time::Duration::from_secs(10))
         .send()
         .await
