@@ -15,32 +15,10 @@
   color: #f5eee0 !important;
 }
 
-.profile-strip.theme-light {
-  background: linear-gradient(135deg, #07c160, #06ad56) !important;
-  color: #ffffff !important;
-}
-
-.profile-strip.theme-ocean {
-  background: linear-gradient(135deg, #0a3d6b, #062d52) !important;
-  color: #b0d8ff !important;
-}
-
 .profile-strip .btn-secondary {
   color: #f5eee0 !important;
   border-color: rgba(245, 238, 224, 0.35) !important;
   background: rgba(245, 238, 224, 0.12) !important;
-}
-
-.logout-btn.theme-light {
-  color: #ffffff !important;
-  border-color: rgba(7, 193, 96, 0.40) !important;
-  background: rgba(7, 193, 96, 0.18) !important;
-}
-
-.logout-btn.theme-ocean {
-  color: #b0d8ff !important;
-  border-color: rgba(100, 180, 255, 0.40) !important;
-  background: rgba(100, 180, 255, 0.12) !important;
 }
 
 .profile-eyebrow,
@@ -48,16 +26,6 @@
   display: block;
   font-size: 22rpx;
   color: rgba(245, 238, 224, 0.78) !important;
-}
-
-.profile-eyebrow.theme-light,
-.profile-meta.theme-light {
-  color: rgba(255, 255, 255, 0.85) !important;
-}
-
-.profile-eyebrow.theme-ocean,
-.profile-meta.theme-ocean {
-  color: rgba(176, 216, 255, 0.75) !important;
 }
 
 .profile-name {
@@ -117,71 +85,10 @@
   border-color: rgba(244, 63, 94, 0.35) !important;
 }
 
-/* Light theme badges */
-.badge-pro.theme-light,
-.badge-plus.theme-light,
-.badge-max.theme-light {
-  border-color: transparent !important;
-}
-
-.badge-pro.theme-light {
-  background: rgba(102, 126, 234, 0.12) !important;
-  color: #4f5bd5 !important;
-}
-
-.badge-plus.theme-light {
-  background: rgba(234, 179, 8, 0.12) !important;
-  color: #b45309 !important;
-}
-
-.badge-max.theme-light {
-  background: rgba(244, 63, 94, 0.12) !important;
-  color: #be123c !important;
-}
-
-.badge-inactive.theme-light {
-  background: #f0f0f0 !important;
-  color: #999999 !important;
-  border-color: #e0e0e0 !important;
-}
-
-/* Ocean theme badges */
-.badge-pro.theme-ocean {
-  background: rgba(100, 160, 255, 0.20) !important;
-  color: #93bbfd !important;
-  border-color: rgba(100, 160, 255, 0.30) !important;
-}
-
-.badge-plus.theme-ocean {
-  background: rgba(250, 204, 21, 0.18) !important;
-  color: #fde047 !important;
-  border-color: rgba(250, 204, 21, 0.30) !important;
-}
-
-.badge-max.theme-ocean {
-  background: rgba(244, 63, 94, 0.20) !important;
-  color: #fda4af !important;
-  border-color: rgba(244, 63, 94, 0.30) !important;
-}
-
-.badge-inactive.theme-ocean {
-  background: rgba(255, 255, 255, 0.06) !important;
-  color: rgba(180, 220, 255, 0.40) !important;
-  border-color: rgba(255, 255, 255, 0.10) !important;
-}
-
 /* ---- Hero ---- */
 .hero {
   padding: 36rpx;
   background: linear-gradient(180deg, rgba(255, 248, 236, 0.06), rgba(110, 140, 98, 0.10)) !important;
-}
-
-.hero.theme-light {
-  background: rgba(7, 193, 96, 0.06) !important;
-}
-
-.hero.theme-ocean {
-  background: linear-gradient(180deg, rgba(0, 140, 255, 0.08), rgba(0, 80, 180, 0.12)) !important;
 }
 
 .hero-actions {
@@ -212,8 +119,6 @@
   font-size: 24rpx;
   color: rgba(255,255,255,0.65) !important;
 }
-.action-desc.theme-light { color: #888888 !important; }
-.action-desc.theme-ocean { color: rgba(180,220,255,0.65) !important; }
 
 /* ---- Theme switcher ---- */
 .theme-section {
@@ -227,25 +132,11 @@
   border: 1px solid rgba(255,255,255,0.10) !important;
 }
 
-.theme-section.theme-light {
-  background: #ffffff !important;
-  border-color: #e8e8e8 !important;
-  border-radius: 20rpx !important;
-  box-shadow: 0 2rpx 16rpx rgba(0,0,0,0.06) !important;
-}
-
-.theme-section.theme-ocean {
-  background: rgba(20,60,120,0.25) !important;
-  border-color: rgba(80,160,255,0.22) !important;
-}
-
 .theme-label {
   font-size: 28rpx;
   font-weight: 500;
   color: #ffffff !important;
 }
-.theme-label.theme-light { color: #1a1a1a !important; }
-.theme-label.theme-ocean { color: #e8f4ff !important; }
 
 .theme-options { display: flex; gap: 16rpx; }
 
@@ -255,63 +146,32 @@
   border: 2rpx solid rgba(255,255,255,0.12) !important;
 }
 
-.theme-opt.theme-light { border-color: #e0e0e0 !important; border-radius: 12rpx !important; }
-.theme-opt.theme-ocean { border-color: rgba(80,160,255,0.20) !important; }
-
 .theme-opt.active {
   border-color: #667eea !important;
   background: rgba(102,126,234,0.12) !important;
   box-shadow: 0 0 0 2rpx rgba(102,126,234,0.40) !important;
 }
 
-.theme-opt.active.theme-light {
-  border-color: #07c160 !important;
-  background: rgba(7,193,96,0.08) !important;
-  box-shadow: 0 0 0 2rpx rgba(7,193,96,0.30) !important;
-}
-
-.theme-opt.active.theme-ocean {
-  border-color: #00b8ff !important;
-  background: rgba(0,184,255,0.12) !important;
-  box-shadow: 0 0 0 2rpx rgba(0,184,255,0.40) !important;
-}
-
 .theme-opt text {
   font-size: 24rpx;
   color: rgba(255,255,255,0.60) !important;
 }
-.theme-opt.theme-light text { color: #888888 !important; }
-.theme-opt.theme-ocean text { color: rgba(180,220,255,0.60) !important; }
 
 .theme-opt.active text {
   font-weight: 600;
   color: #667eea !important;
 }
-.theme-opt.active.theme-light text { color: #07c160 !important; }
-.theme-opt.active.theme-ocean text { color: #00b8ff !important; }
 
 .theme-preview {
   width: 56rpx; height: 56rpx; border-radius: 50%; position: relative;
   border: 3rpx solid rgba(255,255,255,0.12) !important;
 }
-.theme-preview.theme-light { border-color: #e0e0e0 !important; }
-.theme-preview.theme-ocean { border-color: rgba(80,160,255,0.20) !important; }
 
 .theme-opt.active .theme-preview { border-color: #667eea !important; }
-.theme-opt-active-light .theme-preview { border-color: #07c160 !important; }
-.theme-opt-active-ocean .theme-preview { border-color: #00b8ff !important; }
 
 .dark-preview {
   background: linear-gradient(135deg, #0b0b0c, #121318);
   box-shadow: inset 0 0 10rpx rgba(102, 126, 234, 0.35);
-}
-.light-preview {
-  background: linear-gradient(135deg, #f5f6f8, #ebedf0);
-  box-shadow: inset 0 0 8rpx rgba(7, 193, 96, 0.2);
-}
-.ocean-preview {
-  background: linear-gradient(135deg, #041526, #0a2540);
-  box-shadow: inset 0 0 8rpx rgba(0, 184, 246, 0.3);
 }
 .notion-preview {
   background: linear-gradient(135deg, #ffffff, #f6f5f4);

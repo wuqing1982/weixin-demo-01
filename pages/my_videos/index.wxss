@@ -37,13 +37,8 @@
 }
 
 /* Light: darker overlay */
-.play-icon.theme-light { background: rgba(0,0,0,0.45) !important; }
 
 /* Ocean: blue-tinted overlay */
-.play-icon.theme-ocean {
-  background: rgba(0,40,100,0.60) !important;
-  border: 1px solid rgba(80,160,255,0.25) !important;
-}
 
 .play-triangle {
   width: 0;
@@ -71,8 +66,6 @@
   /* dark */
   color: rgba(255,255,255,0.60) !important;
 }
-.video-date.theme-light { color: #888888 !important; }
-.video-date.theme-ocean { color: rgba(180,220,255,0.60) !important; }
 
 /* Notion */
 .play-icon.theme-notion { background: rgba(0,0,0,0.40) !important; }

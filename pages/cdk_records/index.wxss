@@ -23,16 +23,6 @@
   font-size: 24rpx;
 }
 
-.summary-chip.theme-light {
-  background: #ffffff !important;
-  border: 1px solid #e8e8e8 !important;
-}
-
-.summary-chip.theme-ocean {
-  background: rgba(20,60,120,0.25) !important;
-  border: 1px solid rgba(80,160,255,0.22) !important;
-}
-
 .record-list {
   display: flex;
   flex-direction: column;
@@ -69,16 +59,6 @@
   color: #6ee7a0 !important;
 }
 
-.record-badge-redeemed.theme-light {
-  background: rgba(7,193,96,0.10) !important;
-  color: #07c160 !important;
-}
-
-.record-badge-redeemed.theme-ocean {
-  background: rgba(0,200,160,0.16) !important;
-  color: #5cf5c8 !important;
-}
-
 .record-body {
   margin-top: 20rpx;
   display: flex;
@@ -97,16 +77,10 @@
   color: rgba(255,255,255,0.50) !important;
 }
 
-.record-label.theme-light { color: #999999 !important; }
-.record-label.theme-ocean { color: rgba(180,220,255,0.50) !important; }
-
 .record-value {
   font-size: 24rpx;
   color: rgba(255,255,255,0.80) !important;
 }
-
-.record-value.theme-light { color: #333333 !important; }
-.record-value.theme-ocean { color: #e8f4ff !important; }
 
 /* ================================================================
    Notion overrides — page-specific

@@ -61,6 +61,7 @@
   line-height: 1.16;
   font-weight: 700;
   font-family: 'Avenir Next', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  color: #ffffff;
 }
 
 .brand-subtitle {

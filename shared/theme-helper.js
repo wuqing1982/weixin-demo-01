@@ -5,13 +5,11 @@
 /**
  * Apply navigation bar colors to match the current theme.
  * Call this in each page's onShow / onLoad.
- * @param {string} theme - 'dark', 'light', or 'ocean'
+ * @param {string} theme - 'dark' or 'notion'
  */
 function updateNavBar(theme) {
   var config = {
     dark:  { frontColor: '#ffffff', backgroundColor: '#0b0b0c' },
-    light: { frontColor: '#000000', backgroundColor: '#f5f6f8' },
-    ocean:  { frontColor: '#ffffff', backgroundColor: '#041526' },
     notion: { frontColor: '#000000', backgroundColor: '#ffffff' }
   };
   var c = config[theme] || config.dark;

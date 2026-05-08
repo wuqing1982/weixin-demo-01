@@ -21,14 +21,6 @@
         <view class="theme-preview dark-preview theme-{{theme}}"></view>
         <text>暗色</text>
       </view>
-      <view class="theme-opt theme-{{theme}} {{theme === 'light' ? 'active theme-opt-active-light' : ''}}" bindtap="switchTheme" data-theme="light">
-        <view class="theme-preview light-preview theme-{{theme}}"></view>
-        <text>浅色</text>
-      </view>
-      <view class="theme-opt theme-{{theme}} {{theme === 'ocean' ? 'active theme-opt-active-ocean' : ''}}" bindtap="switchTheme" data-theme="ocean">
-        <view class="theme-preview ocean-preview theme-{{theme}}"></view>
-        <text>海洋</text>
-      </view>
       <view class="theme-opt theme-{{theme}} {{theme === 'notion' ? 'active theme-opt-active-notion' : ''}}" bindtap="switchTheme" data-theme="notion">
         <view class="theme-preview notion-preview theme-{{theme}}"></view>
         <text>纸张</text>
