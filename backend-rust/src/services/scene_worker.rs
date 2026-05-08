@@ -251,6 +251,8 @@ fn build_analysis_prompt(scene_name: &str, include_verbs: bool) -> String {
 {scene_instruction}
 
 {noun_instruction}
+{verb_workflow}
+{verb_rules}
 
 **关键要求 - Hotspot-Object Alignment（热点-对象精确对齐）：**
 这是最重要的原则！每个热点的边界框必须精确贴合物体的实际轮廓。
