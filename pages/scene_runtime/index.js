@@ -74,17 +74,21 @@ Page(Object.assign({}, createScenePage(), {
   },
 
   onShareAppMessage() {
-    const scene = this.data.scene || {};
+    const title = this.data.title || '全景英语场景';
+    const imageUrl = this.data.background || '';
     return {
-      title: scene.title || '全景英语场景',
-      path: `/pages/scene_runtime/index?sceneId=${this.data.sceneId || ''}`
+      title: `跟我一起学：${title}`,
+      path: `/pages/scene_runtime/index?sceneId=${this.data.sceneId || ''}`,
+      imageUrl
     };
   },
 
   onShareTimeline() {
-    const scene = this.data.scene || {};
+    const title = this.data.title || '全景英语场景';
+    const imageUrl = this.data.background || '';
     return {
-      title: scene.title || '全景英语场景'
+      title: `跟我一起学：${title}`,
+      imageUrl
     };
   }
 }));

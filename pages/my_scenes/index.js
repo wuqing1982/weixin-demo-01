@@ -179,5 +179,18 @@ Page({
     wx.navigateTo({
       url: '/pages/create_scene/index'
     });
+  },
+
+  onShareAppMessage() {
+    return {
+      title: '全景英语场景 — 我生成的英语学习场景',
+      path: '/pages/home/index'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '全景英语场景 — 我生成的英语学习场景'
+    };
   }
 });

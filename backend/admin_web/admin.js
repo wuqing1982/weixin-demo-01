@@ -1406,6 +1406,34 @@ function renderTaxonomy() {
   `;
 }
 
+function getSelectedDraftIds() {
+  return Array.from(panelBody.querySelectorAll('.draft-checkbox:checked')).map((cb) => cb.value);
+}
+
+function updateDraftBatchBar() {
+  const ids = getSelectedDraftIds();
+  const bar = document.getElementById('draft-batch-bar');
+  if (!bar) return;
+  const countEl = bar.querySelector('.batch-bar-count');
+  if (countEl) countEl.textContent = `已选 ${ids.length} 项`;
+  bar.classList.toggle('visible', ids.length > 0);
+  const dropdown = document.getElementById('draft-batch-action');
+  const executeBtn = document.getElementById('draft-batch-execute');
+  if (dropdown) dropdown.selectedIndex = 0;
+  if (executeBtn) executeBtn.disabled = true;
+}
+
+function updateDraftBatchState() {
+  updateDraftBatchBar();
+  const checkboxes = panelBody.querySelectorAll('.draft-checkbox');
+  const checked = panelBody.querySelectorAll('.draft-checkbox:checked');
+  const selectAll = panelBody.querySelector('#select-all-drafts');
+  if (selectAll) {
+    selectAll.checked = checkboxes.length > 0 && checked.length === checkboxes.length;
+    selectAll.indeterminate = checked.length > 0 && checked.length < checkboxes.length;
+  }
+}
+
 function renderDrafts() {
   const draft = state.publishingDraft || state.generatedScenes[0] || null;
   const publication = draft && draft.publication ? draft.publication : null;
@@ -1415,6 +1443,30 @@ function renderDrafts() {
       <p class="panel-subtitle">Admin 复用当前拍照生成链路，先生成私有草稿，再在这里选分类和合集后发布。</p>
     </div>
     <span class="meta-chip">${state.generatedScenes.length} 个草稿</span>
+  `;
+
+  // Floating batch bar
+  const existingBar = document.getElementById('draft-batch-bar');
+  if (existingBar) existingBar.remove();
+  const batchBarHtml = `
+    <div id="draft-batch-bar" class="batch-bar">
+      <div class="batch-bar-inner">
+        <span class="batch-bar-count">已选 0 项</span>
+        <div class="batch-bar-dropdown-wrap">
+          <select id="draft-batch-action" class="batch-bar-dropdown">
+            <option value="">选择操作…</option>
+            <optgroup label="发布">
+              <option value="batch-publish">批量发布（公开）</option>
+            </optgroup>
+            <optgroup label="危险操作">
+              <option value="delete" style="color:#e74c3c">删除草稿</option>
+            </optgroup>
+          </select>
+          <button class="batch-bar-execute-btn" id="draft-batch-execute" data-action="draft-batch-execute" disabled>执行</button>
+        </div>
+        <button class="batch-bar-close" data-action="draft-batch-clear">&times;</button>
+      </div>
+    </div>
   `;
 
   panelBody.innerHTML = `
@@ -1430,7 +1482,7 @@ function renderDrafts() {
           </div>
           <div class="detail-grid">
             <div><span>热点数</span><strong>${escapeHtml(draft.itemCount || 0)}</strong></div>
-            <div><span>动词数</span><strong>${escapeHtml(draft.verbCount || 0)}</strong></div>
+            <div><span>非名词数</span><strong>${escapeHtml(draft.verbCount || 0)}</strong></div>
             <div><span>可见性</span><strong>${escapeHtml(draft.visibility || 'private')}</strong></div>
             <div><span>分类</span><strong>${escapeHtml(publication && (publication.categoryName || publication.categoryId) || '-')}</strong></div>
           </div>
@@ -1465,6 +1517,7 @@ function renderDrafts() {
 
     <div class="table">
       <div class="table-head">
+        <label class="checkbox-cell"><input type="checkbox" id="select-all-drafts"></label>
         <strong>草稿场景</strong>
         <span>归属用户</span>
         <span>发布状态</span>
@@ -1472,6 +1525,7 @@ function renderDrafts() {
       </div>
       ${state.generatedScenes.map((item) => `
         <div class="table-row">
+          <label class="checkbox-cell"><input type="checkbox" class="draft-checkbox" value="${escapeHtml(item.sceneId)}"></label>
           <strong>${escapeHtml(item.title)}<br><small>${escapeHtml(item.sceneId)}</small></strong>
           <span>${escapeHtml(item.ownerId || '-')}</span>
           <span>${item.publication ? '已发布' : '未发布'}</span>
@@ -1482,6 +1536,8 @@ function renderDrafts() {
       `).join('') || '<div class="empty-copy">暂无草稿</div>'}
     </div>
   `;
+
+  document.body.insertAdjacentHTML('beforeend', batchBarHtml);
 }
 
 const VIEW_TITLES = {
@@ -2450,6 +2506,50 @@ document.addEventListener('click', async (event) => {
     }
     return;
   }
+  if (action === 'draft-batch-execute') {
+    const dropdown = document.getElementById('draft-batch-action');
+    const selectedAction = dropdown ? dropdown.value : '';
+    if (!selectedAction) { toast('请先选择操作', 'error'); return; }
+    const ids = getSelectedDraftIds();
+    if (ids.length === 0) return;
+
+    if (selectedAction === 'delete') {
+      if (!window.confirm(`确定要删除选中的 ${ids.length} 个草稿场景吗？此操作不可恢复。`)) return;
+      try {
+        await api('/api/admin/public-scenes/batch-delete', { method: 'POST', body: { sceneIds: ids } });
+        toast(`成功删除 ${ids.length} 个草稿`);
+        state.publishingDraft = null;
+        await loadConsole();
+      } catch (error) {
+        toast(error.message || '批量删除失败', 'error');
+      }
+    } else if (selectedAction === 'batch-publish') {
+      if (!window.confirm(`确定要批量发布选中的 ${ids.length} 个草稿为公开场景吗？`)) return;
+      let successCount = 0;
+      for (const id of ids) {
+        try {
+          const item = state.generatedScenes.find((s) => s.sceneId === id);
+          const title = item ? item.title : '';
+          await api(`/api/admin/generated-scenes/${id}/publish`, {
+            method: 'POST',
+            body: { title, visibility: 'public', categoryId: '', collectionIds: [] }
+          });
+          successCount++;
+        } catch (_) { /* skip individual failures */ }
+      }
+      toast(`成功发布 ${successCount} 个场景`);
+      state.publishingDraft = null;
+      await loadConsole();
+    }
+    return;
+  }
+  if (action === 'draft-batch-clear') {
+    const selectAll = panelBody.querySelector('#select-all-drafts');
+    if (selectAll) { selectAll.checked = false; selectAll.indeterminate = false; }
+    panelBody.querySelectorAll('.draft-checkbox').forEach((cb) => { cb.checked = false; });
+    updateDraftBatchState();
+    return;
+  }
 });
 
 // Dropdown change toggles execute button
@@ -2461,6 +2561,19 @@ document.addEventListener('change', (event) => {
   if (event.target.id === 'scene-batch-action') {
     const executeBtn = document.getElementById('scene-batch-execute');
     if (executeBtn) executeBtn.disabled = !event.target.value;
+  }
+  if (event.target.id === 'draft-batch-action') {
+    const executeBtn = document.getElementById('draft-batch-execute');
+    if (executeBtn) executeBtn.disabled = !event.target.value;
+  }
+  // Draft checkboxes
+  if (event.target.classList.contains('draft-checkbox')) {
+    updateDraftBatchState();
+  }
+  if (event.target.id === 'select-all-drafts') {
+    const checked = event.target.checked;
+    panelBody.querySelectorAll('.draft-checkbox').forEach((cb) => { cb.checked = checked; });
+    updateDraftBatchState();
   }
 });
 

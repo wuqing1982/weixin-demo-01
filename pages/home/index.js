@@ -117,5 +117,18 @@ Page({
     wx.reLaunch({
       url: '/pages/login/index'
     });
+  },
+
+  onShareAppMessage() {
+    return {
+      title: '全景英语场景 — 看图学英语',
+      path: '/pages/home/index'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '全景英语场景 — 看图学英语'
+    };
   }
 });
