@@ -316,6 +316,14 @@ pub async fn upsert_category(
     Ok(())
 }
 
+pub async fn get_category_name(pool: &PgPool, category_id: &str) -> Result<Option<String>, sqlx::Error> {
+    let row: Option<(String,)> = sqlx::query_as("SELECT name FROM scene_categories WHERE id = $1")
+        .bind(category_id)
+        .fetch_optional(pool)
+        .await?;
+    Ok(row.map(|r| r.0))
+}
+
 pub async fn delete_category(pool: &PgPool, id: &str) -> Result<(), sqlx::Error> {
     sqlx::query("DELETE FROM scene_categories WHERE id = $1")
         .bind(id).execute(pool).await?;

@@ -414,13 +414,20 @@ pub async fn publish_draft(
     let category_id = body.category_id.unwrap_or_default();
     let collection_ids = body.collection_ids.unwrap_or_default();
 
+    let category_name = if !category_id.is_empty() {
+        crate::db::scenes::get_category_name(&state.pool, &category_id).await?
+            .unwrap_or_else(|| scene.category.clone())
+    } else {
+        scene.category.clone()
+    };
+
     let public_id = format!("scene_{}", uuid::Uuid::new_v4());
 
     // Create the public scene as a copy
     let public_scene = json!({
         "sceneId": public_id,
         "title": title,
-        "category": scene.category,
+        "category": category_name,
         "visibility": visibility,
         "sceneType": "public",
         "coverPath": scene.cover_path,
