@@ -93,7 +93,7 @@ Page({
     imagePath: '',
     uploadImagePath: '',
     sceneTitle: '',
-    includeVerbs: true,
+    includeVerbs: false,
     submitting: false,
     stage: 'idle',
     uploadId: '',
