@@ -87,6 +87,10 @@ pub async fn process_scene_task(state: AppState, task_id: String) {
     write_scene_log(&state.config.generated_dir, &retry_result.log_entries, &task_id, &task.owner_id, &scene_id, start_time).await;
 
     let core_result = match retry_result.result {
+        Ok(r) => {
+            tracing::info!(task_id, "AI raw verbs: {:?}", r.get("verbs"));
+            r
+        }
         Ok(r) => r,
         Err(e) => {
             let _ = db::tasks::update_task(pool, &task_id, "failed", "error", 0, None, Some(&format!("GLM-4V error: {e}"))).await;
