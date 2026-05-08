@@ -688,11 +688,13 @@ function renderCdk() {
   panelBody.innerHTML = `
     <div class="inline-form">
       <select id="cdk-sku-select" class="form-select"><option value="">选择 SKU...</option>${skuOptions}</select>
-      <button class="mini-btn" data-action="filter-cdk">筛选卡密</button>
-      ${state.cdkFilterSkuId ? '<button class="mini-btn" data-action="show-all-cdk">显示全部</button>' : ''}
       <input id="cdk-quantity" type="number" class="form-input" placeholder="数量" value="1" min="1" max="500" style="width:80px">
       <input id="cdk-note" type="text" class="form-input" placeholder="备注（可选）" style="flex:1">
-      <button class="mini-btn primary-btn" data-action="generate-cdk">生成卡密</button>
+    </div>
+    <div class="cdk-action-buttons">
+      <button class="primary-btn cdk-gen-btn" data-action="generate-cdk">生成卡密</button>
+      <button class="primary-btn cdk-filter-btn" data-action="filter-cdk">筛选卡密</button>
+      ${state.cdkFilterSkuId ? '<button class="primary-btn cdk-showall-btn" data-action="show-all-cdk">显示全部</button>' : ''}
     </div>
     <div class="table">
       <div class="table-head">
