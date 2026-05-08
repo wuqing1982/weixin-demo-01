@@ -33,8 +33,8 @@
   </view>
 
   <view class="hero card theme-{{theme}}">
-    <text class="section-title theme-{{theme}}">英语场景会员中心</text>
-    <text class="section-subtitle theme-{{theme}}">真实微信登录、会员商品、订单、我的场景和热点编辑已经接到同一条业务链路里。</text>
+    <text class="section-title theme-{{theme}}">会员中心</text>
+    <text class="section-subtitle theme-{{theme}}">将孩子日常制作成定制英语学习卡片，孩子们每天都会重复经历这些熟悉的生活场景。持续使用一年，英语场景与母语场景自然融合，她（他）将获得无限接近母语的英语思维。</text>
     <view class="hero-actions">
       <button class="btn-primary theme-{{theme}}" bindtap="onOpen" data-url="/pages/products/index">购买会员</button>
       <button class="btn-secondary theme-{{theme}}" bindtap="onOpen" data-url="/pages/orders/index">查看订单</button>
