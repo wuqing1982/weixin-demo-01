@@ -89,7 +89,7 @@ def main() -> int:
             'id': 'benefit_plus_credits',
             'benefitType': 'credits',
             'benefitValue': 'scene_generation_credits',
-            'benefitJson': {'creditType': 'scene_generation_credits', 'amount': 150},
+            'benefitJson': {'creditType': 'scene_generation_credits', 'amount': 200},
         },
         {
             'id': 'benefit_plus_video_export',
