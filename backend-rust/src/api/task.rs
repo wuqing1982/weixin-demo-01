@@ -55,7 +55,7 @@ pub async fn create_scene_generate_task(
         "accent": body.accent.unwrap_or_else(|| "en-US".into()),
         "voiceGender": body.voice_gender.unwrap_or_else(|| "Female".into()),
         "voiceName": body.voice_name.unwrap_or_else(|| "JennyNeural".into()),
-        "autoPublish": body.auto_publish.unwrap_or(false),
+        "autoPublish": body.auto_publish.unwrap_or(true),
         "categoryId": body.category_id.unwrap_or_default(),
         "collectionIds": body.collection_ids.unwrap_or_default(),
         "publishVisibility": body.publish_visibility.unwrap_or_else(|| "private".into()),
