@@ -43,7 +43,13 @@ Page(Object.assign({}, createScenePage(), {
     updateNavBar(theme);
     this.initializeScenePage();
 
-    const sceneId = options.sceneId || 'scene_breakfast';
+    let sceneId = 'scene_breakfast';
+    if (options.q) {
+      const url = decodeURIComponent(options.q);
+      sceneId = url.split('/q/')[1] || 'scene_breakfast';
+    } else if (options.sceneId) {
+      sceneId = options.sceneId;
+    }
 
     try {
       const [sceneListData, mySceneListData, sceneDetailData] = await Promise.all([
@@ -75,7 +81,7 @@ Page(Object.assign({}, createScenePage(), {
 
   onShareAppMessage() {
     const title = this.data.title || '全景英语场景';
-    const imageUrl = this.data.background || '';
+    const imageUrl = this.data.cover || this.data.background || '';
     return {
       title: `跟我一起学：${title}`,
       path: `/pages/scene_runtime/index?sceneId=${this.data.sceneId || ''}`,
@@ -85,7 +91,7 @@ Page(Object.assign({}, createScenePage(), {
 
   onShareTimeline() {
     const title = this.data.title || '全景英语场景';
-    const imageUrl = this.data.background || '';
+    const imageUrl = this.data.cover || this.data.background || '';
     return {
       title: `跟我一起学：${title}`,
       imageUrl
