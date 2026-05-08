@@ -63,16 +63,7 @@ pub async fn create_scene_generate_task(
 
     let task = db::tasks::create_task(&state.pool, &task_id, &auth.user_id, &payload).await?;
 
-    // Deduct 1 credit after task creation
-    let _new_balance = db::credits::deduct_credit(
-        &state.pool,
-        &auth.user_id,
-        "scene_generation_credits",
-        1,
-        "scene_generate",
-        &task_id,
-        "Scene generation task",
-    ).await?;
+    // Credit deduction moved to worker - only charged on successful generation
 
     // Spawn background worker
     let worker_state = state.clone();

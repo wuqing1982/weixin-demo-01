@@ -1,4 +1,5 @@
 use std::path::Path;
+use std::time::Instant;
 
 use serde_json::{json, Value};
 use tokio::io::AsyncWriteExt;
@@ -8,6 +9,7 @@ use crate::state::AppState;
 
 pub async fn process_scene_task(state: AppState, task_id: String) {
     let pool = &state.pool;
+    let start_time = Instant::now();
 
     // Step 1: Load task
     let task = match db::tasks::get_task(pool, &task_id).await {
@@ -63,7 +65,7 @@ pub async fn process_scene_task(state: AppState, task_id: String) {
 
     let _ = db::tasks::update_task(pool, &task_id, "running", "prepare_assets", 45, Some(&scene_id), None).await;
 
-    // Step 4: Analyze scene with ZhipuAI GLM-4V
+    // Step 4: Analyze scene with three-level retry
     let _ = db::tasks::update_task(pool, &task_id, "running", "analyze_scene", 55, None, None).await;
 
     let image_data = match tokio::fs::read(&dst_path).await {
@@ -79,7 +81,12 @@ pub async fn process_scene_task(state: AppState, task_id: String) {
 
     let include_verbs = payload["includeVerbs"].as_bool().unwrap_or(true);
     let scene_name = payload["title"].as_str().unwrap_or("auto");
-    let core_result = match call_zhipuai_glm4v(&state, &image_url, scene_name, include_verbs).await {
+    let retry_result = analyze_scene_with_retry(&state, &image_url, scene_name, include_verbs, &task_id, &task.owner_id).await;
+
+    // Write log for every attempt
+    write_scene_log(&state.config.generated_dir, &retry_result.log_entries, &task_id, &task.owner_id, &scene_id, start_time).await;
+
+    let core_result = match retry_result.result {
         Ok(r) => r,
         Err(e) => {
             let _ = db::tasks::update_task(pool, &task_id, "failed", "error", 0, None, Some(&format!("GLM-4V error: {e}"))).await;
@@ -139,6 +146,23 @@ pub async fn process_scene_task(state: AppState, task_id: String) {
         return;
     }
 
+    // Deduct credit AFTER successful generation
+    let credit_deducted = match db::credits::deduct_credit(
+        pool,
+        &task.owner_id,
+        "scene_generation_credits",
+        1,
+        "scene_generate",
+        &task_id,
+        "Scene generation task",
+    ).await {
+        Ok(_) => true,
+        Err(e) => {
+            tracing::warn!(task_id, error = %e, "credit deduction failed after successful generation");
+            false
+        }
+    };
+
     // Step 7: Complete
     let auto_publish = payload["autoPublish"].as_bool().unwrap_or(false);
     if auto_publish {
@@ -148,23 +172,88 @@ pub async fn process_scene_task(state: AppState, task_id: String) {
         let _ = db::tasks::update_task(pool, &task_id, "done", "done", 100, None, None).await;
     }
 
-    tracing::info!(task_id, scene_id, "scene generation completed");
+    tracing::info!(task_id, scene_id, credit_deducted, "scene generation completed");
 }
 
-async fn call_zhipuai_glm4v(
+// ─── Retry logic ───────────────────────────────────────────────
+
+struct RetryEntry {
+    model: String,
+    success: bool,
+    error: Option<String>,
+    duration_secs: f64,
+}
+
+struct RetryResult {
+    result: Result<Value, String>,
+    log_entries: Vec<RetryEntry>,
+}
+
+async fn analyze_scene_with_retry(
     state: &AppState,
     image_url: &str,
     scene_name: &str,
     include_verbs: bool,
-) -> Result<Value, String> {
-    let model = &state.config.core100_model;
+    task_id: &str,
+    _owner_id: &str,
+) -> RetryResult {
     let api_key = &state.config.zhipuai_api_key;
+    let prompt = build_analysis_prompt(scene_name, include_verbs);
+    let models = [
+        state.config.core100_model.clone(),
+        state.config.core100_retry_model.clone(),
+        state.config.core100_fallback_model.clone(),
+    ];
 
+    let mut log_entries = Vec::new();
+    let mut last_error = String::new();
+
+    for (i, model) in models.iter().enumerate() {
+        // Update step to show retry progress
+        if i > 0 {
+            let step = format!("analyze_scene_retry_{}", i);
+            let _ = db::tasks::update_task(&state.pool, task_id, "running", &step, 55, None, None).await;
+        }
+
+        let t = Instant::now();
+        match call_zhipuai_model(api_key, model, image_url, &prompt).await {
+            Ok(v) => {
+                log_entries.push(RetryEntry {
+                    model: model.clone(),
+                    success: true,
+                    error: None,
+                    duration_secs: t.elapsed().as_secs_f64(),
+                });
+                return RetryResult { result: Ok(v), log_entries };
+            }
+            Err(e) => {
+                tracing::warn!(task_id, model, attempt = i + 1, error = %e, "scene analysis failed, retrying");
+                log_entries.push(RetryEntry {
+                    model: model.clone(),
+                    success: false,
+                    error: Some(e.clone()),
+                    duration_secs: t.elapsed().as_secs_f64(),
+                });
+                last_error = e;
+            }
+        }
+    }
+
+    RetryResult {
+        result: Err(format!("all {} models failed: {}", models.len(), last_error)),
+        log_entries,
+    }
+}
+
+async fn call_zhipuai_model(
+    api_key: &str,
+    model: &str,
+    image_url: &str,
+    prompt: &str,
+) -> Result<Value, String> {
     if api_key.is_empty() {
         return Err("ZHIPUAI_API_KEY not configured".into());
     }
-
-    let prompt = build_analysis_prompt(scene_name, include_verbs);
 
     let client = reqwest::Client::new();
     let body = json!({
@@ -202,12 +291,62 @@ async fn call_zhipuai_glm4v(
         .unwrap_or("");
 
     if content.is_empty() {
-        return Err("empty response from GLM-4V".into());
+        return Err("empty response".into());
     }
 
-    // Try to parse JSON from response
     parse_json_response(content)
 }
+
+// ─── Logging ────────────────────────────────────────────────────
+
+async fn write_scene_log(
+    generated_dir: &str,
+    entries: &[RetryEntry],
+    task_id: &str,
+    user_id: &str,
+    scene_id: &str,
+    start_time: Instant,
+) {
+    let now = chrono::Local::now();
+    let filename = format!("scene-worker-{}.log", now.format("%Y-%m-%d"));
+
+    // logs/ directory is sibling to generated_dir
+    let logs_dir = Path::new(generated_dir).parent().unwrap_or(Path::new(".")).join("logs");
+    let _ = tokio::fs::create_dir_all(&logs_dir).await;
+    let log_path = logs_dir.join(&filename);
+
+    let mut lines = Vec::new();
+    lines.push(format!("[{}] task_id={} user_id={}", now.format("%Y-%m-%d %H:%M:%S"), task_id, user_id));
+
+    for (i, entry) in entries.iter().enumerate() {
+        let result_str = if entry.success {
+            "成功".to_string()
+        } else {
+            format!("失败({})", entry.error.as_deref().unwrap_or("unknown"))
+        };
+        lines.push(format!(
+            "  尝试{}: model={} 结果={} 耗时={:.1}s",
+            i + 1,
+            entry.model,
+            result_str,
+            entry.duration_secs
+        ));
+    }
+
+    let final_status = entries.last().map(|e| if e.success { "成功" } else { "失败" }).unwrap_or("无尝试");
+    let total_secs = start_time.elapsed().as_secs_f64();
+    lines.push(format!("  最终: {} | 场景ID={} | 总耗时={:.1}s", final_status, scene_id, total_secs));
+    lines.push("---".to_string());
+
+    let content = lines.join("\n") + "\n";
+
+    // Append to log file (create if not exists)
+    if let Ok(mut file) = tokio::fs::OpenOptions::new().create(true).append(true).open(&log_path).await {
+        let _ = file.write_all(content.as_bytes()).await;
+    }
+}
+
+// ─── Prompt building ────────────────────────────────────────────
 
 fn build_analysis_prompt(scene_name: &str, include_verbs: bool) -> String {
     let scene_instruction = if scene_name == "auto" || scene_name.is_empty() {
@@ -329,8 +468,10 @@ fn parse_json_response(content: &str) -> Result<Value, String> {
         }
     }
 
-    Err("failed to parse JSON from GLM-4V response".into())
+    Err("failed to parse JSON from response".into())
 }
+
+// ─── Audio generation ───────────────────────────────────────────
 
 async fn generate_audio_for_scene(
     state: &AppState,
@@ -411,7 +552,6 @@ async fn generate_audio_entry(
     scene_id: &str,
     filename: &str,
 ) -> Option<String> {
-    // Combine word + sentence into a single TTS text: "word. sentence"
     let combined_text = if word == sentence || sentence.is_empty() {
         word.to_string()
     } else if word.is_empty() {
@@ -441,6 +581,8 @@ async fn generate_audio_entry(
 
     Some(format!("/assets/generated/{scene_id}/{filename}.mp3"))
 }
+
+// ─── Scene JSON builder ─────────────────────────────────────────
 
 fn build_scene_json(
     scene_id: &str,

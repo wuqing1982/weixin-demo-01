@@ -100,6 +100,7 @@ Page({
     taskId: '',
     taskStatus: '',
     taskStep: '',
+    taskStepDisplay: '',
     taskProgress: 0,
     sceneId: '',
     errorMessage: '',
@@ -345,9 +346,24 @@ Page({
     try {
       const task = await getSceneTask(this.data.taskId);
       const nextStage = task.status === 'done' ? 'done' : task.status === 'failed' ? 'failed' : 'polling';
+      const rawStep = task.step || '';
+      const stepDisplayMap = {
+        'load_upload': '加载上传文件...',
+        'prepare_assets': '准备素材...',
+        'analyze_scene': 'AI 正在分析场景，请稍候...',
+        'analyze_scene_retry_1': '网络有点问题，正在重试，请稍候...',
+        'analyze_scene_retry_2': '正在使用更强模型重试，请稍候...',
+        'generate_audio': '生成语音中...',
+        'write_scene': '保存场景...',
+        'publishing': '发布中...',
+        'done': '完成',
+        'error': '出错了',
+      };
+      const taskStepDisplay = stepDisplayMap[rawStep] || rawStep;
       this.setData({
         taskStatus: task.status || '',
-        taskStep: task.step || '',
+        taskStep: rawStep,
+        taskStepDisplay,
         taskProgress: typeof task.progress === 'number' ? task.progress : this.data.taskProgress,
         sceneId: task.sceneId || '',
         stage: nextStage,

@@ -46,7 +46,7 @@
     <view wx:if="{{stage !== 'idle'}}" class="task-panel theme-{{theme}}">
       <text class="task-title theme-{{theme}}">任务状态</text>
       <text class="task-status">{{taskStatus || stage}}</text>
-      <text class="task-step theme-{{theme}}">{{taskStep || '等待开始'}}</text>
+      <text class="task-step theme-{{theme}}">{{taskStepDisplay || '等待开始'}}</text>
       <progress percent="{{taskProgress}}" stroke-width="8" activeColor="#667eea" backgroundColor="rgba(255,255,255,0.12)" />
       <text wx:if="{{taskId}}" class="task-meta theme-{{theme}}">任务 ID：{{taskId}}</text>
       <text wx:if="{{sceneId}}" class="task-meta theme-{{theme}}">场景 ID：{{sceneId}}</text>

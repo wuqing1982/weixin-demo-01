@@ -4,6 +4,7 @@ pub mod cdk;
 pub mod orders;
 pub mod overview;
 pub mod products;
+pub mod scene_logs;
 pub mod scenes;
 pub mod storage;
 pub mod tasks;
@@ -74,6 +75,9 @@ pub fn routes() -> Router<AppState> {
         .route("/api/admin/storage/overview", get(storage::storage_overview))
         .route("/api/admin/storage/configs", get(storage::storage_configs))
         .route("/api/admin/storage/usage", get(storage::storage_usage))
+        // Scene generation logs
+        .route("/api/admin/scene-logs", get(scene_logs::list_scene_logs))
+        .route("/api/admin/scene-logs/{filename}", get(scene_logs::get_scene_log))
         // Admin page
         .route("/admin", get(serve_admin_index))
         .route("/admin/", get(serve_admin_index))

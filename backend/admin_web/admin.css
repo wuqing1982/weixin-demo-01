@@ -2312,3 +2312,43 @@ input {
   font-size: 13px;
   color: var(--muted);
 }
+
+/* ========== Scene Log Viewer ========== */
+.log-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+.log-file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  cursor: pointer;
+  color: inherit;
+  font-size: 14px;
+}
+.log-file-item:hover {
+  border-color: var(--accent);
+}
+.log-content-area {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  max-height: 600px;
+  overflow-y: auto;
+}
+.log-content {
+  margin: 0;
+  padding: 16px;
+  font-family: 'Menlo', 'Consolas', 'Courier New', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: var(--text);
+}

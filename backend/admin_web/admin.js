@@ -1571,7 +1571,8 @@ const VIEW_TITLES = {
   orders: '订单管理',
   tasks: '任务管理',
   cdk: '卡密管理',
-  storage: '存储管理'
+  storage: '存储管理',
+  'scene-logs': '生成日志'
 };
 
 function formatBytes(bytes) {
@@ -1591,6 +1592,40 @@ async function loadStorageData() {
     state.storageConfigs = configs;
   } catch (error) {
     toast(error.message || '加载存储数据失败', 'error');
+  }
+}
+
+async function renderSceneLogs() {
+  panelHead.innerHTML = `
+    <div>
+      <h3 class="panel-title">生成日志</h3>
+      <p class="panel-subtitle">场景生成任务的三级重试记录，按天分文件。</p>
+    </div>
+  `;
+  panelBody.innerHTML = '<div class="empty-copy">加载中...</div>';
+
+  try {
+    const result = await api('/api/admin/scene-logs');
+    const logs = result.list || [];
+    if (logs.length === 0) {
+      panelBody.innerHTML = '<div class="empty-copy">暂无日志文件</div>';
+      return;
+    }
+    panelBody.innerHTML = `
+      <div class="log-file-list">
+        ${logs.map((f) => `
+          <button class="log-file-item" data-action="view-log" data-filename="${escapeHtml(f.filename)}">
+            <strong>${escapeHtml(f.filename)}</strong>
+            <span class="meta-chip">${(f.size / 1024).toFixed(1)} KB</span>
+          </button>
+        `).join('')}
+      </div>
+      <div id="log-content-area" class="log-content-area" style="display:none">
+        <pre id="log-content" class="log-content"></pre>
+      </div>
+    `;
+  } catch (error) {
+    panelBody.innerHTML = `<div class="empty-copy">加载失败: ${escapeHtml(error.message)}</div>`;
   }
 }
 
@@ -1760,6 +1795,10 @@ function renderCurrentView() {
       return;
     }
     renderStorage();
+    return;
+  }
+  if (state.currentView === 'scene-logs') {
+    renderSceneLogs();
     return;
   }
   renderUsers();
@@ -2147,6 +2186,21 @@ async function handleAction(action, id) {
       } catch (_) {
         toast('复制失败，请手动复制');
       }
+    }
+    return;
+  }
+  if (action === 'view-log') {
+    const filename = event.target.closest('[data-filename]').dataset.filename;
+    try {
+      const result = await api(`/api/admin/scene-logs/${encodeURIComponent(filename)}`);
+      const area = document.getElementById('log-content-area');
+      const content = document.getElementById('log-content');
+      if (area && content) {
+        content.textContent = result.content || '(empty)';
+        area.style.display = 'block';
+      }
+    } catch (error) {
+      toast(error.message || '加载日志失败', 'error');
     }
     return;
   }
