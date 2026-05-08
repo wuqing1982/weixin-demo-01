@@ -324,6 +324,30 @@ pub async fn get_category_name(pool: &PgPool, category_id: &str) -> Result<Optio
     Ok(row.map(|r| r.0))
 }
 
+pub struct CategoryInfo {
+    pub id: String,
+    pub name: String,
+}
+
+pub async fn get_category_by_code(pool: &PgPool, category_code: &str) -> Result<Option<CategoryInfo>, sqlx::Error> {
+    let row: Option<(String, String)> = sqlx::query_as(
+        "SELECT id, name FROM scene_categories WHERE category_code = $1 AND status = 'active'"
+    )
+        .bind(category_code)
+        .fetch_optional(pool)
+        .await?;
+    Ok(row.map(|(id, name)| CategoryInfo { id, name }))
+}
+
+pub async fn list_active_categories(pool: &PgPool) -> Result<Vec<(String, String)>, sqlx::Error> {
+    let rows: Vec<(String, String)> = sqlx::query_as(
+        "SELECT category_code, name FROM scene_categories WHERE status = 'active' ORDER BY sort_order"
+    )
+        .fetch_all(pool)
+        .await?;
+    Ok(rows)
+}
+
 pub async fn delete_category(pool: &PgPool, id: &str) -> Result<(), sqlx::Error> {
     sqlx::query("DELETE FROM scene_categories WHERE id = $1")
         .bind(id).execute(pool).await?;

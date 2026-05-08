@@ -129,7 +129,7 @@ pub async fn process_scene_task(state: AppState, task_id: String) {
     };
 
     let image_asset_path = format!("/assets/generated/{scene_id}/background.jpg");
-    let scene_json = build_scene_json(
+    let mut scene_json = build_scene_json(
         &scene_id,
         &title,
         &image_asset_path,
@@ -140,6 +140,15 @@ pub async fn process_scene_task(state: AppState, task_id: String) {
         voice_name,
         &core_result,
     );
+
+    // Auto-fill categoryId from AI recommended_category
+    let rec_cat = core_result.get("recommended_category").and_then(|v| v.as_str()).unwrap_or("home");
+    if let Ok(Some(cat_info)) = db::scenes::get_category_by_code(pool, rec_cat).await {
+        if let Some(meta) = scene_json.get_mut("metaJson").and_then(|m| m.as_object_mut()) {
+            meta.insert("categoryId".into(), json!(cat_info.id));
+        }
+        scene_json["category"] = json!(cat_info.name);
+    }
 
     if let Err(e) = db::scenes::upsert_scene(pool, &scene_json).await {
         let _ = db::tasks::update_task(pool, &task_id, "failed", "error", 0, None, Some(&format!("save scene: {e}"))).await;
@@ -198,7 +207,11 @@ async fn analyze_scene_with_retry(
     _owner_id: &str,
 ) -> RetryResult {
     let api_key = &state.config.zhipuai_api_key;
-    let prompt = build_analysis_prompt(scene_name, include_verbs);
+    let categories_hint = match db::scenes::list_active_categories(&state.pool).await {
+        Ok(cats) => cats.iter().map(|(code, name)| format!("{}({})", code, name)).collect::<Vec<_>>().join(", "),
+        Err(_) => "home(居家生活), school(校园学习), city(城市社区), nature(自然探索), transport(交通出行), sports(运动娱乐)".to_string(),
+    };
+    let prompt = build_analysis_prompt(scene_name, include_verbs, &categories_hint);
     let models = [
         state.config.core100_model.clone(),
         state.config.core100_retry_model.clone(),
@@ -348,7 +361,7 @@ async fn write_scene_log(
 
 // ─── Prompt building ────────────────────────────────────────────
 
-fn build_analysis_prompt(scene_name: &str, include_verbs: bool) -> String {
+fn build_analysis_prompt(scene_name: &str, include_verbs: bool, categories_hint: &str) -> String {
     let scene_instruction = if scene_name == "auto" || scene_name.is_empty() {
         "请分析这张场景图片，自动识别场景类型。".to_string()
     } else {
@@ -409,6 +422,7 @@ fn build_analysis_prompt(scene_name: &str, include_verbs: bool) -> String {
   "scene_id": "park",
   {scene_title_field}
   "recommended_category": "分类代码",
+  // recommended_category 必须是以下之一: {categories_hint}
   "hotspots": [
     {{
       "id": "unique_object_name",
