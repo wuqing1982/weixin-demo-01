@@ -34,12 +34,19 @@ function buildSceneTabs(publicList, myList, currentScene) {
 
 Page(Object.assign({}, createScenePage(), {
   data: {
-    theme: 'dark'
+    theme: 'dark',
+    sliderBgColor: 'rgba(255,255,255,0.25)',
+    sliderActiveColor: '#667eea',
   },
 
   async onLoad(options) {
     const theme = getApp().globalData.theme;
-    this.setData({ theme });
+    const isDark = theme === 'dark';
+    this.setData({
+      theme,
+      sliderBgColor: isDark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.12)',
+      sliderActiveColor: '#667eea',
+    });
     updateNavBar(theme);
     this.initializeScenePage();
 

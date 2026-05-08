@@ -46,8 +46,8 @@
                 value="{{playbackRate}}"
                 bindchange="onRateChange"
                 block-size="14"
-                backgroundColor="rgba(255,255,255,0.25)"
-                activeColor="#667eea"
+                backgroundColor="{{sliderBgColor}}"
+                activeColor="{{sliderActiveColor}}"
               />
 
               <view
