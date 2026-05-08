@@ -25,6 +25,7 @@ struct PhoneNumberResponse {
 }
 
 #[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
 struct PhoneInfo {
     pure_phone_number: Option<String>,
 }
