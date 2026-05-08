@@ -13,7 +13,7 @@ Page({
     selectedCollectionId: '',
     errorMessage: '',
     page: 1,
-    pageSize: 20,
+    pageSize: 12,
     totalCount: 0,
     totalPages: 1,
     pageNumbers: [1],
@@ -51,7 +51,7 @@ Page({
   async loadConfig() {
     try {
       const res = await request({ url: '/config' });
-      const pageSize = res.scenePageSize || 20;
+      const pageSize = res.scenePageSize || 12;
       this.setData({ pageSize });
     } catch (e) {
       // use default pageSize

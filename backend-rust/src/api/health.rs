@@ -19,6 +19,7 @@ pub async fn health() -> Json<Value> {
 pub async fn get_config(State(state): State<AppState>) -> Json<Value> {
     success(json!({
         "hotspotEditorEnabled": state.config.hotspot_editor_enabled,
+        "scenePageSize": state.config.scene_page_size,
     }))
 }
 
