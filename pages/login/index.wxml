@@ -6,8 +6,8 @@
   <view class="login-shell">
     <view class="brand-copy">
       <text class="brand-tag">ENGLISH SCENE CLUB</text>
-      <text class="brand-title">微信登录后，直接开始会员学习与场景生成</text>
-      <text class="brand-subtitle">面向家长和孩子的英语场景小程序。登录后可购买包年会员、查看订单、生成私人场景，并继续编辑热点。</text>
+      <text class="brand-title">远思场景融合</text>
+      <text class="brand-subtitle">将孩子日常制成英语学习卡，在熟悉的生活场景中每天重复使用。一年后，英语与母语自然融合，形成接近母语的英语思维。</text>
     </view>
 
     <view class="hero-card">
