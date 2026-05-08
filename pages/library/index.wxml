@@ -18,10 +18,10 @@
           >全部分类</view>
           <view
             wx:for="{{categories}}"
-            wx:key="categoryId"
-            class="filter-chip theme-{{theme}} {{selectedCategoryId === item.categoryId ? 'filter-chip-active' : ''}}"
+            wx:key="id"
+            class="filter-chip theme-{{theme}} {{selectedCategoryId === item.id ? 'filter-chip-active' : ''}}"
             bindtap="onSelectCategory"
-            data-category-id="{{item.categoryId}}"
+            data-category-id="{{item.id}}"
           >{{item.name}}</view>
         </view>
       </scroll-view>
@@ -38,10 +38,10 @@
           >全部合集</view>
           <view
             wx:for="{{collections}}"
-            wx:key="collectionId"
-            class="filter-chip theme-{{theme}} {{selectedCollectionId === item.collectionId ? 'filter-chip-active' : ''}}"
+            wx:key="id"
+            class="filter-chip theme-{{theme}} {{selectedCollectionId === item.id ? 'filter-chip-active' : ''}}"
             bindtap="onSelectCollection"
-            data-collection-id="{{item.collectionId}}"
+            data-collection-id="{{item.id}}"
           >{{item.name}}</view>
         </view>
       </scroll-view>

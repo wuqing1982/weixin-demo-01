@@ -6,20 +6,54 @@ pub async fn list_public_scenes(
     pool: &PgPool,
     limit: i64,
     offset: i64,
+    category_id: Option<&str>,
+    collection_id: Option<&str>,
 ) -> Result<(Vec<Scene>, i64), sqlx::Error> {
-    let count: (i64,) = sqlx::query_as(
-        "SELECT count(*) FROM scenes WHERE visibility = 'public' AND scene_type = 'public'"
-    )
-        .fetch_one(pool)
-        .await?;
+    let mut conditions = vec![
+        "scenes.visibility = 'public'".to_string(),
+        "scenes.scene_type = 'public'".to_string(),
+    ];
+    let mut join = String::new();
+    let mut next_param = 1u32;
 
-    let scenes = sqlx::query_as::<_, Scene>(
-        "SELECT * FROM scenes WHERE visibility = 'public' AND scene_type = 'public' ORDER BY created_at DESC LIMIT $1 OFFSET $2"
-    )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(pool)
-        .await?;
+    if let Some(_) = category_id {
+        conditions.push(format!("(scenes.meta_json->>'categoryId') = ${}", next_param));
+        next_param += 1;
+    }
+
+    if collection_id.is_some() {
+        join = "JOIN scene_publication_collections spc ON scenes.scene_id = spc.public_scene_id".to_string();
+        conditions.push(format!("spc.collection_id = ${}", next_param));
+        next_param += 1;
+    }
+
+    let where_sql = conditions.join(" AND ");
+    let limit_param = next_param;
+    let offset_param = next_param + 1;
+
+    let count_sql = format!("SELECT count(*) FROM scenes {} WHERE {}", join, where_sql);
+    let query_sql = format!(
+        "SELECT scenes.* FROM scenes {} WHERE {} ORDER BY scenes.created_at DESC LIMIT ${} OFFSET ${}",
+        join, where_sql, limit_param, offset_param
+    );
+
+    let mut count_q = sqlx::query_as::<_, (i64,)>(&count_sql);
+    let mut query_q = sqlx::query_as::<_, Scene>(&query_sql);
+
+    if let Some(cid) = category_id {
+        count_q = count_q.bind(cid);
+        query_q = query_q.bind(cid);
+    }
+    if let Some(col_id) = collection_id {
+        count_q = count_q.bind(col_id);
+        query_q = query_q.bind(col_id);
+    }
+
+    count_q = count_q.bind(limit).bind(offset);
+    query_q = query_q.bind(limit).bind(offset);
+
+    let count = count_q.fetch_one(pool).await?;
+    let scenes = query_q.fetch_all(pool).await?;
 
     Ok((scenes, count.0))
 }

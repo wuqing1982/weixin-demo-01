@@ -15,6 +15,8 @@ pub struct ListScenesQuery {
     page: Option<i64>,
     page_size: Option<i64>,
     category: Option<String>,
+    category_id: Option<String>,
+    collection_id: Option<String>,
 }
 
 pub async fn list_scenes(
@@ -26,7 +28,13 @@ pub async fn list_scenes(
     let page = query.page.unwrap_or(1).max(1);
     let offset = (page - 1) * page_size;
 
-    let (scenes, total) = scenes::list_public_scenes(&state.pool, page_size, offset).await?;
+    let (scenes, total) = scenes::list_public_scenes(
+        &state.pool,
+        page_size,
+        offset,
+        query.category_id.as_deref(),
+        query.collection_id.as_deref(),
+    ).await?;
 
     let list: Vec<Value> = scenes.iter().map(|s| serialize_scene_summary(&state, s)).collect();
 
