@@ -51,7 +51,8 @@
         </view>
         <view class="tier-feature">
           <text class="feature-icon theme-{{theme}} {{item.videoExport ? 'check-icon' : 'cross-icon'}}">{{item.videoExport ? '✓' : '✕'}}</text>
-          <text class="feature-text theme-{{theme}}" wx:if="{{item.tierCode === 'plus'}}">150个视频导出（自己拍摄上传创建）</text>
+          <text class="feature-text theme-{{theme}}" wx:if="{{item.tierCode === 'pro'}}">50个视频导出（自己拍摄上传创建）</text>
+          <text class="feature-text theme-{{theme}}" wx:elif="{{item.tierCode === 'plus'}}">200个视频导出（自己拍摄上传创建）</text>
           <text class="feature-text theme-{{theme}}" wx:elif="{{item.tierCode === 'max'}}">500个视频导出（自己拍摄上传创建）</text>
           <text class="feature-text theme-{{theme}}" wx:else>视频导出</text>
         </view>

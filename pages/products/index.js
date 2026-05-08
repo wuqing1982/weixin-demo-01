@@ -22,12 +22,12 @@ function getMemberTierLabel(me) {
 const TIER_META = {
   tier_pro: {
     credits: 50,
-    videoExport: false,
+    videoExport: true,
     priorityQueue: false,
     recommended: false,
   },
   tier_plus: {
-    credits: 150,
+    credits: 200,
     videoExport: true,
     priorityQueue: false,
     recommended: true,
