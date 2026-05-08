@@ -11,6 +11,7 @@ use crate::response::success;
 use crate::state::AppState;
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MyScenesQuery {
     pub page: Option<i64>,
     pub page_size: Option<i64>,
