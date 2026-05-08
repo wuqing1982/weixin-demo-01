@@ -19,11 +19,11 @@
     <view class="theme-options">
       <view class="theme-opt theme-{{theme}} {{theme === 'dark' ? 'active' : ''}}" bindtap="switchTheme" data-theme="dark">
         <view class="theme-preview dark-preview theme-{{theme}}"></view>
-        <text>暗色</text>
+        <text>深色</text>
       </view>
       <view class="theme-opt theme-{{theme}} {{theme === 'notion' ? 'active theme-opt-active-notion' : ''}}" bindtap="switchTheme" data-theme="notion">
         <view class="theme-preview notion-preview theme-{{theme}}"></view>
-        <text>纸张</text>
+        <text>浅色</text>
       </view>
     </view>
   </view>
