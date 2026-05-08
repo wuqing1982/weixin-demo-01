@@ -9,6 +9,7 @@ const state = {
   orders: [],
   tasks: [],
   cdkCodes: [],
+  cdkFilterSkuId: '',
   categories: [],
   collections: [],
   generatedScenes: [],
@@ -646,8 +647,11 @@ async function generateCdk() {
 function renderCdk() {
   // Build SKU options grouped by product
   const productSkuMap = {};
+  const skuNameMap = {};
   for (const sku of state.skus) {
     const pid = sku.productId || '';
+    const productName = (state.products.find((p) => p.productId === pid) || {}).name || '未知产品';
+    skuNameMap[sku.skuId] = `${productName} - ${sku.name}`;
     if (!productSkuMap[pid]) {
       productSkuMap[pid] = { product: state.products.find((p) => p.productId === pid), skus: [] };
     }
@@ -667,6 +671,8 @@ function renderCdk() {
     return `<span>${escapeHtml(status)}</span>`;
   };
 
+  const filterLabel = state.cdkFilterSkuId ? `筛选中: ${escapeHtml(skuNameMap[state.cdkFilterSkuId] || state.cdkFilterSkuId)}` : '';
+
   panelHead.innerHTML = `
     <div>
       <h3 class="panel-title">卡密管理</h3>
@@ -675,13 +681,15 @@ function renderCdk() {
     <div class="panel-actions">
       <span id="cdk-selected-count" class="selected-count"></span>
       <button id="batch-delete-cdk-btn" class="mini-btn danger-btn" disabled data-action="batch-delete-cdk">批量删除</button>
-      <span class="meta-chip">${state.cdkCodes.length} 条卡密</span>
+      <span class="meta-chip">${state.cdkCodes.length} 条卡密${filterLabel ? ' · ' + filterLabel : ''}</span>
     </div>
   `;
 
   panelBody.innerHTML = `
     <div class="inline-form">
       <select id="cdk-sku-select" class="form-select"><option value="">选择 SKU...</option>${skuOptions}</select>
+      <button class="mini-btn" data-action="filter-cdk">筛选卡密</button>
+      ${state.cdkFilterSkuId ? '<button class="mini-btn" data-action="show-all-cdk">显示全部</button>' : ''}
       <input id="cdk-quantity" type="number" class="form-input" placeholder="数量" value="1" min="1" max="500" style="width:80px">
       <input id="cdk-note" type="text" class="form-input" placeholder="备注（可选）" style="flex:1">
       <button class="mini-btn primary-btn" data-action="generate-cdk">生成卡密</button>
@@ -700,7 +708,7 @@ function renderCdk() {
         <div class="table-row">
           <label class="checkbox-cell"><input type="checkbox" class="cdk-checkbox" value="${escapeHtml(item.cdkId)}"></label>
           <strong class="cdk-code">${escapeHtml(item.code)}</strong>
-          <span>${escapeHtml(item.skuName)}</span>
+          <span>${escapeHtml(skuNameMap[item.skuId] || item.skuId || '-')}</span>
           ${statusBadge(item.status)}
           <span>${item.redeemedBy ? escapeHtml(item.redeemedBy).substring(0, 12) + '...' : '-'}</span>
           <span class="meta-copy">${escapeHtml(item.createdAt || '-')}</span>
@@ -2106,6 +2114,26 @@ async function handleAction(action, id) {
     } catch (error) {
       toast(error.message || '生成卡密失败');
     }
+    return;
+  }
+  if (action === 'filter-cdk') {
+    const skuId = document.getElementById('cdk-sku-select').value;
+    if (!skuId) { toast('请先选择 SKU'); return; }
+    state.cdkFilterSkuId = skuId;
+    try {
+      const result = await api(`/api/admin/cdk-codes?sku_id=${encodeURIComponent(skuId)}`);
+      state.cdkCodes = result.list || [];
+      renderCdk();
+    } catch (error) { toast(error.message || '筛选失败', 'error'); }
+    return;
+  }
+  if (action === 'show-all-cdk') {
+    state.cdkFilterSkuId = '';
+    try {
+      const result = await api('/api/admin/cdk-codes');
+      state.cdkCodes = result.list || [];
+      renderCdk();
+    } catch (error) { toast(error.message || '加载失败', 'error'); }
     return;
   }
   if (action === 'cdk-copy') {
