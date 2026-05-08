@@ -23,7 +23,7 @@ Page({
     actions: [
       {
         id: 'products',
-        title: '会员与点数商品',
+        title: '查看会员套餐与积分',
         desc: '浏览包年会员商品，完成购买闭环。',
         url: '/pages/products/index'
       },
