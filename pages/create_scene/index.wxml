@@ -21,7 +21,7 @@
       <input
         class="title-input theme-{{theme}}"
         value="{{sceneTitle}}"
-        placeholder="可选，例如：我的厨房"
+        placeholder="留空将自动为您生成标题"
         placeholder-class="placeholder theme-{{theme}}"
         bindinput="onTitleInput"
       />
