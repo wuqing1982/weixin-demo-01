@@ -24,37 +24,37 @@ Page({
       {
         id: 'products',
         title: '会员与点数商品',
-        desc: '浏览包年会员、月卡和生成点数商品，完成购买闭环。',
+        desc: '浏览包年会员商品，完成购买闭环。',
         url: '/pages/products/index'
       },
       {
         id: 'orders',
         title: '我的订单',
-        desc: '查看订单状态，继续完成待支付的 mock 支付。',
+        desc: '查看订单状态，继续完成待支付的订单。',
         url: '/pages/orders/index'
       },
       {
         id: 'library',
         title: '公开场景库',
-        desc: '从后端加载场景列表，再进入统一 runtime 页面。',
+        desc: '从后端加载场景列表，再进入官方公开场景页面。',
         url: '/pages/library/index'
       },
       {
         id: 'create',
         title: '拍照生成我的场景',
-        desc: '上传图片，提交后端任务，轮询生成进度，再打开私人场景。',
+        desc: '上传图片，提交生成场景，等待完成后，再打开私人场景。',
         url: '/pages/create_scene/index'
       },
       {
         id: 'mine',
         title: '我的生成场景',
-        desc: '查看当前调试用户生成过的私人场景列表。',
+        desc: '查看当前用户生成过的私人场景。',
         url: '/pages/my_scenes/index'
       },
       {
         id: 'videos',
         title: '我的导出视频',
-        desc: '查看已导出的学习视频，点击即可播放。',
+        desc: '查看已导出的学习视频，点击即可播放，请立即保存到相册，服务器仅保存3小时',
         url: '/pages/my_videos/index'
       }
     ]

@@ -1,0 +1,237 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1777222993759,
+  "projectRoot": "E:\\202603\\weixin-demo-01",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "assets",
+      "components",
+      "docs",
+      "pages",
+      "tests"
+    ],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "assets": {
+      "path": "assets",
+      "purpose": "Static assets",
+      "fileCount": 0,
+      "lastAccessed": 1777222993682,
+      "keyFiles": []
+    },
+    "backend": {
+      "path": "backend",
+      "purpose": null,
+      "fileCount": 6,
+      "lastAccessed": 1777222993682,
+      "keyFiles": [
+        "ecosystem.config.js",
+        "README.md",
+        "requirements.txt",
+        "start-api.sh",
+        "start-local-api.ps1"
+      ]
+    },
+    "components": {
+      "path": "components",
+      "purpose": "UI components",
+      "fileCount": 0,
+      "lastAccessed": 1777222993683,
+      "keyFiles": []
+    },
+    "config": {
+      "path": "config",
+      "purpose": "Configuration files",
+      "fileCount": 1,
+      "lastAccessed": 1777222993683,
+      "keyFiles": [
+        "runtime.js"
+      ]
+    },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 35,
+      "lastAccessed": 1777222993684,
+      "keyFiles": [
+        "ai-vocabulary-scene-generator-prd-20260404-1807-by-codex.md",
+        "backend-dev-context-for-wsl-20260326-000111-by-codex.md",
+        "backend-session-prompt-template-20260326-001242-by-codex.md",
+        "cdk-system.md",
+        "current-project-saas-platform-prd-20260404-1831-by-codex.md"
+      ]
+    },
+    "miniapp_scaffold": {
+      "path": "miniapp_scaffold",
+      "purpose": null,
+      "fileCount": 7,
+      "lastAccessed": 1777222993684,
+      "keyFiles": [
+        "app.js",
+        "app.json",
+        "app.wxss",
+        "project.config.json",
+        "README.md"
+      ]
+    },
+    "pages": {
+      "path": "pages",
+      "purpose": "Page components",
+      "fileCount": 0,
+      "lastAccessed": 1777222993684,
+      "keyFiles": []
+    },
+    "services": {
+      "path": "services",
+      "purpose": "Business logic services",
+      "fileCount": 12,
+      "lastAccessed": 1777222993685,
+      "keyFiles": [
+        "api.js",
+        "auth.js",
+        "cdk.js",
+        "config.js",
+        "order.js"
+      ]
+    },
+    "shared": {
+      "path": "shared",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1777222993685,
+      "keyFiles": [
+        "theme-helper.js"
+      ]
+    },
+    "tests": {
+      "path": "tests",
+      "purpose": "Test files",
+      "fileCount": 6,
+      "lastAccessed": 1777222993687,
+      "keyFiles": [
+        "hotspot-editor-geometry.test.js",
+        "library-filters-ui.test.js",
+        "login-profile-sync-ui.test.js",
+        "miniapp-config-lazycode.test.js",
+        "scene-template-hotspot-mode.test.js"
+      ]
+    },
+    "todolist": {
+      "path": "todolist",
+      "purpose": null,
+      "fileCount": 11,
+      "lastAccessed": 1777222993688,
+      "keyFiles": [
+        "task-saas-phase1-batch1-auth-foundation-20260405-by-codex.md",
+        "task-saas-phase1-batch10-real-wechat-payment-20260406-033215-by-codex.md",
+        "task-saas-phase1-batch2-postgres-auth-persistence-20260405-by-codex.md",
+        "task-saas-phase1-batch3-product-entitlement-read-model-20260405-by-codex.md",
+        "task-saas-phase1-batch4-mock-payment-order-flow-20260405-by-codex.md"
+      ]
+    },
+    "tools": {
+      "path": "tools",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1777222993689,
+      "keyFiles": [
+        "create_english_scene_miniapp.ps1"
+      ]
+    },
+    "backend\\app": {
+      "path": "backend\\app",
+      "purpose": "Application code",
+      "fileCount": 31,
+      "lastAccessed": 1777222993690,
+      "keyFiles": [
+        "access_control.py",
+        "auth_migration.py",
+        "auth_postgres_schema.py"
+      ]
+    },
+    "backend\\data": {
+      "path": "backend\\data",
+      "purpose": "Data files",
+      "fileCount": 6,
+      "lastAccessed": 1777222993692,
+      "keyFiles": [
+        "auth.json",
+        "generated_scenes.json",
+        "scenes.json"
+      ]
+    },
+    "backend\\scripts": {
+      "path": "backend\\scripts",
+      "purpose": "Build/utility scripts",
+      "fileCount": 5,
+      "lastAccessed": 1777222993694,
+      "keyFiles": [
+        "migrate_auth_to_postgres.py",
+        "migrate_scenes_to_postgres.py",
+        "republish_unpublished_scenes.py"
+      ]
+    },
+    "miniapp_scaffold\\pages": {
+      "path": "miniapp_scaffold\\pages",
+      "purpose": "Page components",
+      "fileCount": 0,
+      "lastAccessed": 1777222993695,
+      "keyFiles": []
+    },
+    "miniapp_scaffold\\services": {
+      "path": "miniapp_scaffold\\services",
+      "purpose": "Business logic services",
+      "fileCount": 7,
+      "lastAccessed": 1777222993696,
+      "keyFiles": [
+        "api.js",
+        "auth.js",
+        "config.js"
+      ]
+    },
+    "miniapp_scaffold\\utils": {
+      "path": "miniapp_scaffold\\utils",
+      "purpose": "Utility functions",
+      "fileCount": 1,
+      "lastAccessed": 1777222993696,
+      "keyFiles": [
+        "scene-storage.js"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "C:\\Users\\starhqking\\.claude\\skills\\code-translate\\SKILL.md",
+      "accessCount": 2,
+      "lastAccessed": 1777223286261,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}
