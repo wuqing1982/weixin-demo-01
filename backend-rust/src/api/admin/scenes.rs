@@ -11,13 +11,18 @@ use crate::state::AppState;
 #[derive(Deserialize)]
 pub struct LimitQuery {
     pub limit: Option<i64>,
+    pub page: Option<i64>,
 }
 
 pub async fn list_public_scenes(
     State(state): State<AppState>,
     _admin: AdminUser,
+    Query(q): Query<LimitQuery>,
 ) -> Result<Json<Value>, AppError> {
-    let scenes = crate::db::scenes::list_all_public_scenes(&state.pool).await?;
+    let page_size = q.limit.unwrap_or(state.config.admin_page_size).min(200).max(1);
+    let page = q.page.unwrap_or(1).max(1);
+    let offset = (page - 1) * page_size;
+    let (scenes, total) = crate::db::scenes::list_all_public_scenes(&state.pool, page_size, offset).await?;
 
     let mut list = Vec::with_capacity(scenes.len());
     for scene in &scenes {
@@ -98,7 +103,7 @@ pub async fn list_public_scenes(
         }));
     }
 
-    Ok(response::success(json!({ "list": list })))
+    Ok(response::success(json!({ "list": list, "total": total, "page": page, "pageSize": page_size })))
 }
 
 pub async fn list_generated_scenes(
@@ -106,8 +111,10 @@ pub async fn list_generated_scenes(
     _admin: AdminUser,
     Query(q): Query<LimitQuery>,
 ) -> Result<Json<Value>, AppError> {
-    let limit = q.limit.unwrap_or(50);
-    let scenes = crate::db::scenes::list_all_generated_scenes(&state.pool, limit).await?;
+    let limit = q.limit.unwrap_or(state.config.admin_page_size).min(200).max(1);
+    let page = q.page.unwrap_or(1).max(1);
+    let offset = (page - 1) * limit;
+    let (scenes, total) = crate::db::scenes::list_all_generated_scenes(&state.pool, limit, offset).await?;
 
     let base_url = &state.config.public_base_url;
 
@@ -216,7 +223,7 @@ pub async fn list_generated_scenes(
         }));
     }
 
-    Ok(response::success(json!({ "list": list })))
+    Ok(response::success(json!({ "list": list, "total": total, "page": page, "pageSize": limit })))
 }
 
 #[derive(Deserialize)]

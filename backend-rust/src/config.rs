@@ -24,6 +24,7 @@ pub struct Config {
     pub video_max_age_seconds: i64,
     pub upload_max_age_seconds: i64,
     pub scene_page_size: i64,
+    pub admin_page_size: i64,
     pub hotspot_editor_enabled: bool,
     pub server_port: u16,
     // Commerce
@@ -85,7 +86,8 @@ impl Config {
             generated_dir: env_or("GENERATED_DIR", "../assets/generated"),
             video_max_age_seconds: env_int("VIDEO_MAX_AGE_SECONDS", 10800),
             upload_max_age_seconds: env_int("UPLOAD_MAX_AGE_SECONDS", 10800),
-            scene_page_size: env_int("SCENE_PAGE_SIZE", 20),
+            scene_page_size: env_int("SCENE_PAGE_SIZE", 12),
+            admin_page_size: env_int("ADMIN_PAGE_SIZE", 50),
             hotspot_editor_enabled: env_bool("HOTSPOT_EDITOR_ENABLED", true),
             server_port: env::var("SERVER_PORT").ok().and_then(|v| v.parse().ok()).unwrap_or(8000),
             payment_mode: env_or("PAYMENT_MODE", "mock"),

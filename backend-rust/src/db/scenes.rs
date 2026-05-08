@@ -177,21 +177,36 @@ pub async fn list_all_collections(pool: &PgPool) -> Result<Vec<SceneCollection>,
 
 use crate::models::scene::ScenePublication;
 
-pub async fn list_all_public_scenes(pool: &PgPool) -> Result<Vec<Scene>, sqlx::Error> {
-    sqlx::query_as::<_, Scene>(
-        "SELECT * FROM scenes WHERE scene_type = 'public' ORDER BY created_at DESC"
+pub async fn list_all_public_scenes(pool: &PgPool, limit: i64, offset: i64) -> Result<(Vec<Scene>, i64), sqlx::Error> {
+    let count: (i64,) = sqlx::query_as(
+        "SELECT count(*) FROM scenes WHERE scene_type = 'public'"
     )
-    .fetch_all(pool)
-    .await
-}
-
-pub async fn list_all_generated_scenes(pool: &PgPool, limit: i64) -> Result<Vec<Scene>, sqlx::Error> {
-    sqlx::query_as::<_, Scene>(
-        "SELECT * FROM scenes WHERE scene_type != 'public' ORDER BY created_at DESC LIMIT $1"
+    .fetch_one(pool)
+    .await?;
+    let scenes = sqlx::query_as::<_, Scene>(
+        "SELECT * FROM scenes WHERE scene_type = 'public' ORDER BY created_at DESC LIMIT $1 OFFSET $2"
     )
     .bind(limit)
+    .bind(offset)
     .fetch_all(pool)
-    .await
+    .await?;
+    Ok((scenes, count.0))
+}
+
+pub async fn list_all_generated_scenes(pool: &PgPool, limit: i64, offset: i64) -> Result<(Vec<Scene>, i64), sqlx::Error> {
+    let count: (i64,) = sqlx::query_as(
+        "SELECT count(*) FROM scenes WHERE scene_type != 'public'"
+    )
+    .fetch_one(pool)
+    .await?;
+    let scenes = sqlx::query_as::<_, Scene>(
+        "SELECT * FROM scenes WHERE scene_type != 'public' ORDER BY created_at DESC LIMIT $1 OFFSET $2"
+    )
+    .bind(limit)
+    .bind(offset)
+    .fetch_all(pool)
+    .await?;
+    Ok((scenes, count.0))
 }
 
 pub async fn get_publication_by_public_id(pool: &PgPool, public_scene_id: &str) -> Result<Option<ScenePublication>, sqlx::Error> {

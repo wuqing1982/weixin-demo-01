@@ -22,7 +22,7 @@ pub async fn list_my_scenes(
     Query(query): Query<MyScenesQuery>,
 ) -> Result<Json<Value>, AppError> {
     let page = query.page.unwrap_or(1).max(1);
-    let page_size = query.page_size.unwrap_or(20).min(100);
+    let page_size = query.page_size.unwrap_or(12).min(100);
     let offset = (page - 1) * page_size;
 
     let (scenes, total) = db::scenes::get_user_scenes(&state.pool, &auth.user_id, page_size, offset).await?;
