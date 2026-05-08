@@ -64,6 +64,21 @@ function closeModal() {
   setTimeout(() => { overlay.hidden = true; }, 200);
 }
 
+function getSceneCategoryId(scene) {
+  return (scene.publication && scene.publication.categoryId) || scene.categoryId || '';
+}
+
+function resolveCategoryName(categoryId) {
+  if (!categoryId) return '';
+  const cat = state.categories.find(c => c.categoryId === categoryId);
+  return cat ? cat.name : categoryId;
+}
+
+function getSceneCategoryDisplay(scene) {
+  const catId = getSceneCategoryId(scene);
+  return resolveCategoryName(catId) || scene.category || '-';
+}
+
 function getFilteredScenes() {
   let list = state.scenes;
   const q = (state.sceneSearchQuery || '').trim().toLowerCase();
@@ -75,10 +90,7 @@ function getFilteredScenes() {
     });
   }
   if (state.sceneFilterCategory) {
-    list = list.filter((s) => {
-      const cat = (s.publication && (s.publication.categoryName || s.publication.categoryId)) || s.category || '';
-      return cat === state.sceneFilterCategory;
-    });
+    list = list.filter((s) => getSceneCategoryId(s) === state.sceneFilterCategory);
   }
   if (state.sceneFilterVisibility) {
     list = list.filter((s) => (s.visibility || 'public') === state.sceneFilterVisibility);
@@ -256,7 +268,7 @@ function renderPublicationSummary(publication) {
   if (!publication) {
     return '<span class="meta-chip">未发布</span>';
   }
-  return `<span class="meta-chip">已发布 · ${escapeHtml(publication.categoryName || publication.categoryId || '-')} · ${escapeHtml((publication.collectionIds || []).length)} 个合集</span>`;
+  return `<span class="meta-chip">已发布 · ${escapeHtml(resolveCategoryName(publication.categoryId) || '-')} · ${escapeHtml((publication.collectionIds || []).length)} 个合集</span>`;
 }
 
 function renderOverview() {
@@ -923,8 +935,6 @@ function openSceneModal() {
 function renderScenes() {
   const viewMode = state.sceneViewMode || 'card';
   const filteredScenes = getFilteredScenes();
-  const categoryNames = [...new Set(state.scenes.map((s) => (s.publication && (s.publication.categoryName || s.publication.categoryId)) || s.category || '').filter(Boolean))];
-
   panelHead.innerHTML = `
     <div class="scene-toolbar">
       <div class="scene-toolbar-left">
@@ -934,7 +944,7 @@ function renderScenes() {
         <div class="scene-filter-group">
           <select class="scene-filter-select" id="scene-filter-category">
             <option value="">全部分类</option>
-            ${categoryNames.map((name) => `<option value="${escapeHtml(name)}" ${name === state.sceneFilterCategory ? 'selected' : ''}>${escapeHtml(name)}</option>`).join('')}
+            ${state.categories.map((cat) => `<option value="${escapeHtml(cat.categoryId)}" ${cat.categoryId === state.sceneFilterCategory ? 'selected' : ''}>${escapeHtml(cat.name)}</option>`).join('')}
           </select>
           <select class="scene-filter-select" id="scene-filter-visibility">
             <option value="">全部状态</option>
@@ -1014,7 +1024,7 @@ function renderSceneCards(scenes) {
     </div>
     <div class="card-grid">
       ${scenes.map((item) => {
-        const cat = (item.publication && (item.publication.categoryName || item.publication.categoryId)) || item.category || '-';
+        const cat = getSceneCategoryDisplay(item);
         const vis = item.visibility || 'public';
         const coverUrl = buildCoverUrl(item.coverPath || item.backgroundPath);
         return `
@@ -1072,7 +1082,7 @@ function renderSceneTable(scenes) {
         <span>操作</span>
       </div>
       ${scenes.map((item) => {
-        const cat = (item.publication && (item.publication.categoryName || item.publication.categoryId)) || item.category || '-';
+        const cat = getSceneCategoryDisplay(item);
         const vis = item.visibility || 'public';
         return `
         <div class="scene-table-row" data-id="${escapeHtml(item.sceneId)}">
@@ -1484,7 +1494,7 @@ function renderDrafts() {
             <div><span>热点数</span><strong>${escapeHtml(draft.itemCount || 0)}</strong></div>
             <div><span>非名词数</span><strong>${escapeHtml(draft.verbCount || 0)}</strong></div>
             <div><span>可见性</span><strong>${escapeHtml(draft.visibility || 'private')}</strong></div>
-            <div><span>分类</span><strong>${escapeHtml(publication && (publication.categoryName || publication.categoryId) || '-')}</strong></div>
+            <div><span>分类</span><strong>${escapeHtml(publication ? (resolveCategoryName(publication.categoryId) || '-') : '-')}</strong></div>
           </div>
         </article>
 
