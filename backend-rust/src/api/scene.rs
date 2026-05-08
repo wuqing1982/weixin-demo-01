@@ -32,8 +32,8 @@ pub async fn list_scenes(
         &state.pool,
         page_size,
         offset,
-        query.category_id.as_deref(),
-        query.collection_id.as_deref(),
+        query.category_id.as_deref().filter(|s| !s.is_empty()),
+        query.collection_id.as_deref().filter(|s| !s.is_empty()),
     ).await?;
 
     let list: Vec<Value> = scenes.iter().map(|s| serialize_scene_summary(&state, s)).collect();
