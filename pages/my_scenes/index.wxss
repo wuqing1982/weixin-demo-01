@@ -2,6 +2,63 @@
   margin-top: 24rpx;
 }
 
+/* ---- Category filter ---- */
+
+.section-block {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.section-heading {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #ffffff !important;
+}
+.section-heading.theme-notion { color: rgba(0,0,0,0.95) !important; }
+
+.filter-scroll {
+  width: 100%;
+}
+
+.filter-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 16rpx;
+  min-width: 100%;
+  padding-bottom: 4rpx;
+}
+
+.filter-chip {
+  flex-shrink: 0;
+  padding: 14rpx 24rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  line-height: 1;
+  background: rgba(255,255,255,0.07) !important;
+  color: rgba(255,255,255,0.60) !important;
+}
+
+.filter-chip.theme-notion {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  color: #615d59 !important;
+  border-radius: 999rpx;
+}
+
+.filter-chip-active {
+  background: rgba(126, 240, 191, 0.16) !important;
+  border-color: transparent !important;
+  color: #d8fff0 !important;
+}
+
+.filter-chip-active.theme-notion {
+  background: #0075de !important;
+  border-color: transparent !important;
+  color: #ffffff !important;
+}
+
 .scene-list {
   display: flex;
   flex-direction: column;

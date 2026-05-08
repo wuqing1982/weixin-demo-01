@@ -9,6 +9,25 @@
   <view wx:elif="{{errorMessage}}" class="state-card theme-{{theme}}">{{errorMessage}}</view>
 
   <view wx:else>
+    <view class="section-block">
+      <text class="section-heading theme-{{theme}}">场景分类</text>
+      <scroll-view class="filter-scroll" scroll-x="true" enable-flex="true">
+        <view class="filter-row">
+          <view
+            class="filter-chip theme-{{theme}} {{selectedCategoryId ? '' : 'filter-chip-active'}}"
+            bindtap="onSelectCategory"
+            data-category-id=""
+          >全部分类</view>
+          <view
+            wx:for="{{categories}}"
+            wx:key="id"
+            class="filter-chip theme-{{theme}} {{selectedCategoryId === item.id ? 'filter-chip-active' : ''}}"
+            bindtap="onSelectCategory"
+            data-category-id="{{item.id}}"
+          >{{item.name}}</view>
+        </view>
+      </scroll-view>
+    </view>
     <view class="section-header">
       <text class="section-heading theme-{{theme}}">我的场景</text>
       <view class="view-toggle" bindtap="onToggleViewMode">

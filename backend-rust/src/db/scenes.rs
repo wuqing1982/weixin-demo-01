@@ -83,22 +83,33 @@ pub async fn get_user_scenes(
     user_id: &str,
     limit: i64,
     offset: i64,
+    category_id: Option<&str>,
 ) -> Result<(Vec<Scene>, i64), sqlx::Error> {
-    let count: (i64,) = sqlx::query_as(
-        "SELECT count(*) FROM scenes WHERE owner_id = $1"
-    )
-        .bind(user_id)
-        .fetch_one(pool)
-        .await?;
+    let mut conditions = vec!["owner_id = $1".to_string()];
+    let mut param_idx = 2;
 
-    let scenes = sqlx::query_as::<_, Scene>(
-        "SELECT * FROM scenes WHERE owner_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3"
-    )
-        .bind(user_id)
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(pool)
-        .await?;
+    let cat_param = if let Some(cid) = category_id {
+        conditions.push(format!("(meta_json->>'categoryId') = ${}", param_idx));
+        param_idx += 1;
+        Some(cid)
+    } else {
+        None
+    };
+
+    let where_clause = conditions.join(" AND ");
+
+    let count_sql = format!("SELECT count(*) FROM scenes WHERE {}", where_clause);
+    let mut count_query = sqlx::query_as::<_, (i64,)>(&count_sql).bind(user_id);
+    if let Some(cid) = cat_param { count_query = count_query.bind(cid); }
+    let count = count_query.fetch_one(pool).await?;
+
+    let data_sql = format!(
+        "SELECT * FROM scenes WHERE {} ORDER BY created_at DESC LIMIT ${} OFFSET ${}",
+        where_clause, param_idx, param_idx + 1
+    );
+    let mut data_query = sqlx::query_as::<_, Scene>(&data_sql).bind(user_id);
+    if let Some(cid) = cat_param { data_query = data_query.bind(cid); }
+    let scenes = data_query.bind(limit).bind(offset).fetch_all(pool).await?;
 
     Ok((scenes, count.0))
 }

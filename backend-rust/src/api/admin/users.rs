@@ -88,7 +88,7 @@ pub async fn get_user(
         .await
         .unwrap_or_default();
     let (generated_scenes, _total) =
-        crate::db::scenes::get_user_scenes(&state.pool, &user.id, 100, 0)
+        crate::db::scenes::get_user_scenes(&state.pool, &user.id, 100, 0, None)
             .await
             .unwrap_or_default();
 

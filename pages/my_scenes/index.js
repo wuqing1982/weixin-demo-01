@@ -1,5 +1,5 @@
 const { updateNavBar } = require('../../shared/theme-helper');
-const { getMyScenes } = require('../../services/scene');
+const { getMyScenes, getSceneCategories } = require('../../services/scene');
 const { request } = require('../../services/api');
 
 Page({
@@ -15,7 +15,9 @@ Page({
     pageNumbers: [1],
     hasMore: true,
     loadingMore: false,
-    viewMode: 'grid'
+    viewMode: 'grid',
+    selectedCategoryId: '',
+    categories: []
   },
 
   onShow() {
@@ -35,6 +37,13 @@ Page({
   onToggleViewMode() {
     const next = this.data.viewMode === 'grid' ? 'list' : 'grid';
     this.setData({ viewMode: next });
+  },
+
+  onSelectCategory(event) {
+    const { categoryId } = event.currentTarget.dataset;
+    const nextCategoryId = categoryId === this.data.selectedCategoryId ? '' : (categoryId || '');
+    this.setData({ selectedCategoryId: nextCategoryId });
+    this.loadScenes();
   },
 
   onReachBottom() {
@@ -64,22 +73,34 @@ Page({
     });
 
     try {
-      const data = await getMyScenes({
+      const params = {
         page: 1,
         pageSize: this.data.pageSize
-      });
+      };
+      if (this.data.selectedCategoryId) {
+        params.categoryId = this.data.selectedCategoryId;
+      }
+
+      const [data, categoriesData] = await Promise.all([
+        getMyScenes(params),
+        this.data.categories.length ? Promise.resolve(null) : getSceneCategories()
+      ]);
 
       const list = data.list || [];
       const totalCount = data.total || 0;
       const totalPages = Math.ceil(totalCount / this.data.pageSize) || 1;
-      this.setData({
+      const updates = {
         loading: false,
         scenes: list,
         totalCount,
         totalPages,
         pageNumbers: this.calcPageNumbers(1, totalPages),
         hasMore: 1 < totalPages
-      });
+      };
+      if (categoriesData && categoriesData.list) {
+        updates.categories = categoriesData.list;
+      }
+      this.setData(updates);
     } catch (error) {
       this.setData({
         loading: false,
@@ -93,10 +114,14 @@ Page({
     this.setData({ loadingMore: true });
 
     try {
-      const data = await getMyScenes({
+      const params = {
         page: nextPage,
         pageSize: this.data.pageSize
-      });
+      };
+      if (this.data.selectedCategoryId) {
+        params.categoryId = this.data.selectedCategoryId;
+      }
+      const data = await getMyScenes(params);
 
       const newList = data.list || [];
       const totalCount = data.total || 0;
@@ -131,10 +156,14 @@ Page({
   async loadPage(page) {
     this.setData({ loading: true, errorMessage: '' });
     try {
-      const data = await getMyScenes({
+      const params = {
         page,
         pageSize: this.data.pageSize
-      });
+      };
+      if (this.data.selectedCategoryId) {
+        params.categoryId = this.data.selectedCategoryId;
+      }
+      const data = await getMyScenes(params);
       const list = data.list || [];
       const totalCount = data.total || 0;
       const totalPages = Math.ceil(totalCount / this.data.pageSize) || 1;

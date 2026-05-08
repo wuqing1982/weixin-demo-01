@@ -14,6 +14,7 @@ use crate::state::AppState;
 pub struct MyScenesQuery {
     pub page: Option<i64>,
     pub page_size: Option<i64>,
+    pub category_id: Option<String>,
 }
 
 pub async fn list_my_scenes(
@@ -24,8 +25,9 @@ pub async fn list_my_scenes(
     let page = query.page.unwrap_or(1).max(1);
     let page_size = query.page_size.unwrap_or(12).min(100);
     let offset = (page - 1) * page_size;
+    let category_id = query.category_id.as_deref().filter(|s| !s.is_empty());
 
-    let (scenes, total) = db::scenes::get_user_scenes(&state.pool, &auth.user_id, page_size, offset).await?;
+    let (scenes, total) = db::scenes::get_user_scenes(&state.pool, &auth.user_id, page_size, offset, category_id).await?;
 
     let list: Vec<Value> = scenes
         .iter()
