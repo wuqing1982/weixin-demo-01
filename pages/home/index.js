@@ -1,7 +1,7 @@
 const { updateNavBar } = require('../../shared/theme-helper');
 const { logout } = require('../../services/auth');
 const { readSession } = require('../../services/session');
-const { getMe } = require('../../services/user');
+const { getMe, bindPhone } = require('../../services/user');
 
 const TIER_LABELS = {
   pro: 'Pro会员',
@@ -19,6 +19,7 @@ Page({
     theme: 'dark',
     me: null,
     memberTierLabel: '未开通',
+    maskedMobile: '',
     errorMessage: '',
     actions: [
       {
@@ -82,6 +83,7 @@ Page({
       this.setData({
         me,
         memberTierLabel: getMemberTierLabel(me),
+        maskedMobile: me.mobileVerified ? maskMobile(me.mobile) : '',
         errorMessage: ''
       });
     } catch (error) {
@@ -112,6 +114,22 @@ Page({
     updateNavBar(theme);
   },
 
+  async onGetPhoneNumber(e) {
+    if (e.detail.errMsg !== 'getPhoneNumber:ok') {
+      return;
+    }
+    try {
+      const result = await bindPhone(e.detail.code);
+      this.setData({
+        'me.mobile': result.mobile,
+        'me.mobileVerified': true,
+        maskedMobile: result.mobile,
+      });
+    } catch (error) {
+      wx.showToast({ title: error.message || '绑定失败', icon: 'none' });
+    }
+  },
+
   async onLogout() {
     await logout(getApp());
     wx.reLaunch({
@@ -132,3 +150,8 @@ Page({
     };
   }
 });
+
+function maskMobile(mobile) {
+  if (!mobile || mobile.length < 7) return mobile || '';
+  return mobile.slice(0, 3) + '****' + mobile.slice(-4);
+}

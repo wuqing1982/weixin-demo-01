@@ -8,6 +8,7 @@ use crate::db::users;
 use crate::error::AppError;
 use crate::middleware::auth::AuthUser;
 use crate::response::success;
+use crate::services::wechat_auth;
 use crate::state::AppState;
 
 pub async fn get_me(
@@ -216,5 +217,53 @@ fn tier_price(tier: &str) -> f64 {
         "plus" => 99.00,
         "max" => 199.00,
         _ => 0.0,
+    }
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct BindPhoneRequest {
+    code: String,
+}
+
+pub async fn bind_phone(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Json(body): Json<BindPhoneRequest>,
+) -> Result<Json<Value>, AppError> {
+    if body.code.is_empty() {
+        return Err(AppError::BadRequest("code 不能为空".into()));
+    }
+
+    let config = &state.config;
+
+    let phone = if config.auth_wechat_login_mode == "mock" {
+        "13800138000".to_string()
+    } else {
+        let result = wechat_auth::get_user_phone_number(
+            &config.wechat_mp_app_id,
+            &config.wechat_mp_app_secret,
+            &body.code,
+        )
+        .await?;
+        result.pure_phone_number
+    };
+
+    let bind_log_id = format!("mbl_{}", uuid::Uuid::new_v4().simple());
+    users::bind_mobile(&state.pool, &auth.user_id, &phone, &bind_log_id).await?;
+
+    let masked = mask_mobile(&phone);
+
+    Ok(success(json!({
+        "mobile": masked,
+        "mobileVerified": true,
+    })))
+}
+
+fn mask_mobile(mobile: &str) -> String {
+    if mobile.len() >= 7 {
+        format!("{}****{}", &mobile[..3], &mobile[mobile.len() - 4..])
+    } else {
+        mobile.to_string()
     }
 }

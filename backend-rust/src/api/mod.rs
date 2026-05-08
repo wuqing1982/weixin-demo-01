@@ -42,6 +42,7 @@ pub fn routes() -> Router<AppState> {
         .route("/api/me/credits", get(user::get_credits))
         .route("/api/me/entitlements", get(user::get_entitlements))
         .route("/api/me/upgrade-preview", get(user::upgrade_preview))
+        .route("/api/me/bind-phone", post(user::bind_phone))
         // Scenes
         .route("/api/scenes", get(scene::list_scenes))
         .route("/api/scenes/{scene_id}", get(scene::get_scene))

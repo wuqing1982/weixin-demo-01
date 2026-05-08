@@ -159,6 +159,33 @@ pub async fn list_users(pool: &PgPool, limit: i64) -> Result<Vec<User>, sqlx::Er
     .await
 }
 
+pub async fn bind_mobile(
+    pool: &PgPool,
+    user_id: &str,
+    mobile: &str,
+    bind_log_id: &str,
+) -> Result<(), sqlx::Error> {
+    let mut tx = pool.begin().await?;
+
+    sqlx::query("UPDATE users SET mobile = $1, mobile_verified = true, updated_at = now() WHERE id = $2")
+        .bind(mobile)
+        .bind(user_id)
+        .execute(&mut *tx)
+        .await?;
+
+    sqlx::query(
+        "INSERT INTO user_mobile_bind_logs (id, user_id, mobile, bind_source, created_at) VALUES ($1, $2, $3, 'wechat', now())"
+    )
+        .bind(bind_log_id)
+        .bind(user_id)
+        .bind(mobile)
+        .execute(&mut *tx)
+        .await?;
+
+    tx.commit().await?;
+    Ok(())
+}
+
 pub async fn update_user_status(pool: &PgPool, user_id: &str, status: &str) -> Result<(), sqlx::Error> {
     sqlx::query("UPDATE users SET status = $1, updated_at = now() WHERE id = $2")
         .bind(status)

@@ -9,6 +9,10 @@
         <text class="profile-badge {{me.memberSummary.isActive ? 'badge-tier badge-' + me.memberSummary.entitlementCode : 'badge-inactive'}}">{{memberTierLabel}}</text>
         <text class="profile-meta theme-{{theme}}">点数：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
       </view>
+      <view class="profile-meta-row" style="margin-top: 8rpx;">
+        <text class="profile-meta theme-{{theme}}" wx:if="{{maskedMobile}}">📱 {{maskedMobile}}</text>
+        <button wx:else class="btn-bind-phone theme-{{theme}}" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber">绑定手机号</button>
+      </view>
     </view>
     <button class="btn-secondary logout-btn theme-{{theme}}" bindtap="onLogout">退出</button>
   </view>

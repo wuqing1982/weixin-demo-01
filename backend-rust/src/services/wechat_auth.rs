@@ -10,6 +10,29 @@ struct Code2SessionResponse {
     errmsg: Option<String>,
 }
 
+#[derive(Deserialize)]
+struct AccessTokenResponse {
+    access_token: Option<String>,
+    errcode: Option<i32>,
+    errmsg: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct PhoneNumberResponse {
+    phone_info: Option<PhoneInfo>,
+    errcode: Option<i32>,
+    errmsg: Option<String>,
+}
+
+#[derive(Deserialize)]
+struct PhoneInfo {
+    pure_phone_number: Option<String>,
+}
+
+pub struct PhoneNumberResult {
+    pub pure_phone_number: String,
+}
+
 pub struct WechatAuthResult {
     pub openid: String,
     pub session_key: String,
@@ -55,4 +78,76 @@ pub async fn code2session(
         session_key,
         unionid: resp.unionid,
     })
+}
+
+async fn get_access_token(app_id: &str, app_secret: &str) -> Result<String, AppError> {
+    let url = format!(
+        "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid={}&secret={}",
+        app_id, app_secret
+    );
+    let client = reqwest::Client::new();
+    let resp: AccessTokenResponse = client
+        .get(&url)
+        .timeout(std::time::Duration::from_secs(10))
+        .send()
+        .await
+        .map_err(|e| AppError::ExternalApi(format!("WeChat access_token request failed: {e}")))?
+        .json()
+        .await
+        .map_err(|e| AppError::ExternalApi(format!("WeChat access_token parse failed: {e}")))?;
+
+    if let Some(errcode) = resp.errcode {
+        if errcode != 0 {
+            return Err(AppError::ExternalApi(format!(
+                "WeChat access_token error {}: {}",
+                errcode,
+                resp.errmsg.unwrap_or_default()
+            )));
+        }
+    }
+
+    resp.access_token
+        .ok_or_else(|| AppError::ExternalApi("missing access_token".into()))
+}
+
+pub async fn get_user_phone_number(
+    app_id: &str,
+    app_secret: &str,
+    code: &str,
+) -> Result<PhoneNumberResult, AppError> {
+    let access_token = get_access_token(app_id, app_secret).await?;
+
+    let url = format!(
+        "https://api.weixin.qq.com/wxa/business/getuserphonenumber?access_token={}&code={}",
+        access_token, code
+    );
+    let client = reqwest::Client::new();
+    let resp: PhoneNumberResponse = client
+        .post(&url)
+        .timeout(std::time::Duration::from_secs(10))
+        .send()
+        .await
+        .map_err(|e| AppError::ExternalApi(format!("WeChat getuserphonenumber request failed: {e}")))?
+        .json()
+        .await
+        .map_err(|e| AppError::ExternalApi(format!("WeChat getuserphonenumber parse failed: {e}")))?;
+
+    if let Some(errcode) = resp.errcode {
+        if errcode != 0 {
+            return Err(AppError::ExternalApi(format!(
+                "WeChat getuserphonenumber error {}: {}",
+                errcode,
+                resp.errmsg.unwrap_or_default()
+            )));
+        }
+    }
+
+    let phone_info = resp
+        .phone_info
+        .ok_or_else(|| AppError::ExternalApi("missing phone_info".into()))?;
+    let pure_phone_number = phone_info
+        .pure_phone_number
+        .ok_or_else(|| AppError::ExternalApi("missing pure_phone_number".into()))?;
+
+    Ok(PhoneNumberResult { pure_phone_number })
 }
