@@ -469,12 +469,14 @@ function createScenePage(sceneData) {
             if (videoUrl) {
               wx.showModal({
                 title: '导出完成',
-                content: '视频已生成，点击保存到手机相册。',
+                content: '视频已生成，可立即保存到相册，也可稍后在「我的导出视频」中查看（服务器保留3小时）。',
                 confirmText: '保存到相册',
-                cancelText: '关闭',
+                cancelText: '去查看',
                 success: (res) => {
-                  if (res.confirm && videoUrl) {
+                  if (res.confirm) {
                     this._downloadAndSaveVideo(videoUrl);
+                  } else {
+                    wx.navigateTo({ url: '/pages/my_videos/index' });
                   }
                 }
               });
