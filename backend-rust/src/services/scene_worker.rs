@@ -376,7 +376,7 @@ fn build_analysis_prompt(scene_name: &str, include_verbs: bool, categories_hint:
     {{
       "id": "word_id",
       "word": "english_word",
-      "pos": "verb/adjective/adverb",
+      "pos": "v./adj./adv.",
       "ipa": "/ipa/",
       "meaning": "中文",
       "related_item": "bench",
@@ -384,8 +384,8 @@ fn build_analysis_prompt(scene_name: &str, include_verbs: bool, categories_hint:
       "sentence_translation": "中文翻译"
     }}
   ]"#.to_string(),
-            "\n6. 生成 2 个非名词单词：至少 1 个动词，另 1 个可以是动词、形容词或副词".to_string(),
-            "\n- 至少 1 个动词\n- pos 字段标注词性：verb、adjective 或 adverb\n- 每个词关联已识别物体\n- 词用原形（sit, play, happy, fast）".to_string(),
+            "\n**⚠️ 非名词要求（必须严格遵守）：**\n- 必须生成恰好 2 个非名词单词\n- 从以下 3 种词性组合中随机选择一种：\n  1. (v., v.)\n  2. (v., adj.)\n  3. (v., adv.)".to_string(),
+            "\n- pos 字段标注词性：v.、adj. 或 adv.\n- 每个词关联已识别物体\n- 词用原形（sit, play, happy, fast）".to_string(),
         )
     } else {
         ("".to_string(), "".to_string(), "".to_string())
@@ -437,6 +437,8 @@ fn build_analysis_prompt(scene_name: &str, include_verbs: bool, categories_hint:
     }}
   ]{verb_template}
 }}
+
+**⚠️ 最终检查：hotspots 必须有 5 个。如果数量不对，请修正后再返回。**
 
 **只返回 JSON，不要其他内容。**"#
     )

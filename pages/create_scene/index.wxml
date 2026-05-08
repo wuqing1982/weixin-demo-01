@@ -28,7 +28,7 @@
     </view>
 
     <view class="form-row">
-      <text class="field-label theme-{{theme}}">生成非名词</text>
+      <text class="field-label theme-{{theme}}">拓展词汇</text>
       <switch checked="{{includeVerbs}}" color="#667eea" bindchange="onToggleVerbs" />
     </view>
 
