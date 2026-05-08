@@ -210,6 +210,60 @@
 .error-text.theme-light { color: #fa5151 !important; }
 .error-text.theme-ocean { color: #ff8a8a !important; }
 
+/* ================================================================
+   Notion overrides — page-specific
+   ================================================================ */
+
+/* Tip text */
+.tip-text.theme-notion { color: #a39e98 !important; }
+
+/* Preview placeholder */
+.preview-placeholder.theme-notion {
+  background: #f6f5f4 !important;
+  border-color: #dddddd !important;
+  color: #a39e98 !important;
+  border-radius: 16rpx !important;
+}
+
+/* Field label / task title */
+.field-label.theme-notion,
+.task-title.theme-notion {
+  color: rgba(0,0,0,0.95) !important;
+}
+
+/* Title input */
+.title-input.theme-notion {
+  background: #ffffff !important;
+  color: rgba(0,0,0,0.95) !important;
+  border: 1px solid #dddddd !important;
+  border-radius: 8rpx !important;
+}
+
+/* Placeholder */
+.placeholder.theme-notion { color: #a39e98 !important; }
+
+/* Compress panel */
+.compress-panel.theme-notion {
+  background: #f6f5f4 !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  border-radius: 16rpx !important;
+}
+
+.compress-meta.theme-notion { color: #615d59 !important; }
+
+/* Task panel */
+.task-panel.theme-notion {
+  background: #f6f5f4 !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  border-radius: 16rpx !important;
+}
+
+.task-step.theme-notion,
+.task-meta.theme-notion { color: #615d59 !important; }
+
+/* Error text */
+.error-text.theme-notion { color: #dd5b00 !important; }
+
 .result-row {
   margin-top: 24rpx;
 }

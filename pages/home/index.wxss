@@ -313,3 +313,81 @@
   background: linear-gradient(135deg, #041526, #0a2540);
   box-shadow: inset 0 0 8rpx rgba(0, 184, 246, 0.3);
 }
+.notion-preview {
+  background: linear-gradient(135deg, #ffffff, #f6f5f4);
+  box-shadow: inset 0 0 8rpx rgba(0, 117, 222, 0.15);
+}
+
+/* Notion theme overrides — home page */
+.profile-strip.theme-notion {
+  background: #f6f5f4 !important;
+  color: rgba(0,0,0,0.95) !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+.logout-btn.theme-notion {
+  color: rgba(0,0,0,0.95) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  background: rgba(0,0,0,0.05) !important;
+}
+
+.profile-eyebrow.theme-notion,
+.profile-meta.theme-notion {
+  color: #615d59 !important;
+}
+
+.hero.theme-notion {
+  background: #f6f5f4 !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+.action-desc.theme-notion { color: #615d59 !important; }
+
+.badge-pro.theme-notion,
+.badge-plus.theme-notion,
+.badge-max.theme-notion {
+  border-color: transparent !important;
+}
+
+.badge-pro.theme-notion {
+  background: rgba(0,117,222,0.10) !important;
+  color: #0075de !important;
+}
+
+.badge-plus.theme-notion {
+  background: rgba(234,179,8,0.10) !important;
+  color: #92670a !important;
+}
+
+.badge-max.theme-notion {
+  background: rgba(244,63,94,0.10) !important;
+  color: #be123c !important;
+}
+
+.badge-inactive.theme-notion {
+  background: #f6f5f4 !important;
+  color: #a39e98 !important;
+  border-color: rgba(0,0,0,0.1) !important;
+}
+
+.theme-section.theme-notion {
+  background: #ffffff !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.04), 0 1rpx 4rpx rgba(0,0,0,0.02) !important;
+}
+
+.theme-label.theme-notion { color: rgba(0,0,0,0.95) !important; }
+
+.theme-opt.theme-notion { border-color: rgba(0,0,0,0.1) !important; }
+
+.theme-opt.active.theme-notion {
+  border-color: #0075de !important;
+  background: #f2f9ff !important;
+  box-shadow: 0 0 0 2rpx rgba(0,117,222,0.30) !important;
+}
+
+.theme-opt.theme-notion text { color: #615d59 !important; }
+.theme-opt.active.theme-notion text { color: #0075de !important; }
+
+.theme-preview.theme-notion { border-color: rgba(0,0,0,0.1) !important; }
+.theme-opt-active-notion .theme-preview { border-color: #0075de !important; }

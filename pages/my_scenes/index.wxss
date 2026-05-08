@@ -37,6 +37,7 @@
 }
 .scene-desc.theme-light { color: #888888 !important; }
 .scene-desc.theme-ocean { color: rgba(180,220,255,0.60) !important; }
+.scene-desc.theme-notion { color: #615d59 !important; }
 
 /* ---- Dual-column grid layout ---- */
 
@@ -86,6 +87,7 @@
 }
 .list-end-tip.theme-light { color: rgba(0,0,0,0.25) !important; }
 .list-end-tip.theme-ocean { color: rgba(180,220,255,0.35) !important; }
+.list-end-tip.theme-notion { color: #a39e98 !important; }
 
 /* ---- Pagination bar ---- */
 
@@ -120,6 +122,12 @@
   color: rgba(180,220,255,0.65) !important;
 }
 
+.page-num.theme-notion {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  color: #615d59 !important;
+}
+
 .page-num-active {
   background: rgba(126, 240, 191, 0.16) !important;
   color: #d8fff0 !important;
@@ -135,6 +143,11 @@
   color: #66d9ff !important;
 }
 
+.page-num-active.theme-notion {
+  background: #0075de !important;
+  color: #ffffff !important;
+}
+
 .page-btn {
   width: 64rpx;
   height: 64rpx;
@@ -146,6 +159,7 @@
 
 .page-btn.theme-light { color: #999999 !important; }
 .page-btn.theme-ocean { color: rgba(180,220,255,0.50) !important; }
+.page-btn.theme-notion { color: #a39e98 !important; }
 
 .page-btn-disabled {
   opacity: 0.3;

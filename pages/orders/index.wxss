@@ -149,3 +149,39 @@
 .paid-tip.theme-ocean {
   color: #5cf5c8 !important;
 }
+
+/* ================================================================
+   Notion overrides — page-specific
+   ================================================================ */
+
+/* Summary chip */
+.summary-chip.theme-notion {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+/* Order status badges */
+.order-status-pending.theme-notion {
+  background: rgba(221,91,0,0.10) !important;
+  color: #dd5b00 !important;
+}
+.order-status-paid.theme-notion {
+  background: rgba(26,174,57,0.10) !important;
+  color: #1aae39 !important;
+}
+
+/* Order item divider */
+.order-item.theme-notion {
+  border-top-color: rgba(0,0,0,0.1) !important;
+}
+
+/* Order item desc / price */
+.order-item-desc.theme-notion,
+.order-item-price.theme-notion {
+  color: #615d59 !important;
+}
+
+/* Paid tip */
+.paid-tip.theme-notion {
+  color: #1aae39 !important;
+}

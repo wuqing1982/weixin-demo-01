@@ -29,6 +29,10 @@
         <view class="theme-preview ocean-preview theme-{{theme}}"></view>
         <text>海洋</text>
       </view>
+      <view class="theme-opt theme-{{theme}} {{theme === 'notion' ? 'active theme-opt-active-notion' : ''}}" bindtap="switchTheme" data-theme="notion">
+        <view class="theme-preview notion-preview theme-{{theme}}"></view>
+        <text>纸张</text>
+      </view>
     </view>
   </view>
 

@@ -107,3 +107,25 @@
 
 .record-value.theme-light { color: #333333 !important; }
 .record-value.theme-ocean { color: #e8f4ff !important; }
+
+/* ================================================================
+   Notion overrides — page-specific
+   ================================================================ */
+
+/* Summary chip */
+.summary-chip.theme-notion {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+/* Record badge redeemed */
+.record-badge-redeemed.theme-notion {
+  background: rgba(26,174,57,0.10) !important;
+  color: #1aae39 !important;
+}
+
+/* Record label */
+.record-label.theme-notion { color: #a39e98 !important; }
+
+/* Record value */
+.record-value.theme-notion { color: rgba(0,0,0,0.95) !important; }

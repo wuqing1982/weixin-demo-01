@@ -516,6 +516,119 @@
 .cdk-input-caret.theme-light { background: #667eea; }
 .cdk-input-caret.theme-ocean { background: #66d9ff; }
 
+/* ================================================================
+   Notion overrides — page-specific
+   ================================================================ */
+
+/* Summary pill */
+.summary-pill.theme-notion {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  border-radius: 16rpx !important;
+  box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.04), 0 1rpx 4rpx rgba(0,0,0,0.02) !important;
+}
+
+/* Active subscription pill */
+.pill-active.theme-notion {
+  border-color: #1aae39 !important;
+  background: rgba(26,174,57,0.06) !important;
+}
+
+/* Guest tip */
+.guest-tip.theme-notion {
+  background: rgba(221,91,0,0.06) !important;
+  border: 1px solid rgba(221,91,0,0.15) !important;
+  border-radius: 16rpx !important;
+}
+
+/* Summary label / product subtitle */
+.summary-label.theme-notion,
+.product-subtitle.theme-notion { color: #a39e98 !important; }
+
+/* Summary value states */
+.summary-value.active.theme-notion { color: #1aae39 !important; }
+.summary-value.inactive.theme-notion { color: #a39e98 !important; }
+.summary-value.expires.theme-notion { color: #a39e98 !important; }
+
+/* Guest tip text */
+.guest-tip-title.theme-notion { color: #dd5b00 !important; }
+.guest-tip-desc.theme-notion { color: #615d59 !important; }
+
+/* Tier card */
+.tier-card.theme-notion {
+  border-color: rgba(0,0,0,0.1) !important;
+}
+
+/* Recommended tier */
+.tier-recommended.theme-notion {
+  background: linear-gradient(135deg, rgba(0,117,222,0.06), transparent 60%) !important;
+  border-color: #0075de !important;
+}
+
+/* Current tier */
+.tier-current.theme-notion {
+  border-color: #1aae39 !important;
+}
+
+/* Badge current */
+.badge-current.theme-notion { background: #1aae39 !important; color: #ffffff !important; }
+
+/* Tier price */
+.tier-price.theme-notion { color: #0075de !important; }
+
+/* Tier original price */
+.tier-original.theme-notion { color: #a39e98 !important; }
+
+/* Feature icons */
+.credits-icon.theme-notion { color: #0075de !important; }
+.check-icon.theme-notion { color: #1aae39 !important; }
+.cross-icon.theme-notion { color: #dddddd !important; }
+
+/* Feature text */
+.feature-text.theme-notion { color: rgba(0,0,0,0.95) !important; }
+
+/* Upgrade hint */
+.upgrade-hint.theme-notion {
+  background: rgba(0,117,222,0.06) !important;
+  border-color: rgba(0,117,222,0.15) !important;
+}
+.upgrade-hint-text.theme-notion { color: #0075de !important; }
+
+/* CDK button */
+.btn-cdk.theme-notion {
+  background: rgba(0,117,222,0.08) !important;
+  color: #0075de !important;
+  border: 1px solid rgba(0,117,222,0.20) !important;
+}
+
+/* CDK record button */
+.btn-cdk-record.theme-notion {
+  background: rgba(26,174,57,0.08) !important;
+  color: #1aae39 !important;
+  border: 1px solid rgba(26,174,57,0.18) !important;
+}
+
+/* CDK modal */
+.cdk-modal.theme-notion {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.1);
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.10);
+}
+.cdk-modal-title.theme-notion { color: rgba(0,0,0,0.95) !important; }
+
+/* CDK input */
+.cdk-input-wrap.theme-notion {
+  border-color: #dddddd;
+  background: #f6f5f4;
+}
+.cdk-input-focused.theme-notion {
+  border-color: #0075de;
+  box-shadow: 0 0 0 4rpx rgba(0,117,222,0.15);
+}
+.cdk-input-value.theme-notion { color: rgba(0,0,0,0.95); }
+.cdk-input-placeholder.theme-notion { color: #a39e98 !important; }
+.cdk-input-caret.theme-notion { background: #0075de; }
+
 @keyframes cdk-caret-blink {
   0%, 50% { opacity: 1; }
   51%, 100% { opacity: 0; }

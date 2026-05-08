@@ -338,3 +338,91 @@ view, text, button, image, input, scroll-view, textarea {
 .empty-text.theme-ocean { color: rgba(180,220,255,0.50); }
 .empty-hint.theme-ocean { color: rgba(180,220,255,0.35); }
 .list-footer.theme-ocean { color: rgba(180,220,255,0.40); }
+
+/* ================================================================
+   Theme: Notion — 暖灰纸张 + 墨蓝强调
+   基于 Notion 设计规范，纯亮色主题
+   ================================================================ */
+
+/* Page background */
+.page-root.theme-notion {
+  background: linear-gradient(180deg, #ffffff 0%, #f6f5f4 100%) !important;
+  color: rgba(0,0,0,0.95) !important;
+}
+
+/* Cards */
+.card.theme-notion,
+.state-card.theme-notion {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  border-radius: 24rpx !important;
+  box-shadow: 0 4rpx 24rpx rgba(0,0,0,0.04), 0 1rpx 4rpx rgba(0,0,0,0.02) !important;
+}
+
+.state-card.theme-notion {
+  color: #615d59 !important;
+}
+
+/* Typography */
+.section-title.theme-notion {
+  color: rgba(0,0,0,0.95) !important;
+}
+
+.section-subtitle.theme-notion {
+  color: #615d59 !important;
+}
+
+/* Buttons */
+.btn-primary.theme-notion {
+  background: #0075de !important;
+  border-radius: 8rpx !important;
+}
+
+.btn-secondary.theme-notion {
+  background: rgba(0,0,0,0.05) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  color: rgba(0,0,0,0.95) !important;
+}
+
+.btn-success.theme-notion {
+  background: #1aae39 !important;
+  border-radius: 8rpx !important;
+}
+
+.btn-danger.theme-notion {
+  background: #dd5b00 !important;
+  border-radius: 8rpx !important;
+}
+
+/* Tags */
+.tag-primary.theme-notion   { background: #f2f9ff; color: #097fe8 !important; }
+.tag-success.theme-notion   { background: rgba(26,174,57,0.10); color: #1aae39 !important; }
+.tag-warning.theme-notion   { background: rgba(221,91,0,0.10); color: #dd5b00 !important; }
+.tag-danger.theme-notion    { background: rgba(221,91,0,0.10); color: #dd5b00 !important; }
+
+/* Badges */
+.badge-success.theme-notion { background: #1aae39 !important; color: #ffffff !important; }
+.badge-primary.theme-notion { background: #0075de !important; color: #ffffff !important; }
+.badge-pending.theme-notion {
+  background: #f6f5f4 !important;
+  color: #615d59 !important;
+  border-color: rgba(0,0,0,0.1) !important;
+}
+
+/* Input */
+.input-field.theme-notion {
+  background: #ffffff !important;
+  border-color: #dddddd !important;
+  color: rgba(0,0,0,0.95) !important;
+  border-radius: 8rpx !important;
+}
+
+/* Misc */
+.spinner.theme-notion {
+  border-color: rgba(0,0,0,0.1);
+  border-top-color: #0075de;
+}
+.loading-text.theme-notion { color: #a39e98; }
+.empty-text.theme-notion { color: #a39e98; }
+.empty-hint.theme-notion { color: rgba(0,0,0,0.25); }
+.list-footer.theme-notion { color: #a39e98; }

@@ -73,3 +73,7 @@
 }
 .video-date.theme-light { color: #888888 !important; }
 .video-date.theme-ocean { color: rgba(180,220,255,0.60) !important; }
+
+/* Notion */
+.play-icon.theme-notion { background: rgba(0,0,0,0.40) !important; }
+.video-date.theme-notion { color: #a39e98 !important; }
