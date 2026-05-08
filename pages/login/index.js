@@ -21,12 +21,17 @@ function buildAvatarLetter(name) {
 }
 
 function pickFeaturedSku(products) {
-  const membershipProduct = products.find((item) => item.productType === 'membership') || products[0] || null;
-  if (!membershipProduct) {
-    return null;
+  // Pick the Plus tier (99元/year) product
+  const plusProduct = products.find((item) => item.productId === 'product_tier_plus');
+  if (!plusProduct || !plusProduct.skus || !plusProduct.skus.length) {
+    // Fallback: pick first membership product, first SKU
+    const membershipProduct = products.find((item) => item.productType === 'membership') || products[0] || null;
+    if (!membershipProduct) return null;
+    const skus = membershipProduct.skus || [];
+    return skus[0] ? { ...membershipProduct, featuredSku: skus[0] } : null;
   }
-  const skus = (membershipProduct.skus || []).slice().sort((a, b) => (b.durationDays || 0) - (a.durationDays || 0));
-  return skus[0] ? { ...membershipProduct, featuredSku: skus[0] } : null;
+  const yearSku = plusProduct.skus.find((s) => (s.durationDays || 0) >= 365) || plusProduct.skus[0];
+  return { ...plusProduct, featuredSku: yearSku };
 }
 
 Page({

@@ -59,7 +59,7 @@
       </view>
 
       <view class="offer-card" wx:if="{{featuredProduct && featuredProduct.featuredSku}}">
-        <text class="offer-label">推荐套餐</text>
+        <text class="offer-label">推荐：Plus 会员</text>
         <text class="offer-name">{{featuredProduct.name}}</text>
         <text class="offer-price">¥{{featuredProduct.featuredSku.salePrice}}</text>
         <text class="offer-desc">{{featuredProduct.featuredSku.name}}{{featuredProduct.featuredSku.durationDays ? ' · ' + featuredProduct.featuredSku.durationDays + '天' : ''}}</text>
