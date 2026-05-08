@@ -31,3 +31,6 @@ backend/data/storage_config.json
 
 # Playwright MCP logs
 .playwright-mcp/
+
+# Database backups
+backup_*.sql
