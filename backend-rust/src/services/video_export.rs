@@ -209,7 +209,7 @@ async fn generate_scene_video(
 fn generate_static_segment(image: &str, output: &Path) -> Result<(), String> {
     let (sw, sh) = ensure_even(VIDEO_W, VIDEO_H);
     let vf = format!(
-        "scale={sw}:{sh}:force_original_aspect_ratio=decrease,pad={sw}:{sh}:(ow-iw)/2:(oh-ih)/2:color=black"
+        "scale={sw}:{sh}:force_original_aspect_ratio=increase,crop={sw}:{sh}"
     );
     run_ffmpeg(&[
         "-y",
@@ -227,7 +227,7 @@ fn generate_static_segment(image: &str, output: &Path) -> Result<(), String> {
 fn generate_move_segment(image: &str, output: &str) -> Result<(), String> {
     let (sw, sh) = ensure_even(VIDEO_W, VIDEO_H);
     let vf = format!(
-        "scale={sw}:{sh}:force_original_aspect_ratio=decrease,pad={sw}:{sh}:(ow-iw)/2:(oh-ih)/2:color=black"
+        "scale={sw}:{sh}:force_original_aspect_ratio=increase,crop={sw}:{sh}"
     );
     run_ffmpeg(&[
         "-y",
@@ -259,7 +259,7 @@ fn generate_display_segment(
 ) -> Result<(), String> {
     let (sw, sh) = ensure_even(VIDEO_W, VIDEO_H);
     let scale_filter = format!(
-        "scale={sw}:{sh}:force_original_aspect_ratio=decrease,pad={sw}:{sh}:(ow-iw)/2:(oh-ih)/2:color=black"
+        "scale={sw}:{sh}:force_original_aspect_ratio=increase,crop={sw}:{sh}"
     );
 
     // Build highlight filter for noun items with rect
