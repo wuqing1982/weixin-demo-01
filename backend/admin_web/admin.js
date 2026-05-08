@@ -27,6 +27,7 @@ const state = {
   sceneSearchQuery: '',
   sceneFilterCategory: '',
   sceneFilterVisibility: '',
+  userFilterMobile: 'all',
   generatorFiles: [],
   storageOverview: null,
   storageConfigs: null,
@@ -95,6 +96,16 @@ function getFilteredScenes() {
   }
   if (state.sceneFilterVisibility) {
     list = list.filter((s) => (s.visibility || 'public') === state.sceneFilterVisibility);
+  }
+  return list;
+}
+
+function getFilteredUsers() {
+  let list = state.users;
+  if (state.userFilterMobile === 'yes') {
+    list = list.filter((u) => u.mobileVerified);
+  } else if (state.userFilterMobile === 'no') {
+    list = list.filter((u) => !u.mobileVerified);
   }
   return list;
 }
@@ -323,6 +334,8 @@ async function batchDeleteUsers() {
 }
 
 function renderUsers() {
+  const filtered = getFilteredUsers();
+
   const detail = state.selectedUser ? `
     <article class="detail-card">
       <div class="detail-head">
@@ -334,7 +347,7 @@ function renderUsers() {
       </div>
       <div class="detail-grid">
         <div><span>角色</span><strong>${escapeHtml(state.selectedUser.role || 'user')}</strong></div>
-        <div><span>手机号</span><strong>${escapeHtml(state.selectedUser.mobile || '-')}</strong></div>
+        <div><span>手机号</span><strong>${state.selectedUser.mobileVerified ? escapeHtml(state.selectedUser.mobile || '-') : '未绑定'}</strong></div>
         <div><span>会员</span><strong>${state.selectedUser.memberSummary && state.selectedUser.memberSummary.isActive ? '已开通' : '未开通'}</strong></div>
         <div><span>点数</span><strong>${escapeHtml((state.selectedUser.creditSummary && state.selectedUser.creditSummary.sceneGenerateBalance) || 0)}</strong></div>
         <div><span>注册时间</span><strong>${escapeHtml(state.selectedUser.createdAt || '-')}</strong></div>
@@ -356,9 +369,16 @@ function renderUsers() {
       <p class="panel-subtitle">支持查看详情、封禁与解封。</p>
     </div>
     <div class="panel-actions">
+      <div class="scene-filter-group">
+        <select class="scene-filter-select" id="user-filter-mobile">
+          <option value="all" ${state.userFilterMobile === 'all' ? 'selected' : ''}>全部用户</option>
+          <option value="yes" ${state.userFilterMobile === 'yes' ? 'selected' : ''}>已绑定手机</option>
+          <option value="no" ${state.userFilterMobile === 'no' ? 'selected' : ''}>未绑定手机</option>
+        </select>
+      </div>
       <span id="users-selected-count" class="selected-count"></span>
       <button id="batch-delete-users-btn" class="mini-btn danger-btn" disabled data-action="batch-delete-users">批量删除</button>
-      <span class="meta-chip">${state.users.length} 位用户</span>
+      <span class="meta-chip">${filtered.length} / ${state.users.length} 位用户</span>
     </div>
   `;
 
@@ -368,19 +388,19 @@ function renderUsers() {
       <div class="table-head">
         <label class="checkbox-cell"><input type="checkbox" id="select-all-users"></label>
         <strong>用户</strong>
+        <span>手机号</span>
         <span>角色</span>
         <span>会员</span>
-        <span>点数</span>
         <span>状态</span>
         <span>操作</span>
       </div>
-      ${state.users.map((user) => `
+      ${filtered.map((user) => `
         <div class="table-row">
           <label class="checkbox-cell"><input type="checkbox" class="user-checkbox" value="${escapeHtml(user.id)}"></label>
           <strong>${escapeHtml(user.displayName || user.id)}<br><small>${escapeHtml(user.id)}</small></strong>
+          <span>${user.mobileVerified ? escapeHtml(user.mobile || '-') : '<em style="opacity:.4">未绑定</em>'}</span>
           <span>${escapeHtml(user.role || 'user')}</span>
           <span>${user.memberSummary && user.memberSummary.isActive ? '已开通' : '未开通'}</span>
-          <span>${escapeHtml((user.creditSummary && user.creditSummary.sceneGenerateBalance) || 0)}</span>
           <span>${escapeHtml(user.status || 'active')}</span>
           <span class="action-group">
             <button class="mini-btn" data-action="user-detail" data-id="${escapeHtml(user.id)}">详情</button>
@@ -2515,6 +2535,11 @@ panelHead.addEventListener('change', (event) => {
   if (event.target.id === 'scene-filter-visibility') {
     state.sceneFilterVisibility = event.target.value;
     renderScenes();
+    return;
+  }
+  if (event.target.id === 'user-filter-mobile') {
+    state.userFilterMobile = event.target.value;
+    renderUsers();
     return;
   }
 });
