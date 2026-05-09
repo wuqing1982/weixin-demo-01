@@ -88,8 +88,9 @@ pub(crate) fn asset_url(base_url: &str, path: &str) -> String {
     if path.is_empty() || path.starts_with("http") {
         return path.to_string();
     }
-    let clean_path = path.trim_start_matches('/');
-    format!("{}/{}", base_url.trim_end_matches('/'), clean_path)
+    let clean = path.trim_start_matches('/');
+    let stripped = clean.strip_prefix("assets/").unwrap_or(clean);
+    format!("{}/{}", base_url.trim_end_matches('/'), stripped)
 }
 
 fn serialize_scene_summary(base_url: &str, scene: &crate::models::scene::Scene) -> Value {
