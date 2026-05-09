@@ -25,3 +25,5 @@ rand = "0.9"
 async-trait = "0.1"
 subtle = "2"
 urlencoding = "2"
+rust-s3 = { version = "0.37", default-features = false, features = ["with-tokio"] }
+libc = "0.2"

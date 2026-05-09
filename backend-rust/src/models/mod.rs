@@ -6,3 +6,4 @@ pub mod task;
 pub mod upload;
 pub mod user;
 pub mod video;
+pub mod storage_config;

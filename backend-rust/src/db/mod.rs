@@ -6,3 +6,4 @@ pub mod tasks;
 pub mod uploads;
 pub mod users;
 pub mod videos;
+pub mod storage_config;

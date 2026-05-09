@@ -74,6 +74,9 @@ pub fn routes() -> Router<AppState> {
         // Storage
         .route("/api/admin/storage/overview", get(storage::storage_overview))
         .route("/api/admin/storage/configs", get(storage::storage_configs))
+        .route("/api/admin/storage/configs/{backend_id}", put(storage::storage_update_config))
+        .route("/api/admin/storage/test/{backend_id}", post(storage::storage_test_connection))
+        .route("/api/admin/storage/activate/{backend_id}", post(storage::storage_activate))
         .route("/api/admin/storage/usage", get(storage::storage_usage))
         // Scene generation logs
         .route("/api/admin/scene-logs", get(scene_logs::list_scene_logs))

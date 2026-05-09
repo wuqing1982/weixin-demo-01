@@ -6,3 +6,5 @@ pub mod video_export;
 pub mod virtual_pay;
 pub mod wechat_auth;
 pub mod wechat_session;
+pub mod storage_config;
+pub mod storage_test;
