@@ -1,4 +1,4 @@
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 use serde_json::Value;
 
@@ -49,6 +49,17 @@ pub async fn process_video_export(state: AppState, job_id: String) {
 
     let _ = db::videos::update_video_export(pool, &job_id, "running", 10, None, None).await;
 
+    let storage = match crate::storage::resolver::resolve(&state.pool, &state.config).await {
+        Ok(s) => s,
+        Err(e) => {
+            let _ = db::videos::update_video_export(
+                pool, &job_id, "failed", 0, None, Some(&format!("storage: {e}")),
+            )
+            .await;
+            return;
+        }
+    };
+
     let video_dir = Path::new(&state.config.generated_dir).join("videos");
     if let Err(e) = tokio::fs::create_dir_all(&video_dir).await {
         let _ = db::videos::update_video_export(
@@ -61,10 +72,30 @@ pub async fn process_video_export(state: AppState, job_id: String) {
     let output_filename = format!("{job_id}.mp4");
     let output_path = video_dir.join(&output_filename);
 
-    let result = generate_scene_video(&state, &scene, &output_path, &job.id).await;
+    let result = generate_scene_video(&state, &scene, &output_path, &job.id, storage.as_ref()).await;
 
     match result {
         Ok(()) => {
+            // Upload MP4 to storage
+            let mp4_data = match tokio::fs::read(&output_path).await {
+                Ok(d) => d,
+                Err(e) => {
+                    let _ = db::videos::update_video_export(
+                        pool, &job_id, "failed", 0, None, Some(&format!("read mp4: {e}")),
+                    )
+                    .await;
+                    return;
+                }
+            };
+            let key = crate::storage::provider::StorageKey::new(&["generated", "videos", &output_filename]);
+            if let Err(e) = storage.put(&key, &mp4_data, "video/mp4").await {
+                let _ = db::videos::update_video_export(
+                    pool, &job_id, "failed", 0, None, Some(&format!("upload mp4: {e}")),
+                )
+                .await;
+                return;
+            }
+
             let video_url = format!("/assets/generated/videos/{output_filename}");
             let _ = db::videos::update_video_export(
                 pool, &job_id, "completed", 100, Some(&video_url), None,
@@ -95,9 +126,17 @@ async fn generate_scene_video(
     scene: &crate::models::scene::Scene,
     output_path: &Path,
     job_id_for_progress: &str,
+    storage: &dyn crate::storage::provider::StorageProvider,
 ) -> Result<(), String> {
-    // Resolve background image to absolute path
-    let bg_path = resolve_asset_path(&scene.background_path)?;
+    // Create a temp directory for downloaded assets (needed for R2 mode)
+    let asset_tmp = std::env::temp_dir().join(format!("video_assets_{}", uuid::Uuid::new_v4()));
+    tokio::fs::create_dir_all(&asset_tmp).await.map_err(|e| format!("asset tmp mkdir: {e}"))?;
+
+    // Ensure background image is available locally
+    let bg_key = crate::storage::provider::StorageKey::from_web_path(&scene.background_path);
+    let bg_local = asset_tmp.join(format!("bg_{}", bg_key.as_str().replace('/', "_")));
+    storage.ensure_local(&bg_key, &bg_local).await.map_err(|e| format!("download bg: {e}"))?;
+    let bg_path = bg_local.to_string_lossy().to_string();
 
     // Collect items with audio
     let items = scene.items.as_array().cloned().unwrap_or_default();
@@ -108,7 +147,10 @@ async fn generate_scene_video(
     for item in &items {
         if let Some(audio_rel) = item["audioPath"].as_str() {
             if !audio_rel.is_empty() {
-                if let Ok(abs) = resolve_asset_path(audio_rel) {
+                let audio_key = crate::storage::provider::StorageKey::from_web_path(audio_rel);
+                let audio_local = asset_tmp.join(format!("audio_{}", audio_key.as_str().replace('/', "_")));
+                if storage.ensure_local(&audio_key, &audio_local).await.is_ok() {
+                    let abs = audio_local.to_string_lossy().to_string();
                     let dur = get_audio_duration(&abs);
                     prepared.push((
                         PreparedItem {
@@ -126,7 +168,10 @@ async fn generate_scene_video(
     for verb in &verbs {
         if let Some(audio_rel) = verb["audioPath"].as_str() {
             if !audio_rel.is_empty() {
-                if let Ok(abs) = resolve_asset_path(audio_rel) {
+                let audio_key = crate::storage::provider::StorageKey::from_web_path(audio_rel);
+                let audio_local = asset_tmp.join(format!("audio_{}", audio_key.as_str().replace('/', "_")));
+                if storage.ensure_local(&audio_key, &audio_local).await.is_ok() {
+                    let abs = audio_local.to_string_lossy().to_string();
                     let dur = get_audio_duration(&abs);
                     prepared.push((
                         PreparedItem {
@@ -143,7 +188,9 @@ async fn generate_scene_video(
 
     if prepared.is_empty() {
         // Fallback: static image video
-        return generate_static_segment(&bg_path, output_path);
+        let result = generate_static_segment(&bg_path, output_path);
+        let _ = tokio::fs::remove_dir_all(&asset_tmp).await;
+        return result;
     }
 
     // Temp directory for segments
@@ -196,8 +243,9 @@ async fn generate_scene_video(
     // Concat all segments
     concat_segments(&segment_paths, &output_path.to_string_lossy())?;
 
-    // Cleanup
+    // Cleanup temp dirs
     let _ = std::fs::remove_dir_all(&tmp_dir);
+    let _ = tokio::fs::remove_dir_all(&asset_tmp).await;
 
     Ok(())
 }

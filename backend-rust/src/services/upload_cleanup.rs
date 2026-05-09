@@ -1,5 +1,4 @@
 use std::path::Path;
-use std::time::SystemTime;
 
 use crate::state::AppState;
 
@@ -20,40 +19,40 @@ pub async fn run_upload_cleanup_loop(state: AppState) {
 }
 
 async fn do_cleanup(state: &AppState) -> Result<usize, String> {
-    let max_age = std::time::Duration::from_secs(state.config.upload_max_age_seconds as u64);
-    let cutoff = SystemTime::now() - max_age;
+    let storage = crate::storage::resolver::resolve(&state.pool, &state.config)
+        .await
+        .map_err(|e| format!("storage: {e}"))?;
 
-    let uploads_dir = Path::new(&state.config.uploads_dir);
-    if !uploads_dir.exists() {
+    // Query DB for expired uploads
+    let expired: Vec<(String,)> = sqlx::query_as(
+        "SELECT id FROM uploads WHERE created_at < now() - interval '1 second' * $1"
+    )
+    .bind(state.config.upload_max_age_seconds)
+    .fetch_all(&state.pool)
+    .await
+    .map_err(|e| format!("db query: {e}"))?;
+
+    if expired.is_empty() {
         return Ok(0);
     }
 
-    let mut entries = tokio::fs::read_dir(uploads_dir)
-        .await
-        .map_err(|e| format!("read uploads dir: {e}"))?;
-
     let mut count = 0;
-    while let Some(entry) = entries.next_entry().await.map_err(|e| format!("iterate: {e}"))? {
-        let meta = match entry.metadata().await {
-            Ok(m) => m,
-            Err(_) => continue,
-        };
-        if !meta.is_dir() {
-            continue;
-        }
+    for (id,) in &expired {
+        // Delete from active storage provider (handles R2 objects)
+        let prefix = format!("uploads/{}", id);
+        let _ = storage.delete_prefix(&prefix).await;
 
-        let modified = match entry.metadata().await {
-            Ok(m) => m.modified().unwrap_or(SystemTime::UNIX_EPOCH),
-            Err(_) => continue,
-        };
+        // Also try local filesystem delete as fallback
+        let dir = Path::new(&state.config.uploads_dir).join(id);
+        let _ = tokio::fs::remove_dir_all(&dir).await;
 
-        if modified < cutoff {
-            if let Err(e) = tokio::fs::remove_dir_all(entry.path()).await {
-                tracing::warn!(path = %entry.path().display(), error = %e, "failed to delete upload dir");
-            } else {
-                count += 1;
-            }
-        }
+        // Delete from DB
+        let _ = sqlx::query("DELETE FROM uploads WHERE id = $1")
+            .bind(id)
+            .execute(&state.pool)
+            .await;
+
+        count += 1;
     }
 
     Ok(count)

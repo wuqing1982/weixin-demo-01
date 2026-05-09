@@ -23,6 +23,11 @@ pub async fn list_my_scenes(
     auth: AuthUser,
     Query(query): Query<MyScenesQuery>,
 ) -> Result<Json<Value>, AppError> {
+    let storage = crate::storage::resolver::resolve(&state.pool, &state.config)
+        .await
+        .map_err(|e| AppError::Internal(e.to_string()))?;
+    let base_url = storage.base_url();
+
     let page = query.page.unwrap_or(1).max(1);
     let page_size = query.page_size.unwrap_or(12).min(100);
     let offset = (page - 1) * page_size;
@@ -39,8 +44,8 @@ pub async fn list_my_scenes(
                 "category": s.category,
                 "visibility": s.visibility,
                 "sceneType": s.scene_type,
-                "coverUrl": asset_url(&state.config.public_base_url, &s.cover_path),
-                "backgroundUrl": asset_url(&state.config.public_base_url, &s.background_path),
+                "coverUrl": asset_url(&base_url, &s.cover_path),
+                "backgroundUrl": asset_url(&base_url, &s.background_path),
                 "itemCount": s.items.as_array().map(|a| a.len()).unwrap_or(0),
                 "createdAt": s.created_at.to_rfc3339(),
             })

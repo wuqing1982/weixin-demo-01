@@ -6,6 +6,7 @@ mod models;
 mod response;
 mod services;
 mod state;
+mod storage;
 
 use state::AppState;
 use std::sync::Arc;

@@ -50,6 +50,11 @@ pub async fn get_video_export_status(
     auth: AuthUser,
     Path(job_id): Path<String>,
 ) -> Result<Json<Value>, AppError> {
+    let storage = crate::storage::resolver::resolve(&state.pool, &state.config)
+        .await
+        .map_err(|e| AppError::Internal(e.to_string()))?;
+    let base_url = storage.base_url();
+
     let job = db::videos::get_video_export_job(&state.pool, &job_id)
         .await?
         .ok_or_else(|| AppError::NotFound("export job not found".into()))?;
@@ -59,7 +64,7 @@ pub async fn get_video_export_status(
     }
 
     let video_url = job.output_path.map(|p| {
-        format!("{}/assets/generated/videos/{}", state.config.public_base_url, p.split('/').last().unwrap_or(""))
+        crate::api::scene::asset_url(&base_url, &format!("generated/videos/{}", p.split('/').last().unwrap_or("")))
     });
 
     Ok(success(json!({
@@ -78,6 +83,11 @@ pub async fn list_my_video_exports(
     State(state): State<AppState>,
     auth: AuthUser,
 ) -> Result<Json<Value>, AppError> {
+    let storage = crate::storage::resolver::resolve(&state.pool, &state.config)
+        .await
+        .map_err(|e| AppError::Internal(e.to_string()))?;
+    let base_url = storage.base_url();
+
     let jobs = db::videos::list_user_video_exports(&state.pool, &auth.user_id, 20).await?;
 
     // Batch-load scene titles and covers
@@ -90,13 +100,13 @@ pub async fn list_my_video_exports(
         .iter()
         .map(|job| {
             let video_url = job.output_path.as_ref().map(|p| {
-                format!("{}/assets/generated/videos/{}", state.config.public_base_url, p.split('/').last().unwrap_or(""))
+                crate::api::scene::asset_url(&base_url, &format!("generated/videos/{}", p.split('/').last().unwrap_or("")))
             });
             let scene = scene_map.get(job.scene_id.as_str());
             let (scene_title, cover_url) = if let Some(s) = scene {
                 (
                     s.title.as_str(),
-                    Some(crate::api::scene::asset_url(&state.config.public_base_url, &s.cover_path)),
+                    Some(crate::api::scene::asset_url(&base_url, &s.cover_path)),
                 )
             } else {
                 ("", None)

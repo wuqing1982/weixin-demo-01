@@ -49,17 +49,23 @@ pub async fn process_scene_task(state: AppState, task_id: String) {
     // Step 3: Prepare assets
     let scene_id = format!("scene_user_{}", uuid::Uuid::new_v4());
     let generated_dir = Path::new(&state.config.generated_dir).join(&scene_id);
-    if let Err(e) = tokio::fs::create_dir_all(&generated_dir).await {
-        let _ = db::tasks::update_task(pool, &task_id, "failed", "error", 0, None, Some(&format!("mkdir: {e}"))).await;
-        return;
-    }
 
-    // Copy source image
-    let src_dir = Path::new(&state.config.uploads_dir).join(upload_id);
-    let src_path = src_dir.join(format!("source.{}", upload.file_suffix));
-    let dst_path = generated_dir.join("background.jpg");
-    if let Err(e) = tokio::fs::copy(&src_path, &dst_path).await {
-        let _ = db::tasks::update_task(pool, &task_id, "failed", "error", 0, None, Some(&format!("copy: {e}"))).await;
+    let storage = match crate::storage::resolver::resolve(&state.pool, &state.config).await {
+        Ok(s) => s,
+        Err(e) => {
+            let _ = db::tasks::update_task(pool, &task_id, "failed", "error", 0, None, Some(&format!("storage: {e}"))).await;
+            return;
+        }
+    };
+
+    // Still create local dir for logs
+    let _ = tokio::fs::create_dir_all(&generated_dir).await;
+
+    // Copy source image via storage
+    let src_key = crate::storage::provider::StorageKey::new(&["uploads", upload_id, &format!("source.{}", upload.file_suffix)]);
+    let dst_key = crate::storage::provider::StorageKey::new(&["generated", &scene_id, "background.jpg"]);
+    if let Err(e) = storage.copy_object(&src_key, &dst_key).await {
+        let _ = db::tasks::update_task(pool, &task_id, "failed", "error", 0, None, Some(&format!("copy bg: {e}"))).await;
         return;
     }
 
@@ -68,7 +74,8 @@ pub async fn process_scene_task(state: AppState, task_id: String) {
     // Step 4: Analyze scene with three-level retry
     let _ = db::tasks::update_task(pool, &task_id, "running", "analyze_scene", 55, None, None).await;
 
-    let image_data = match tokio::fs::read(&dst_path).await {
+    let bg_key = crate::storage::provider::StorageKey::new(&["generated", &scene_id, "background.jpg"]);
+    let image_data = match storage.get(&bg_key).await {
         Ok(d) => d,
         Err(e) => {
             let _ = db::tasks::update_task(pool, &task_id, "failed", "error", 0, None, Some(&format!("read image: {e}"))).await;
@@ -112,6 +119,7 @@ pub async fn process_scene_task(state: AppState, task_id: String) {
         accent,
         voice_gender,
         voice_name,
+        storage.as_ref(),
     )
     .await;
 
@@ -500,6 +508,7 @@ async fn generate_audio_for_scene(
     accent: &str,
     _voice_gender: &str,
     voice_name: &str,
+    storage: &dyn crate::storage::provider::StorageProvider,
 ) -> Value {
     let tts_url = &state.config.core100_tts_url;
     let client = reqwest::Client::new();
@@ -521,9 +530,9 @@ async fn generate_audio_for_scene(
                 word,
                 sentence,
                 &voice_code,
-                &state.config.generated_dir,
                 scene_id,
                 &audio_filename,
+                storage,
             )
             .await;
 
@@ -547,9 +556,9 @@ async fn generate_audio_for_scene(
                 word,
                 sentence,
                 &voice_code,
-                &state.config.generated_dir,
                 scene_id,
                 &audio_filename,
+                storage,
             )
             .await;
 
@@ -568,9 +577,9 @@ async fn generate_audio_entry(
     word: &str,
     sentence: &str,
     voice_code: &str,
-    generated_dir: &str,
     scene_id: &str,
     filename: &str,
+    storage: &dyn crate::storage::provider::StorageProvider,
 ) -> Option<String> {
     let combined_text = if word == sentence || sentence.is_empty() {
         word.to_string()
@@ -595,9 +604,8 @@ async fn generate_audio_entry(
         .await
         .ok()?;
 
-    let dir = Path::new(generated_dir).join(scene_id);
-    let output_path = dir.join(format!("{filename}.mp3"));
-    tokio::fs::write(&output_path, &audio_data).await.ok()?;
+    let key = crate::storage::provider::StorageKey::new(&["generated", scene_id, &format!("{filename}.mp3")]);
+    storage.put(&key, &audio_data, "audio/mpeg").await.ok()?;
 
     Some(format!("/assets/generated/{scene_id}/{filename}.mp3"))
 }

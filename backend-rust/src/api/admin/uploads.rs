@@ -55,10 +55,13 @@ pub async fn upload_image(
         _ => "jpg",
     };
 
-    let dir = std::path::Path::new(&state.config.uploads_dir).join(&upload_id);
-    std::fs::create_dir_all(&dir).map_err(|e| AppError::Internal(format!("mkdir: {e}")))?;
-    let file_path = dir.join(format!("source.{suffix}"));
-    std::fs::write(&file_path, &data).map_err(|e| AppError::Internal(format!("write: {e}")))?;
+    let storage = crate::storage::resolver::resolve(&state.pool, &state.config)
+        .await
+        .map_err(|e| AppError::Internal(e.to_string()))?;
+    let key = crate::storage::provider::StorageKey::new(&["uploads", &upload_id, &format!("source.{suffix}")]);
+    storage.put(&key, &data, &content_type)
+        .await
+        .map_err(|e| AppError::Internal(e.to_string()))?;
 
     let (width, height) = get_image_dimensions(&data);
 
@@ -75,10 +78,7 @@ pub async fn upload_image(
     )
     .await?;
 
-    let file_url = format!(
-        "{}/assets/uploads/{}/source.{}",
-        state.config.public_base_url, upload_id, suffix
-    );
+    let file_url = storage.public_url(&key);
 
     Ok(success(json!({
         "uploadId": upload_id,

@@ -1,6 +1,5 @@
 use std::path::Path;
 
-use crate::db;
 use crate::state::AppState;
 
 pub async fn run_video_cleanup_loop(state: AppState) {
@@ -20,7 +19,7 @@ pub async fn run_video_cleanup_loop(state: AppState) {
 }
 
 async fn do_cleanup(state: &AppState) -> Result<usize, String> {
-    let job_ids = db::videos::cleanup_expired_video_jobs(&state.pool, state.config.video_max_age_seconds)
+    let job_ids = crate::db::videos::cleanup_expired_video_jobs(&state.pool, state.config.video_max_age_seconds)
         .await
         .map_err(|e| format!("db cleanup: {e}"))?;
 
@@ -28,14 +27,20 @@ async fn do_cleanup(state: &AppState) -> Result<usize, String> {
         return Ok(0);
     }
 
-    let video_dir = Path::new(&state.config.generated_dir).join("videos");
+    let storage = crate::storage::resolver::resolve(&state.pool, &state.config)
+        .await
+        .map_err(|e| format!("storage: {e}"))?;
+
     for job_id in &job_ids {
-        let path = video_dir.join(format!("{job_id}.mp4"));
-        if path.exists() {
-            if let Err(e) = tokio::fs::remove_file(&path).await {
-                tracing::warn!(path = %path.display(), error = %e, "failed to delete video file");
-            }
+        // Delete from active storage provider
+        let key = crate::storage::provider::StorageKey::new(&["generated", "videos", &format!("{job_id}.mp4")]);
+        if let Err(e) = storage.delete(&key).await {
+            tracing::warn!(%job_id, %e, "video delete from storage failed");
         }
+
+        // Also try local filesystem delete as fallback
+        let local_path = Path::new(&state.config.generated_dir).join("videos").join(format!("{job_id}.mp4"));
+        let _ = tokio::fs::remove_file(&local_path).await;
     }
 
     Ok(job_ids.len())

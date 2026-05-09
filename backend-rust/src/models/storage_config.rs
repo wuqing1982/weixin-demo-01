@@ -39,7 +39,7 @@ pub const VALID_BACKEND_IDS: &[&str] = &["local", "r2", "cos"];
 
 pub fn required_config_keys(backend_type: &str) -> &'static [&'static str] {
     match backend_type {
-        "r2" => &["account_id", "access_key_id", "secret_access_key", "bucket"],
+        "r2" => &["account_id", "access_key_id", "secret_access_key", "bucket", "public_url"],
         "cos" => &["secret_id", "secret_key", "region", "bucket"],
         "local" => &[],
         _ => &[],

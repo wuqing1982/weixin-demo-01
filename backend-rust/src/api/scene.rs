@@ -24,6 +24,11 @@ pub async fn list_scenes(
     Query(query): Query<ListScenesQuery>,
     _auth: OptionalAuthUser,
 ) -> Result<Json<Value>, AppError> {
+    let storage = crate::storage::resolver::resolve(&state.pool, &state.config)
+        .await
+        .map_err(|e| AppError::Internal(e.to_string()))?;
+    let base_url = storage.base_url();
+
     let page_size = query.page_size.unwrap_or(state.config.scene_page_size).min(100).max(1);
     let page = query.page.unwrap_or(1).max(1);
     let offset = (page - 1) * page_size;
@@ -36,7 +41,7 @@ pub async fn list_scenes(
         query.collection_id.as_deref().filter(|s| !s.is_empty()),
     ).await?;
 
-    let list: Vec<Value> = scenes.iter().map(|s| serialize_scene_summary(&state, s)).collect();
+    let list: Vec<Value> = scenes.iter().map(|s| serialize_scene_summary(&base_url, s)).collect();
 
     Ok(success(json!({
         "list": list,
@@ -51,13 +56,18 @@ pub async fn get_scene(
     Path(scene_id): Path<String>,
     opt_auth: OptionalAuthUser,
 ) -> Result<Json<Value>, AppError> {
+    let storage = crate::storage::resolver::resolve(&state.pool, &state.config)
+        .await
+        .map_err(|e| AppError::Internal(e.to_string()))?;
+    let base_url = storage.base_url();
+
     let scene = scenes::get_scene(&state.pool, &scene_id)
         .await?
         .ok_or_else(|| AppError::NotFound(format!("scene {scene_id} not found")))?;
 
     let can_edit = can_edit_hotspots(&state, &scene, opt_auth.0.as_ref());
 
-    Ok(success(json!(serialize_scene_detail(&state, &scene, can_edit))))
+    Ok(success(json!(serialize_scene_detail(&base_url, &scene, can_edit))))
 }
 
 pub async fn list_scene_categories(
@@ -82,38 +92,70 @@ pub(crate) fn asset_url(base_url: &str, path: &str) -> String {
     format!("{}/{}", base_url.trim_end_matches('/'), clean_path)
 }
 
-fn serialize_scene_summary(state: &AppState, scene: &crate::models::scene::Scene) -> Value {
+fn serialize_scene_summary(base_url: &str, scene: &crate::models::scene::Scene) -> Value {
     let items = scene.items.as_array().map(|a| a.len()).unwrap_or(0);
     json!({
         "sceneId": scene.scene_id,
         "title": scene.title,
         "category": scene.category,
-        "coverUrl": asset_url(&state.config.public_base_url, &scene.cover_path),
-        "backgroundUrl": asset_url(&state.config.public_base_url, &scene.background_path),
+        "coverUrl": asset_url(base_url, &scene.cover_path),
+        "backgroundUrl": asset_url(base_url, &scene.background_path),
         "itemCount": items,
         "visibility": scene.visibility,
         "free": scene.meta_json.get("free").and_then(|v| v.as_bool()).unwrap_or(false),
     })
 }
 
-pub(crate) fn serialize_scene_detail(state: &AppState, scene: &crate::models::scene::Scene, can_edit: bool) -> Value {
+pub(crate) fn serialize_scene_detail(base_url: &str, scene: &crate::models::scene::Scene, can_edit: bool) -> Value {
     let hotspots: Vec<crate::models::scene::HotspotItem> = serde_json::from_value(scene.items.clone()).unwrap_or_default();
     let verbs: Vec<crate::models::scene::VerbItem> = serde_json::from_value(scene.verbs.clone()).unwrap_or_default();
 
-    json!({
+    let mut result = json!({
         "sceneId": scene.scene_id,
         "title": scene.title,
         "category": scene.category,
         "visibility": scene.visibility,
         "sceneType": scene.scene_type,
-        "background": asset_url(&state.config.public_base_url, &scene.background_path),
-        "cover": asset_url(&state.config.public_base_url, &scene.cover_path),
+        "background": asset_url(base_url, &scene.background_path),
+        "cover": asset_url(base_url, &scene.cover_path),
         "items": hotspots,
         "verbs": verbs,
         "meta": scene.meta_json,
         "free": scene.meta_json.get("free").and_then(|v| v.as_bool()).unwrap_or(false),
         "capabilities": { "canEditHotspots": can_edit },
-    })
+    });
+
+    // Resolve audioPath fields to full URLs server-side
+    if let Some(obj) = result.as_object_mut() {
+        if let Some(items) = obj.get_mut("items").and_then(|v| v.as_array_mut()) {
+            for item in items.iter_mut() {
+                let resolved = item.get("audioPath")
+                    .and_then(|v| v.as_str())
+                    .filter(|p| !p.is_empty())
+                    .map(|p| asset_url(base_url, p));
+                if let Some(url) = resolved {
+                    if let Some(item_obj) = item.as_object_mut() {
+                        item_obj.insert("audioPath".to_string(), Value::String(url));
+                    }
+                }
+            }
+        }
+        if let Some(verbs) = obj.get_mut("verbs").and_then(|v| v.as_array_mut()) {
+            for verb in verbs.iter_mut() {
+                let resolved = verb.get("audioPath")
+                    .and_then(|v| v.as_str())
+                    .filter(|p| !p.is_empty())
+                    .map(|p| asset_url(base_url, p));
+                if let Some(url) = resolved {
+                    if let Some(verb_obj) = verb.as_object_mut() {
+                        verb_obj.insert("audioPath".to_string(), Value::String(url));
+                    }
+                }
+            }
+        }
+    }
+
+    result
 }
 
 pub(crate) fn can_edit_hotspots(

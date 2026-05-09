@@ -106,8 +106,13 @@ pub async fn update_hotspots(
         .await?
         .ok_or_else(|| AppError::Internal("scene disappeared after save".into()))?;
 
+    let storage = crate::storage::resolver::resolve(&state.pool, &state.config)
+        .await
+        .map_err(|e| AppError::Internal(e.to_string()))?;
+    let base_url = storage.base_url();
+
     let can_edit = crate::api::scene::can_edit_hotspots(&state, &updated_scene, Some(&auth));
-    Ok(success(crate::api::scene::serialize_scene_detail(&state, &updated_scene, can_edit)))
+    Ok(success(crate::api::scene::serialize_scene_detail(&base_url, &updated_scene, can_edit)))
 }
 
 fn clamp(v: f64) -> f64 {
