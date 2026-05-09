@@ -465,24 +465,10 @@ function createScenePage(sceneData) {
           if (status === 'completed') {
             wx.hideLoading();
             this._exporting = false;
-            const videoUrl = data.videoUrl || '';
-            if (videoUrl) {
-              wx.showModal({
-                title: '导出完成',
-                content: '视频已生成，可立即保存到相册，也可稍后在「我的导出视频」中查看（服务器保留3小时）。',
-                confirmText: '保存到相册',
-                cancelText: '去查看',
-                success: (res) => {
-                  if (res.confirm) {
-                    this._downloadAndSaveVideo(videoUrl);
-                  } else {
-                    wx.navigateTo({ url: '/pages/my_videos/index' });
-                  }
-                }
-              });
-            } else {
-              wx.showToast({ title: '导出完成', icon: 'success' });
-            }
+            wx.showToast({ title: '导出完成', icon: 'success' });
+            setTimeout(() => {
+              wx.navigateTo({ url: '/pages/my_videos/index' });
+            }, 1500);
             return;
           }
 
