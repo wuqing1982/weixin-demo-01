@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "会员套餐与积分"
+  "navigationBarTitleText": "会员套餐与积分",
+  "usingComponents": {
+    "phone-bind-modal": "/components/phone-bind-modal/index"
+  }
 }

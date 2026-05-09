@@ -1,0 +1,16 @@
+<view class="modal-mask" wx:if="{{visible}}" bindtap="onMaskTap">
+  <view class="modal-panel theme-{{theme}}" catchtap="noop">
+    <view class="modal-header">
+      <text class="modal-title theme-{{theme}}">{{title}}</text>
+    </view>
+    <text class="modal-desc theme-{{theme}}">{{description}}</text>
+    <view class="modal-actions">
+      <button class="btn-bind" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber" loading="{{binding}}" disabled="{{binding}}">
+        授权绑定手机号
+      </button>
+      <view class="btn-skip" bindtap="onClose">
+        <text class="btn-skip-text theme-{{theme}}">稍后再说</text>
+      </view>
+    </view>
+  </view>
+</view>

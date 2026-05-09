@@ -192,5 +192,14 @@
       </view>
     </view>
   </view>
+
+  <phone-bind-modal
+    visible="{{showPhoneBindModal}}"
+    theme="{{theme}}"
+    title="绑定手机号后即可导出视频"
+    description="为了保障账号安全，导出视频前需绑定手机号"
+    bind:bindsuccess="onPhoneBindSuccess"
+    bind:close="onPhoneBindClose"
+  />
 </view>
 </view>

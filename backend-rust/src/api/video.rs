@@ -26,6 +26,14 @@ pub async fn export_video(
         return Err(AppError::Forbidden("只能导出自己创建的场景视频".into()));
     }
 
+    // Phone binding check: user must have bound phone number
+    let user = db::users::find_user_by_id(&state.pool, &auth.user_id)
+        .await?
+        .ok_or_else(|| AppError::NotFound("user not found".into()))?;
+    if !user.mobile_verified {
+        return Err(AppError::Forbidden("请先绑定手机号后再导出视频".into()));
+    }
+
     let job_id = format!("vexp_{}", uuid::Uuid::new_v4());
     let job =
         db::videos::create_video_export_job(&state.pool, &job_id, &scene_id, &auth.user_id)

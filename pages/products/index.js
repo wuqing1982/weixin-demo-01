@@ -99,7 +99,8 @@ Page({
     showCdkModal: false,
     cdkInput: '',
     cdkRedeeming: false,
-    cdkInputFocused: false
+    cdkInputFocused: false,
+    showPhoneBindModal: false
   },
 
   onShow() {
@@ -186,6 +187,10 @@ Page({
       await payOrder(order.orderId, getApp());
       wx.showToast({ title: '支付成功', icon: 'success' });
       this.loadPage();
+
+      if (this.data.me && !this.data.me.mobileVerified) {
+        this.setData({ showPhoneBindModal: true });
+      }
     } catch (error) {
       if (error && error.code === 'PAY_CANCELLED') {
         // user cancelled
@@ -250,6 +255,18 @@ Page({
       return;
     }
     wx.navigateTo({ url: '/pages/orders/index' });
+  },
+
+  onPhoneBindSuccess(e) {
+    this.setData({
+      showPhoneBindModal: false,
+      'me.mobileVerified': true,
+      'me.mobile': e.detail.maskedMobile,
+    });
+  },
+
+  onPhoneBindClose() {
+    this.setData({ showPhoneBindModal: false });
   },
 
   onOpenCdkRecords() {

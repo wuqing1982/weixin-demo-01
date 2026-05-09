@@ -108,7 +108,8 @@ function createScenePage(sceneData) {
       playbackRateLabel: '1.0',
       isLooping: false,
       loading: !initialState.sceneId,
-      errorMessage: ''
+      errorMessage: '',
+      showPhoneBindModal: false
     },
 
     initializeScenePage() {
@@ -376,9 +377,24 @@ function createScenePage(sceneData) {
       });
     },
 
-    onExportVideo() {
+    async onExportVideo() {
       if (this.data.editorMode) {
         this.showEditorToast();
+        return;
+      }
+
+      let currentUser = getApp().globalData.currentUser;
+      if (!currentUser) {
+        try {
+          const { getMe } = require('../../services/user');
+          currentUser = await getMe();
+          getApp().globalData.currentUser = currentUser;
+        } catch (_) {
+          currentUser = null;
+        }
+      }
+      if (currentUser && !currentUser.mobileVerified) {
+        this.setData({ showPhoneBindModal: true });
         return;
       }
 
@@ -512,6 +528,18 @@ function createScenePage(sceneData) {
 
       // Start polling after 1 second
       setTimeout(poll, 1000);
+    },
+
+    onPhoneBindSuccess() {
+      const sceneId = this.data.sceneId;
+      this.setData({ showPhoneBindModal: false });
+      if (sceneId && !this._exporting) {
+        this._doExportVideo(sceneId);
+      }
+    },
+
+    onPhoneBindClose() {
+      this.setData({ showPhoneBindModal: false });
     },
 
     _resolveFullUrl(videoUrl) {

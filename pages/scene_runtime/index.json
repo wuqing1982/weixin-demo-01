@@ -1,1 +1,5 @@
-{}
+{
+  "usingComponents": {
+    "phone-bind-modal": "/components/phone-bind-modal/index"
+  }
+}

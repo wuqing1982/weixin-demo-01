@@ -109,5 +109,14 @@
       </view>
     </view>
   </view>
+
+  <phone-bind-modal
+    visible="{{showPhoneBindModal}}"
+    theme="{{theme}}"
+    title="绑定手机号，获取全部权益"
+    description="绑定手机号后即可使用视频导出等全部会员功能"
+    bind:bindsuccess="onPhoneBindSuccess"
+    bind:close="onPhoneBindClose"
+  />
 </view>
 </view>
