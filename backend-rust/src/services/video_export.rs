@@ -230,20 +230,7 @@ async fn generate_scene_video(
     generate_cover_segment(&bg_path, Path::new(&cover_path))?;
     segment_paths.push(cover_path);
 
-    // Segment 2: intro segment (1.5s)
-    let scene_title = if scene.title.is_empty() {
-        "English Vocabulary"
-    } else {
-        &scene.title
-    };
-    let intro_path = tmp_dir
-        .join("intro_000.mp4")
-        .to_string_lossy()
-        .to_string();
-    generate_intro_segment(&bg_path, scene_title, Path::new(&intro_path))?;
-    segment_paths.push(intro_path);
-
-    // Progress after intro
+    // Progress after cover
     let _ = db::videos::update_video_export(
         &state.pool,
         job_id_for_progress,
@@ -368,7 +355,7 @@ fn generate_rounded_panel_png(
 // Segment generators
 // ---------------------------------------------------------------------------
 
-/// Cover frame: scale+crop+border, libx265, 24fps, 64k mono, 0.3s
+/// Cover frame: scale+crop+border, libx264, 24fps, 64k mono, 0.3s
 fn generate_cover_segment(image: &str, output: &Path) -> Result<(), String> {
     let (sw, sh) = ensure_even(VIDEO_W, VIDEO_H);
     let vf = format!(
@@ -389,7 +376,7 @@ fn generate_cover_segment(image: &str, output: &Path) -> Result<(), String> {
         "-vf",
         &vf,
         "-c:v",
-        "libx265",
+        "libx264",
         "-r",
         "24",
         "-preset",
@@ -398,6 +385,8 @@ fn generate_cover_segment(image: &str, output: &Path) -> Result<(), String> {
         "aac",
         "-b:a",
         "64k",
+        "-ar",
+        "44100",
         "-ac",
         "1",
         "-pix_fmt",
@@ -449,7 +438,7 @@ fn generate_intro_segment(image: &str, title: &str, output: &Path) -> Result<(),
         "-vf",
         &vf,
         "-c:v",
-        "libx265",
+        "libx264",
         "-r",
         "24",
         "-preset",
@@ -458,6 +447,8 @@ fn generate_intro_segment(image: &str, title: &str, output: &Path) -> Result<(),
         "aac",
         "-b:a",
         "64k",
+        "-ar",
+        "44100",
         "-ac",
         "1",
         "-pix_fmt",
@@ -473,7 +464,7 @@ fn generate_intro_segment(image: &str, title: &str, output: &Path) -> Result<(),
     result
 }
 
-/// Static fallback: scale+crop+border, libx265, 5s
+/// Static fallback: scale+crop+border, libx264, 5s
 fn generate_static_segment(image: &str, output: &Path) -> Result<(), String> {
     let (sw, sh) = ensure_even(VIDEO_W, VIDEO_H);
     let vf = format!(
@@ -494,7 +485,7 @@ fn generate_static_segment(image: &str, output: &Path) -> Result<(), String> {
         "-vf",
         &vf,
         "-c:v",
-        "libx265",
+        "libx264",
         "-r",
         "24",
         "-preset",
@@ -503,6 +494,8 @@ fn generate_static_segment(image: &str, output: &Path) -> Result<(), String> {
         "aac",
         "-b:a",
         "64k",
+        "-ar",
+        "44100",
         "-ac",
         "1",
         "-pix_fmt",
@@ -591,7 +584,7 @@ fn generate_display_segment(
         "-map",
         "1:a",
         "-c:v",
-        "libx265",
+        "libx264",
         "-r",
         "24",
         "-preset",
@@ -600,6 +593,8 @@ fn generate_display_segment(
         "aac",
         "-b:a",
         "64k",
+        "-ar",
+        "44100",
         "-ac",
         "1",
         "-pix_fmt",
