@@ -269,7 +269,7 @@
   background: rgba(255,255,255,0.10) !important;
   color: rgba(255,255,255,0.80) !important;
   font-size: 24rpx;
-  padding: 0 32rpx;
+  padding: 0 16rpx 0 24rpx;
   height: 56rpx;
   line-height: 56rpx;
   border-radius: 8rpx;
