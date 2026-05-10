@@ -18,6 +18,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
 .modal-panel.theme-dark {
@@ -26,6 +27,12 @@
 
 .modal-panel.theme-light {
   background: #ffffff;
+}
+
+.modal-panel.theme-notion {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8rpx 32rpx rgba(0, 0, 0, 0.10);
 }
 
 .modal-header {
@@ -46,6 +53,10 @@
   color: #111827;
 }
 
+.modal-title.theme-notion {
+  color: rgba(0, 0, 0, 0.95);
+}
+
 .modal-desc {
   font-size: 26rpx;
   text-align: center;
@@ -59,6 +70,10 @@
 
 .modal-desc.theme-light {
   color: #6b7280;
+}
+
+.modal-desc.theme-notion {
+  color: #615d59;
 }
 
 .modal-actions {
@@ -105,4 +120,8 @@
 
 .btn-skip-text.theme-light {
   color: #9ca3af;
+}
+
+.btn-skip-text.theme-notion {
+  color: #a39e98;
 }
