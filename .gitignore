@@ -34,3 +34,29 @@ backend/data/storage_config.json
 
 # Database backups
 backup_*.sql
+
+# Video export demo artifacts
+video-export-demo/
+video-export-demo-v1/
+video-export-demo-v2/
+video-export-demo---old.zip
+video-export-demo-v2.zip
+
+# Test/scratch files
+pages/test_bad.wxml
+features/
+
+# Runtime logs
+assets/logs/
+
+# Python virtual environment
+backend/venv/
+
+# Rust backend local artifacts
+backend-rust/env
+backend-rust/fonts/
+backend-rust/pkgconf_*.deb
+
+# Claude skill workspaces
+bggg-skill-taotie-workspace/
+backend-rust/bggg-skill-taotie-workspace/
