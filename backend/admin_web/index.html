@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Admin Console</title>
-    <link rel="stylesheet" href="/admin/static/admin.css">
+    <link rel="stylesheet" href="/admin/static/admin.css?v=4">
   </head>
   <body>
     <!-- Login overlay (shown when not logged in) -->
@@ -46,6 +46,7 @@
             <button class="nav-item" type="button" data-view="scenes">场景管理</button>
             <button class="nav-item" type="button" data-view="generator">场景生成</button>
             <button class="nav-item" type="button" data-view="drafts">草稿发布</button>
+            <button class="nav-item" type="button" data-view="private-scenes">私人场景</button>
             <button class="nav-item" type="button" data-view="taxonomy">分类/合集</button>
           </div>
           <div class="nav-group">
@@ -98,6 +99,6 @@
     <!-- Toast container -->
     <div id="toast-container" class="toast-container"></div>
 
-    <script src="/admin/static/admin.js"></script>
+    <script src="/admin/static/admin.js?v=4"></script>
   </body>
 </html>
