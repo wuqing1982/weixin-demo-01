@@ -2,10 +2,10 @@
 <view class="container order-page">
   <view class="summary-card card theme-{{theme}}">
     <text class="section-title theme-{{theme}}">我的订单</text>
-    <text class="section-subtitle theme-{{theme}}">支付成功后会立即发放会员权益或场景生成点数。</text>
+    <text class="section-subtitle theme-{{theme}}">支付成功后会立即发放会员权益或场景生成积分。</text>
     <view class="summary-inline" wx:if="{{me}}">
       <text class="summary-chip theme-{{theme}}">会员：{{me.memberSummary.isActive ? '已开通' : '未开通'}}</text>
-      <text class="summary-chip theme-{{theme}}">点数：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
+      <text class="summary-chip theme-{{theme}}">积分：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
     </view>
     <button class="btn-secondary theme-{{theme}}" bindtap="onOpenProducts">继续购买</button>
   </view>

@@ -22,8 +22,7 @@
           <view class="current-user-copy">
             <text class="current-user-label">当前登录用户</text>
             <text class="current-user-name">{{me.displayName || '微信用户'}}</text>
-            <text class="current-user-meta">{{me.isAdmin ? 'Admin · ' : ''}}<text class="login-tier-badge {{me.memberSummary.isActive ? 'badge-tier badge-' + me.memberSummary.entitlementCode : 'badge-inactive'}}">{{memberTierLabel}}</text> · 点数：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
-          </view>
+            <text class="current-user-meta">{{me.isAdmin ? 'Admin · ' : ''}}<text class="login-tier-badge {{me.memberSummary.isActive ? 'badge-tier badge-' + me.memberSummary.entitlementCode : 'badge-inactive'}}">{{memberTierLabel}}</text> · 积分：{{me.creditSummary.sceneGenerateBalance || 0}}</text>          </view>
         </view>
         <view class="profile-sync-panel">
           <view class="profile-sync-row">
@@ -55,7 +54,7 @@
       <view class="benefit-list">
         <view class="benefit-pill">真实微信登录</view>
         <view class="benefit-pill">包年会员购买</view>
-        <view class="benefit-pill">订单与点数同步</view>
+        <view class="benefit-pill">订单与积分同步</view>
       </view>
 
       <view class="offer-card" wx:if="{{featuredProduct && featuredProduct.featuredSku}}">
@@ -75,7 +74,7 @@
 
       <text wx:if="{{errorMessage}}" class="error-text">{{errorMessage}}</text>
       <text wx:if="{{profileMessage}}" class="success-text">{{profileMessage}}</text>
-      <text class="agreement-copy">继续即表示你将使用当前微信身份登录，并在支付后自动绑定会员订单与点数权益。</text>
+      <text class="agreement-copy">继续即表示你将使用当前微信身份登录，并在支付后自动绑定会员订单与积分权益。</text>
     </view>
   </view>
 </view>

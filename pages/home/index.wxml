@@ -7,7 +7,7 @@
       <view class="profile-meta-row">
         <text class="profile-meta theme-{{theme}}" wx:if="{{me.isAdmin}}">Admin</text>
         <text class="profile-badge {{me.memberSummary.isActive ? 'badge-tier badge-' + me.memberSummary.entitlementCode : 'badge-inactive'}}">{{memberTierLabel}}</text>
-        <text class="profile-meta theme-{{theme}}">点数：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
+        <text class="profile-meta theme-{{theme}}">积分：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
       </view>
       <view class="profile-meta-row" style="margin-top: 8rpx;">
         <text class="profile-meta theme-{{theme}}" wx:if="{{maskedMobile}}">📱 {{maskedMobile}}</text>
