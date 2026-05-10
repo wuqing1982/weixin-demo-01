@@ -21,7 +21,7 @@ async fn main() {
     let port = c.server_port;
 
     let pool = sqlx::postgres::PgPoolOptions::new()
-        .max_connections(10)
+        .max_connections(20)
         .connect(&c.database_url)
         .await
         .expect("Failed to connect to PostgreSQL");

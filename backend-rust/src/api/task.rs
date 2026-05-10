@@ -3,6 +3,12 @@ use axum::Json;
 use serde::Deserialize;
 use serde_json::{json, Value};
 
+use std::sync::LazyLock;
+use tokio::sync::Semaphore;
+
+/// Limit concurrent scene generation tasks (bound by 智谱AI API QPM).
+static SCENE_SEMAPHORE: LazyLock<Semaphore> = LazyLock::new(|| Semaphore::new(3));
+
 use crate::db;
 use crate::error::AppError;
 use crate::middleware::auth::AuthUser;
@@ -65,10 +71,11 @@ pub async fn create_scene_generate_task(
 
     // Credit deduction moved to worker - only charged on successful generation
 
-    // Spawn background worker
+    // Spawn background worker (rate-limited by semaphore)
     let worker_state = state.clone();
     let worker_task_id = task_id.clone();
     tokio::spawn(async move {
+        let _permit = SCENE_SEMAPHORE.acquire().await.unwrap();
         scene_worker::process_scene_task(worker_state, worker_task_id).await;
     });
 

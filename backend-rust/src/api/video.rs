@@ -1,6 +1,11 @@
 use axum::extract::{Path, State};
 use axum::Json;
 use serde_json::{json, Value};
+use std::sync::LazyLock;
+use tokio::sync::Semaphore;
+
+/// Limit concurrent video export tasks (bound by server CPU cores).
+static VIDEO_SEMAPHORE: LazyLock<Semaphore> = LazyLock::new(|| Semaphore::new(2));
 
 use crate::db;
 use crate::error::AppError;
@@ -39,10 +44,11 @@ pub async fn export_video(
         db::videos::create_video_export_job(&state.pool, &job_id, &scene_id, &auth.user_id)
             .await?;
 
-    // Spawn background worker
+    // Spawn background worker (rate-limited by semaphore)
     let worker_state = state.clone();
     let worker_job_id = job_id.clone();
     tokio::spawn(async move {
+        let _permit = VIDEO_SEMAPHORE.acquire().await.unwrap();
         video_export::process_video_export(worker_state, worker_job_id).await;
     });
 
