@@ -21,6 +21,14 @@ function getMyScenes(params = {}) {
   });
 }
 
+function batchDeleteMyScenes(sceneIds) {
+  return request({
+    url: '/my/scenes/batch-delete',
+    method: 'POST',
+    data: { sceneIds }
+  });
+}
+
 function getSceneCategories() {
   return request({
     url: '/scene-categories'
@@ -69,6 +77,7 @@ module.exports = {
   getSceneList,
   getSceneDetail,
   getMyScenes,
+  batchDeleteMyScenes,
   getSceneCategories,
   getSceneCollections,
   saveSceneHotspots,

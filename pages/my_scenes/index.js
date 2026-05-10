@@ -1,5 +1,5 @@
 const { updateNavBar } = require('../../shared/theme-helper');
-const { getMyScenes, getSceneCategories } = require('../../services/scene');
+const { getMyScenes, getSceneCategories, batchDeleteMyScenes } = require('../../services/scene');
 const { request } = require('../../services/api');
 
 Page({
@@ -17,7 +17,12 @@ Page({
     loadingMore: false,
     viewMode: 'grid',
     selectedCategoryId: '',
-    categories: []
+    categories: [],
+    // Edit mode
+    editMode: false,
+    selectedIds: [],
+    selectAllChecked: false,
+    deleting: false
   },
 
   onShow() {
@@ -28,7 +33,7 @@ Page({
   },
 
   onPullDownRefresh() {
-    this.setData({ page: 1, hasMore: true });
+    this.setData({ page: 1, hasMore: true, editMode: false, selectedIds: [], selectAllChecked: false });
     this.loadScenes().finally(() => {
       wx.stopPullDownRefresh();
     });
@@ -42,7 +47,7 @@ Page({
   onSelectCategory(event) {
     const { categoryId } = event.currentTarget.dataset;
     const nextCategoryId = categoryId === this.data.selectedCategoryId ? '' : (categoryId || '');
-    this.setData({ selectedCategoryId: nextCategoryId });
+    this.setData({ selectedCategoryId: nextCategoryId, editMode: false, selectedIds: [], selectAllChecked: false });
     this.loadScenes();
   },
 
@@ -52,6 +57,97 @@ Page({
     }
     this.loadMoreScenes();
   },
+
+  // ---- Edit mode ----
+
+  onEnterEditMode() {
+    this.setData({
+      editMode: true,
+      selectedIds: [],
+      selectAllChecked: false
+    });
+    // Clear any stale _selected flags
+    const scenes = this.data.scenes.map(s => ({ ...s, _selected: false }));
+    this.setData({ scenes });
+  },
+
+  onExitEditMode() {
+    const scenes = this.data.scenes.map(s => {
+      const { _selected, ...rest } = s;
+      return rest;
+    });
+    this.setData({ editMode: false, selectedIds: [], selectAllChecked: false, scenes });
+  },
+
+  onToggleSelect(e) {
+    const { sceneId, index } = e.currentTarget.dataset;
+    const scenes = this.data.scenes;
+    const selected = !scenes[index]._selected;
+    scenes[index]._selected = selected;
+
+    let selectedIds = this.data.selectedIds.slice();
+    if (selected) {
+      if (!selectedIds.includes(sceneId)) {
+        selectedIds.push(sceneId);
+      }
+    } else {
+      selectedIds = selectedIds.filter(id => id !== sceneId);
+    }
+
+    const selectAllChecked = selectedIds.length === scenes.length && scenes.length > 0;
+    this.setData({ scenes, selectedIds, selectAllChecked });
+  },
+
+  onToggleSelectAll() {
+    const scenes = this.data.scenes;
+    const selectAllChecked = !this.data.selectAllChecked;
+    const selectedIds = [];
+
+    for (let i = 0; i < scenes.length; i++) {
+      scenes[i]._selected = selectAllChecked;
+      if (selectAllChecked) {
+        selectedIds.push(scenes[i].sceneId);
+      }
+    }
+
+    this.setData({ scenes, selectedIds, selectAllChecked });
+  },
+
+  onDeleteSelected() {
+    const count = this.data.selectedIds.length;
+    if (count === 0 || this.data.deleting) return;
+
+    wx.showModal({
+      title: '确认删除',
+      content: `确定要删除选中的 ${count} 个场景吗？此操作不可撤销。`,
+      confirmText: '删除',
+      confirmColor: '#fa5151',
+      success: (res) => {
+        if (res.confirm) {
+          this.doDelete();
+        }
+      }
+    });
+  },
+
+  async doDelete() {
+    this.setData({ deleting: true });
+    wx.showLoading({ title: '删除中...', mask: true });
+
+    try {
+      const result = await batchDeleteMyScenes(this.data.selectedIds);
+      wx.hideLoading();
+      wx.showToast({ title: `已删除 ${result.count || this.data.selectedIds.length} 个场景`, icon: 'success' });
+      this.setData({ editMode: false, selectedIds: [], selectAllChecked: false, deleting: false });
+      this.loadScenes();
+    } catch (error) {
+      wx.hideLoading();
+      this.setData({ deleting: false });
+      wx.showToast({ title: error.message || '删除失败', icon: 'none' });
+    }
+  },
+
+  // ---- Data loading ----
 
   async loadConfig() {
     try {
@@ -86,7 +182,7 @@ Page({
         this.data.categories.length ? Promise.resolve(null) : getSceneCategories()
       ]);
 
-      const list = data.list || [];
+      const list = (data.list || []).map(s => ({ ...s, _selected: false }));
       const totalCount = data.total || 0;
       const totalPages = Math.ceil(totalCount / this.data.pageSize) || 1;
       const updates = {
@@ -123,7 +219,7 @@ Page({
       }
       const data = await getMyScenes(params);
 
-      const newList = data.list || [];
+      const newList = (data.list || []).map(s => ({ ...s, _selected: false }));
       const totalCount = data.total || 0;
       const totalPages = Math.ceil(totalCount / this.data.pageSize) || 1;
       this.setData({
@@ -148,7 +244,10 @@ Page({
       page,
       scenes: [],
       hasMore: true,
-      loading: true
+      loading: true,
+      editMode: false,
+      selectedIds: [],
+      selectAllChecked: false
     });
     this.loadPage(page);
   },
@@ -164,7 +263,7 @@ Page({
         params.categoryId = this.data.selectedCategoryId;
       }
       const data = await getMyScenes(params);
-      const list = data.list || [];
+      const list = (data.list || []).map(s => ({ ...s, _selected: false }));
       const totalCount = data.total || 0;
       const totalPages = Math.ceil(totalCount / this.data.pageSize) || 1;
       this.setData({
@@ -198,6 +297,7 @@ Page({
   },
 
   onOpenScene(event) {
+    if (this.data.editMode) return;
     const { sceneId } = event.currentTarget.dataset;
     wx.navigateTo({
       url: `/pages/scene_runtime/index?sceneId=${sceneId}`

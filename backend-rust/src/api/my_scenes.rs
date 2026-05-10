@@ -12,6 +12,12 @@ use crate::state::AppState;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct BatchDeleteRequest {
+    pub scene_ids: Vec<String>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MyScenesQuery {
     pub page: Option<i64>,
     pub page_size: Option<i64>,
@@ -58,4 +64,19 @@ pub async fn list_my_scenes(
         "page": page,
         "pageSize": page_size,
     })))
+}
+
+pub async fn batch_delete_my_scenes(
+    State(state): State<AppState>,
+    auth: AuthUser,
+    Json(body): Json<BatchDeleteRequest>,
+) -> Result<Json<Value>, AppError> {
+    if body.scene_ids.is_empty() {
+        return Ok(success(json!({"count": 0})));
+    }
+    if body.scene_ids.len() > 100 {
+        return Err(AppError::BadRequest("单次最多删除100个场景".into()));
+    }
+    let count = db::scenes::batch_delete_user_scenes(&state.pool, &auth.user_id, &body.scene_ids).await?;
+    Ok(success(json!({"count": count})))
 }

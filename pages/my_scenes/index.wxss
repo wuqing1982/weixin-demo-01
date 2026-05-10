@@ -2,6 +2,27 @@
   margin-top: 24rpx;
 }
 
+/* ---- Top actions row ---- */
+
+.top-actions {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  margin-top: 24rpx;
+}
+
+.top-actions .create-btn {
+  flex: 1;
+  margin-top: 0;
+}
+
+.manage-btn {
+  flex-shrink: 0;
+  padding: 0 32rpx !important;
+  margin-top: 0 !important;
+  min-width: 120rpx;
+}
+
 /* ---- Category filter ---- */
 
 .section-block {
@@ -68,6 +89,7 @@
 
 .scene-card {
   overflow: hidden;
+  position: relative;
 }
 
 .scene-cover {
@@ -192,4 +214,135 @@
 
 .page-btn-disabled {
   opacity: 0.3;
+}
+
+/* ---- Edit mode toolbar ---- */
+
+.edit-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20rpx 0;
+  margin-top: 16rpx;
+}
+
+.edit-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.edit-toolbar-text {
+  font-size: 26rpx;
+  color: rgba(255,255,255,0.80) !important;
+}
+.edit-toolbar-text.theme-notion { color: rgba(0,0,0,0.80) !important; }
+
+.edit-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+}
+
+.selected-count {
+  font-size: 24rpx;
+  color: rgba(255,255,255,0.50) !important;
+}
+.selected-count.theme-notion { color: #a39e98 !important; }
+
+.btn-delete {
+  background: #fa5151 !important;
+  color: #ffffff !important;
+  font-size: 24rpx;
+  padding: 0 32rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  border-radius: 8rpx;
+  border: none;
+}
+
+.btn-delete-disabled {
+  opacity: 0.4;
+}
+
+.btn-cancel {
+  background: rgba(255,255,255,0.10) !important;
+  color: rgba(255,255,255,0.80) !important;
+  font-size: 24rpx;
+  padding: 0 32rpx;
+  height: 56rpx;
+  line-height: 56rpx;
+  border-radius: 8rpx;
+  border: none;
+}
+.btn-cancel.theme-notion {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  color: #615d59 !important;
+}
+
+/* ---- Checkbox (toolbar) ---- */
+
+.checkbox {
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.30);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.checkbox.theme-notion { border-color: rgba(0,0,0,0.20); }
+
+.checkbox-checked {
+  background: #0075de !important;
+  border-color: #0075de !important;
+}
+
+.checkbox-tick {
+  width: 12rpx;
+  height: 20rpx;
+  border: solid #ffffff;
+  border-width: 0 3rpx 3rpx 0;
+  transform: rotate(45deg);
+  margin-top: -4rpx;
+}
+
+/* ---- Select checkbox on card ---- */
+
+.select-checkbox {
+  position: absolute;
+  top: 16rpx;
+  left: 16rpx;
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  border: 3rpx solid rgba(255,255,255,0.50);
+  background: rgba(0,0,0,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-sizing: border-box;
+}
+
+.select-checkbox-checked {
+  background: #0075de !important;
+  border-color: #0075de !important;
+}
+
+.checkbox-tick-white {
+  width: 14rpx;
+  height: 22rpx;
+  border: solid #ffffff;
+  border-width: 0 3rpx 3rpx 0;
+  transform: rotate(45deg);
+  margin-top: -4rpx;
+}
+
+/* ---- Card selected state ---- */
+
+.scene-card-selected {
+  box-shadow: 0 0 0 3rpx #0075de;
 }

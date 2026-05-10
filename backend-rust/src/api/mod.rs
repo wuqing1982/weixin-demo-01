@@ -13,7 +13,7 @@ pub mod upload;
 pub mod user;
 pub mod video;
 
-use axum::routing::{get, post, put};
+use axum::routing::{delete, get, post, put};
 use axum::Router;
 
 use crate::state::AppState;
@@ -31,6 +31,7 @@ pub fn routes() -> Router<AppState> {
         .route("/api/my/tasks/{task_id}", get(task::get_task_status))
         // My scenes
         .route("/api/my/scenes", get(my_scenes::list_my_scenes))
+        .route("/api/my/scenes/batch-delete", post(my_scenes::batch_delete_my_scenes))
         // Auth
         .route("/api/auth/wechat/login", post(auth::wechat_login))
         .route("/api/auth/refresh", post(auth::refresh_token))

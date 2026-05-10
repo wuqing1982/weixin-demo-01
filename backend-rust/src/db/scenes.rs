@@ -262,6 +262,30 @@ pub async fn batch_delete_scenes(pool: &PgPool, scene_ids: &[String]) -> Result<
     Ok(scene_ids.len() as u64)
 }
 
+/// Delete scenes that belong to a specific user. Returns the number of deleted rows.
+pub async fn batch_delete_user_scenes(pool: &PgPool, user_id: &str, scene_ids: &[String]) -> Result<u64, sqlx::Error> {
+    let mut tx = pool.begin().await?;
+    let mut count = 0u64;
+    for sid in scene_ids {
+        // Only delete if the scene belongs to this user
+        let result = sqlx::query("DELETE FROM scenes WHERE scene_id = $1 AND owner_id = $2")
+            .bind(sid)
+            .bind(user_id)
+            .execute(&mut *tx)
+            .await?;
+        if result.rows_affected() > 0 {
+            // Clean up related publication records
+            sqlx::query("DELETE FROM scene_publication_collections WHERE public_scene_id = $1 OR public_scene_id IN (SELECT public_scene_id FROM scene_publications WHERE source_generated_scene_id = $1)")
+                .bind(sid).execute(&mut *tx).await?;
+            sqlx::query("DELETE FROM scene_publications WHERE source_generated_scene_id = $1 OR public_scene_id = $1")
+                .bind(sid).execute(&mut *tx).await?;
+            count += 1;
+        }
+    }
+    tx.commit().await?;
+    Ok(count)
+}
+
 pub async fn batch_update_scene_visibility(pool: &PgPool, scene_ids: &[String], visibility: &str) -> Result<u64, sqlx::Error> {
     let mut tx = pool.begin().await?;
     let mut count = 0u64;

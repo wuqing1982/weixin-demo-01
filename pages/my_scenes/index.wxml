@@ -2,7 +2,15 @@
 <view class="container">
   <text class="section-title theme-{{theme}}">我的生成场景</text>
   <text class="section-subtitle theme-{{theme}}">这里只展示当前调试用户上传并生成成功的私人场景。</text>
-  <button class="btn-secondary theme-{{theme}} create-btn" bindtap="onOpenCreate">继续生成新场景</button>
+
+  <view class="top-actions">
+    <button class="btn-secondary theme-{{theme}} create-btn" bindtap="onOpenCreate">继续生成新场景</button>
+    <button
+      wx:if="{{!editMode && scenes.length > 0}}"
+      class="btn-secondary theme-{{theme}} manage-btn"
+      bindtap="onEnterEditMode"
+    >管理</button>
+  </view>
 
   <view wx:if="{{loading}}" class="state-card theme-{{theme}}">加载我的场景中...</view>
 
@@ -29,20 +37,45 @@
       </scroll-view>
     </view>
     <view class="section-header">
-      <text class="section-heading theme-{{theme}}">我的场景</text>
-      <view class="view-toggle" bindtap="onToggleViewMode">
+      <text class="section-heading theme-{{theme}}">{{editMode ? '选择要删除的场景' : '我的场景'}}</text>
+      <view wx:if="{{!editMode}}" class="view-toggle" bindtap="onToggleViewMode">
         <text class="toggle-icon">{{viewMode === 'grid' ? '☰' : '▦'}}</text>
       </view>
     </view>
+
+    <!-- Edit mode toolbar -->
+    <view wx:if="{{editMode}}" class="edit-toolbar">
+      <view class="edit-toolbar-left" bindtap="onToggleSelectAll">
+        <view class="checkbox {{selectAllChecked ? 'checkbox-checked' : ''}}">
+          <view wx:if="{{selectAllChecked}}" class="checkbox-tick"></view>
+        </view>
+        <text class="edit-toolbar-text theme-{{theme}}">全选</text>
+      </view>
+      <view class="edit-toolbar-right">
+        <text class="selected-count theme-{{theme}}">已选 {{selectedIds.length}} 项</text>
+        <button
+          class="btn-delete {{selectedIds.length === 0 ? 'btn-delete-disabled' : ''}}"
+          bindtap="onDeleteSelected"
+          disabled="{{selectedIds.length === 0}}"
+        >删除</button>
+        <button class="btn-cancel theme-{{theme}}" bindtap="onExitEditMode">取消</button>
+      </view>
+    </view>
+
     <view wx:if="{{!scenes.length}}" class="state-card theme-{{theme}}">还没有生成成功的私人场景，先去上传一张图片。</view>
     <view class="{{viewMode === 'grid' ? 'scene-grid' : 'scene-list'}}">
       <view
         wx:for="{{scenes}}"
         wx:key="sceneId"
-        class="scene-card card theme-{{theme}} {{viewMode === 'grid' ? 'scene-card-grid' : ''}}"
-        bindtap="onOpenScene"
+        class="scene-card card theme-{{theme}} {{viewMode === 'grid' ? 'scene-card-grid' : ''}} {{editMode && item._selected ? 'scene-card-selected' : ''}}"
+        bindtap="{{editMode ? 'onToggleSelect' : 'onOpenScene'}}"
         data-scene-id="{{item.sceneId}}"
+        data-index="{{index}}"
       >
+        <!-- Selection checkbox in edit mode -->
+        <view wx:if="{{editMode}}" class="select-checkbox {{item._selected ? 'select-checkbox-checked' : ''}}">
+          <view wx:if="{{item._selected}}" class="checkbox-tick-white"></view>
+        </view>
         <image class="scene-cover {{viewMode === 'grid' ? 'scene-cover-grid' : ''}}" src="{{item.coverUrl}}" mode="aspectFill" />
         <view class="scene-meta {{viewMode === 'grid' ? 'scene-meta-grid' : ''}}">
           <text class="scene-title {{viewMode === 'grid' ? 'scene-title-grid' : ''}}">{{item.title}}</text>
