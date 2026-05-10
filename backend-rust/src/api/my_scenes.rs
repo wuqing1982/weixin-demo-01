@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use axum::extract::{Query, State};
 use axum::Json;
 use serde::Deserialize;
@@ -78,5 +80,28 @@ pub async fn batch_delete_my_scenes(
         return Err(AppError::BadRequest("单次最多删除100个场景".into()));
     }
     let count = db::scenes::batch_delete_user_scenes(&state.pool, &auth.user_id, &body.scene_ids).await?;
+
+    // 清理存储文件（best-effort，失败不影响响应）
+    cleanup_scene_files(&state, &body.scene_ids).await;
+
     Ok(success(json!({"count": count})))
+}
+
+pub async fn cleanup_scene_files(state: &AppState, scene_ids: &[String]) {
+    let storage = match crate::storage::resolver::resolve(&state.pool, &state.config).await {
+        Ok(s) => s,
+        Err(e) => {
+            tracing::error!(error = %e, "场景文件清理: 无法获取存储实例");
+            return;
+        }
+    };
+
+    for sid in scene_ids {
+        let prefix = format!("generated/{}", sid);
+        if let Err(e) = storage.delete_prefix(&prefix).await {
+            tracing::warn!(scene_id = %sid, error = %e, "场景文件清理: 存储删除失败");
+        }
+        let dir = Path::new(&state.config.generated_dir).join(sid);
+        let _ = tokio::fs::remove_dir_all(&dir).await;
+    }
 }

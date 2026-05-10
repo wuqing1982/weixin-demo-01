@@ -34,6 +34,8 @@ const state = {
   privateSceneUserResults: [],
   draftViewMode: 'card',
   draftSearchQuery: '',
+  userSearchQuery: '',
+  userViewMode: 'card',
   userFilterMobile: 'all',
   generatorFiles: [],
   storageOverview: null,
@@ -109,6 +111,15 @@ function getFilteredScenes() {
 
 function getFilteredUsers() {
   let list = state.users;
+  const q = (state.userSearchQuery || '').trim().toLowerCase();
+  if (q) {
+    list = list.filter((u) => {
+      const name = (u.displayName || '').toLowerCase();
+      const mobile = (u.mobile || '').toLowerCase();
+      const id = (u.id || '').toLowerCase();
+      return name.includes(q) || mobile.includes(q) || id.includes(q);
+    });
+  }
   if (state.userFilterMobile === 'yes') {
     list = list.filter((u) => u.mobileVerified);
   } else if (state.userFilterMobile === 'no') {
@@ -342,55 +353,218 @@ async function batchDeleteUsers() {
 
 function renderUsers() {
   const filtered = getFilteredUsers();
+  const u = state.selectedUser;
 
-  const detail = state.selectedUser ? `
-    <article class="detail-card">
+  // --- User detail panel ---
+  let detail = '';
+  if (u) {
+    const ms = u.memberSummary || {};
+    const cs = u.creditSummary || {};
+    const orders = u.orders || [];
+    const scenes = u.generatedScenes || [];
+    const entitlements = u.entitlements || [];
+    const isActive = ms.isActive;
+    const creditsUsed = (cs.totalCredits || 0) - (cs.sceneGenerateBalance || 0);
+    const creditsTotal = cs.totalCredits || 0;
+    const creditsPct = creditsTotal > 0 ? Math.round(creditsUsed / creditsTotal * 100) : 0;
+
+    // Membership progress
+    let memberPct = 0;
+    let memberDaysLeft = '';
+    if (isActive && ms.expiresAt) {
+      const expiry = new Date(ms.expiresAt);
+      const start = u.createdAt ? new Date(u.createdAt) : new Date(Date.now() - 365 * 86400000);
+      const now = new Date();
+      const total = expiry - start;
+      const elapsed = now - start;
+      memberPct = total > 0 ? Math.min(100, Math.round(elapsed / total * 100)) : 100;
+      const daysLeft = Math.max(0, Math.ceil((expiry - now) / 86400000));
+      memberDaysLeft = daysLeft + ' 天';
+    }
+
+    // Recent activity
+    const lastLogin = u.lastLoginAt ? u.lastLoginAt.slice(0, 16).replace('T', ' ') : '从未登录';
+    const createdAt = u.createdAt ? u.createdAt.slice(0, 10) : '-';
+
+    detail = `
+    <article class="detail-card" style="margin-bottom:20px;">
       <div class="detail-head">
         <div>
-          <h4>${escapeHtml(state.selectedUser.displayName || state.selectedUser.id)}</h4>
-          <p>${escapeHtml(state.selectedUser.id)}</p>
+          <h4>${escapeHtml(u.displayName || u.id)}</h4>
+          <p>${escapeHtml(u.id)}</p>
         </div>
-        <span class="meta-chip">${escapeHtml(state.selectedUser.status || 'active')}</span>
+        <span class="meta-chip">${escapeHtml(u.status || 'active')}</span>
+        <button class="mini-btn" data-action="user-close-detail" style="margin-left:auto;">关闭</button>
       </div>
-      <div class="detail-grid">
-        <div><span>角色</span><strong>${escapeHtml(state.selectedUser.role || 'user')}</strong></div>
-        <div><span>手机号</span><strong>${state.selectedUser.mobileVerified ? escapeHtml(state.selectedUser.mobile || '-') : '未绑定'}</strong></div>
-        <div><span>会员</span><strong>${state.selectedUser.memberSummary && state.selectedUser.memberSummary.isActive ? '已开通' : '未开通'}</strong></div>
-        <div><span>点数</span><strong>${escapeHtml((state.selectedUser.creditSummary && state.selectedUser.creditSummary.sceneGenerateBalance) || 0)}</strong></div>
-        <div><span>注册时间</span><strong>${escapeHtml(state.selectedUser.createdAt || '-')}</strong></div>
+
+      <!-- Stat cards row -->
+      <div class="user-stat-grid">
+        <div class="user-stat-card">
+          <div class="user-stat-label">创建场景</div>
+          <div class="user-stat-value">${scenes.length}</div>
+        </div>
+        <div class="user-stat-card">
+          <div class="user-stat-label">订单数</div>
+          <div class="user-stat-value">${orders.length}</div>
+        </div>
+        <div class="user-stat-card">
+          <div class="user-stat-label">积分消耗</div>
+          <div class="user-stat-value">${creditsUsed}<span class="user-stat-total"> / ${creditsTotal}</span></div>
+          <div class="user-stat-bar-wrap">
+            <div class="user-stat-bar" style="width:${creditsPct}%;background:${creditsPct > 80 ? '#ef4444' : creditsPct > 50 ? '#f59e0b' : '#4ade80'}"></div>
+          </div>
+        </div>
+        <div class="user-stat-card">
+          <div class="user-stat-label">注册时间</div>
+          <div class="user-stat-value" style="font-size:16px;">${createdAt}</div>
+        </div>
+        <div class="user-stat-card">
+          <div class="user-stat-label">最后登录</div>
+          <div class="user-stat-value" style="font-size:16px;">${lastLogin}</div>
+        </div>
+        <div class="user-stat-card">
+          <div class="user-stat-label">手机号</div>
+          <div class="user-stat-value" style="font-size:16px;">${u.mobileVerified ? escapeHtml(u.mobile || '-') : '未绑定'}</div>
+        </div>
       </div>
+
+      <!-- Membership section -->
       <div class="detail-subsection">
-        <h5>订单</h5>
-        <p>${(state.selectedUser.orders || []).map((item) => `${item.orderNo} / ${item.status}`).join('，') || '暂无'}</p>
+        <h5>会员状态</h5>
+        ${isActive ? `
+          <div style="display:flex;align-items:center;gap:12px;margin-top:8px;">
+            <strong style="color:#4ade80;">${escapeHtml(ms.entitlementCode || '已开通')}</strong>
+            ${memberDaysLeft ? `<span style="color:var(--muted);font-size:13px;">剩余 ${memberDaysLeft}</span>` : ''}
+          </div>
+          <div class="user-stat-bar-wrap" style="margin-top:6px;">
+            <div class="user-stat-bar" style="width:${memberPct}%;background:${memberPct > 90 ? '#ef4444' : memberPct > 70 ? '#f59e0b' : '#4ade80'}"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-top:4px;">
+            <span>开通</span><span>到期 ${ms.expiresAt ? ms.expiresAt.slice(0, 10) : '-'}</span>
+          </div>
+        ` : '<p style="color:var(--muted);">未开通会员</p>'}
       </div>
+
+      <!-- Orders -->
+      ${orders.length > 0 ? `
+      <div class="detail-subsection">
+        <h5>订单记录（${orders.length}）</h5>
+        <div class="user-order-list">
+          ${orders.map((o) => `
+            <div class="user-order-item">
+              <span class="user-order-no">${escapeHtml(o.orderNo || '-')}</span>
+              <span class="user-order-status ${o.status === 'paid' ? 'status-paid' : ''}">${escapeHtml(o.status)}</span>
+              <span style="color:var(--muted);font-size:12px;">${o.createdAt ? o.createdAt.slice(0, 10) : '-'}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+
+      <!-- Entitlements -->
+      ${entitlements.length > 0 ? `
       <div class="detail-subsection">
         <h5>权益</h5>
-        <p>${(state.selectedUser.entitlements || []).map((item) => item.entitlementCode).join('，') || '暂无'}</p>
+        <p>${entitlements.map((e) => `<span class="meta-chip">${escapeHtml(e.entitlementCode)}</span>`).join(' ')}</p>
       </div>
-    </article>
-  ` : '';
+      ` : ''}
+    </article>`;
+  }
+
+  const viewMode = state.userViewMode || 'card';
 
   panelHead.innerHTML = `
-    <div>
-      <h3 class="panel-title">用户管理</h3>
-      <p class="panel-subtitle">支持查看详情、封禁与解封。</p>
-    </div>
-    <div class="panel-actions">
-      <div class="scene-filter-group">
-        <select class="scene-filter-select" id="user-filter-mobile">
-          <option value="all" ${state.userFilterMobile === 'all' ? 'selected' : ''}>全部用户</option>
-          <option value="yes" ${state.userFilterMobile === 'yes' ? 'selected' : ''}>已绑定手机</option>
-          <option value="no" ${state.userFilterMobile === 'no' ? 'selected' : ''}>未绑定手机</option>
-        </select>
+    <div class="scene-toolbar">
+      <div class="scene-toolbar-left">
+        <div class="scene-search">
+          <input type="text" id="user-search-input" placeholder="搜索用户名、手机号或 ID..." value="${escapeHtml(state.userSearchQuery)}">
+        </div>
+        <div class="scene-filter-group">
+          <select class="scene-filter-select" id="user-filter-mobile">
+            <option value="all" ${state.userFilterMobile === 'all' ? 'selected' : ''}>全部用户</option>
+            <option value="yes" ${state.userFilterMobile === 'yes' ? 'selected' : ''}>已绑定手机</option>
+            <option value="no" ${state.userFilterMobile === 'no' ? 'selected' : ''}>未绑定手机</option>
+          </select>
+        </div>
+        <span class="meta-chip">${filtered.length} / ${state.users.length} 位用户</span>
       </div>
-      <span id="users-selected-count" class="selected-count"></span>
-      <button id="batch-delete-users-btn" class="mini-btn danger-btn" disabled data-action="batch-delete-users">批量删除</button>
-      <span class="meta-chip">${filtered.length} / ${state.users.length} 位用户</span>
+      <div class="scene-toolbar-right">
+        <div class="scene-view-toggles">
+          <button class="scene-view-toggle ${viewMode === 'card' ? 'active' : ''}" data-action="set-user-view-card" title="卡片视图">&#9638;</button>
+          <button class="scene-view-toggle ${viewMode === 'table' ? 'active' : ''}" data-action="set-user-view-table" title="列表视图">&#9776;</button>
+        </div>
+        <span id="users-selected-count" class="selected-count"></span>
+        <button id="batch-delete-users-btn" class="mini-btn danger-btn" disabled data-action="batch-delete-users">批量删除</button>
+      </div>
     </div>
   `;
 
-  panelBody.innerHTML = `
-    ${detail}
+  if (filtered.length === 0 && !detail) {
+    panelBody.innerHTML = `
+      ${detail}
+      <div class="scene-empty">
+        <div class="scene-empty-icon">${state.userSearchQuery ? '🔍' : '👥'}</div>
+        <div class="scene-empty-title">${state.userSearchQuery ? '没有匹配的用户' : '暂无用户'}</div>
+      </div>
+    `;
+  } else if (viewMode === 'table') {
+    panelBody.innerHTML = detail + renderUserTable(filtered);
+  } else {
+    panelBody.innerHTML = detail + renderUserCards(filtered);
+  }
+}
+
+function renderUserCards(users) {
+  return `
+    <div class="scene-list-header">
+      <div class="scene-list-header-left">
+        <label class="checkbox-cell"><input type="checkbox" id="select-all-users"></label>
+        <span class="scene-list-count">共 <strong>${users.length}</strong> 位用户</span>
+      </div>
+    </div>
+    <div class="card-grid">
+      ${users.map((user) => {
+        const ms = user.memberSummary || {};
+        const cs = user.creditSummary || {};
+        const isActive = ms.isActive;
+        const loginAt = user.lastLoginAt ? user.lastLoginAt.slice(0, 10) : '-';
+        const avatarUrl = user.avatarUrl || '';
+        return `
+        <div class="user-card" data-id="${escapeHtml(user.id)}">
+          <label class="scene-card-check">
+            <input type="checkbox" class="user-checkbox" value="${escapeHtml(user.id)}">
+            <span class="scene-card-checkmark"></span>
+          </label>
+          <div class="user-card-avatar">
+            ${avatarUrl
+              ? `<img src="${escapeHtml(avatarUrl)}" onerror="this.remove();this.parentNode.innerHTML='<div class=\\'avatar-placeholder\\'>${(user.displayName || 'U')[0]}</div>'">`
+              : `<div class="avatar-placeholder">${(user.displayName || 'U')[0]}</div>`}
+          </div>
+          <div class="user-card-body">
+            <strong class="scene-card-title">${escapeHtml(user.displayName || user.id)}</strong>
+            <div class="scene-card-meta">
+              <span>${user.mobileVerified ? escapeHtml(user.mobile || '-') : '未绑定'}</span>
+              <span class="scene-card-meta-dot"></span>
+              <span>${loginAt}</span>
+            </div>
+            <div class="scene-card-tags">
+              ${isActive ? '<span class="scene-tag scene-tag--member">会员</span>' : ''}
+              ${user.status === 'blocked' ? '<span class="scene-tag scene-tag--private">封禁</span>' : ''}
+              ${user.role === 'admin' || user.role === 'super_admin' ? '<span class="scene-tag scene-tag--public">Admin</span>' : ''}
+              <span class="scene-tag scene-tag--free">${cs.sceneGenerateBalance || 0} 积分</span>
+            </div>
+            <div class="scene-card-actions">
+              <button class="mini-btn" data-action="user-detail" data-id="${escapeHtml(user.id)}">详情</button>
+            </div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>
+  `;
+}
+
+function renderUserTable(users) {
+  return `
     <div class="table">
       <div class="table-head">
         <label class="checkbox-cell"><input type="checkbox" id="select-all-users"></label>
@@ -398,28 +572,30 @@ function renderUsers() {
         <span>手机号</span>
         <span>角色</span>
         <span>会员</span>
-        <span>状态</span>
+        <span>注册时间</span>
+        <span>最后登录</span>
         <span>操作</span>
       </div>
-      ${filtered.map((user) => `
+      ${users.map((user) => {
+        const loginAt = user.lastLoginAt ? user.lastLoginAt.slice(0, 10) : '-';
+        const regAt = user.createdAt ? user.createdAt.slice(0, 10) : '-';
+        return `
         <div class="table-row">
           <label class="checkbox-cell"><input type="checkbox" class="user-checkbox" value="${escapeHtml(user.id)}"></label>
           <strong>${escapeHtml(user.displayName || user.id)}<br><small>${escapeHtml(user.id)}</small></strong>
           <span>${user.mobileVerified ? escapeHtml(user.mobile || '-') : '<em style="opacity:.4">未绑定</em>'}</span>
           <span>${escapeHtml(user.role || 'user')}</span>
           <span>${user.memberSummary && user.memberSummary.isActive ? '已开通' : '未开通'}</span>
-          <span>${escapeHtml(user.status || 'active')}</span>
+          <span>${regAt}</span>
+          <span>${loginAt}</span>
           <span class="action-group">
             <button class="mini-btn" data-action="user-detail" data-id="${escapeHtml(user.id)}">详情</button>
-            ${user.isAdmin
-              ? `<button class="mini-btn" data-action="user-revoke-admin" data-id="${escapeHtml(user.id)}">撤销 Admin</button>`
-              : `<button class="mini-btn success-btn" data-action="user-grant-admin" data-id="${escapeHtml(user.id)}">设为 Admin</button>`}
             ${user.status === 'blocked'
               ? `<button class="mini-btn success-btn" data-action="user-unblock" data-id="${escapeHtml(user.id)}">解封</button>`
               : `<button class="mini-btn danger-btn" data-action="user-block" data-id="${escapeHtml(user.id)}">封禁</button>`}
           </span>
-        </div>
-      `).join('')}
+        </div>`;
+      }).join('')}
     </div>
   `;
 }
@@ -2351,7 +2527,12 @@ async function handleAction(action, id) {
   }
   if (action === 'user-detail') {
     state.selectedUser = await api(`/api/admin/users/${id}`);
-    renderCurrentView();
+    renderUsers();
+    return;
+  }
+  if (action === 'user-close-detail') {
+    state.selectedUser = null;
+    renderUsers();
     return;
   }
   if (action === 'user-block') {
@@ -2633,6 +2814,16 @@ async function handleAction(action, id) {
   if (action === 'set-draft-view-table') {
     state.draftViewMode = 'table';
     renderDrafts();
+    return;
+  }
+  if (action === 'set-user-view-card') {
+    state.userViewMode = 'card';
+    renderUsers();
+    return;
+  }
+  if (action === 'set-user-view-table') {
+    state.userViewMode = 'table';
+    renderUsers();
     return;
   }
   if (action === 'draft-close-publish') {
@@ -2938,6 +3129,15 @@ panelHead.addEventListener('input', (event) => {
       input.setSelectionRange(input.value.length, input.value.length);
     }
   }
+  if (event.target.id === 'user-search-input') {
+    state.userSearchQuery = event.target.value;
+    renderUsers();
+    const input = document.getElementById('user-search-input');
+    if (input) {
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+    }
+  }
 });
 
 // Global delegated events: modal, batch bar, close dropdowns
@@ -3105,7 +3305,7 @@ document.addEventListener('click', async (event) => {
     return;
   }
   if (action === 'pscene-select-owner') {
-    const ownerId = button.dataset.ownerId;
+    const ownerId = event.target.dataset.ownerId;
     state.privateSceneSelectedOwnerId = ownerId;
     state.privateSceneUserSearch = resolveOwnerName(ownerId);
     const dropdown = document.getElementById('pscene-user-dropdown');

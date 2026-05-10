@@ -286,6 +286,10 @@ pub async fn batch_delete_scenes(
         return Ok(response::success(json!({"count": 0})));
     }
     let count = crate::db::scenes::batch_delete_scenes(&state.pool, &body.scene_ids).await?;
+
+    // 清理存储文件（best-effort，失败不影响响应）
+    crate::api::my_scenes::cleanup_scene_files(&state, &body.scene_ids).await;
+
     Ok(response::success(json!({"count": count})))
 }
 
