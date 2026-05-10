@@ -7,13 +7,15 @@
     <view class="brand-copy">
       <text class="brand-tag">ENGLISH SCENE CLUB</text>
       <text class="brand-title">远思场景融合</text>
-      <text class="brand-subtitle">将孩子日常制作成定制英语学习卡片，孩子们每天都会重复经历这些熟悉的生活场景。持续使用一年，英语场景与母语场景自然融合，她（他）将获得无限接近母语的英语思维。</text>
+      <text class="brand-subtitle"></text>
     </view>
 
     <view class="hero-card">
-      <view class="hero-badge">微信小程序账号</view>
-      <text class="hero-title">一键登录</text>
-      <text class="hero-desc">使用当前微信身份登录。首次进入会自动创建平台用户，后续订单、会员权益和私人场景都会绑定到同一个账号。</text>
+      <view class="hero-badge">中英双语融合</view>
+      <text class="hero-title">自然重复-场景记忆</text>
+      <!--<text class="hero-desc">使用当前微信身份登录。首次进入会自动创建平台用户，后续订单、会员权益和私人场景都会绑定到同一个账号。</text>-->
+      <text class="hero-desc">将孩子日常制作成定制英语学习卡片，孩子们每天都会重复经历这些熟悉的生活场景。持续使用一年，英语场景与母语场景自然融合，她（他）将获得无限接近母语的英语思维。</text>
+
 
       <view wx:if="{{me}}" class="current-user-card">
         <view class="current-user-head">
@@ -53,8 +55,8 @@
       </view>
 
       <view class="benefit-list">
-        <view class="benefit-pill">真实微信登录</view>
-        <view class="benefit-pill">包年会员购买</view>
+        <view class="benefit-pill">积分永不过期</view>
+        <view class="benefit-pill">无限次导出视频</view>
         <view class="benefit-pill">订单与积分同步</view>
       </view>
 
@@ -75,7 +77,9 @@
 
       <text wx:if="{{errorMessage}}" class="error-text">{{errorMessage}}</text>
       <text wx:if="{{profileMessage}}" class="success-text">{{profileMessage}}</text>
-      <text class="agreement-copy">继续即表示你将使用当前微信身份登录，并在支付后自动绑定会员订单与积分权益。</text>
+      <view style="text-align:center;width:100%">
+  <text class="agreement-copy">建议绑定手机获取老用户续费六折权益</text>
+</view>
     </view>
   </view>
 </view>
