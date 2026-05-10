@@ -752,3 +752,80 @@
   border-color: rgba(180, 140, 20, 0.85);
   background: rgba(255, 194, 71, 0.12);
 }
+
+/* ===== Export progress overlay ===== */
+.export-progress-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 9999;
+}
+
+.export-progress-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24rpx;
+  padding: 48rpx 56rpx;
+  background: rgba(20, 20, 28, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 28rpx;
+  backdrop-filter: blur(24rpx);
+  -webkit-backdrop-filter: blur(24rpx);
+}
+
+.export-spinner {
+  position: relative;
+  width: 140rpx;
+  height: 140rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.export-spinner-ring {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  border: 6rpx solid rgba(255, 255, 255, 0.1);
+  border-top-color: #6c5ce7;
+  animation: export-spin 0.8s linear infinite;
+}
+
+@keyframes export-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.export-spinner-text {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.export-progress-msg {
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.56);
+}
+
+.page-root.theme-notion .export-progress-card {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(0, 0, 0, 0.08);
+}
+
+.page-root.theme-notion .export-spinner-ring {
+  border-color: rgba(108, 92, 231, 0.12);
+  border-top-color: #6c5ce7;
+}
+
+.page-root.theme-notion .export-spinner-text {
+  color: rgba(0, 0, 0, 0.82);
+}
+
+.page-root.theme-notion .export-progress-msg {
+  color: rgba(0, 0, 0, 0.45);
+}

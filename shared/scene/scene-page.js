@@ -459,10 +459,15 @@ function createScenePage(sceneData) {
     },
 
     _showExportProgressDialog() {
-      wx.showLoading({
-        title: '导出中 0%',
-        mask: true
+      this.setData({
+        showExportProgress: true,
+        exportProgress: 0,
+        exportMessage: '准备中...',
       });
+    },
+
+    _hideExportProgressDialog() {
+      this.setData({ showExportProgress: false });
     },
 
     async _pollExportStatus(jobId) {
@@ -479,7 +484,7 @@ function createScenePage(sceneData) {
           console.log('[video-export] poll:', JSON.stringify({ status, progress, videoUrl: data.videoUrl ? 'has-url' : 'empty' }));
 
           if (status === 'completed') {
-            wx.hideLoading();
+            this._hideExportProgressDialog();
             this._exporting = false;
             wx.showToast({ title: '导出完成', icon: 'success' });
             setTimeout(() => {
@@ -489,7 +494,7 @@ function createScenePage(sceneData) {
           }
 
           if (status === 'failed') {
-            wx.hideLoading();
+            this._hideExportProgressDialog();
             this._exporting = false;
             wx.showModal({
               title: '导出失败',
@@ -499,18 +504,17 @@ function createScenePage(sceneData) {
             return;
           }
 
-          // Still processing - update loading title
-          wx.hideLoading();
-          wx.showLoading({
-            title: `导出中 ${progress}%`,
-            mask: true
+          // Still processing - update progress via setData (no flicker)
+          this.setData({
+            exportProgress: progress,
+            exportMessage: message || '导出视频中...',
           });
 
           retries++;
           if (retries < maxRetries) {
             setTimeout(poll, 1000);
           } else {
-            wx.hideLoading();
+            this._hideExportProgressDialog();
             this._exporting = false;
             wx.showToast({ title: '导出超时，请稍后重试', icon: 'none', duration: 3000 });
           }
@@ -519,7 +523,7 @@ function createScenePage(sceneData) {
           if (retries < maxRetries) {
             setTimeout(poll, 2000);
           } else {
-            wx.hideLoading();
+            this._hideExportProgressDialog();
             this._exporting = false;
             wx.showToast({ title: '查询状态失败', icon: 'none' });
           }

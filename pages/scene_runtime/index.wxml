@@ -193,6 +193,17 @@
     </view>
   </view>
 
+  <!-- Export progress overlay -->
+  <view wx:if="{{showExportProgress}}" class="export-progress-overlay">
+    <view class="export-progress-card">
+      <view class="export-spinner">
+        <view class="export-spinner-ring"></view>
+        <text class="export-spinner-text">{{exportProgress}}%</text>
+      </view>
+      <text class="export-progress-msg">{{exportMessage || '导出视频中...'}}</text>
+    </view>
+  </view>
+
   <phone-bind-modal
     visible="{{showPhoneBindModal}}"
     theme="{{theme}}"
