@@ -9,6 +9,9 @@
         <text class="profile-badge {{me.memberSummary.isActive ? 'badge-tier badge-' + me.memberSummary.entitlementCode : 'badge-inactive'}}">{{memberTierLabel}}</text>
         <text class="profile-meta theme-{{theme}}">积分：{{me.creditSummary.sceneGenerateBalance || 0}}</text>
       </view>
+      <view wx:if="{{!me.memberSummary.isActive && me.creditSummary.sceneGenerateBalance > 0}}" class="profile-meta-row" style="margin-top: 8rpx;">
+        <text class="profile-meta theme-{{theme}}" style="color: #fa5151;">会员已到期，还有 {{me.creditSummary.sceneGenerateBalance}} 积分待使用，续费后可继续</text>
+      </view>
       <view class="profile-meta-row" style="margin-top: 8rpx;">
         <text class="profile-meta theme-{{theme}}" wx:if="{{maskedMobile}}">📱 {{maskedMobile}}</text>
         <button wx:else class="btn-bind-phone theme-{{theme}}" open-type="getPhoneNumber" bindgetphonenumber="onGetPhoneNumber">绑定手机号</button>

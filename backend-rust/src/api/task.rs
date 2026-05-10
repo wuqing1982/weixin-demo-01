@@ -37,6 +37,12 @@ pub async fn create_scene_generate_task(
     auth: AuthUser,
     Json(body): Json<SceneGenerateRequest>,
 ) -> Result<Json<Value>, AppError> {
+    // Check active membership
+    let membership = db::credits::get_membership_summary(&state.pool, &auth.user_id).await?;
+    if !membership.is_active {
+        return Err(AppError::Forbidden("会员已到期，请续费后继续使用".into()));
+    }
+
     // Check and deduct scene generation credit
     let balance = db::credits::get_scene_credit_balance(&state.pool, &auth.user_id).await?;
     if balance < 1 {

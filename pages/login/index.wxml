@@ -23,6 +23,7 @@
             <text class="current-user-label">当前登录用户</text>
             <text class="current-user-name">{{me.displayName || '微信用户'}}</text>
             <text class="current-user-meta">{{me.isAdmin ? 'Admin · ' : ''}}<text class="login-tier-badge {{me.memberSummary.isActive ? 'badge-tier badge-' + me.memberSummary.entitlementCode : 'badge-inactive'}}">{{memberTierLabel}}</text> · 积分：{{me.creditSummary.sceneGenerateBalance || 0}}</text>          </view>
+          <text wx:if="{{!me.memberSummary.isActive && me.creditSummary.sceneGenerateBalance > 0}}" class="current-user-meta" style="color: #fa5151;">会员已到期，还有 {{me.creditSummary.sceneGenerateBalance}} 积分待使用，续费后可继续</text>
         </view>
         <view class="profile-sync-panel">
           <view class="profile-sync-row">

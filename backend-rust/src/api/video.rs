@@ -24,6 +24,12 @@ pub async fn export_video(
         .await?
         .ok_or_else(|| AppError::NotFound("scene not found".into()))?;
 
+    // Check active membership
+    let membership = db::credits::get_membership_summary(&state.pool, &auth.user_id).await?;
+    if !membership.is_active {
+        return Err(AppError::Forbidden("会员已到期，请续费后继续使用".into()));
+    }
+
     // Permission check: only admin or scene owner can export video
     let is_admin = auth.role == "admin";
     let is_owner = scene.owner_id.as_deref() == Some(&auth.user_id);
